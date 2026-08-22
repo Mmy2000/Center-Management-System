@@ -23,7 +23,10 @@ env = environ.Env(
     TIME_ZONE=(str, "Africa/Cairo"),
     LANGUAGE_CODE=(str, "ar"),
 )
-environ.Env.read_env(BASE_DIR / ".env")
+# Optional: dev uses it, and cms.settings.pythonanywhere deliberately does not.
+# Reading a missing file logs a warning that reads like an error in a host's log.
+if (BASE_DIR / ".env").exists():
+    environ.Env.read_env(BASE_DIR / ".env")
 
 SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")

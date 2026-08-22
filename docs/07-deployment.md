@@ -54,7 +54,7 @@ cms/settings/
 ├── base.py     shared; reads env via django-environ
 ├── dev.py      DEBUG=True, SQLite or local Postgres, console mail, django-debug-toolbar
 ├── prod.py     DEBUG=False (asserted), Postgres, Redis cache+sessions, security headers, Sentry
-├── pythonanywhere.py  free-tier host: SQLite, locmem, PythonAnywhere-served static (§L.9)
+├── pythonanywhere.py  free-tier host: self-contained, no env at all (§L.9)
 └── test.py     fast hashers, in-memory locmem cache, Postgres for CI
 ```
 Environment variables: `DJANGO_SETTINGS_MODULE`, `SECRET_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `DATABASE_URL`, `REDIS_URL`, `SENTRY_DSN`, `TIME_ZONE=Africa/Cairo`, `LANGUAGE_CODE=ar`, `MEDIA_ROOT`, `BACKUP_*`. `.env` is never committed; a committed `.env.example` documents every key.
@@ -120,15 +120,29 @@ there: SQLite, the local-memory cache, PythonAnywhere's own static mapping.
 Good enough for one center working on one screen; §L.1 still applies the moment
 a scanning station and a cashier work at the same time.
 
-Two things about this host cause most of the failed deploys:
+**It needs no `.env` and no environment variables.** The web worker inherits
+nothing from your Bash console — not your exports, not virtualenvwrapper's —
+which is the single most common way a deploy here fails. So every value is
+written in the module itself, the way Django's own generated `settings.py` does
+it. Editing two lines at the top is the whole configuration:
 
-- **The web worker inherits nothing from your Bash console.** Anything you
-  `export`ed, or that virtualenvwrapper set, is invisible to it. Every setting
-  must be in the `.env` file next to `manage.py` — which is why the settings
-  module refuses to start when that file is missing.
-- **The virtualenv Python must be 3.12+ and must match the Web tab dropdown.**
-  Django 6.1 does not run on 3.10, and PythonAnywhere still offers older
-  interpreters by default.
+```python
+USERNAME = "Mmy"        # site is <USERNAME>.pythonanywhere.com
+FORCE_HTTPS = False     # see below
+```
+
+`ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS` are derived from `USERNAME`, so the
+blank 400 and the CSRF failure cannot happen from a typo in two places.
+
+The one thing the module cannot fix for you: **the virtualenv Python must be
+3.12+ and must match the Web tab dropdown.** Django 6.1 does not run on 3.10,
+and PythonAnywhere still offers older interpreters by default — so the module
+refuses to start on one, with the command to rebuild it.
+
+`SECRET_KEY` ships in the file, which means it is in your repository and anyone
+who can read the code can forge a session cookie. Replace it once after the
+first deploy (the comment above it has the command); changing it only signs
+everyone out.
 
 ### Steps
 
@@ -137,14 +151,10 @@ Two things about this host cause most of the failed deploys:
 git clone <repo> ~/Center_Management_System && cd ~/Center_Management_System
 mkvirtualenv --python=/usr/bin/python3.13 cms      # Django 6.1 needs 3.12+
 pip install -r requirements/pythonanywhere.txt
+python -c "import django; print(django.__version__)"   # must print 6.1
 
-cat > .env <<'ENV'
-DJANGO_SETTINGS_MODULE=cms.settings.pythonanywhere
-SECRET_KEY=<python -c "from django.core.management.utils import get_random_secret_key as k; print(k())">
-DEBUG=False
-ALLOWED_HOSTS=<username>.pythonanywhere.com
-ENV
-
+# Edit USERNAME at the top of cms/settings/pythonanywhere.py, then:
+export DJANGO_SETTINGS_MODULE=cms.settings.pythonanywhere   # this console only
 python manage.py migrate
 python manage.py seed_roles && python manage.py seed_settings
 python manage.py createsuperuser
@@ -152,6 +162,10 @@ python manage.py collectstatic --noinput
 python manage.py extract_messages -l en --compile   # only if locale/en/…/django.mo is missing
 python manage.py check --deploy
 ```
+
+`check --deploy` reports four HTTPS warnings while `FORCE_HTTPS = False`; they
+clear when you turn it on, except the HSTS one, which is off on purpose — HSTS
+is a year-long promise, not something to make on a free subdomain.
 
 **Web tab** → *Add a new web app* → *Manual configuration* (not the Django
 wizard: it writes its own project).
@@ -178,8 +192,9 @@ application = get_wsgi_application()
   and `/media/` → `/home/<username>/Center_Management_System/media`
 - **Reload** the web app. Errors land in the *Error log* on the same tab.
 
-Turn on *Force HTTPS* in the Web tab, then add `FORCE_HTTPS=True` to `.env` and
-reload. In that order — the flag alone, without the toggle, loops the browser.
+Turn on *Force HTTPS* in the Web tab, then set `FORCE_HTTPS = True` in
+`cms/settings/pythonanywhere.py` and reload. In that order — the flag alone,
+without the toggle, loops the browser.
 
 ### What the free tier costs you
 
@@ -198,10 +213,10 @@ no Chromium, so PDF export works on the free tier exactly as it does locally.
 
 | What you see | What it is |
 |---|---|
-| `Bad Request (400)`, blank page | `ALLOWED_HOSTS` does not contain the host you typed. `DEBUG=False` gives no other clue; the error log says `Invalid HTTP_HOST header`. |
-| `SECRET_KEY setting must not be empty` | No `.env` at the project root, or the web app's *Source code* path points somewhere else. Console `export`s do not reach the worker. |
+| `Bad Request (400)`, blank page | `USERNAME` does not match the host you typed, or the WSGI file is on the wrong settings module. `DEBUG=False` gives no other clue; the error log says `Invalid HTTP_HOST header`. |
+| `SECRET_KEY setting must not be empty` | The WSGI file is not pointing at `cms.settings.pythonanywhere` — it fell back to `base`/`dev`, which read the environment the worker does not have. |
 | `ImproperlyConfigured: … Python 3.12+` | The virtualenv was built with an older interpreter. Rebuild it and change the Web tab's Python version to match. |
 | `ModuleNotFoundError: cms` | The WSGI file never added the project directory to `sys.path`, or added the wrong one. |
 | Pages load unstyled | `collectstatic` was not run, or the `/static/` mapping does not point at `staticfiles/`. |
-| Endless redirect | `FORCE_HTTPS=True` without *Force HTTPS* enabled in the Web tab. |
+| Endless redirect | `FORCE_HTTPS = True` in the module without *Force HTTPS* enabled in the Web tab. |
 | `pip install -r requirements.txt` reads as garbage | The frozen file was written by PowerShell as UTF-16. Use `requirements/pythonanywhere.txt`. |
