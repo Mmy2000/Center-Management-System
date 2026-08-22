@@ -54,7 +54,7 @@ cms/settings/
 ├── base.py     shared; reads env via django-environ
 ├── dev.py      DEBUG=True, SQLite or local Postgres, console mail, django-debug-toolbar
 ├── prod.py     DEBUG=False (asserted), Postgres, Redis cache+sessions, security headers, Sentry
-├── pythonanywhere.py  free-tier host: self-contained, no env at all (§L.9)
+├── pythonanywhere.py  free-tier host: standalone, no base import, no env (§L.9)
 └── test.py     fast hashers, in-memory locmem cache, Postgres for CI
 ```
 Environment variables: `DJANGO_SETTINGS_MODULE`, `SECRET_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `DATABASE_URL`, `REDIS_URL`, `SENTRY_DSN`, `TIME_ZONE=Africa/Cairo`, `LANGUAGE_CODE=ar`, `MEDIA_ROOT`, `BACKUP_*`. `.env` is never committed; a committed `.env.example` documents every key.
@@ -120,11 +120,12 @@ there: SQLite, the local-memory cache, PythonAnywhere's own static mapping.
 Good enough for one center working on one screen; §L.1 still applies the moment
 a scanning station and a cashier work at the same time.
 
-**It needs no `.env` and no environment variables.** The web worker inherits
-nothing from your Bash console — not your exports, not virtualenvwrapper's —
-which is the single most common way a deploy here fails. So every value is
-written in the module itself, the way Django's own generated `settings.py` does
-it. Editing two lines at the top is the whole configuration:
+**It is one standalone file: no `.env`, no environment variables, and no
+import from `base.py`.** The web worker inherits nothing from your Bash console
+— not your exports, not virtualenvwrapper's — which is the single most common
+way a deploy here fails. So every value is written in the module itself, the way
+Django's own generated `settings.py` does it. Editing two lines at the top is
+the whole configuration:
 
 ```python
 USERNAME = "Mmy"        # site is <USERNAME>.pythonanywhere.com
@@ -133,6 +134,11 @@ FORCE_HTTPS = False     # see below
 
 `ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS` are derived from `USERNAME`, so the
 blank 400 and the CSRF failure cannot happen from a typo in two places.
+
+Standing alone costs one thing: it can fall behind `base.py` — a new app, a new
+middleware, a new context processor. `apps/core/tests/test_settings_pythonanywhere.py`
+compares the 34 shared settings and fails the build when the two disagree, so
+the copy cannot rot silently. Anything that changes in `base.py` goes here too.
 
 The one thing the module cannot fix for you: **the virtualenv Python must be
 3.12+ and must match the Web tab dropdown.** Django 6.1 does not run on 3.10,
