@@ -1,4 +1,4 @@
-Django==6.1
+Django==5.1
 django-environ==0.14.0
 Pillow==12.3.0
 qrcode==8.2
