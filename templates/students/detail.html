@@ -82,7 +82,6 @@
             </tr>
           </thead>
           <tbody id="assignments-active">
-            <tr><td colspan="5" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
           </tbody>
         </table>
       </div>
@@ -135,7 +134,6 @@
             </tr>
           </thead>
           <tbody id="attendance-body">
-            <tr><td colspan="9" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
           </tbody>
         </table>
       </div>
@@ -167,7 +165,6 @@
             </tr>
           </thead>
           <tbody id="charges-body">
-            <tr><td colspan="6" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
           </tbody>
         </table>
       </div>
@@ -213,7 +210,6 @@
             </tr>
           </thead>
           <tbody id="cards-timeline">
-            <tr><td colspan="5" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
           </tbody>
         </table>
       </div>
@@ -238,9 +234,8 @@ const CHARGE_STATUS_CLASS = {
   OVERPAID: "info", WAIVED: "secondary", CANCELLED: "dark"
 };
 
-async function loadFinancials() {
-  const chargesBody = document.getElementById("charges-body");
-  try {
+function loadFinancials() {
+  return ui.table("charges-body", async function (chargesBody, columns) {
     const summary = await http.get("/api/students/" + STUDENT_ID + "/financial-summary/");
     const data = summary.data;
     document.getElementById("fin-totals").innerHTML =
@@ -257,10 +252,11 @@ async function loadFinancials() {
             '<td><span class="badge text-bg-' + (CHARGE_STATUS_CLASS[c.status] || "secondary") + '">' + c.status_display + "</span></td>" +
             "</tr>";
         }).join("")
-      : ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("لا توجد رسوم") + '</td></tr>');
+      : ui.emptyRow(columns, gettext("لا توجد رسوم"), "payments");
 
-    const ledger = await http.get("/api/students/" + STUDENT_ID + "/payments/");
-    document.getElementById("ledger-body").innerHTML = ledger.data.results.length
+    await ui.table("ledger-body", async function (ledgerBody, ledgerColumns) {
+      const ledger = await http.get("/api/students/" + STUDENT_ID + "/payments/");
+      ledgerBody.innerHTML = ledger.data.results.length
       ? ledger.data.results.map(function (p) {
           return "<tr><td><code>" + p.receipt_number + "</code></td><td>" + p.paid_at + "</td>" +
             '<td><span class="badge text-bg-' + (p.kind === "REFUND" ? "danger" : "success") + '">' + p.kind_display + "</span></td>" +
@@ -268,10 +264,9 @@ async function loadFinancials() {
             '<td class="text-end"><button class="btn btn-sm btn-soft-secondary btn-icon js-receipt" data-id="' + p.id + '">' +
             ui.icon("download") + (gettext("إيصال") + '</button></td></tr>');
         }).join("")
-      : ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("لا توجد حركات") + '</td></tr>');
-  } catch (error) {
-    chargesBody.innerHTML = ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("تعذر التحميل") + '</td></tr>');
-  }
+      : ui.emptyRow(ledgerColumns, gettext("لا توجد حركات"), "payments");
+    });
+  });
 }
 loadFinancials();
 
@@ -287,12 +282,11 @@ const ATT_TYPE_CLASS = {
 };
 let attPage = 1;
 
-async function loadAttendance() {
-  const body = document.getElementById("attendance-body");
+function loadAttendance() {
   const params = new URLSearchParams({ page: attPage });
   const type = document.getElementById("att-type").value;
   if (type) { params.set("type", type); }
-  try {
+  return ui.table("attendance-body", async function (body, columns) {
     const result = await http.get("/api/students/" + STUDENT_ID + "/attendance/?" + params.toString());
     const data = result.data;
     body.innerHTML = data.results.length
@@ -310,24 +304,22 @@ async function loadAttendance() {
               (a.is_manual ? (' <span class="badge text-bg-light" title="' + gettext("تعديل يدوي") + '">✎</span>') : "") + "</td>" +
             "<td>" + a.status_display + "</td></tr>";
         }).join("")
-      : ('<tr><td colspan="9" class="text-center text-muted py-4">' + gettext("لا يوجد سجل حضور") + '</td></tr>');
+      : ui.emptyRow(columns, gettext("لا يوجد سجل حضور"), "lessons");
     document.getElementById("att-count").textContent =
       (gettext("إجمالي") + " ") + data.count + (" " + gettext("— صفحة") + " ") + data.page + (" " + gettext("من") + " ") + data.pages;
     document.getElementById("att-prev").disabled = !data.has_previous;
     document.getElementById("att-next").disabled = !data.has_next;
-  } catch (error) {
-    body.innerHTML = ('<tr><td colspan="9" class="text-center text-muted py-4">' + gettext("تعذر التحميل") + '</td></tr>');
-  }
+  });
 }
 document.getElementById("att-type").addEventListener("change", function () { attPage = 1; loadAttendance(); });
 document.getElementById("att-prev").addEventListener("click", function () { if (attPage > 1) { attPage -= 1; loadAttendance(); } });
 document.getElementById("att-next").addEventListener("click", function () { attPage += 1; loadAttendance(); });
 loadAttendance();
 
-async function loadAssignments() {
-  const active = document.getElementById("assignments-active");
+function loadAssignments() {
   const history = document.getElementById("assignments-history");
-  try {
+  ui.skeletonRows(history, ui.columnsOf(history), 2);
+  return ui.table("assignments-active", async function (active, columns) {
     const result = await http.get("/api/students/" + STUDENT_ID + "/assignments/");
     const data = result.data;
     document.getElementById("monthly-total").textContent =
@@ -345,7 +337,7 @@ async function loadAssignments() {
               ('<button class="btn btn-sm btn-soft-danger js-end">' + gettext("إنهاء") + '</button>') +
             "</td></tr>";
         }).join("")
-      : ('<tr><td colspan="5" class="text-center text-muted py-4">' + gettext("لا توجد اشتراكات") + '</td></tr>');
+      : ui.emptyRow(columns, gettext("لا توجد اشتراكات"), "groups");
 
     history.innerHTML = data.history.length
       ? data.history.map(function (a) {
@@ -353,10 +345,8 @@ async function loadAssignments() {
             "<td>" + a.start_date + "</td><td>" + (a.end_date || "—") + "</td>" +
             "<td>" + a.status_display + "</td><td>" + (a.end_reason || "—") + "</td></tr>";
         }).join("")
-      : ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("لا يوجد سجل") + '</td></tr>');
-  } catch (error) {
-    app.handleError(error);
-  }
+      : ui.emptyRow(ui.columnsOf(history), gettext("لا يوجد سجل"), "groups");
+  });
 }
 loadAssignments();
 
@@ -452,9 +442,8 @@ document.getElementById("assignments-active").addEventListener("click", async fu
   }
 });
 
-async function loadCards() {
-  const body = document.getElementById("cards-timeline");
-  try {
+function loadCards() {
+  return ui.table("cards-timeline", async function (body, columns) {
     const result = await http.get("/api/students/" + STUDENT_ID + "/cards/");
     const rows = result.data.results;
     body.innerHTML = rows.length
@@ -471,10 +460,8 @@ async function loadCards() {
                 row.card.id + '">' + ui.icon("download") + (gettext("طباعة") + "</button>")
               : "") + "</td></tr>";
         }).join("")
-      : ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("لا توجد بطاقات") + '</td></tr>');
-  } catch (error) {
-    body.innerHTML = ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("تعذر التحميل") + '</td></tr>');
-  }
+      : ui.emptyRow(columns, gettext("لا توجد بطاقات"), "cards");
+  });
 }
 loadCards();
 

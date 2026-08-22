@@ -7,6 +7,15 @@
     return match ? decodeURIComponent(match[2]) : null;
   }
 
+  /* Every request announces itself so the top progress bar (ui.js) can show
+     without any page wiring it up. Events rather than a direct call: http.js
+     loads first and must not depend on ui.js being there. */
+  function announce(name, options) {
+    // options.quiet: a background poll should not flicker the bar every tick.
+    if (options && options.quiet) { return; }
+    document.dispatchEvent(new CustomEvent(name));
+  }
+
   async function request(method, url, body, options) {
     options = options || {};
     const headers = Object.assign(
@@ -31,7 +40,13 @@
       init.body = body instanceof FormData ? body : JSON.stringify(body);
     }
 
-    const response = await fetch(url, init);
+    announce("http:start", options);
+    let response;
+    try {
+      response = await fetch(url, init);
+    } finally {
+      announce("http:end", options);
+    }
     const contentType = response.headers.get("Content-Type") || "";
 
     if (!contentType.includes("application/json")) {
@@ -57,10 +72,16 @@
     del: (url, body, options) => request("DELETE", url, body, options),
     /* Fetch a server-rendered HTML fragment. */
     html: async function (url) {
-      const response = await fetch(url, {
-        headers: { "X-Requested-With": "XMLHttpRequest" },
-        credentials: "same-origin"
-      });
+      announce("http:start");
+      let response;
+      try {
+        response = await fetch(url, {
+          headers: { "X-Requested-With": "XMLHttpRequest" },
+          credentials: "same-origin"
+        });
+      } finally {
+        announce("http:end");
+      }
       if (!response.ok) {
         throw { ok: false, code: "ERR_HTTP_" + response.status, message: response.statusText };
       }

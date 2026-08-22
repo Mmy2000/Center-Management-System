@@ -146,7 +146,8 @@
         <div class="table-responsive">
           <table class="table table-sm table-compact align-middle mb-0">
             <thead class="table-light" id="report-head"></thead>
-            <tbody id="report-body">
+            {# Header comes from the API, so the skeleton is told its width here. #}
+            <tbody id="report-body" data-columns="5">
               <tr><td class="text-center text-muted py-4">{% translate "اضغط عرض لتشغيل التقرير" %}</td></tr>
             </tbody>
             <tfoot class="table-light fw-semibold" id="report-foot"></tfoot>
@@ -174,12 +175,11 @@ function currentFilters() {
   return params;
 }
 
-async function run() {
-  const body = document.getElementById("report-body");
-  body.innerHTML = ('<tr><td class="text-center text-muted py-4">' + gettext("جارٍ التحميل…") + '</td></tr>');
-  try {
+function run() {
+  return ui.table("report-body", async function (body) {
     const result = await http.get("/api/reports/" + SLUG + "/?" + currentFilters().toString());
     const data = result.data;
+    body.dataset.columns = data.columns.length;   // next run's skeleton fits
 
     document.getElementById("report-head").innerHTML =
       "<tr>" + data.columns.map((c) => "<th>" + c.label + "</th>").join("") + "</tr>";
@@ -192,7 +192,7 @@ async function run() {
               (value === null || value === undefined || value === "" ? "—" : value) + "</td>";
           }).join("") + "</tr>";
         }).join("")
-      : '<tr><td colspan="' + data.columns.length + ('" class="text-center text-muted py-4">' + gettext("لا توجد بيانات لهذه الفلاتر") + '</td></tr>');
+      : ui.emptyRow(data.columns.length, gettext("لا توجد بيانات لهذه الفلاتر"), "reports");
 
     const totals = data.totals || {};
     document.getElementById("report-foot").innerHTML = Object.keys(totals).length
@@ -210,10 +210,7 @@ async function run() {
       note.classList.add("d-none");
     }
     document.getElementById("report-count").textContent = data.count + (" " + gettext("صف"));
-  } catch (error) {
-    app.handleError(error);
-    body.innerHTML = ('<tr><td class="text-center text-muted py-4">' + gettext("تعذر تشغيل التقرير") + '</td></tr>');
-  }
+  });
 }
 
 document.getElementById("run-report").addEventListener("click", run);

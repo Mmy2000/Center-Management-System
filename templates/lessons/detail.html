@@ -61,9 +61,8 @@
               <th></th>
             </tr>
           </thead>
-          <tbody id="attendance-body">
-            <tr><td colspan="7" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
-          </tbody>
+          {# ui.table paints the skeleton the moment the fetch starts. #}
+          <tbody id="attendance-body"></tbody>
         </table>
       </div>
     </div>
@@ -76,7 +75,7 @@
         <span class="badge text-bg-light" id="not-arrived-count">0</span>
       </div>
       <div class="card-body p-0" style="max-height:260px;overflow:auto;">
-        <table class="table table-sm mb-0"><tbody id="not-arrived-body"></tbody></table>
+        <table class="table table-sm mb-0"><tbody id="not-arrived-body" data-columns="3"></tbody></table>
       </div>
     </div>
 
@@ -97,9 +96,12 @@ const CAN_CORRECT = {{ perms.attendance.correct_attendance|yesno:"true,false" }}
 const TYPE_CLASS = { NORMAL: "secondary", ALTERNATIVE_GROUP: "warning", MAKEUP: "info", MANUAL: "dark", EXCEPTIONAL: "danger" };
 let cursor = null;
 
-async function load() {
-  try {
-    const result = await http.get("/api/lessons/" + LESSON_ID + "/attendance/");
+/* quiet: this board refreshes every 15 seconds while a lesson runs — the
+   first paint gets skeletons, the refreshes must not blink. */
+function load(options) {
+  const quiet = Boolean(options && options.quiet);
+  return ui.table("attendance-body", async function (body, columns) {
+    const result = await http.get("/api/lessons/" + LESSON_ID + "/attendance/", { quiet: quiet });
     const data = result.data;
     document.querySelectorAll("[data-counter]").forEach(function (node) {
       node.textContent = data.counters[node.dataset.counter] ?? 0;
@@ -122,7 +124,7 @@ async function load() {
             "<td>" + a.status_display + "</td>" +
             "<td class='text-end'>" + actions + "</td></tr>";
         }).join("")
-      : ('<tr><td colspan="7" class="text-center text-muted py-4">' + gettext("لا توجد تسجيلات") + '</td></tr>');
+      : ui.emptyRow(columns, gettext("لا توجد تسجيلات"), "students");
 
     document.getElementById("not-arrived-count").textContent = data.not_arrived.length;
     document.getElementById("not-arrived-body").innerHTML = data.not_arrived.length
@@ -131,14 +133,15 @@ async function load() {
             (CAN_CORRECT ? "<td class='text-end'><button class='btn btn-sm btn-soft-primary js-manual' data-student='" + s.student_id + ("'>" + gettext("تسجيل يدوي") + "</button></td>") : "<td></td>") +
             "</tr>";
         }).join("")
-      : ('<tr><td class="text-muted p-3">' + gettext("لا أحد — الجميع مسجّل") + '</td></tr>');
-  } catch (error) { app.handleError(error); }
+      : ui.emptyRow(3, gettext("لا أحد — الجميع مسجّل"), "check");
+  }, { quiet: quiet });
 }
 
 async function pollFeed() {
   try {
     const query = cursor ? "?since=" + encodeURIComponent(cursor) : "";
-    const result = await http.get("/api/lessons/" + LESSON_ID + "/feed/" + query);
+    /* Silent by design: a five-second poll behind a bar would never stop. */
+    const result = await http.get("/api/lessons/" + LESSON_ID + "/feed/" + query, { quiet: true });
     if (result.data.results.length) {
       cursor = result.data.cursor;
       document.getElementById("feed-body").innerHTML = result.data.results.map(function (e) {
@@ -227,7 +230,7 @@ document.getElementById("cancel-lesson")?.addEventListener("click", function () 
 
 load();
 pollFeed();
-setInterval(load, 15000);
+setInterval(function () { load({ quiet: true }); }, 15000);
 setInterval(pollFeed, 5000);
 </script>
 {% endblock %}

@@ -29,6 +29,27 @@
     return '<span class="num">' + text + (currency ? (" " + gettext("ج.م")) : "") + "</span>";
   }
 
+  /** Accept an element or the id of one, so callers can pass either. */
+  function node(target) {
+    return typeof target === "string" ? document.getElementById(target) : target;
+  }
+
+  /**
+   * How many columns a table body spans. Read from the header rather than made
+   * a parameter: the header is already the truth, and a caller who passes the
+   * wrong number gets a skeleton that does not line up with the real rows.
+   */
+  function columnsOf(tbody) {
+    if (!tbody) { return 1; }
+    // data-columns for the few tables that carry no header row.
+    if (tbody.dataset && tbody.dataset.columns) { return Number(tbody.dataset.columns); }
+    const table = tbody.closest("table");
+    const headers = table ? table.querySelectorAll("thead th") : [];
+    if (headers.length) { return headers.length; }
+    const firstRow = tbody.rows[0];
+    return firstRow ? firstRow.cells.length : 1;
+  }
+
   function skeletonRows(tbody, columns, rows) {
     if (!tbody) { return; }
     const count = rows || 4;
@@ -112,6 +133,122 @@
     requestAnimationFrame(step);
   }
 
+  /* ---------------------------------------------------------- loading -- */
+
+  /**
+   * Fill a table body with a loading state, run the fetch, and put an error
+   * row there if it fails:
+   *
+   *     ui.table("students-body", async function (body) {
+   *       const result = await http.get(url);
+   *       body.innerHTML = …;
+   *     });
+   *
+   * Every list screen goes through this, so "loading", "empty" and "failed"
+   * look the same everywhere and no screen can forget one of them.
+   *
+   * options.quiet skips the skeleton — for a timer that refreshes a table the
+   * user is reading, where a flash of grey bars every few seconds is worse
+   * than no feedback at all.
+   */
+  async function table(target, task, options) {
+    const tbody = node(target);
+    if (!tbody) { return task(); }
+    const columns = columnsOf(tbody);
+    if (!(options && options.quiet)) {
+      // Match the rows on screen so paging does not jolt the page height.
+      skeletonRows(tbody, columns, Math.min(8, Math.max(3, tbody.rows.length || 5)));
+    }
+    try {
+      return await task(tbody, columns);
+    } catch (error) {
+      tbody.innerHTML = errorRow(columns, error && error.message);
+      if (global.app && global.app.handleError) { global.app.handleError(error); }
+    }
+  }
+
+  /**
+   * The same contract for anything that is not a table — a stats card, a
+   * summary panel, a chart. The container is dimmed and gets a spinner
+   * through `.is-busy`; its old content stays visible underneath.
+   */
+  async function region(target, task) {
+    const box = node(target);
+    if (box) { box.classList.add("is-busy"); }
+    try {
+      return await task(box);
+    } catch (error) {
+      if (global.app && global.app.handleError) { global.app.handleError(error); }
+    } finally {
+      if (box) { box.classList.remove("is-busy"); }
+    }
+  }
+
+  /**
+   * The thin bar across the top of the window. Driven by the events http.js
+   * fires, so every request on every page shows it without a line of page
+   * code — including the ones that write, not just the ones that read.
+   */
+  const progress = (function () {
+    let pending = 0;
+    let bar = null;
+    let width = 0;
+    let timer = null;
+
+    function element() {
+      if (!bar) {
+        bar = document.createElement("div");
+        bar.className = "load-bar";
+        bar.setAttribute("aria-hidden", "true");
+        document.body.appendChild(bar);
+      }
+      return bar;
+    }
+
+    function paint() {
+      element().style.width = width + "%";
+    }
+
+    /* Creep towards 90% while waiting: the request has no progress to report,
+       and a bar that stalls at one place reads as a hang. */
+    function creep() {
+      timer = setTimeout(function () {
+        width = Math.min(90, width + Math.max(0.4, (90 - width) / 12));
+        paint();
+        creep();
+      }, 220);
+    }
+
+    function start() {
+      pending += 1;
+      if (pending > 1) { return; }
+      clearTimeout(timer);
+      element().classList.add("show");
+      width = 12;
+      paint();
+      creep();
+    }
+
+    function done() {
+      pending = Math.max(0, pending - 1);
+      if (pending) { return; }
+      clearTimeout(timer);
+      width = 100;
+      paint();
+      setTimeout(function () {
+        if (pending) { return; }          // a new request started meanwhile
+        element().classList.remove("show");
+        width = 0;
+        paint();
+      }, 240);
+    }
+
+    return { start, done };
+  })();
+
+  document.addEventListener("http:start", progress.start);
+  document.addEventListener("http:end", progress.done);
+
   /** Put a button into a loading state and restore it when the promise settles. */
   async function withBusy(button, task) {
     if (!button) { return task(); }
@@ -150,6 +287,7 @@
 
   global.ui = {
     esc, icon, badge, money, skeletonRows, emptyRow, errorRow,
-    renderRows, countTo, withBusy, pager
+    renderRows, countTo, withBusy, pager,
+    columnsOf, table, region, progress
   };
 })(window);

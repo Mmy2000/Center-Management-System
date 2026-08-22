@@ -30,11 +30,11 @@
       <div class="stat-label">{% translate "السعة" %}</div></div>
   </div>
   <div class="col-6 col-lg-3">
-    <div class="stat-tile"><div class="stat-value" id="stat-students">—</div>
+    <div class="stat-tile"><div class="stat-value" id="stat-students"><span class="skeleton skeleton-num"></span></div>
       <div class="stat-label">{% translate "عدد الطلاب" %}</div></div>
   </div>
   <div class="col-6 col-lg-3">
-    <div class="stat-tile"><div class="stat-value" id="stat-rate">—</div>
+    <div class="stat-tile"><div class="stat-value" id="stat-rate"><span class="skeleton skeleton-num"></span></div>
       <div class="stat-label">{% translate "نسبة الحضور (30 يومًا) %" %}</div></div>
   </div>
 </div>
@@ -75,10 +75,10 @@
     <div class="card h-100">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span class="fw-semibold">{% translate "طلاب المجموعة" %}</span>
-        <span class="badge text-bg-light" id="roster-count">—</span>
+        <span class="badge text-bg-light" id="roster-count"><span class="skeleton" style="width:2.5rem"></span></span>
       </div>
       <div class="card-body p-0">
-        <div class="px-3 py-2 border-bottom small" id="group-money">—</div>
+        <div class="px-3 py-2 border-bottom small" id="group-money"><span class="skeleton" style="width:60%"></span></div>
         <table class="table table-sm table-compact mb-0">
           <thead class="table-light">
             <tr>
@@ -88,7 +88,6 @@
             </tr>
           </thead>
           <tbody id="roster-body">
-            <tr><td colspan="3" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
           </tbody>
         </table>
       </div>
@@ -102,9 +101,8 @@
 const GROUP_ID = {{ group.id }};
 const WEEKDAYS = [[0, gettext("السبت")], [1, gettext("الأحد")], [2, gettext("الاثنين")], [3, gettext("الثلاثاء")], [4, gettext("الأربعاء")], [5, gettext("الخميس")], [6, gettext("الجمعة")]];
 
-async function loadRoster() {
-  const body = document.getElementById("roster-body");
-  try {
+function loadRoster() {
+  return ui.table("roster-body", async function (body, columns) {
     const result = await http.get("/api/groups/" + GROUP_ID + "/students/");
     const data = result.data;
     document.getElementById("roster-count").textContent =
@@ -116,10 +114,8 @@ async function loadRoster() {
             "<td><a href='/students/" + a.student_id + "/'>" + a.student + "</a></td>" +
             "<td>" + a.start_date + "</td></tr>";
         }).join("")
-      : ('<tr><td colspan="3" class="text-center text-muted py-4">' + gettext("لا يوجد طلاب") + '</td></tr>');
-  } catch (error) {
-    body.innerHTML = ('<tr><td colspan="3" class="text-center text-muted py-4">' + gettext("تعذر التحميل") + '</td></tr>');
-  }
+      : ui.emptyRow(columns, gettext("لا يوجد طلاب"), "students");
+  });
 }
 loadRoster();
 
@@ -139,7 +135,12 @@ async function loadGroupStats() {
         ("<div class='small text-muted'>" + gettext("آخر حصة:") + " ") + (data.last_lesson || "—") +
         (" · " + gettext("القادمة:") + " ") + (data.next_lesson || "—") + "</div>";
     }
-  } catch (error) { /* stats are informational */ }
+  } catch (error) {
+    /* Stats are informational — but the skeletons must not shimmer forever. */
+    document.getElementById("stat-rate").textContent = "—";
+    const money = document.getElementById("group-money");
+    if (money) { money.textContent = "—"; }
+  }
 }
 loadGroupStats();
 

@@ -298,4 +298,21 @@ Rules that make it fast:
 - Dependent selects (stage → grade → offering → group) load through the feeder endpoints and reset their children on change.
 - Toasts for success, inline field errors from `field_errors`, and a single global handler that renders `code`/`message` for anything unexpected.
 - Keyboard: `/` search, `s` scanner, `n` new student, `Esc` closes modals.
+- **Loading is never blank.** Three layers, all shared, no per-page invention:
+  1. `http.js` fires `http:start` / `http:end` around every request; `ui.js` turns
+     those into the thin bar across the top of the window. No page wires it up,
+     and it covers writes as well as reads.
+  2. `ui.table(tbodyId, task)` owns a list's three states: skeleton rows while
+     the fetch runs (as many rows as are already on screen, so paging does not
+     jolt the page), the rendered rows, or an error row plus a toast if it
+     throws. Column count comes from the `<thead>`, or `data-columns` for the
+     few tables without one. `ui.region(node, task)` does the same for a panel
+     that is not a table, via `.is-busy`.
+  3. Numbers that arrive later (stat tiles) start as `.skeleton-num`, not as an
+     em dash — an em dash reads as "zero", a shimmer reads as "coming".
+- A poll passes `{ quiet: true }` to both `http.get` and `ui.table`: the scanner
+  feed (5 s), the lesson board (15 s) and the dashboard (30 s) refresh without
+  blinking skeletons or flashing the bar at someone who is reading the screen.
+  `apps/core/tests/test_loading_states.py` fails the build if a template fetches
+  data without one of these.
 - Everything degrades to a normal form post if JS fails — the pages are real Django views, not an SPA in disguise.

@@ -77,9 +77,8 @@
           <th></th>
         </tr>
       </thead>
-      <tbody id="cards-body">
-        <tr><td colspan="6" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
-      </tbody>
+      {# ui.table paints the skeleton the moment the fetch starts. #}
+      <tbody id="cards-body"></tbody>
     </table>
   </div>
   <div class="card-footer d-flex justify-content-between align-items-center">
@@ -110,8 +109,8 @@ function query() {
   return params.toString();
 }
 
-async function load() {
-  try {
+function load() {
+  return ui.table("cards-body", async function (body, columns) {
     const result = await http.get("{% url 'cards_api:cards' %}?" + query());
     const data = result.data;
     Object.entries(data.totals).forEach(function ([status, total]) {
@@ -135,12 +134,12 @@ async function load() {
             "<td>" + (c.batch || "—") + "</td>" +
             "<td class='text-end'>" + actions + "</td></tr>";
         }).join("")
-      : ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("لا توجد بطاقات") + '</td></tr>');
+      : ui.emptyRow(columns, gettext("لا توجد بطاقات"), "cards");
     document.getElementById("count-label").textContent =
       (gettext("إجمالي") + " ") + data.count + (" " + gettext("بطاقة — صفحة") + " ") + data.page + (" " + gettext("من") + " ") + data.pages;
     document.getElementById("prev-page").disabled = !data.has_previous;
     document.getElementById("next-page").disabled = !data.has_next;
-  } catch (error) { app.handleError(error); }
+  });
 }
 
 function reasonModal(title, onConfirm) {

@@ -11,27 +11,27 @@
 <h2 class="h6 text-muted mb-2">{% translate "اليوم" %}</h2>
 <div class="row g-3 mb-4">
   <div class="col-6 col-lg-2">
-    <div class="stat-tile"><div class="stat-value" data-today="lessons">—</div>
+    <div class="stat-tile"><div class="stat-value" data-today="lessons"><span class="skeleton skeleton-num"></span></div>
       <div class="stat-label">{% translate "حصص اليوم" %}</div></div>
   </div>
   <div class="col-6 col-lg-2">
-    <div class="stat-tile"><div class="stat-value text-success" data-today="active_lessons">—</div>
+    <div class="stat-tile"><div class="stat-value text-success" data-today="active_lessons"><span class="skeleton skeleton-num"></span></div>
       <div class="stat-label">{% translate "جارية الآن" %}</div></div>
   </div>
   <div class="col-6 col-lg-2">
-    <div class="stat-tile"><div class="stat-value" data-today="expected_students">—</div>
+    <div class="stat-tile"><div class="stat-value" data-today="expected_students"><span class="skeleton skeleton-num"></span></div>
       <div class="stat-label">{% translate "متوقع" %}</div></div>
   </div>
   <div class="col-6 col-lg-2">
-    <div class="stat-tile"><div class="stat-value" data-today="present">—</div>
+    <div class="stat-tile"><div class="stat-value" data-today="present"><span class="skeleton skeleton-num"></span></div>
       <div class="stat-label">{% translate "حاضر" %}</div></div>
   </div>
   <div class="col-6 col-lg-2">
-    <div class="stat-tile"><div class="stat-value text-danger" data-today="absent">—</div>
+    <div class="stat-tile"><div class="stat-value text-danger" data-today="absent"><span class="skeleton skeleton-num"></span></div>
       <div class="stat-label">{% translate "غائب" %}</div></div>
   </div>
   <div class="col-6 col-lg-2">
-    <div class="stat-tile"><div class="stat-value text-warning" data-today="alternative">—</div>
+    <div class="stat-tile"><div class="stat-value text-warning" data-today="alternative"><span class="skeleton skeleton-num"></span></div>
       <div class="stat-label">{% translate "مجموعة بديلة" %}</div></div>
   </div>
 </div>
@@ -40,19 +40,19 @@
   <h2 class="h6 text-muted mb-2">{% translate "الشهر الحالي" %}</h2>
   <div class="row g-3 mb-4">
     <div class="col-6 col-lg-3">
-      <div class="stat-tile"><div class="stat-value" data-month="expected">—</div>
+      <div class="stat-tile"><div class="stat-value" data-month="expected"><span class="skeleton skeleton-num"></span></div>
         <div class="stat-label">{% translate "المتوقع (ج.م)" %}</div></div>
     </div>
     <div class="col-6 col-lg-3">
-      <div class="stat-tile"><div class="stat-value text-success" data-month="collected">—</div>
+      <div class="stat-tile"><div class="stat-value text-success" data-month="collected"><span class="skeleton skeleton-num"></span></div>
         <div class="stat-label">{% translate "المحصّل" %}</div></div>
     </div>
     <div class="col-6 col-lg-3">
-      <div class="stat-tile"><div class="stat-value text-danger" data-month="outstanding">—</div>
+      <div class="stat-tile"><div class="stat-value text-danger" data-month="outstanding"><span class="skeleton skeleton-num"></span></div>
         <div class="stat-label">{% translate "المتبقي" %}</div></div>
     </div>
     <div class="col-6 col-lg-3">
-      <div class="stat-tile"><div class="stat-value" id="m-counts">—</div>
+      <div class="stat-tile"><div class="stat-value" id="m-counts"><span class="skeleton skeleton-num"></span></div>
         <div class="stat-label">{% translate "مسدد / جزئي / غير مسدد" %}</div></div>
     </div>
   </div>
@@ -69,7 +69,8 @@
       </div>
       <div class="card-body p-0">
         <table class="table table-sm table-compact mb-0">
-          <tbody id="open-lessons"></tbody>
+          {# No header row here, so ui.table is told the width. #}
+          <tbody id="open-lessons" data-columns="4"></tbody>
         </table>
       </div>
     </div>
@@ -102,9 +103,12 @@
 
 {% block extra_js %}
 <script>
-async function loadDashboard() {
-  try {
-    const result = await http.get("{% url 'reports_api:dashboard' %}");
+/* quiet: the 30-second refresh must not blink skeletons over a dashboard
+   someone is reading — only the first paint and a manual reload show them. */
+function loadDashboard(options) {
+  const quiet = Boolean(options && options.quiet);
+  return ui.table("open-lessons", async function (body, columns) {
+    const result = await http.get("{% url 'reports_api:dashboard' %}", { quiet: quiet });
     const data = result.data;
 
     document.getElementById("dash-date").textContent = data.today.date;
@@ -129,13 +133,11 @@ async function loadDashboard() {
             "<td class='text-end'><a class='btn btn-sm btn-soft-primary' href='/scan/" + lesson.id + "/'>{% translate 'مسح' %}</a> " +
             "<a class='btn btn-sm btn-outline-secondary' href='/lessons/" + lesson.id + "/'>{% translate 'اللوحة' %}</a></td></tr>";
         }).join("")
-      : '<tr><td class="text-muted p-3">{% translate "لا توجد حصص مفتوحة" %}</td></tr>';
-  } catch (error) {
-    app.handleError(error);
-  }
+      : ui.emptyRow(columns, gettext("لا توجد حصص مفتوحة"), "lessons");
+  }, { quiet: quiet });
 }
 
 loadDashboard();
-setInterval(loadDashboard, 30000);
+setInterval(function () { loadDashboard({ quiet: true }); }, 30000);
 </script>
 {% endblock %}

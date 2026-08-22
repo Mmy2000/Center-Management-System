@@ -391,6 +391,53 @@ a:hover { text-decoration: underline; }
   animation: shimmer 1.3s ease infinite;
 }
 
+/* A stat tile waiting for its number: same footprint as the digits it becomes,
+   so the card does not resize when the data lands. */
+.skeleton-num {
+  width: 3.5rem;
+  height: 1.4rem;
+  margin-inline: auto;
+  border-radius: var(--radius-sm);
+}
+
+/* --------------------------------------------------------------- loading -- */
+/* One bar for the whole app, driven by http.js — see ui.js `progress`. */
+.load-bar {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 2000;
+  width: 0;
+  height: 3px;
+  border-end-end-radius: 3px;
+  background: linear-gradient(90deg, var(--brand-400), var(--brand-600));
+  box-shadow: 0 0 10px rgba(0, 0, 0, .18);
+  opacity: 0;
+  transition: width 220ms var(--ease), opacity var(--dur) var(--ease);
+}
+.load-bar.show { opacity: 1; }
+
+/* A panel that is refreshing: its old content stays readable underneath, so
+   the page never collapses to nothing while a request is in flight. */
+.is-busy {
+  position: relative;
+  pointer-events: none;
+}
+.is-busy > * { opacity: .35; transition: opacity var(--dur) var(--ease); }
+.is-busy::after {
+  content: "";
+  position: absolute;
+  /* calc, not translate(-50%): the spin animation owns `transform`. */
+  inset-block-start: calc(50% - .8rem);
+  inset-inline-start: calc(50% - .8rem);
+  width: 1.6rem;
+  height: 1.6rem;
+  border: 2px solid var(--ink-200);
+  border-top-color: var(--brand-500);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
 /* ------------------------------------------------------------ scanner ---- */
 .scan-stage { position: relative; }
 .scan-result {

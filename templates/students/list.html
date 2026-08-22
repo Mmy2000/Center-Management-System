@@ -55,9 +55,8 @@
           <th>{% translate "الحالة" %}</th>
         </tr>
       </thead>
-      <tbody id="students-body">
-        <tr><td colspan="5" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
-      </tbody>
+      {# Empty on purpose: ui.table fills it with skeleton rows on first fetch. #}
+      <tbody id="students-body"></tbody>
     </table>
   </div>
   <div class="card-footer d-flex justify-content-between align-items-center">
@@ -88,9 +87,10 @@ function params() {
   return query.toString();
 }
 
-async function load() {
-  const body = document.getElementById("students-body");
-  try {
+function load() {
+  /* ui.table paints skeleton rows first and an error row if the fetch fails,
+     so this function only has to describe the rows themselves. */
+  return ui.table("students-body", async function (body, columns) {
     const result = await http.get("{% url 'students_api:students' %}?" + params());
     const data = result.data;
     body.innerHTML = data.results.length
@@ -103,14 +103,12 @@ async function load() {
             '<td><span class="badge text-bg-' + (STATUS_CLASS[s.status] || "secondary") + '">' + s.status_display + "</span></td>" +
             "</tr>";
         }).join("")
-      : ('<tr><td colspan="5" class="text-center text-muted py-4">' + gettext("لا توجد نتائج") + '</td></tr>');
+      : ui.emptyRow(columns, gettext("لا توجد نتائج"), "students");
     document.getElementById("count-label").textContent =
       (gettext("إجمالي") + " ") + data.count + (" " + gettext("طالب — صفحة") + " ") + data.page + (" " + gettext("من") + " ") + data.pages;
     document.getElementById("prev-page").disabled = !data.has_previous;
     document.getElementById("next-page").disabled = !data.has_next;
-  } catch (error) {
-    app.handleError(error);
-  }
+  });
 }
 
 document.getElementById("f-q").addEventListener("input", app.debounce(function () { page = 1; load(); }, 300));

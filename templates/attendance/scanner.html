@@ -249,7 +249,8 @@ input.addEventListener("input", function () {
 /* --------------------------------------------------------------- counters */
 async function loadCounters() {
   try {
-    const result = await http.get("/api/lessons/" + LESSON_ID + "/attendance/");
+    /* Silent: the counters refresh behind a scanning operator's back. */
+    const result = await http.get("/api/lessons/" + LESSON_ID + "/attendance/", { quiet: true });
     const counters = result.data.counters;
     document.querySelectorAll("[data-counter]").forEach(function (node) {
       ui.countTo(node, counters[node.dataset.counter] ?? 0);
@@ -260,7 +261,7 @@ async function loadCounters() {
 async function pollFeed() {
   try {
     const query = cursor ? "?since=" + encodeURIComponent(cursor) : "";
-    const result = await http.get("/api/lessons/" + LESSON_ID + "/feed/" + query);
+    const result = await http.get("/api/lessons/" + LESSON_ID + "/feed/" + query, { quiet: true });
     if (result.data.results.length) {
       cursor = result.data.cursor;
       const body = document.getElementById("feed-body");

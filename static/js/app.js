@@ -116,6 +116,26 @@
     }
   });
 
+  /* ------------------------------------------------------- navigation --- */
+  /* The bar covers AJAX on its own; this extends it to ordinary links, where
+     the wait is the server round trip before the next page paints. */
+  document.addEventListener("click", function (event) {
+    const link = event.target.closest("a[href]");
+    if (!link || event.defaultPrevented || event.button !== 0) { return; }
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) { return; }
+    if (link.target && link.target !== "_self") { return; }
+    if (link.hasAttribute("download") || link.dataset.bsToggle) { return; }
+
+    const href = link.getAttribute("href");
+    if (!href || href.startsWith("#") || href.startsWith("javascript:")) { return; }
+    if (link.origin !== window.location.origin) { return; }
+
+    ui.progress.start();
+    // A navigation the browser refuses (a download, a blocked link) would
+    // otherwise leave the bar creeping forever.
+    setTimeout(ui.progress.done, 10000);
+  });
+
   global.app = {
     toast, handleError, clearFieldErrors, openModal, closeModal,
     requireReason, debounce, download

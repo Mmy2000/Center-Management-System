@@ -19,10 +19,7 @@ run: SQLite, a per-process cache, static files served by PythonAnywhere itself.
 Fine for one center on one screen — see docs/07-deployment.md §L.9.
 """
 
-import sys
 from pathlib import Path
-
-from django.core.exceptions import ImproperlyConfigured
 
 # =========================================================================== #
 # The only two lines you edit
@@ -43,18 +40,6 @@ FORCE_HTTPS = False
 # cms/settings/pythonanywhere.py -> cms/settings -> cms -> <project root>
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-# Not dead code: the virtualenv on the host is whatever Python it was built
-# with, and PythonAnywhere's older system images stop at 3.10. Failing here with
-# the fix is kinder than failing deep inside the ORM later.
-if sys.version_info < (3, 12):  # noqa: UP036
-    raise ImproperlyConfigured(
-        "This project needs Python 3.12+ (Django 6.1); this virtualenv is "
-        f"{sys.version_info.major}.{sys.version_info.minor}. Check what the host "
-        "offers with `ls -1 /usr/bin/python3.1*`; if there is nothing newer, "
-        "update the system image on the Account page first, then rebuild the "
-        "virtualenv with that interpreter and select the same version on the "
-        "Web tab."
-    )
 
 
 # =========================================================================== #

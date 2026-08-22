@@ -23,9 +23,8 @@
           <th></th>
         </tr>
       </thead>
-      <tbody id="users-body">
-        <tr><td colspan="6" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
-      </tbody>
+      {# ui.table paints the skeleton the moment the fetch starts. #}
+      <tbody id="users-body"></tbody>
     </table>
   </div>
 </div>
@@ -42,9 +41,8 @@ function roleOptions(selected) {
   }).join("");
 }
 
-async function loadUsers() {
-  const body = document.getElementById("users-body");
-  try {
+function loadUsers() {
+  return ui.table("users-body", async function (body, columns) {
     const result = await http.get("{% url 'accounts_api:users' %}");
     const rows = result.data.results;
     body.innerHTML = rows.length
@@ -63,10 +61,8 @@ async function loadUsers() {
             "</tr>"
           );
         }).join("")
-      : ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("لا يوجد مستخدمون") + '</td></tr>');
-  } catch (error) {
-    app.handleError(error);
-  }
+      : ui.emptyRow(columns, gettext("لا يوجد مستخدمون"), "users");
+  });
 }
 
 document.getElementById("new-user")?.addEventListener("click", function () {

@@ -90,9 +90,8 @@
               <th></th>
             </tr>
           </thead>
-          <tbody id="charges-body">
-            <tr><td colspan="8" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
-          </tbody>
+          {# ui.table paints the skeleton the moment the fetch starts. #}
+          <tbody id="charges-body"></tbody>
         </table>
       </div>
       <div class="card-footer d-flex justify-content-between align-items-center">
@@ -175,8 +174,8 @@ function chargeQuery() {
   return params.toString();
 }
 
-async function loadCharges() {
-  try {
+function loadCharges() {
+  return ui.table("charges-body", async function (body, columns) {
     const result = await http.get("{% url 'payments_api:charges' %}?" + chargeQuery());
     const data = result.data;
     document.getElementById("t-expected").textContent = data.totals.expected;
@@ -201,22 +200,22 @@ async function loadCharges() {
             "<td class='text-end text-nowrap'>" + collect + waive +
             ('<button class="btn btn-sm btn-soft-secondary js-ledger">' + gettext("السجل") + '</button></td></tr>');
         }).join("")
-      : ('<tr><td colspan="8" class="text-center text-muted py-4">' + gettext("لا توجد رسوم — جرّب إصدار رسوم الشهر") + '</td></tr>');
+      : ui.emptyRow(columns, gettext("لا توجد رسوم — جرّب إصدار رسوم الشهر"), "payments");
 
     document.getElementById("charges-count").textContent =
       (gettext("إجمالي") + " ") + data.count + (" " + gettext("— صفحة") + " ") + data.page + (" " + gettext("من") + " ") + data.pages;
     document.getElementById("charges-prev").disabled = !data.has_previous;
     document.getElementById("charges-next").disabled = !data.has_next;
-  } catch (error) { app.handleError(error); }
+  });
 }
 
-async function loadDaybook() {
+function loadDaybook() {
   const params = new URLSearchParams();
   ["from", "to", "method"].forEach(function (key) {
     const value = document.getElementById("d-" + key).value;
     if (value) { params.set(key, value); }
   });
-  try {
+  return ui.table("daybook-body", async function (body, columns) {
     const result = await http.get("{% url 'payments_api:payments' %}?" + params.toString());
     const data = result.data;
     document.getElementById("daybook-totals").innerHTML =
@@ -238,8 +237,8 @@ async function loadDaybook() {
             '<button class="btn btn-sm btn-soft-secondary btn-icon js-receipt" data-id="' + p.id + '">' +
             ui.icon("download") + (gettext("إيصال") + '</button></td></tr>');
         }).join("")
-      : ('<tr><td colspan="8" class="text-center text-muted py-4">' + gettext("لا توجد حركات") + '</td></tr>');
-  } catch (error) { app.handleError(error); }
+      : ui.emptyRow(columns, gettext("لا توجد حركات"), "payments");
+  });
 }
 
 /* ------------------------------------------------------------------ actions */

@@ -61,9 +61,8 @@
           <th></th>
         </tr>
       </thead>
-      <tbody id="lessons-body">
-        <tr><td colspan="7" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
-      </tbody>
+      {# ui.table paints the skeleton the moment the fetch starts. #}
+      <tbody id="lessons-body"></tbody>
     </table>
   </div>
   <div class="card-footer d-flex justify-content-between align-items-center">
@@ -96,8 +95,8 @@ function query() {
   return params.toString();
 }
 
-async function load() {
-  try {
+function load() {
+  return ui.table("lessons-body", async function (body, columns) {
     const result = await http.get("{% url 'lessons_api:lessons' %}?" + query());
     const data = result.data;
     document.getElementById("lessons-body").innerHTML = data.results.length
@@ -115,12 +114,12 @@ async function load() {
             '<a class="btn btn-sm btn-soft-secondary" href="/lessons/' + l.id + ('/">' + gettext("تفاصيل") + '</a></td>') +
             "</tr>";
         }).join("")
-      : ('<tr><td colspan="7" class="text-center text-muted py-4">' + gettext("لا توجد حصص") + '</td></tr>');
+      : ui.emptyRow(columns, gettext("لا توجد حصص"), "lessons");
     document.getElementById("count-label").textContent =
       (gettext("إجمالي") + " ") + data.count + (" " + gettext("حصة — صفحة") + " ") + data.page + (" " + gettext("من") + " ") + data.pages;
     document.getElementById("prev-page").disabled = !data.has_previous;
     document.getElementById("next-page").disabled = !data.has_next;
-  } catch (error) { app.handleError(error); }
+  });
 }
 
 document.getElementById("scope-tabs").addEventListener("click", function (event) {

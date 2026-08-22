@@ -68,8 +68,34 @@
     if (!mount) { return null; }
     let rows = [];
 
-    function render() {
+    /* The panel's chrome, drawn around whatever the table body currently is —
+       skeleton rows before the fetch answers, real rows after. Painting it
+       once up front is what keeps the screen from sitting empty. */
+    function shell(bodyHtml) {
       const head = config.columns.map((c) => "<th>" + c.label + "</th>").join("");
+      mount.innerHTML =
+        '<div class="d-flex justify-content-between align-items-center mb-2">' +
+        '<div class="fw-semibold">' + config.title + "</div>" +
+        (config.canWrite ? ('<button class="btn btn-sm btn-primary js-new">' + gettext("إضافة") + '</button>') : "") +
+        "</div>" +
+        '<div class="table-responsive"><table class="table table-sm table-compact align-middle mb-0">' +
+        "<thead class='table-light'><tr>" + head + "<th></th></tr></thead><tbody>" + bodyHtml + "</tbody></table></div>";
+    }
+
+    function skeleton() {
+      const columns = config.columns.length + 1;
+      let html = "";
+      for (let r = 0; r < 3; r += 1) {
+        html += "<tr>";
+        for (let c = 0; c < columns; c += 1) {
+          html += '<td><span class="skeleton" style="width:' + (45 + ((r * 13 + c * 29) % 45)) + '%"></span></td>';
+        }
+        html += "</tr>";
+      }
+      shell(html);
+    }
+
+    function render() {
       const body = rows.length
         ? rows.map(function (row) {
             const cells = config.columns
@@ -81,24 +107,20 @@
             return "<tr data-id='" + row.id + "'>" + cells +
               "<td class='text-end'>" + (config.canWrite ? ('<button class="btn btn-sm btn-outline-secondary js-edit">' + gettext("تعديل") + '</button>') : "") + "</td></tr>";
           }).join("")
-        : '<tr><td colspan="' + (config.columns.length + 1) + ('" class="text-center text-muted py-4">' + gettext("لا توجد بيانات") + '</td></tr>');
+        : ui.emptyRow(config.columns.length + 1, gettext("لا توجد بيانات"));
 
-      mount.innerHTML =
-        '<div class="d-flex justify-content-between align-items-center mb-2">' +
-        '<div class="fw-semibold">' + config.title + "</div>" +
-        (config.canWrite ? ('<button class="btn btn-sm btn-primary js-new">' + gettext("إضافة") + '</button>') : "") +
-        "</div>" +
-        '<div class="table-responsive"><table class="table table-sm table-compact align-middle mb-0">' +
-        "<thead class='table-light'><tr>" + head + "<th></th></tr></thead><tbody>" + body + "</tbody></table></div>";
+      shell(body);
     }
 
     async function load() {
+      skeleton();
       try {
         const query = config.params ? "?" + new URLSearchParams(config.params).toString() : "";
         const result = await http.get(config.listUrl + query);
         rows = result.data.results;
         render();
       } catch (error) {
+        shell(ui.errorRow(config.columns.length + 1, error && error.message));
         app.handleError(error);
       }
     }
