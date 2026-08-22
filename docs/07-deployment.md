@@ -120,9 +120,15 @@ there: SQLite, the local-memory cache, PythonAnywhere's own static mapping.
 Good enough for one center working on one screen; §L.1 still applies the moment
 a scanning station and a cashier work at the same time.
 
-**`Bad Request (400)` on a blank page is `ALLOWED_HOSTS`.** With `DEBUG=False`
-Django refuses any `Host:` header it was not told about, and says nothing else
-about why. It is not the database, the static files, or the WSGI file.
+Two things about this host cause most of the failed deploys:
+
+- **The web worker inherits nothing from your Bash console.** Anything you
+  `export`ed, or that virtualenvwrapper set, is invisible to it. Every setting
+  must be in the `.env` file next to `manage.py` — which is why the settings
+  module refuses to start when that file is missing.
+- **The virtualenv Python must be 3.12+ and must match the Web tab dropdown.**
+  Django 6.1 does not run on 3.10, and PythonAnywhere still offers older
+  interpreters by default.
 
 ### Steps
 
@@ -187,3 +193,15 @@ reload. In that order — the flag alone, without the toggle, loops the browser.
 
 Card sheets, receipts and reports are all generated in-process with ReportLab —
 no Chromium, so PDF export works on the free tier exactly as it does locally.
+
+### When it fails
+
+| What you see | What it is |
+|---|---|
+| `Bad Request (400)`, blank page | `ALLOWED_HOSTS` does not contain the host you typed. `DEBUG=False` gives no other clue; the error log says `Invalid HTTP_HOST header`. |
+| `SECRET_KEY setting must not be empty` | No `.env` at the project root, or the web app's *Source code* path points somewhere else. Console `export`s do not reach the worker. |
+| `ImproperlyConfigured: … Python 3.12+` | The virtualenv was built with an older interpreter. Rebuild it and change the Web tab's Python version to match. |
+| `ModuleNotFoundError: cms` | The WSGI file never added the project directory to `sys.path`, or added the wrong one. |
+| Pages load unstyled | `collectstatic` was not run, or the `/static/` mapping does not point at `staticfiles/`. |
+| Endless redirect | `FORCE_HTTPS=True` without *Force HTTPS* enabled in the Web tab. |
+| `pip install -r requirements.txt` reads as garbage | The frozen file was written by PowerShell as UTF-16. Use `requirements/pythonanywhere.txt`. |

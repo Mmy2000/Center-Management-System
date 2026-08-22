@@ -14,12 +14,43 @@ Read docs/07-deployment.md §L.9 before going live — the free tier is fine for
 one center on one screen, not for a scanning station plus a cashier.
 """
 
+import sys
+
 from django.core.exceptions import ImproperlyConfigured
 
 from .base import *  # noqa: F403
 from .base import BASE_DIR, env
 
 DEBUG = False
+
+# --------------------------------------------------------------------------- #
+# Environment
+# --------------------------------------------------------------------------- #
+# The web worker does NOT inherit anything you exported in a Bash console, so
+# every setting has to come from the .env file next to manage.py. Say so here
+# rather than letting Django fail later with "SECRET_KEY must not be empty".
+
+# Not dead code: the host's virtualenv is whatever Python it was built with,
+# and PythonAnywhere still defaults new ones to an older release.
+if sys.version_info < (3, 12):  # noqa: UP036
+    raise ImproperlyConfigured(
+        "This project needs Python 3.12+ (Django 6.1); the virtualenv is "
+        f"{sys.version_info.major}.{sys.version_info.minor}. Rebuild it with "
+        "mkvirtualenv --python=/usr/bin/python3.13 cms, then set the same "
+        "version on the Web tab."
+    )
+
+if not (BASE_DIR / ".env").exists():
+    raise ImproperlyConfigured(
+        f"No .env at {BASE_DIR / '.env'} — it must sit next to manage.py, and "
+        "the web app's 'Source code' path must be that same directory."
+    )
+
+if not env("SECRET_KEY"):
+    raise ImproperlyConfigured(
+        "SECRET_KEY is empty in .env. Generate one with: python -c "
+        '"from django.core.management.utils import get_random_secret_key as k; print(k())"'
+    )
 
 # --------------------------------------------------------------------------- #
 # Hosts
