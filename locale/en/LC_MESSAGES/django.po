@@ -180,7 +180,7 @@ msgstr "Waive charges"
 msgid "إعفاء من رسوم"
 msgstr "Charge waived"
 
-#: templates/base.html:42 templates/partials/_modal.html:8
+#: templates/base.html:43 templates/partials/_modal.html:8
 msgid "إغلاق"
 msgstr "Close"
 
@@ -2764,6 +2764,7 @@ msgid "لا توجد مواعيد"
 msgstr "No slots"
 
 #: templates/partials/_topbar.html:60 templates/students/list.html:106
+#: static/js/select.js:160
 msgid "لا توجد نتائج"
 msgstr "No results"
 

@@ -48,9 +48,14 @@
     document.getElementById("app-modal-title").textContent = title || "";
     document.getElementById("app-modal-body").innerHTML = bodyHtml || "";
     document.getElementById("app-modal-footer").innerHTML = footerHtml || "";
+    // Modal fields are injected as HTML, so they miss the page's own pass.
+    if (global.xselect) { global.xselect.enhance(document.getElementById("app-modal-body")); }
     const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById("app-modal"));
     modal.show();
-    const firstField = document.querySelector("#app-modal-body input, #app-modal-body select, #app-modal-body textarea");
+    // The custom control, not the hidden native select behind it.
+    const firstField = document.querySelector(
+      "#app-modal-body input, #app-modal-body .xselect-trigger, #app-modal-body textarea"
+    );
     if (firstField) { setTimeout(() => firstField.focus(), 220); }
     return modal;
   }
@@ -93,7 +98,9 @@
   document.addEventListener("keydown", function (event) {
     const tag = (event.target.tagName || "").toLowerCase();
     const typing = tag === "input" || tag === "textarea" || tag === "select";
-    if (typing) { return; }
+    // A focused combobox swallows letters as type-ahead — "n" there means the
+    // letter n, not "new student".
+    if (typing || event.target.closest(".xselect, .xselect-panel")) { return; }
     if (event.key === "/") {
       const search = document.getElementById("global-search");
       if (search) { event.preventDefault(); search.focus(); }

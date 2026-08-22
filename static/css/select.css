@@ -1,0 +1,198 @@
+/* ==========================================================================
+   select.css — the custom select (select.js) and the Bootstrap dropdowns.
+   Every colour is a token, so both follow the centre's palette, the light/dark
+   mode and the density setting without a second definition anywhere.
+   ========================================================================== */
+
+/* --------------------------------------------------------------- select -- */
+
+.xselect { position: relative; }
+
+/* The native control stays for form posts, keyboard fallback and every page
+   that reads `element.value` — it is simply not the thing you look at. */
+.xselect-native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.xselect-trigger {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: 100%;
+  min-height: 38px;
+  padding: .45rem .75rem;
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink-700);
+  font-size: .95rem;
+  font-family: inherit;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease),
+              background var(--dur-fast) var(--ease);
+}
+.xselect-trigger:hover:not(:disabled) { border-color: var(--ink-300); }
+.xselect-trigger:focus-visible,
+.xselect.is-open .xselect-trigger {
+  outline: none;
+  border-color: var(--brand-400);
+  box-shadow: 0 0 0 .2rem var(--brand-50);
+}
+.xselect-trigger:disabled { background: var(--ink-050); color: var(--ink-300); cursor: not-allowed; }
+.xselect-trigger.is-invalid { border-color: var(--danger-500); background: var(--danger-050); }
+
+.xselect-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.xselect-label.is-placeholder { color: var(--ink-300); }
+
+.xselect-caret {
+  flex: none;
+  color: var(--ink-300);
+  transition: transform var(--dur) var(--ease), color var(--dur-fast) var(--ease);
+}
+.xselect.is-open .xselect-caret { transform: rotate(180deg); color: var(--brand-500); }
+
+/* Small variant: matches form-select-sm so filter rows keep their height. */
+.xselect-sm .xselect-trigger { min-height: 31px; padding: .2rem .55rem; font-size: .85rem; }
+.xselect-sm .xselect-caret { width: .9rem; height: .9rem; }
+
+/* Compact density shrinks every other control; this one follows. */
+[data-density="compact"] .xselect-trigger { min-height: 33px; padding: .3rem .6rem; font-size: .9rem; }
+[data-density="compact"] .xselect-sm .xselect-trigger { min-height: 28px; padding: .15rem .5rem; }
+[data-density="compact"] .xselect-option { padding: .35rem .55rem; }
+
+/* ---------------------------------------------------------------- panel -- */
+/* Fixed-positioned by JS: inside a card, a table or a modal, an absolutely
+   positioned panel would be clipped by the first ancestor with overflow. */
+.xselect-panel {
+  position: fixed;
+  z-index: 1080;              /* above Bootstrap's modal (1055) */
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--ink-100);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, .16));
+}
+.xselect-panel.show {
+  display: flex;
+  animation: xselect-in var(--dur) var(--ease) both;
+}
+
+@keyframes xselect-in {
+  from { opacity: 0; transform: translateY(-4px) scale(.99); }
+  to { opacity: 1; transform: none; }
+}
+
+.xselect-search {
+  position: relative;
+  flex: none;
+  padding: .5rem;
+  border-bottom: 1px solid var(--ink-100);
+  background: var(--ink-050);
+}
+.xselect-panel.no-search .xselect-search { display: none; }
+
+.xselect-search .icon {
+  position: absolute;
+  inset-inline-start: 1.1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-300);
+  pointer-events: none;
+}
+.xselect-input {
+  width: 100%;
+  padding: .35rem .6rem;
+  padding-inline-start: 2.1rem;
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink-700);
+  font-size: .88rem;
+  font-family: inherit;
+}
+.xselect-input:focus {
+  outline: none;
+  border-color: var(--brand-400);
+  box-shadow: 0 0 0 .15rem var(--brand-50);
+}
+
+.xselect-list {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0;
+  padding: .25rem;
+  list-style: none;
+}
+.xselect-list:focus { outline: none; }
+
+.xselect-option {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .45rem .6rem;
+  border-radius: var(--radius-sm);
+  color: var(--ink-700);
+  font-size: .9rem;
+  cursor: pointer;
+}
+.xselect-option-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.xselect-option .icon { flex: none; color: var(--brand-500); }
+
+/* One highlight for both the mouse and the arrow keys: the keyboard user and
+   the mouse user are looking at the same row. */
+.xselect-option.is-active { background: var(--brand-50); color: var(--brand-700); }
+.xselect-option.is-selected { font-weight: 600; }
+.xselect-option.is-disabled { color: var(--ink-300); cursor: not-allowed; }
+
+.xselect-empty {
+  padding: 1.25rem .6rem;
+  color: var(--ink-300);
+  font-size: .88rem;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------- dropdowns -- */
+/* Bootstrap's own menus — the user menu, the theme picker, search results —
+   restyled to the same shape as the panel above. */
+.dropdown-menu {
+  --bs-dropdown-bg: var(--surface);
+  --bs-dropdown-color: var(--ink-700);
+  --bs-dropdown-border-color: var(--ink-100);
+  --bs-dropdown-border-radius: var(--radius);
+  --bs-dropdown-link-color: var(--ink-700);
+  --bs-dropdown-link-hover-bg: var(--brand-50);
+  --bs-dropdown-link-hover-color: var(--brand-700);
+  --bs-dropdown-link-active-bg: var(--brand-500);
+  --bs-dropdown-link-active-color: #fff;
+  --bs-dropdown-divider-bg: var(--ink-100);
+  --bs-dropdown-item-padding-y: .45rem;
+  --bs-dropdown-item-padding-x: .7rem;
+  padding: .3rem;
+  box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, .16));
+}
+.dropdown-menu.show { animation: xselect-in var(--dur) var(--ease) both; }
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  border-radius: var(--radius-sm);
+  font-size: .9rem;
+}
+.dropdown-item .icon { color: var(--ink-300); }
+.dropdown-item:hover .icon, .dropdown-item.active .icon { color: inherit; }
+.dropdown-header { color: var(--ink-500); font-size: .75rem; font-weight: 700; }
