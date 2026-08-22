@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "حسابي" %}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-body">
+        <h1 class="h5 mb-3">{% translate "حسابي" %}</h1>
+        <dl class="row mb-0">
+          <dt class="col-5">{% translate "اسم المستخدم" %}</dt><dd class="col-7">{{ user_obj.username }}</dd>
+          <dt class="col-5">{% translate "الاسم" %}</dt><dd class="col-7">{{ user_obj.full_name|default:"—" }}</dd>
+          <dt class="col-5">{% translate "الدور" %}</dt><dd class="col-7">{{ user_obj.get_role_display }}</dd>
+          <dt class="col-5">{% translate "الهاتف" %}</dt><dd class="col-7">{{ user_obj.phone|default:"—" }}</dd>
+          <dt class="col-5">{% translate "آخر دخول" %}</dt><dd class="col-7">{{ user_obj.last_login|default:"—" }}</dd>
+        </dl>
+        <a class="btn btn-outline-primary btn-sm mt-3" href="{% url 'accounts:password_change' %}">
+          {% translate "تغيير كلمة المرور" %}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

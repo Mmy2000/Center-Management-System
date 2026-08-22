@@ -1,0 +1,74 @@
+{% load i18n %}
+<header class="app-topbar d-flex align-items-center gap-2 gap-lg-3 px-3">
+  <button class="btn btn-sm btn-outline-secondary nav-toggle" data-nav-toggle type="button"
+          aria-label="{% translate 'القائمة' %}">
+    <svg class="icon"><use href="#i-menu"></use></svg>
+  </button>
+
+  <form class="app-search flex-grow-1" role="search" onsubmit="return false;">
+    <svg class="icon"><use href="#i-search"></use></svg>
+    <input id="global-search" class="form-control form-control-sm" type="search"
+           placeholder="{% translate 'ابحث بكود الطالب أو الاسم أو رقم ولي الأمر…  (/)' %}"
+           aria-label="{% translate 'بحث' %}" autocomplete="off">
+    <div class="dropdown-menu w-100 mt-1 shadow" id="search-results"></div>
+  </form>
+
+  {% include "partials/_language.html" %}
+  {% include "partials/_theme_picker.html" %}
+
+  <div class="dropdown">
+    <button class="btn btn-sm btn-outline-secondary dropdown-toggle btn-icon" data-bs-toggle="dropdown" type="button">
+      <svg class="icon"><use href="#i-users"></use></svg>
+      <span class="d-none d-sm-inline">{{ user.display_name }}</span>
+    </button>
+    <ul class="dropdown-menu dropdown-menu-end shadow">
+      <li><span class="dropdown-item-text small text-muted">{{ user.get_role_display }}</span></li>
+      <li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">{% translate "حسابي" %}</a></li>
+      <li><a class="dropdown-item" href="{% url 'accounts:password_change' %}">{% translate "تغيير كلمة المرور" %}</a></li>
+      <li>
+        <form method="post" action="{% url 'accounts:logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="dropdown-item text-danger btn-icon">
+            <svg class="icon"><use href="#i-logout"></use></svg>{% translate "تسجيل الخروج" %}
+          </button>
+        </form>
+      </li>
+    </ul>
+  </div>
+</header>
+
+{% if perms.students.view_student %}
+<script>
+/* Global typeahead — defined once here, works on every screen. */
+document.addEventListener("DOMContentLoaded", function () {
+  const input = document.getElementById("global-search");
+  const menu = document.getElementById("search-results");
+  if (!input || !menu) { return; }
+
+  const search = app.debounce(async function () {
+    const term = input.value.trim();
+    if (term.length < 2) { menu.classList.remove("show"); return; }
+    try {
+      const result = await http.get("{% url 'students_api:student_search' %}?q=" + encodeURIComponent(term));
+      const rows = result.data.results;
+      menu.innerHTML = rows.length
+        ? rows.map((s) =>
+            '<a class="dropdown-item d-flex justify-content-between align-items-center gap-2" href="/students/' + s.id + '/">' +
+            "<span>" + ui.esc(s.full_name) + '<span class="text-muted small d-block">' + ui.esc(s.grade) + "</span></span>" +
+            '<code class="small">' + ui.esc(s.student_code) + "</code></a>").join("")
+        : ('<span class="dropdown-item-text text-muted small">' + gettext("لا توجد نتائج") + '</span>');
+      menu.classList.add("show");
+    } catch (error) {
+      menu.classList.remove("show");
+    }
+  }, 250);
+
+  input.addEventListener("input", search);
+  input.addEventListener("blur", () => setTimeout(() => menu.classList.remove("show"), 180));
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") { menu.classList.remove("show"); input.blur(); }
+  });
+});
+</script>
+{% endif %}

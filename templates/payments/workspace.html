@@ -1,0 +1,397 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "المدفوعات" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">{% translate "المدفوعات" %}</h1>
+  <div class="d-flex gap-2 align-items-center">
+    <select class="form-select form-select-sm w-auto" id="f-month">
+      {% for month in months %}
+        <option value="{{ month }}" {% if month == current_month %}selected{% endif %}>{{ month }}</option>
+      {% endfor %}
+    </select>
+    {% if perms.payments.generate_charges %}
+      <button class="btn btn-outline-primary btn-sm" id="generate-charges">{% translate "إصدار رسوم الشهر" %}</button>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3">
+    <div class="stat-tile"><div class="stat-value" id="t-expected">—</div>
+      <div class="stat-label">{% translate "المتوقع (ج.م)" %}</div></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-tile"><div class="stat-value text-success" id="t-collected">—</div>
+      <div class="stat-label">{% translate "المحصّل" %}</div></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-tile"><div class="stat-value text-danger" id="t-outstanding">—</div>
+      <div class="stat-label">{% translate "المتبقي" %}</div></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-tile"><div class="stat-value" id="t-counts">—</div>
+      <div class="stat-label">{% translate "مسدد / جزئي / غير مسدد" %}</div></div>
+  </div>
+</div>
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-charges" type="button">{% translate "الرسوم" %}</button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-daybook" type="button">{% translate "يومية الخزنة" %}</button></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="tab-charges">
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row g-2 align-items-end">
+          <div class="col-12 col-lg-4">
+            <label class="form-label small">{% translate "بحث عن طالب" %}</label>
+            <input class="form-control form-control-sm" id="f-q" type="search" placeholder="{% translate 'كود أو اسم' %}">
+          </div>
+          <div class="col-6 col-lg-3">
+            <label class="form-label small">{% translate "الحالة" %}</label>
+            <select class="form-select form-select-sm" id="f-status">
+              <option value="">{% translate "الكل" %}</option>
+              {% for value, label in statuses %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="col-6 col-lg-3">
+            <label class="form-label small">{% translate "المادة" %}</label>
+            <select class="form-select form-select-sm" id="f-subject">
+              <option value="">{% translate "الكل" %}</option>
+              {% for subject in subjects %}<option value="{{ subject.id }}">{{ subject }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="col-6 col-lg-2">
+            <label class="form-label small">&nbsp;</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="f-outstanding">
+              <label class="form-check-label small" for="f-outstanding">{% translate "المتأخرون فقط" %}</label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-sm table-compact align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>{% translate "الطالب" %}</th>
+              <th>{% translate "المادة" %}</th>
+              <th>{% translate "المستحق" %}</th>
+              <th>{% translate "الخصم" %}</th>
+              <th>{% translate "المدفوع" %}</th>
+              <th>{% translate "المتبقي" %}</th>
+              <th>{% translate "الحالة" %}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="charges-body">
+            <tr><td colspan="8" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer d-flex justify-content-between align-items-center">
+        <span class="small text-muted" id="charges-count"></span>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-secondary" id="charges-prev">{% translate "السابق" %}</button>
+          <button class="btn btn-outline-secondary" id="charges-next">{% translate "التالي" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane fade" id="tab-daybook">
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="row g-2 align-items-end">
+          <div class="col-6 col-lg-3">
+            <label class="form-label small">{% translate "من" %}</label>
+            <input class="form-control form-control-sm" type="date" id="d-from" value="{{ today }}">
+          </div>
+          <div class="col-6 col-lg-3">
+            <label class="form-label small">{% translate "إلى" %}</label>
+            <input class="form-control form-control-sm" type="date" id="d-to" value="{{ today }}">
+          </div>
+          <div class="col-6 col-lg-3">
+            <label class="form-label small">{% translate "طريقة الدفع" %}</label>
+            <select class="form-select form-select-sm" id="d-method">
+              <option value="">{% translate "الكل" %}</option>
+              {% for value, label in methods %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="col-6 col-lg-3">
+            <div class="small text-muted" id="daybook-totals"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-sm table-compact align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>{% translate "الإيصال" %}</th>
+              <th>{% translate "التاريخ" %}</th>
+              <th>{% translate "الطالب" %}</th>
+              <th>{% translate "النوع" %}</th>
+              <th>{% translate "المبلغ" %}</th>
+              <th>{% translate "الطريقة" %}</th>
+              <th>{% translate "المحصّل" %}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="daybook-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CAN_COLLECT = {{ perms.payments.add_payment|yesno:"true,false" }};
+const CAN_REFUND = {{ perms.payments.refund_payment|yesno:"true,false" }};
+const CAN_WAIVE = {{ perms.payments.waive_charge|yesno:"true,false" }};
+const STATUS_CLASS = {
+  UNPAID: "danger", PARTIALLY_PAID: "warning", PAID: "success",
+  OVERPAID: "info", WAIVED: "secondary", CANCELLED: "dark"
+};
+let chargePage = 1;
+
+function chargeQuery() {
+  const params = new URLSearchParams({ page: chargePage, month: document.getElementById("f-month").value });
+  ["q", "status", "subject"].forEach(function (key) {
+    const value = document.getElementById("f-" + key).value;
+    if (value) { params.set(key, value); }
+  });
+  if (document.getElementById("f-outstanding").checked) { params.set("outstanding", "1"); }
+  return params.toString();
+}
+
+async function loadCharges() {
+  try {
+    const result = await http.get("{% url 'payments_api:charges' %}?" + chargeQuery());
+    const data = result.data;
+    document.getElementById("t-expected").textContent = data.totals.expected;
+    document.getElementById("t-collected").textContent = data.totals.collected;
+    document.getElementById("t-outstanding").textContent = data.totals.outstanding;
+    document.getElementById("t-counts").textContent =
+      data.totals.paid_count + " / " + data.totals.partial_count + " / " + data.totals.unpaid_count;
+
+    document.getElementById("charges-body").innerHTML = data.results.length
+      ? data.results.map(function (c) {
+          const collect = (CAN_COLLECT && Number(c.balance) > 0 && c.status !== "WAIVED" && c.status !== "CANCELLED")
+            ? ('<button class="btn btn-sm btn-primary js-collect">' + gettext("تحصيل") + '</button> ') : "";
+          const waive = (CAN_WAIVE && c.status !== "WAIVED") ? ('<button class="btn btn-sm btn-soft-secondary js-waive">' + gettext("إعفاء") + '</button> ') : "";
+          return "<tr data-id='" + c.id + "' data-balance='" + c.balance + "' data-student='" + c.student + "'>" +
+            "<td><a href='/students/" + c.student_id + "/'>" + c.student + "</a><div class='small text-muted'>" + c.student_code + "</div></td>" +
+            "<td>" + c.subject + (c.group ? " <span class='text-muted small'>(" + c.group + ")</span>" : "") + "</td>" +
+            "<td>" + c.amount_due + "</td>" +
+            "<td>" + c.discount_amount + "</td>" +
+            "<td>" + c.total_paid + "</td>" +
+            "<td class='fw-semibold'>" + c.balance + "</td>" +
+            '<td><span class="badge text-bg-' + (STATUS_CLASS[c.status] || "secondary") + '">' + c.status_display + "</span></td>" +
+            "<td class='text-end text-nowrap'>" + collect + waive +
+            ('<button class="btn btn-sm btn-soft-secondary js-ledger">' + gettext("السجل") + '</button></td></tr>');
+        }).join("")
+      : ('<tr><td colspan="8" class="text-center text-muted py-4">' + gettext("لا توجد رسوم — جرّب إصدار رسوم الشهر") + '</td></tr>');
+
+    document.getElementById("charges-count").textContent =
+      (gettext("إجمالي") + " ") + data.count + (" " + gettext("— صفحة") + " ") + data.page + (" " + gettext("من") + " ") + data.pages;
+    document.getElementById("charges-prev").disabled = !data.has_previous;
+    document.getElementById("charges-next").disabled = !data.has_next;
+  } catch (error) { app.handleError(error); }
+}
+
+async function loadDaybook() {
+  const params = new URLSearchParams();
+  ["from", "to", "method"].forEach(function (key) {
+    const value = document.getElementById("d-" + key).value;
+    if (value) { params.set(key, value); }
+  });
+  try {
+    const result = await http.get("{% url 'payments_api:payments' %}?" + params.toString());
+    const data = result.data;
+    document.getElementById("daybook-totals").innerHTML =
+      (gettext("محصّل:") + " " + "<b>") + data.totals.collected + ("</b> · " + gettext("مسترد:") + " ") + data.totals.refunded +
+      (" · " + gettext("الصافي:") + " " + "<b>") + data.totals.net + "</b> (" + data.totals.count + (" " + gettext("حركة)"));
+    document.getElementById("daybook-body").innerHTML = data.results.length
+      ? data.results.map(function (p) {
+          const refund = (CAN_REFUND && p.kind === "PAYMENT")
+            ? '<button class="btn btn-sm btn-soft-danger js-refund" data-id="' + p.id + ('">' + gettext("استرداد") + '</button> ') : "";
+          return "<tr>" +
+            "<td><code>" + p.receipt_number + "</code></td>" +
+            "<td>" + p.paid_at + "</td>" +
+            "<td><a href='/students/" + p.student_id + "/'>" + p.student + "</a></td>" +
+            '<td><span class="badge text-bg-' + (p.kind === "REFUND" ? "danger" : "success") + '">' + p.kind_display + "</span></td>" +
+            "<td>" + p.signed_amount + "</td>" +
+            "<td>" + p.method_display + "</td>" +
+            "<td class='small'>" + p.collected_by + "</td>" +
+            "<td class='text-end text-nowrap'>" + refund +
+            '<button class="btn btn-sm btn-soft-secondary btn-icon js-receipt" data-id="' + p.id + '">' +
+            ui.icon("download") + (gettext("إيصال") + '</button></td></tr>');
+        }).join("")
+      : ('<tr><td colspan="8" class="text-center text-muted py-4">' + gettext("لا توجد حركات") + '</td></tr>');
+  } catch (error) { app.handleError(error); }
+}
+
+/* ------------------------------------------------------------------ actions */
+document.getElementById("charges-body").addEventListener("click", async function (event) {
+  const row = event.target.closest("tr");
+  if (!row) { return; }
+  const chargeId = row.dataset.id;
+
+  if (event.target.closest(".js-collect")) {
+    app.openModal(
+      (gettext("تحصيل دفعة —") + " ") + row.dataset.student,
+      ('<div class="mb-2"><label class="form-label">' + gettext("المبلغ") + '</label>') +
+      '<input class="form-control" type="number" step="0.01" name="amount" value="' + row.dataset.balance + '">' +
+      ('<div class="form-text">' + gettext("المتبقي:") + ' ') + row.dataset.balance + (' ' + gettext("ج.م") + '</div>') +
+      '<div class="text-danger small" data-error-for="amount"></div></div>' +
+      ('<div class="mb-2"><label class="form-label">' + gettext("الطريقة") + '</label><select class="form-select" name="method">') +
+      {% for value, label in methods %}'<option value="{{ value }}">{{ label }}</option>' +{% endfor %}
+      "</select></div>" +
+      ('<div class="mb-2"><label class="form-label">' + gettext("مرجع (اختياري)") + '</label><input class="form-control" name="reference"></div>'),
+      ('<button class="btn btn-primary" id="confirm-collect">' + gettext("تحصيل وطباعة") + '</button>')
+    );
+    document.getElementById("confirm-collect").addEventListener("click", async function () {
+      const value = (n) => document.querySelector('#app-modal [name="' + n + '"]').value;
+      try {
+        const result = await http.post("{% url 'payments_api:payments' %}", {
+          charge_id: Number(chargeId),
+          amount: value("amount"),
+          method: value("method"),
+          reference: value("reference")
+        });
+        bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+        app.toast((gettext("تم التحصيل — إيصال") + " ") + result.data.payment.receipt_number, "success");
+        app.download("/api/payments/" + result.data.payment.id + "/receipt/");
+        loadCharges();
+        loadDaybook();
+      } catch (error) {
+        const node = document.querySelector('#app-modal [data-error-for="amount"]');
+        if (node && error.field_errors && error.field_errors.amount) {
+          node.textContent = error.field_errors.amount.join(" ");
+        } else { app.handleError(error); }
+      }
+    });
+  }
+
+  if (event.target.closest(".js-waive")) {
+    app.openModal(
+      gettext("إعفاء من الرسوم"),
+      ('<div class="mb-2"><label class="form-label">' + gettext("السبب (مطلوب)") + '</label><textarea class="form-control" name="reason" rows="2"></textarea></div>'),
+      ('<button class="btn btn-secondary" id="confirm-waive" disabled>' + gettext("إعفاء") + '</button>')
+    );
+    const reason = document.querySelector('#app-modal [name="reason"]');
+    const confirm = document.getElementById("confirm-waive");
+    reason.addEventListener("input", () => (confirm.disabled = !reason.value.trim()));
+    confirm.addEventListener("click", async function () {
+      try {
+        await http.post("/api/charges/" + chargeId + "/waive/", { reason: reason.value.trim() });
+        bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+        app.toast(gettext("تم الإعفاء"), "secondary");
+        loadCharges();
+      } catch (error) { app.handleError(error); }
+    });
+  }
+
+  if (event.target.closest(".js-ledger")) {
+    try {
+      const result = await http.get("/api/charges/" + chargeId + "/");
+      const rows = result.data.payments.map(function (p) {
+        return "<tr><td><code>" + p.receipt_number + "</code></td><td>" + p.paid_at + "</td>" +
+          "<td>" + p.kind_display + "</td><td>" + p.signed_amount + "</td><td>" + p.method_display + "</td></tr>";
+      }).join("");
+      app.openModal(
+        (gettext("سجل الرسوم —") + " ") + row.dataset.student,
+        ('<table class="table table-sm"><thead><tr><th>' + gettext("الإيصال") + '</th><th>' + gettext("التاريخ") + '</th><th>' + gettext("النوع") + '</th><th>' + gettext("المبلغ") + '</th><th>' + gettext("الطريقة") + '</th></tr></thead>') +
+        "<tbody>" + (rows || ('<tr><td colspan="5" class="text-muted">' + gettext("لا توجد حركات") + '</td></tr>')) + "</tbody></table>",
+        ""
+      );
+    } catch (error) { app.handleError(error); }
+  }
+});
+
+document.getElementById("daybook-body").addEventListener("click", function (event) {
+  const receiptButton = event.target.closest(".js-receipt");
+  if (receiptButton) {
+    app.download("/api/payments/" + receiptButton.dataset.id + "/receipt/");
+    return;
+  }
+
+  const button = event.target.closest(".js-refund");
+  if (!button) { return; }
+  app.openModal(
+    gettext("استرداد دفعة"),
+    ('<div class="mb-2"><label class="form-label">' + gettext("المبلغ (اتركه فارغًا لاسترداد كامل)") + '</label>') +
+    '<input class="form-control" type="number" step="0.01" name="amount"></div>' +
+    ('<div class="mb-2"><label class="form-label">' + gettext("السبب (مطلوب)") + '</label><textarea class="form-control" name="reason" rows="2"></textarea></div>') +
+    ('<p class="small text-muted mb-0">' + gettext("الدفعة الأصلية تبقى كما هي — يُسجَّل الاسترداد كحركة جديدة.") + '</p>'),
+    ('<button class="btn btn-danger" id="confirm-refund" disabled>' + gettext("استرداد") + '</button>')
+  );
+  const reason = document.querySelector('#app-modal [name="reason"]');
+  const confirm = document.getElementById("confirm-refund");
+  reason.addEventListener("input", () => (confirm.disabled = !reason.value.trim()));
+  confirm.addEventListener("click", async function () {
+    const amount = document.querySelector('#app-modal [name="amount"]').value;
+    try {
+      await http.post("/api/payments/" + button.dataset.id + "/refund/", {
+        amount: amount || null, reason: reason.value.trim()
+      });
+      bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+      app.toast(gettext("تم الاسترداد"), "warning");
+      loadCharges();
+      loadDaybook();
+    } catch (error) { app.handleError(error); }
+  });
+});
+
+document.getElementById("generate-charges")?.addEventListener("click", function () {
+  const month = document.getElementById("f-month").value;
+  app.openModal(
+    (gettext("إصدار رسوم") + " ") + month,
+    ('<div id="generate-preview" class="text-muted">' + gettext("جارٍ حساب المعاينة…") + '</div>'),
+    ('<button class="btn btn-primary" id="confirm-generate" disabled>' + gettext("تأكيد الإصدار") + '</button>')
+  );
+  (async function () {
+    try {
+      const preview = await http.post("{% url 'payments_api:generate' %}", { billing_month: month, dry_run: true });
+      const data = preview.data;
+      document.getElementById("generate-preview").innerHTML =
+        (gettext("سيتم إصدار") + " " + "<b>") + data.created + ("</b> " + gettext("رسم جديد لعدد") + " " + "<b>") + data.students + ("</b> " + gettext("اشتراك")) +
+        ("<br>" + gettext("موجود بالفعل:") + " ") + data.existing + ("<br>" + gettext("إجمالي متوقع:") + " " + "<b>") + data.total_amount + ("</b> " + gettext("ج.م"));
+      document.getElementById("confirm-generate").disabled = false;
+    } catch (error) { app.handleError(error); }
+  })();
+  document.getElementById("confirm-generate").addEventListener("click", async function () {
+    try {
+      const result = await http.post("{% url 'payments_api:generate' %}", { billing_month: month });
+      bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+      app.toast((gettext("تم إصدار") + " ") + result.data.created + (" " + gettext("رسم")), "success");
+      loadCharges();
+    } catch (error) { app.handleError(error); }
+  });
+});
+
+document.getElementById("f-q").addEventListener("input", app.debounce(function () { chargePage = 1; loadCharges(); }, 300));
+["f-month", "f-status", "f-subject", "f-outstanding"].forEach(function (id) {
+  document.getElementById(id).addEventListener("change", function () { chargePage = 1; loadCharges(); });
+});
+["d-from", "d-to", "d-method"].forEach(function (id) {
+  document.getElementById(id).addEventListener("change", loadDaybook);
+});
+document.getElementById("charges-prev").addEventListener("click", function () { if (chargePage > 1) { chargePage -= 1; loadCharges(); } });
+document.getElementById("charges-next").addEventListener("click", function () { chargePage += 1; loadCharges(); });
+
+loadCharges();
+loadDaybook();
+</script>
+{% endblock %}

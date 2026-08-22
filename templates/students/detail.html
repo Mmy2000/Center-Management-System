@@ -1,0 +1,608 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ student.full_name }}{% endblock %}
+
+{% block content %}
+<nav class="small mb-2"><a href="{% url 'students:list' %}">{% translate "الطلاب" %}</a> / {{ student.student_code }}</nav>
+
+<div class="card mb-3">
+  <div class="card-body d-flex flex-wrap gap-3 align-items-center">
+    <div class="rounded bg-body-tertiary d-flex align-items-center justify-content-center"
+         style="width:84px;height:84px;overflow:hidden;">
+      {% if student.photo %}
+        <img src="{{ student.photo.url }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+      {% else %}
+        <span class="text-muted small">{% translate "بدون صورة" %}</span>
+      {% endif %}
+    </div>
+    <div class="flex-grow-1">
+      <h1 class="h5 mb-1">{{ student.full_name }}</h1>
+      <div class="text-muted small">
+        <code>{{ student.student_code }}</code> · {{ student.stage }} · {{ student.grade }}
+        {% if student.school %} · {{ student.school }}{% endif %}
+      </div>
+      <div class="small mt-1">
+        {% translate "ولي الأمر" %}: {{ student.guardian_name|default:"—" }}
+        {% if student.guardian_phone %}<span class="text-muted">({{ student.guardian_phone }})</span>{% endif %}
+      </div>
+    </div>
+    <div class="text-end">
+      <span class="badge text-bg-{% if student.status == 'ACTIVE' %}success{% elif student.status == 'SUSPENDED' %}danger{% else %}secondary{% endif %} mb-2">
+        {{ student.get_status_display }}
+      </span>
+      {% if perms.students.change_student %}
+        <div><button class="btn btn-sm btn-outline-secondary" id="change-status">{% translate "تغيير الحالة" %}</button></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-overview" type="button">{% translate "نظرة عامة" %}</button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-groups" type="button">{% translate "المجموعات" %}</button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-attendance" type="button">{% translate "الحضور" %}</button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-payments" type="button">{% translate "المدفوعات" %}</button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-cards" type="button">{% translate "البطاقات" %}</button></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="tab-overview">
+    <div class="card"><div class="card-body">
+      <dl class="row mb-0">
+        <dt class="col-sm-3">{% translate "تاريخ الميلاد" %}</dt><dd class="col-sm-9">{{ student.date_of_birth|default:"—" }}</dd>
+        <dt class="col-sm-3">{% translate "النوع" %}</dt><dd class="col-sm-9">{{ student.get_gender_display|default:"—" }}</dd>
+        <dt class="col-sm-3">{% translate "هاتف الطالب" %}</dt><dd class="col-sm-9">{{ student.phone|default:"—" }}</dd>
+        <dt class="col-sm-3">{% translate "العنوان" %}</dt><dd class="col-sm-9">{{ student.address|default:"—" }}</dd>
+        <dt class="col-sm-3">{% translate "تاريخ الالتحاق" %}</dt><dd class="col-sm-9">{{ student.enrolled_on }}</dd>
+        <dt class="col-sm-3">{% translate "ملاحظات" %}</dt><dd class="col-sm-9">{{ student.notes|default:"—" }}</dd>
+      </dl>
+    </div></div>
+  </div>
+
+  <div class="tab-pane fade" id="tab-groups">
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">{% translate "الاشتراكات الحالية" %}</span>
+        <span>
+          <span class="badge text-bg-light me-2" id="monthly-total"></span>
+          {% if perms.students.add_studentgroupassignment %}
+            <button class="btn btn-sm btn-primary" id="add-assignment">{% translate "اشتراك في مجموعة" %}</button>
+          {% endif %}
+        </span>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-sm table-compact mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>{% translate "المادة" %}</th>
+              <th>{% translate "المجموعة" %}</th>
+              <th>{% translate "الرسوم" %}</th>
+              <th>{% translate "من" %}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="assignments-active">
+            <tr><td colspan="5" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header fw-semibold">{% translate "سجل الاشتراكات" %}</div>
+      <div class="card-body p-0">
+        <table class="table table-sm table-compact mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>{% translate "المادة" %}</th>
+              <th>{% translate "المجموعة" %}</th>
+              <th>{% translate "من" %}</th>
+              <th>{% translate "إلى" %}</th>
+              <th>{% translate "الحالة" %}</th>
+              <th>{% translate "السبب" %}</th>
+            </tr>
+          </thead>
+          <tbody id="assignments-history"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="tab-pane fade" id="tab-attendance">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">{% translate "سجل الحضور" %}</span>
+        <select class="form-select form-select-sm w-auto" id="att-type">
+          <option value="">{% translate "كل الأنواع" %}</option>
+          <option value="NORMAL">{% translate "عادي" %}</option>
+          <option value="ALTERNATIVE_GROUP">{% translate "مجموعة بديلة" %}</option>
+          <option value="MAKEUP">{% translate "تعويضية" %}</option>
+          <option value="EXCEPTIONAL">{% translate "استثنائي" %}</option>
+        </select>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm table-compact align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>{% translate "التاريخ" %}</th>
+              <th>{% translate "المادة" %}</th>
+              <th>{% translate "مجموعته" %}</th>
+              <th>{% translate "المجموعة الحاضرة" %}</th>
+              <th>{% translate "حضور" %}</th>
+              <th>{% translate "انصراف" %}</th>
+              <th>{% translate "المدة" %}</th>
+              <th>{% translate "النوع" %}</th>
+              <th>{% translate "الحالة" %}</th>
+            </tr>
+          </thead>
+          <tbody id="attendance-body">
+            <tr><td colspan="9" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer d-flex justify-content-between align-items-center">
+        <span class="small text-muted" id="att-count"></span>
+        <div class="btn-group btn-group-sm">
+          <button class="btn btn-outline-secondary" id="att-prev">{% translate "السابق" %}</button>
+          <button class="btn btn-outline-secondary" id="att-next">{% translate "التالي" %}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tab-pane fade" id="tab-payments">
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">{% translate "الرسوم" %}</span>
+        <span class="small" id="fin-totals"></span>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-sm table-compact align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>{% translate "الشهر" %}</th>
+              <th>{% translate "المادة" %}</th>
+              <th>{% translate "المستحق" %}</th>
+              <th>{% translate "المدفوع" %}</th>
+              <th>{% translate "المتبقي" %}</th>
+              <th>{% translate "الحالة" %}</th>
+            </tr>
+          </thead>
+          <tbody id="charges-body">
+            <tr><td colspan="6" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header fw-semibold">{% translate "الحركات المالية" %}</div>
+      <div class="table-responsive">
+        <table class="table table-sm table-compact align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>{% translate "الإيصال" %}</th>
+              <th>{% translate "التاريخ" %}</th>
+              <th>{% translate "النوع" %}</th>
+              <th>{% translate "المبلغ" %}</th>
+              <th>{% translate "الطريقة" %}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="ledger-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="tab-pane fade" id="tab-cards">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">{% translate "بطاقات الطالب" %}</span>
+        {% if perms.cards.change_studentcard %}
+          <button class="btn btn-sm btn-primary" id="assign-card">{% translate "ربط بطاقة" %}</button>
+        {% endif %}
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-sm table-compact mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>{% translate "رقم البطاقة" %}</th>
+              <th>{% translate "من" %}</th>
+              <th>{% translate "إلى" %}</th>
+              <th>{% translate "الحالة" %}</th>
+              <th>{% translate "سبب الإنهاء" %}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cards-timeline">
+            <tr><td colspan="5" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const STUDENT_ID = {{ student.id }};
+const STATUSES = [
+  ["ACTIVE", gettext("نشط")], ["INACTIVE", gettext("غير نشط")], ["SUSPENDED", gettext("موقوف")],
+  ["TRANSFERRED", gettext("منقول")], ["GRADUATED", gettext("متخرج")]
+];
+
+const STUDENT_GRADE_ID = {{ student.grade_id }};
+
+/* ----------------------------------------------------------- financial tab */
+const CHARGE_STATUS_CLASS = {
+  UNPAID: "danger", PARTIALLY_PAID: "warning", PAID: "success",
+  OVERPAID: "info", WAIVED: "secondary", CANCELLED: "dark"
+};
+
+async function loadFinancials() {
+  const chargesBody = document.getElementById("charges-body");
+  try {
+    const summary = await http.get("/api/students/" + STUDENT_ID + "/financial-summary/");
+    const data = summary.data;
+    document.getElementById("fin-totals").innerHTML =
+      (gettext("مستحق:") + " " + "<b>") + data.totals.due + ("</b> · " + gettext("مدفوع:") + " " + "<b>") + data.totals.paid +
+      ("</b> · " + gettext("متبقٍ:") + " " + "<b class='text-danger'>") + data.totals.balance + "</b>";
+    chargesBody.innerHTML = data.results.length
+      ? data.results.map(function (c) {
+          return "<tr>" +
+            "<td>" + c.billing_month.slice(0, 7) + "</td>" +
+            "<td>" + c.subject + "</td>" +
+            "<td>" + c.amount_due + (Number(c.discount_amount) ? " <span class='text-muted small'>(-" + c.discount_amount + ")</span>" : "") + "</td>" +
+            "<td>" + c.total_paid + "</td>" +
+            "<td class='fw-semibold'>" + c.balance + "</td>" +
+            '<td><span class="badge text-bg-' + (CHARGE_STATUS_CLASS[c.status] || "secondary") + '">' + c.status_display + "</span></td>" +
+            "</tr>";
+        }).join("")
+      : ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("لا توجد رسوم") + '</td></tr>');
+
+    const ledger = await http.get("/api/students/" + STUDENT_ID + "/payments/");
+    document.getElementById("ledger-body").innerHTML = ledger.data.results.length
+      ? ledger.data.results.map(function (p) {
+          return "<tr><td><code>" + p.receipt_number + "</code></td><td>" + p.paid_at + "</td>" +
+            '<td><span class="badge text-bg-' + (p.kind === "REFUND" ? "danger" : "success") + '">' + p.kind_display + "</span></td>" +
+            "<td>" + p.signed_amount + "</td><td>" + p.method_display + "</td>" +
+            '<td class="text-end"><button class="btn btn-sm btn-soft-secondary btn-icon js-receipt" data-id="' + p.id + '">' +
+            ui.icon("download") + (gettext("إيصال") + '</button></td></tr>');
+        }).join("")
+      : ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("لا توجد حركات") + '</td></tr>');
+  } catch (error) {
+    chargesBody.innerHTML = ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("تعذر التحميل") + '</td></tr>');
+  }
+}
+loadFinancials();
+
+document.getElementById("ledger-body").addEventListener("click", function (event) {
+  const button = event.target.closest(".js-receipt");
+  if (button) { app.download("/api/payments/" + button.dataset.id + "/receipt/"); }
+});
+
+/* ---------------------------------------------------------- attendance tab */
+const ATT_TYPE_CLASS = {
+  NORMAL: "secondary", ALTERNATIVE_GROUP: "warning", MAKEUP: "info",
+  MANUAL: "dark", EXCEPTIONAL: "danger"
+};
+let attPage = 1;
+
+async function loadAttendance() {
+  const body = document.getElementById("attendance-body");
+  const params = new URLSearchParams({ page: attPage });
+  const type = document.getElementById("att-type").value;
+  if (type) { params.set("type", type); }
+  try {
+    const result = await http.get("/api/students/" + STUDENT_ID + "/attendance/?" + params.toString());
+    const data = result.data;
+    body.innerHTML = data.results.length
+      ? data.results.map(function (a) {
+          const alternative = a.assigned_group && a.assigned_group !== a.attended_group;
+          return "<tr>" +
+            "<td>" + a.date + "</td>" +
+            "<td>" + a.subject + "</td>" +
+            "<td>" + (a.assigned_group || "—") + "</td>" +
+            "<td" + (alternative ? ' class="fw-semibold text-warning-emphasis"' : "") + ">" + a.attended_group + "</td>" +
+            "<td>" + (a.check_in || "—") + (a.late_minutes ? " <span class='text-danger small'>+" + a.late_minutes + "</span>" : "") + "</td>" +
+            "<td>" + (a.check_out || "—") + "</td>" +
+            "<td>" + (a.duration_minutes !== null ? a.duration_minutes + (" " + gettext("د")) : "—") + "</td>" +
+            '<td><span class="badge text-bg-' + (ATT_TYPE_CLASS[a.type] || "secondary") + '">' + a.type_display + "</span>" +
+              (a.is_manual ? (' <span class="badge text-bg-light" title="' + gettext("تعديل يدوي") + '">✎</span>') : "") + "</td>" +
+            "<td>" + a.status_display + "</td></tr>";
+        }).join("")
+      : ('<tr><td colspan="9" class="text-center text-muted py-4">' + gettext("لا يوجد سجل حضور") + '</td></tr>');
+    document.getElementById("att-count").textContent =
+      (gettext("إجمالي") + " ") + data.count + (" " + gettext("— صفحة") + " ") + data.page + (" " + gettext("من") + " ") + data.pages;
+    document.getElementById("att-prev").disabled = !data.has_previous;
+    document.getElementById("att-next").disabled = !data.has_next;
+  } catch (error) {
+    body.innerHTML = ('<tr><td colspan="9" class="text-center text-muted py-4">' + gettext("تعذر التحميل") + '</td></tr>');
+  }
+}
+document.getElementById("att-type").addEventListener("change", function () { attPage = 1; loadAttendance(); });
+document.getElementById("att-prev").addEventListener("click", function () { if (attPage > 1) { attPage -= 1; loadAttendance(); } });
+document.getElementById("att-next").addEventListener("click", function () { attPage += 1; loadAttendance(); });
+loadAttendance();
+
+async function loadAssignments() {
+  const active = document.getElementById("assignments-active");
+  const history = document.getElementById("assignments-history");
+  try {
+    const result = await http.get("/api/students/" + STUDENT_ID + "/assignments/");
+    const data = result.data;
+    document.getElementById("monthly-total").textContent =
+      (gettext("إجمالي شهري:") + " ") + data.monthly_total + (" " + gettext("ج.م"));
+
+    active.innerHTML = data.active.length
+      ? data.active.map(function (a) {
+          return "<tr data-id='" + a.id + "' data-group='" + a.group_id + "' data-offering='" + a.subject + "'>" +
+            "<td>" + a.subject + "</td>" +
+            "<td><a href='/groups/" + a.group_id + "/'>" + a.group + "</a></td>" +
+            "<td>" + a.monthly_fee + "</td>" +
+            "<td>" + a.start_date + "</td>" +
+            "<td class='text-end'>" +
+              ('<button class="btn btn-sm btn-soft-secondary js-transfer">' + gettext("نقل") + '</button> ') +
+              ('<button class="btn btn-sm btn-soft-danger js-end">' + gettext("إنهاء") + '</button>') +
+            "</td></tr>";
+        }).join("")
+      : ('<tr><td colspan="5" class="text-center text-muted py-4">' + gettext("لا توجد اشتراكات") + '</td></tr>');
+
+    history.innerHTML = data.history.length
+      ? data.history.map(function (a) {
+          return "<tr><td>" + a.subject + "</td><td>" + a.group + "</td>" +
+            "<td>" + a.start_date + "</td><td>" + (a.end_date || "—") + "</td>" +
+            "<td>" + a.status_display + "</td><td>" + (a.end_reason || "—") + "</td></tr>";
+        }).join("")
+      : ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("لا يوجد سجل") + '</td></tr>');
+  } catch (error) {
+    app.handleError(error);
+  }
+}
+loadAssignments();
+
+async function activeGroups(extra) {
+  const query = new URLSearchParams(Object.assign({ status: "ACTIVE" }, extra || {}));
+  const result = await http.get("/api/groups/?" + query.toString());
+  return result.data.results;
+}
+
+document.getElementById("add-assignment")?.addEventListener("click", async function () {
+  const groups = await activeGroups({ grade: STUDENT_GRADE_ID });
+  const options = groups.map(function (g) {
+    return '<option value="' + g.id + '">' + g.subject + " — " + g.name + " (" + g.monthly_fee + (" " + gettext("ج.م)") + "</option>");
+  }).join("");
+  app.openModal(
+    gettext("اشتراك في مجموعة"),
+    ('<div class="mb-2"><label class="form-label">' + gettext("المجموعة") + '</label><select class="form-select" name="group">') + options + "</select></div>" +
+    ('<div class="mb-2"><label class="form-label">' + gettext("تاريخ البدء") + '</label><input class="form-control" type="date" name="start_date"></div>'),
+    ('<button class="btn btn-primary" id="confirm-assignment">' + gettext("حفظ") + '</button>')
+  );
+  document.getElementById("confirm-assignment").addEventListener("click", async function () {
+    const groupId = document.querySelector('#app-modal [name="group"]').value;
+    const startDate = document.querySelector('#app-modal [name="start_date"]').value;
+    try {
+      const result = await http.post("/api/groups/" + groupId + "/students/", {
+        student_id: STUDENT_ID,
+        start_date: startDate || null
+      });
+      bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+      app.toast(
+        (result.data.warnings || []).includes("WARN_CAPACITY")
+          ? gettext("تم الاشتراك — تنبيه: المجموعة تجاوزت السعة")
+          : gettext("تم الاشتراك"),
+        (result.data.warnings || []).length ? "warning" : "success"
+      );
+      loadAssignments();
+    } catch (error) { app.handleError(error); }
+  });
+});
+
+document.getElementById("assignments-active").addEventListener("click", async function (event) {
+  const row = event.target.closest("tr");
+  if (!row) { return; }
+  const assignmentId = row.dataset.id;
+
+  if (event.target.closest(".js-end")) {
+    app.openModal(
+      gettext("إنهاء الاشتراك"),
+      ('<div class="mb-2"><label class="form-label">' + gettext("السبب") + '</label><select class="form-select" name="reason">') +
+      ('<option value="LEFT_CENTER">' + gettext("ترك السنتر") + '</option><option value="SCHEDULE">' + gettext("تعارض مواعيد") + '</option>') +
+      ('<option value="OTHER">' + gettext("أخرى") + '</option></select></div>'),
+      ('<button class="btn btn-danger" id="confirm-end">' + gettext("إنهاء") + '</button>')
+    );
+    document.getElementById("confirm-end").addEventListener("click", async function () {
+      try {
+        await http.del("/api/groups/" + row.dataset.group + "/students/" + STUDENT_ID + "/", {
+          reason: document.querySelector('#app-modal [name="reason"]').value
+        });
+        bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+        app.toast(gettext("تم إنهاء الاشتراك — السجل محفوظ"), "secondary");
+        loadAssignments();
+      } catch (error) { app.handleError(error); }
+    });
+  }
+
+  if (event.target.closest(".js-transfer")) {
+    const groups = await activeGroups({ grade: STUDENT_GRADE_ID });
+    const options = groups
+      .filter((g) => g.subject === row.dataset.offering && String(g.id) !== String(row.dataset.group))
+      .map((g) => '<option value="' + g.id + '">' + g.name + "</option>")
+      .join("");
+    app.openModal(
+      gettext("نقل الطالب لمجموعة أخرى"),
+      ('<div class="mb-2"><label class="form-label">' + gettext("المجموعة الجديدة") + '</label><select class="form-select" name="new_group">') + options + "</select></div>" +
+      ('<div class="mb-2"><label class="form-label">' + gettext("السبب (مطلوب)") + '</label><textarea class="form-control" name="reason" rows="2"></textarea></div>') +
+      ('<p class="small text-muted mb-0">' + gettext("الاشتراك القديم يُحفظ في السجل ولا يتأثر الحضور السابق.") + '</p>'),
+      ('<button class="btn btn-primary" id="confirm-transfer" disabled>' + gettext("نقل") + '</button>')
+    );
+    const reason = document.querySelector('#app-modal [name="reason"]');
+    const confirmButton = document.getElementById("confirm-transfer");
+    reason.addEventListener("input", () => (confirmButton.disabled = !reason.value.trim()));
+    confirmButton.addEventListener("click", async function () {
+      try {
+        await http.post("/api/assignments/" + assignmentId + "/transfer/", {
+          new_group_id: document.querySelector('#app-modal [name="new_group"]').value,
+          reason: reason.value.trim()
+        });
+        bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+        app.toast(gettext("تم النقل"), "success");
+        loadAssignments();
+      } catch (error) { app.handleError(error); }
+    });
+  }
+});
+
+async function loadCards() {
+  const body = document.getElementById("cards-timeline");
+  try {
+    const result = await http.get("/api/students/" + STUDENT_ID + "/cards/");
+    const rows = result.data.results;
+    body.innerHTML = rows.length
+      ? rows.map(function (row) {
+          return "<tr>" +
+            "<td>" + row.card.card_number + "</td>" +
+            "<td>" + row.assigned_at.slice(0, 10) + "</td>" +
+            "<td>" + (row.released_at ? row.released_at.slice(0, 10) : gettext("الآن")) + "</td>" +
+            '<td><span class="badge text-bg-' + (row.is_open ? "success" : "secondary") + '">' +
+              row.card.status_display + "</span></td>" +
+            "<td>" + (row.release_reason_display || "—") + "</td>" +
+            "<td class='text-end'>" + (row.is_open
+              ? '<button class="btn btn-sm btn-soft-secondary btn-icon js-print-card" data-id="' +
+                row.card.id + '">' + ui.icon("download") + (gettext("طباعة") + "</button>")
+              : "") + "</td></tr>";
+        }).join("")
+      : ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("لا توجد بطاقات") + '</td></tr>');
+  } catch (error) {
+    body.innerHTML = ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("تعذر التحميل") + '</td></tr>');
+  }
+}
+loadCards();
+
+document.getElementById("cards-timeline").addEventListener("click", function (event) {
+  const button = event.target.closest(".js-print-card");
+  if (button) { app.download("/api/cards/" + button.dataset.id + "/print/"); }
+});
+
+document.getElementById("assign-card")?.addEventListener("click", async function () {
+  /* Two ways a student gets a card:
+       1. the card already exists on paper  -> scan it;
+       2. it does not                       -> issue one from stock and print it. */
+  app.openModal(
+    gettext("ربط بطاقة بالطالب"),
+    '<ul class="nav nav-tabs mb-3" role="tablist">' +
+      ('<li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pane-scan" type="button">' + gettext("امسح بطاقة جاهزة") + '</button></li>') +
+      ('<li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#pane-issue" type="button">' + gettext("إصدار وطباعة") + '</button></li>') +
+    "</ul>" +
+    '<div class="tab-content">' +
+      '<div class="tab-pane fade show active" id="pane-scan">' +
+        ('<p class="text-muted small">' + gettext("امسح البطاقة المطبوعة الآن — يجب أن تكون متاحة وغير مرتبطة بطالب.") + '</p>') +
+        ('<input class="form-control" name="qr_token" autocomplete="off" placeholder="' + gettext("امسح الكارت…") + '">') +
+        '<div class="text-danger small mt-1" id="assign-error"></div>' +
+      "</div>" +
+      '<div class="tab-pane fade" id="pane-issue">' +
+        ('<p class="text-muted small">' + gettext("يأخذ بطاقة من المخزون ويطبع وجهها بالاسم ورمز") + ' ' + 'QR.</p>') +
+        ('<div class="mb-2"><label class="form-label">' + gettext("البطاقة") + '</label>') +
+        ('<select class="form-select" name="card_id"><option value="">' + gettext("جارٍ التحميل…") + '</option></select>') +
+        '<div class="form-text" id="stock-note"></div></div>' +
+      "</div>" +
+    "</div>",
+    ('<button class="btn btn-primary" id="confirm-assign">' + gettext("ربط") + '</button>')
+  );
+
+  const modal = document.getElementById("app-modal");
+  const scanInput = modal.querySelector('[name="qr_token"]');
+  const cardSelect = modal.querySelector('[name="card_id"]');
+  const confirm = document.getElementById("confirm-assign");
+  let mode = "scan";
+
+  setTimeout(() => scanInput.focus(), 200);
+  modal.querySelectorAll('[data-bs-toggle="tab"]').forEach(function (tab) {
+    tab.addEventListener("shown.bs.tab", function (event) {
+      mode = event.target.dataset.bsTarget === "#pane-issue" ? "issue" : "scan";
+      confirm.textContent = mode === "issue" ? gettext("إصدار وطباعة") : gettext("ربط");
+      if (mode === "scan") { scanInput.focus(); }
+    });
+  });
+
+  /* Stock feeder — also tells the operator when there is none left. */
+  try {
+    const stock = await http.get("/api/cards/available/");
+    const options = stock.data.results
+      .map((c) => '<option value="' + c.id + '">' + ui.esc(c.card_number) +
+        (c.batch ? " — " + ui.esc(c.batch) : "") + "</option>")
+      .join("");
+    cardSelect.innerHTML = stock.data.count
+      ? ('<option value="">' + gettext("التالية في المخزون") + '</option>') + options
+      : ('<option value="">' + gettext("لا توجد بطاقات متاحة") + '</option>');
+    document.getElementById("stock-note").textContent = stock.data.count
+      ? (gettext("متاح في المخزون:") + " ") + stock.data.count
+      : gettext("المخزون فارغ — سيتم إنشاء بطاقة جديدة عند التأكيد.");
+  } catch (error) {
+    cardSelect.innerHTML = '<option value="">—</option>';
+  }
+
+  async function scanAndLink() {
+    document.getElementById("assign-error").textContent = "";
+    try {
+      const result = await http.post("/api/cards/assign/", {
+        qr_token: scanInput.value.trim(),
+        student_id: STUDENT_ID
+      });
+      app.closeModal();
+      app.toast((gettext("تم ربط البطاقة") + " ") + result.data.card.card_number, "success");
+      loadCards();
+    } catch (error) {
+      document.getElementById("assign-error").textContent = error.message || gettext("تعذر ربط البطاقة");
+      scanInput.value = "";
+      scanInput.focus();
+    }
+  }
+
+  async function issueAndPrint() {
+    try {
+      const result = await http.post("/api/cards/issue/", {
+        student_id: STUDENT_ID,
+        card_id: cardSelect.value ? Number(cardSelect.value) : null,
+        mint: true
+      });
+      app.closeModal();
+      app.toast((gettext("تم إصدار البطاقة") + " ") + result.data.card.card_number, "success");
+      app.download(result.data.print_url);   // straight to the card printer
+      loadCards();
+    } catch (error) { app.handleError(error); }
+  }
+
+  scanInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") { event.preventDefault(); scanAndLink(); }
+  });
+  confirm.addEventListener("click", function () {
+    ui.withBusy(confirm, () => (mode === "issue" ? issueAndPrint() : scanAndLink()));
+  });
+});
+
+document.getElementById("change-status")?.addEventListener("click", function () {
+  const options = STATUSES.map(function (s) {
+    return '<option value="' + s[0] + '"' + (s[0] === "{{ student.status }}" ? " selected" : "") + ">" + s[1] + "</option>";
+  }).join("");
+  app.openModal(
+    gettext("تغيير حالة الطالب"),
+    ('<div class="mb-2"><label class="form-label">' + gettext("الحالة") + '</label><select class="form-select" name="status">') + options + "</select></div>" +
+    ('<div class="mb-2"><label class="form-label">' + gettext("السبب (مطلوب)") + '</label><textarea class="form-control" name="reason" rows="2"></textarea>') +
+    '<div class="text-danger small" data-error-for="reason"></div></div>',
+    ('<button class="btn btn-primary" id="save-status" disabled>' + gettext("حفظ") + '</button>')
+  );
+  const reason = document.querySelector('#app-modal [name="reason"]');
+  const save = document.getElementById("save-status");
+  reason.addEventListener("input", function () { save.disabled = !reason.value.trim(); });
+  save.addEventListener("click", async function () {
+    try {
+      await http.post("/api/students/" + STUDENT_ID + "/status/", {
+        status: document.querySelector('#app-modal [name="status"]').value,
+        reason: reason.value.trim()
+      });
+      location.reload();
+    } catch (error) { app.handleError(error); }
+  });
+});
+</script>
+{% endblock %}

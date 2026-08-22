@@ -1,0 +1,292 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% block title %}{% translate "المسح" %} — {{ lesson.group.name }}{% endblock %}
+
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <div>
+    <h1 class="h5 mb-0">{{ lesson.group.grade_subject.subject }} — {{ lesson.group.name }}</h1>
+    <div class="text-muted small">
+      {{ lesson.lesson_date }} · {{ lesson.scheduled_start|time:"H:i" }}
+      · <span class="badge text-bg-{% if lesson.status == 'OPEN' %}success{% else %}secondary{% endif %}">{{ lesson.get_status_display }}</span>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    {% if lesson.status == 'SCHEDULED' and perms.lessons.open_lesson %}
+      <button class="btn btn-success" id="open-lesson">{% translate "افتح الحصة" %}</button>
+    {% endif %}
+    <a class="btn btn-outline-secondary" href="{% url 'lessons:detail' lesson.pk %}">{% translate "لوحة الحصة" %}</a>
+  </div>
+</div>
+
+<div class="alert alert-warning py-2" id="offline-bar">
+  {% translate "لا يوجد اتصال — يتم حفظ عمليات المسح محليًا" %} (<span id="queue-depth">0</span>)
+</div>
+
+<div class="row g-3 mb-3 row-in" id="counters">
+  {% for key, label in counters_labels %}
+    <div class="col-4 col-lg-2">
+      <div class="stat-tile py-2">
+        <div class="stat-value" data-counter="{{ key }}">0</div>
+        <div class="stat-label">{{ label }}</div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-body">
+        <input id="scan-input" class="position-absolute" style="opacity:0;width:1px;height:1px;"
+               autocomplete="off" aria-label="{% translate 'مدخل المسح' %}">
+        <div id="scan-result" class="scan-result scan-idle">
+          <div>
+            <svg class="icon icon-xl mb-2"><use href="#i-scan"></use></svg>
+            <div class="verdict">{% translate "امسح كارت الطالب" %}</div>
+            <div class="detail text-muted">
+              <span class="scan-ready-dot"></span> {% translate "جاهز للمسح…" %}
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          <span class="small text-muted" id="scan-hint">{% translate "القارئ جاهز — لا حاجة للماوس" %}</span>
+          <span class="small text-muted" id="latency"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card h-100">
+      <div class="card-header fw-semibold">{% translate "آخر العمليات" %}</div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+          <tbody id="feed-body">
+            <tr><td class="text-center text-muted py-4">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const LESSON_ID = {{ lesson.pk }};
+const DEVICE_ID = (localStorage.getItem("cms.device_id") || (function () {
+  const id = "dev-" + Math.random().toString(36).slice(2, 8);
+  localStorage.setItem("cms.device_id", id);
+  return id;
+})());
+const QUEUE_KEY = "cms.scan_queue";
+let cursor = null;
+
+/* ------------------------------------------------------------------ sound */
+function beep(pattern) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const tones = { beep: [[880, 0.12]], "double-beep": [[660, 0.1], [660, 0.1]], buzz: [[180, 0.35]] };
+    let start = ctx.currentTime;
+    (tones[pattern] || tones.beep).forEach(function ([freq, dur]) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      gain.gain.setValueAtTime(0.18, start);
+      osc.start(start);
+      osc.stop(start + dur);
+      start += dur + 0.05;
+    });
+  } catch (error) { /* audio is a nicety, never a blocker */ }
+}
+
+/* ----------------------------------------------------------------- render */
+const CLASS_BY_COLOUR = { green: "scan-green", amber: "scan-amber", red: "scan-red" };
+
+function render(payload) {
+  const box = document.getElementById("scan-result");
+  box.className = "scan-result " + (CLASS_BY_COLOUR[payload.colour] || "scan-red");
+  const student = payload.student || {};
+  const groups = payload.groups || {};
+  const attendance = payload.attendance || {};
+
+  const fallbackIcon = payload.colour === "green" ? "check" : (payload.colour === "amber" ? "warn" : "error");
+  const photo = student.photo
+    ? '<img class="scan-photo mb-2" src="' + ui.esc(student.photo) + '" alt="">'
+    : ui.icon(fallbackIcon, "icon-xl mb-1");
+
+  const groupLine = (groups.assigned && groups.attended && groups.assigned !== groups.attended)
+    ? ('<div class="detail">' + gettext("مجموعته:") + ' ' + '<b>') + ui.esc(groups.assigned) + ("</b> ⟵ " + gettext("الحالية:") + " " + "<b>") +
+      ui.esc(groups.attended) + "</b></div>"
+    : (groups.attended ? ('<div class="detail">' + gettext("المجموعة:") + ' ' + '<b>') + ui.esc(groups.attended) + "</b></div>" : "");
+
+  const times = attendance.check_in
+    ? ('<div class="detail">' + gettext("الحضور:") + ' ') + attendance.check_in + (attendance.check_out ? (" " + gettext("— الانصراف:") + " ") + attendance.check_out : "") + "</div>"
+    : "";
+
+  const late = attendance.late_minutes ? ('<div class="detail">' + gettext("تأخير:") + ' ') + attendance.late_minutes + (" " + gettext("دقيقة") + "</div>") : "";
+  const payment = payload.payment && Number(payload.payment.remaining) > 0
+    ? ('<div class="detail text-danger">' + gettext("متبقي:") + ' ') + payload.payment.remaining + (" " + gettext("ج.م") + "</div>")
+    : "";
+
+  const approve = payload.severity === "NEEDS_APPROVAL"
+    ? ('<button class="btn btn-sm btn-warning mt-2" id="approve-scan">' + gettext("اعتماد المشرف وتسجيل الحضور") + '</button>')
+    : "";
+
+  box.innerHTML =
+    "<div>" + photo +
+    '<div class="name">' + ui.esc(student.name || "") + "</div>" +
+    '<div class="verdict">' + ui.esc(payload.message) + "</div>" +
+    groupLine + times + late + payment + approve +
+    "</div>";
+
+  document.getElementById("latency").textContent =
+    payload.latency_ms ? payload.latency_ms + " ms" : "";
+  beep(payload.sound || (payload.colour === "red" ? "buzz" : "beep"));
+
+  document.getElementById("approve-scan")?.addEventListener("click", function () {
+    submitScan(lastToken, { approve: true });
+  });
+}
+
+function idle() {
+  const box = document.getElementById("scan-result");
+  box.className = "scan-result scan-idle";
+  box.innerHTML = "<div>" + ui.icon("scan", "icon-xl mb-2") +
+    ('<div class="verdict">' + gettext("امسح كارت الطالب") + '</div>') +
+    ('<div class="detail text-muted"><span class="scan-ready-dot"></span> ' + gettext("جاهز للمسح…") + '</div></div>');
+}
+
+/* ------------------------------------------------------------------ queue */
+function queued() {
+  try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || "[]"); } catch (e) { return []; }
+}
+function setQueue(items) {
+  localStorage.setItem(QUEUE_KEY, JSON.stringify(items));
+  document.getElementById("queue-depth").textContent = items.length;
+  document.getElementById("offline-bar").style.display = items.length ? "block" : "none";
+}
+async function drainQueue() {
+  const items = queued();
+  if (!items.length) { return; }
+  const remaining = [];
+  for (const item of items) {
+    try { await http.post("{% url 'attendance_api:scan' %}", item); }
+    catch (error) { if (!error.code) { remaining.push(item); } }
+  }
+  setQueue(remaining);
+  if (!remaining.length) { app.toast(gettext("تمت مزامنة العمليات المؤجلة"), "success"); }
+  loadCounters();
+}
+
+/* ------------------------------------------------------------------- scan */
+let lastToken = "";
+let busy = false;
+
+async function submitScan(token, options) {
+  if (!token || busy) { return; }
+  busy = true;
+  lastToken = token;
+  const body = Object.assign({
+    lesson_id: LESSON_ID,
+    qr_token: token,
+    device_id: DEVICE_ID,
+    scan_source: "HID",
+    idempotency_key: (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random())
+  }, options || {});
+
+  try {
+    const result = await http.post("{% url 'attendance_api:scan' %}", body);
+    render(Object.assign({}, result.data, { message: result.message || result.data.message }));
+    loadCounters();
+    pollFeed();
+  } catch (error) {
+    if (error.code) {
+      render(Object.assign({ message: error.message, colour: "red", sound: "buzz" }, error.data || {}));
+    } else {
+      const items = queued();
+      items.push(body);
+      setQueue(items);
+      render({ message: gettext("لا يوجد اتصال — تم الحفظ محليًا"), colour: "amber", sound: "double-beep" });
+    }
+  } finally {
+    busy = false;
+    setTimeout(function () {
+      if (!busy) { idle(); }
+    }, 3500);
+  }
+}
+
+/* --------------------------------------------------------- HID keystrokes */
+const input = document.getElementById("scan-input");
+function focusInput() { input.focus(); }
+focusInput();
+document.addEventListener("click", focusInput);
+window.addEventListener("focus", focusInput);
+setInterval(focusInput, 2000);
+
+let idleTimer = null;
+input.addEventListener("keydown", function (event) {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    const token = input.value.trim();
+    input.value = "";
+    submitScan(token);
+  }
+});
+input.addEventListener("input", function () {
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(function () {
+    const token = input.value.trim();
+    if (token.length >= 8) { input.value = ""; submitScan(token); }
+  }, 150);
+});
+
+/* --------------------------------------------------------------- counters */
+async function loadCounters() {
+  try {
+    const result = await http.get("/api/lessons/" + LESSON_ID + "/attendance/");
+    const counters = result.data.counters;
+    document.querySelectorAll("[data-counter]").forEach(function (node) {
+      ui.countTo(node, counters[node.dataset.counter] ?? 0);
+    });
+  } catch (error) { /* counters are informational */ }
+}
+
+async function pollFeed() {
+  try {
+    const query = cursor ? "?since=" + encodeURIComponent(cursor) : "";
+    const result = await http.get("/api/lessons/" + LESSON_ID + "/feed/" + query);
+    if (result.data.results.length) {
+      cursor = result.data.cursor;
+      const body = document.getElementById("feed-body");
+      const rows = result.data.results.map(function (e) {
+        const tone = e.code.startsWith("OK") ? "success" : (e.code.startsWith("ERR") ? "danger" : "warning");
+        return '<tr class="feed-row"><td class="text-muted">' + e.at + "</td><td>" + e.student +
+          '</td><td class="text-' + tone + '">' + e.message + "</td></tr>";
+      }).join("");
+      body.innerHTML = rows + (body.dataset.seeded ? body.innerHTML : "");
+      body.dataset.seeded = "1";
+    }
+  } catch (error) { /* polling is best-effort */ }
+}
+
+document.getElementById("open-lesson")?.addEventListener("click", async function () {
+  try {
+    await http.post("/api/lessons/" + LESSON_ID + "/open/", {});
+    location.reload();
+  } catch (error) { app.handleError(error); }
+});
+
+window.addEventListener("online", drainQueue);
+setQueue(queued());
+loadCounters();
+pollFeed();
+setInterval(pollFeed, 5000);
+setInterval(loadCounters, 15000);
+</script>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% load i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
+{# Language rides in a cookie, so URLs stay identical in both languages. #}
+<form action="{% url 'set_language' %}" method="post" class="d-inline">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+  <div class="btn-group btn-group-sm" role="group" aria-label="{% translate 'اللغة' %}">
+    <button type="submit" name="language" value="ar"
+            class="btn {% if CURRENT_LANGUAGE == 'ar' %}btn-primary{% else %}btn-ghost{% endif %}"
+            title="العربية">ع</button>
+    <button type="submit" name="language" value="en"
+            class="btn {% if CURRENT_LANGUAGE == 'en' %}btn-primary{% else %}btn-ghost{% endif %}"
+            title="English">EN</button>
+  </div>
+</form>

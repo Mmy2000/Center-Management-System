@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "التقارير" %}{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-3">
+    <div class="card">
+      <div class="card-header fw-semibold">{% translate "التقارير" %}</div>
+      <div class="list-group list-group-flush">
+        {% for item in reports %}
+          <a class="list-group-item list-group-item-action {% if report and item.slug == report.slug %}active{% endif %}"
+             href="{% url 'reports:report' item.slug %}">
+            {{ item.title }}
+            <div class="small {% if report and item.slug == report.slug %}text-white-50{% else %}text-muted{% endif %}">
+              {% if item.group == "finance" %}{% translate "مالي" %}{% else %}{% translate "حضور" %}{% endif %}
+            </div>
+          </a>
+        {% empty %}
+          <div class="list-group-item text-muted">{% translate "لا توجد تقارير متاحة" %}</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-9">
+    {% if report %}
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h1 class="h5 mb-1">{{ report.title }}</h1>
+          {% if report.description %}<div class="text-muted small">{{ report.description }}</div>{% endif %}
+        </div>
+        {% if perms.reports.export_reports %}
+          <div class="btn-group btn-group-sm">
+            <button class="btn btn-primary btn-icon" data-export="pdf">
+              <svg class="icon"><use href="#i-download"></use></svg>PDF
+            </button>
+            <button class="btn btn-outline-secondary" data-export="xlsx">Excel</button>
+            <button class="btn btn-outline-secondary" data-export="csv">CSV</button>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="row g-2 align-items-end" id="filter-bar">
+            {% if "from" in filters %}
+              <div class="col-6 col-lg-2">
+                <label class="form-label small">{% translate "من" %}</label>
+                <input class="form-control form-control-sm" type="date" data-filter="from" value="{{ month_start }}">
+              </div>
+              <div class="col-6 col-lg-2">
+                <label class="form-label small">{% translate "إلى" %}</label>
+                <input class="form-control form-control-sm" type="date" data-filter="to" value="{{ today }}">
+              </div>
+            {% endif %}
+            {% if "month" in filters %}
+              <div class="col-6 col-lg-2">
+                <label class="form-label small">{% translate "الشهر" %}</label>
+                <input class="form-control form-control-sm" type="month" data-filter="month" value="{{ month_start|slice:':7' }}">
+              </div>
+            {% endif %}
+            {% if "stage" in filters %}
+              <div class="col-6 col-lg-2">
+                <label class="form-label small">{% translate "المرحلة" %}</label>
+                <select class="form-select form-select-sm" data-filter="stage">
+                  <option value="">{% translate "الكل" %}</option>
+                  {% for stage in stages %}<option value="{{ stage.id }}">{{ stage }}</option>{% endfor %}
+                </select>
+              </div>
+            {% endif %}
+            {% if "grade" in filters %}
+              <div class="col-6 col-lg-2">
+                <label class="form-label small">{% translate "الصف" %}</label>
+                <select class="form-select form-select-sm" data-filter="grade">
+                  <option value="">{% translate "الكل" %}</option>
+                  {% for grade in grades %}<option value="{{ grade.id }}">{{ grade }}</option>{% endfor %}
+                </select>
+              </div>
+            {% endif %}
+            {% if "subject" in filters %}
+              <div class="col-6 col-lg-2">
+                <label class="form-label small">{% translate "المادة" %}</label>
+                <select class="form-select form-select-sm" data-filter="subject">
+                  <option value="">{% translate "الكل" %}</option>
+                  {% for subject in subjects %}<option value="{{ subject.id }}">{{ subject }}</option>{% endfor %}
+                </select>
+              </div>
+            {% endif %}
+            {% if "group" in filters %}
+              <div class="col-6 col-lg-3">
+                <label class="form-label small">{% translate "المجموعة" %}</label>
+                <select class="form-select form-select-sm" data-filter="group">
+                  <option value="">{% translate "الكل" %}</option>
+                  {% for group in groups %}
+                    <option value="{{ group.id }}">{{ group.grade_subject.subject }} — {{ group.name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            {% endif %}
+            {% if "instructor" in filters %}
+              <div class="col-6 col-lg-2">
+                <label class="form-label small">{% translate "المدرّس" %}</label>
+                <select class="form-select form-select-sm" data-filter="instructor">
+                  <option value="">{% translate "الكل" %}</option>
+                  {% for instructor in instructors %}<option value="{{ instructor.id }}">{{ instructor }}</option>{% endfor %}
+                </select>
+              </div>
+            {% endif %}
+            {% if "type" in filters %}
+              <div class="col-6 col-lg-2">
+                <label class="form-label small">{% translate "النوع" %}</label>
+                <select class="form-select form-select-sm" data-filter="type">
+                  <option value="">{% translate "الكل" %}</option>
+                  <option value="ALTERNATIVE_GROUP">{% translate "مجموعة بديلة" %}</option>
+                  <option value="MAKEUP">{% translate "تعويضية" %}</option>
+                  <option value="EXCEPTIONAL">{% translate "استثنائي" %}</option>
+                  <option value="MANUAL">{% translate "يدوي" %}</option>
+                </select>
+              </div>
+            {% endif %}
+            {% if "method" in filters %}
+              <div class="col-6 col-lg-2">
+                <label class="form-label small">{% translate "طريقة الدفع" %}</label>
+                <select class="form-select form-select-sm" data-filter="method">
+                  <option value="">{% translate "الكل" %}</option>
+                  <option value="CASH">{% translate "نقدًا" %}</option>
+                  <option value="BANK_TRANSFER">{% translate "تحويل بنكي" %}</option>
+                  <option value="CARD">{% translate "بطاقة" %}</option>
+                  <option value="WALLET">{% translate "محفظة" %}</option>
+                  <option value="OTHER">{% translate "أخرى" %}</option>
+                </select>
+              </div>
+            {% endif %}
+            <div class="col-6 col-lg-2">
+              <label class="form-label small">&nbsp;</label>
+              <button class="btn btn-primary btn-sm w-100" id="run-report">{% translate "عرض" %}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning py-2 d-none" id="truncation-note"></div>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table class="table table-sm table-compact align-middle mb-0">
+            <thead class="table-light" id="report-head"></thead>
+            <tbody id="report-body">
+              <tr><td class="text-center text-muted py-4">{% translate "اضغط عرض لتشغيل التقرير" %}</td></tr>
+            </tbody>
+            <tfoot class="table-light fw-semibold" id="report-foot"></tfoot>
+          </table>
+        </div>
+        <div class="card-footer small text-muted" id="report-count"></div>
+      </div>
+    {% else %}
+      <div class="alert alert-secondary">{% translate "لا توجد تقارير متاحة لدورك." %}</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if report %}
+<script>
+const SLUG = "{{ report.slug }}";
+
+function currentFilters() {
+  const params = new URLSearchParams();
+  document.querySelectorAll("[data-filter]").forEach(function (node) {
+    if (node.value) { params.set(node.dataset.filter, node.value); }
+  });
+  return params;
+}
+
+async function run() {
+  const body = document.getElementById("report-body");
+  body.innerHTML = ('<tr><td class="text-center text-muted py-4">' + gettext("جارٍ التحميل…") + '</td></tr>');
+  try {
+    const result = await http.get("/api/reports/" + SLUG + "/?" + currentFilters().toString());
+    const data = result.data;
+
+    document.getElementById("report-head").innerHTML =
+      "<tr>" + data.columns.map((c) => "<th>" + c.label + "</th>").join("") + "</tr>";
+
+    body.innerHTML = data.rows.length
+      ? data.rows.map(function (row) {
+          return "<tr>" + data.columns.map(function (c) {
+            const value = row[c.key];
+            return "<td" + (c.money ? ' class="text-nowrap"' : "") + ">" +
+              (value === null || value === undefined || value === "" ? "—" : value) + "</td>";
+          }).join("") + "</tr>";
+        }).join("")
+      : '<tr><td colspan="' + data.columns.length + ('" class="text-center text-muted py-4">' + gettext("لا توجد بيانات لهذه الفلاتر") + '</td></tr>');
+
+    const totals = data.totals || {};
+    document.getElementById("report-foot").innerHTML = Object.keys(totals).length
+      ? "<tr>" + data.columns.map(function (c, index) {
+          if (index === 0) { return ("<td>" + gettext("الإجمالي") + "</td>"); }
+          return "<td>" + (totals[c.key] !== undefined ? totals[c.key] : "") + "</td>";
+        }).join("") + "</tr>"
+      : "";
+
+    const note = document.getElementById("truncation-note");
+    if (data.truncated) {
+      note.textContent = data.truncation_note;
+      note.classList.remove("d-none");
+    } else {
+      note.classList.add("d-none");
+    }
+    document.getElementById("report-count").textContent = data.count + (" " + gettext("صف"));
+  } catch (error) {
+    app.handleError(error);
+    body.innerHTML = ('<tr><td class="text-center text-muted py-4">' + gettext("تعذر تشغيل التقرير") + '</td></tr>');
+  }
+}
+
+document.getElementById("run-report").addEventListener("click", run);
+document.querySelectorAll("[data-export]").forEach(function (button) {
+  button.addEventListener("click", function () {
+    const params = currentFilters();
+    params.set("format", button.dataset.export);
+    app.download("/api/reports/" + SLUG + "/export/?" + params.toString());
+    app.toast(gettext("جارٍ تجهيز الملف…"), "secondary");
+  });
+});
+run();
+</script>
+{% endif %}
+{% endblock %}

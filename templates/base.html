@@ -1,0 +1,65 @@
+{% load static i18n %}<!doctype html>
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}"
+      data-theme="{{ UI_THEME }}" data-density="{{ UI_DENSITY }}"
+      data-bs-theme="{% if UI_MODE == 'dark' %}dark{% else %}light{% endif %}"
+      data-default-theme="{{ UI_THEME }}" data-default-accent="{{ UI_ACCENT }}"
+      data-default-mode="{{ UI_MODE }}" data-default-density="{{ UI_DENSITY }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="{{ UI_ACCENT }}">
+  <title>{% block title %}{% translate "نظام إدارة السنتر" %}{% endblock %} · {{ CENTER_NAME }}</title>
+
+  <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
+  {# One stylesheet per direction — Bootstrap ships both. #}
+  {% if LANGUAGE_BIDI %}
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap.rtl.min.css' %}">
+  {% else %}
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap.min.css' %}">
+  {% endif %}
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <link rel="stylesheet" href="{% static 'css/themes.css' %}">
+  <link rel="stylesheet" href="{% static 'css/buttons.css' %}">
+  {# Runs before first paint so a user's palette never flashes the default one. #}
+  <script src="{% static 'js/theme.js' %}"></script>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+{% include "partials/_icons.html" %}
+
+{% if user.is_authenticated %}
+<div class="app-shell" id="app-shell">
+  {% include "partials/_sidebar.html" %}
+  <div class="app-backdrop" data-nav-close></div>
+  <div class="app-main">
+    {% include "partials/_topbar.html" %}
+    <main class="app-content">
+      {% block breadcrumb %}{% endblock %}
+      <div id="messages">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{% translate 'إغلاق' %}"></button>
+          </div>
+        {% endfor %}
+      </div>
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% else %}
+  {% block anonymous_content %}{% endblock %}
+{% endif %}
+
+<div class="toast-container position-fixed bottom-0 start-0 p-3" id="toast-container"></div>
+{% include "partials/_modal.html" %}
+
+{# Django's JS catalog: gettext() in static JS uses the same .po files. #}
+<script src="{% url 'javascript-catalog' %}"></script>
+<script src="{% static 'vendor/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'js/http.js' %}"></script>
+<script src="{% static 'js/ui.js' %}"></script>
+<script src="{% static 'js/app.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

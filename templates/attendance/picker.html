@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "المسح" %}{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">{% translate "اختر الحصة" %}</h1>
+
+<div class="card mb-3">
+  <div class="card-header fw-semibold">{% translate "حصص مفتوحة الآن" %}</div>
+  <div class="list-group list-group-flush">
+    {% for lesson in open_lessons %}
+      <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+         href="{% url 'attendance:scanner' lesson.pk %}">
+        <span>
+          <b>{{ lesson.group.grade_subject.subject }} — {{ lesson.group.name }}</b>
+          <span class="text-muted small">
+            {{ lesson.group.grade_subject.grade }} · {{ lesson.scheduled_start|time:"H:i" }}
+          </span>
+        </span>
+        <span class="badge text-bg-success">{% translate "جارية" %}</span>
+      </a>
+    {% empty %}
+      <div class="list-group-item text-muted">{% translate "لا توجد حصص مفتوحة" %}</div>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header fw-semibold">{% translate "حصص اليوم (لم تُفتح بعد)" %}</div>
+  <div class="list-group list-group-flush">
+    {% for lesson in today_lessons %}
+      <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+         href="{% url 'attendance:scanner' lesson.pk %}">
+        <span>
+          <b>{{ lesson.group.grade_subject.subject }} — {{ lesson.group.name }}</b>
+          <span class="text-muted small">{{ lesson.scheduled_start|time:"H:i" }}</span>
+        </span>
+        <span class="badge text-bg-secondary">{{ lesson.get_status_display }}</span>
+      </a>
+    {% empty %}
+      <div class="list-group-item text-muted">{% translate "لا توجد حصص اليوم" %}</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

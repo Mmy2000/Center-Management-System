@@ -1,0 +1,342 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "البطاقات" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <div>
+    <h1 class="page-title">{% translate "مخزون البطاقات" %}</h1>
+    <div class="page-subtitle">{% translate "البطاقات مخزون: تُنشأ دفعات، ثم تُربط بالطلاب عند التسجيل." %}</div>
+  </div>
+  <div class="btn-toolbar-tight">
+    {% if perms.cards.add_studentcard %}
+      <button class="btn btn-primary btn-icon" id="generate-cards">
+        <svg class="icon"><use href="#i-plus"></use></svg>{% translate "بطاقات جديدة" %}
+      </button>
+      <button class="btn btn-outline-secondary btn-icon" id="import-cards">
+        <svg class="icon"><use href="#i-cards"></use></svg>{% translate "استيراد CSV" %}
+      </button>
+    {% endif %}
+    <button class="btn btn-outline-secondary btn-icon" id="export-cards">
+      <svg class="icon"><use href="#i-download"></use></svg>{% translate "كشف الطباعة" %}
+    </button>
+  </div>
+</div>
+
+<div class="row g-3 mb-3" id="totals">
+  {% for value, label in statuses %}
+    <div class="col-6 col-lg">
+      <div class="stat-tile">
+        <div class="stat-value" data-total="{{ value }}">—</div>
+        <div class="stat-label">{{ label }}</div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-lg-4">
+        <label class="form-label small">{% translate "امسح بطاقة للبحث عنها" %}</label>
+        <input class="form-control form-control-sm" id="scan-box"
+               placeholder="{% translate 'امسح الكارت أو اكتب الرمز…' %}" autocomplete="off">
+      </div>
+      <div class="col-6 col-lg-3">
+        <label class="form-label small">{% translate "رقم البطاقة" %}</label>
+        <input class="form-control form-control-sm" id="f-q" type="search">
+      </div>
+      <div class="col-6 col-lg-3">
+        <label class="form-label small">{% translate "الحالة" %}</label>
+        <select class="form-select form-select-sm" id="f-status">
+          <option value="">{% translate "الكل" %}</option>
+          {% for value, label in statuses %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-lg-2">
+        <label class="form-label small">{% translate "الدفعة" %}</label>
+        <select class="form-select form-select-sm" id="f-batch">
+          <option value="">{% translate "الكل" %}</option>
+          {% for batch in batches %}<option value="{{ batch }}">{{ batch }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-sm table-compact align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>{% translate "رقم البطاقة" %}</th>
+          <th>{% translate "الرمز" %}</th>
+          <th>{% translate "الحالة" %}</th>
+          <th>{% translate "الطالب" %}</th>
+          <th>{% translate "الدفعة" %}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="cards-body">
+        <tr><td colspan="6" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer d-flex justify-content-between align-items-center">
+    <span class="small text-muted" id="count-label"></span>
+    <div class="btn-group btn-group-sm">
+      <button class="btn btn-outline-secondary" id="prev-page">{% translate "السابق" %}</button>
+      <button class="btn btn-outline-secondary" id="next-page">{% translate "التالي" %}</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CAN_WRITE = {{ perms.cards.change_studentcard|yesno:"true,false" }};
+const STATUS_CLASS = {
+  AVAILABLE: "success", ASSIGNED: "primary", LOST: "danger",
+  DISABLED: "secondary", REPLACED: "dark"
+};
+let page = 1;
+
+function query() {
+  const params = new URLSearchParams({ page: page });
+  ["q", "status", "batch"].forEach(function (key) {
+    const value = document.getElementById("f-" + key).value;
+    if (value) { params.set(key, value); }
+  });
+  return params.toString();
+}
+
+async function load() {
+  try {
+    const result = await http.get("{% url 'cards_api:cards' %}?" + query());
+    const data = result.data;
+    Object.entries(data.totals).forEach(function ([status, total]) {
+      const node = document.querySelector('[data-total="' + status + '"]');
+      if (node) { node.textContent = total; }
+    });
+    document.getElementById("cards-body").innerHTML = data.results.length
+      ? data.results.map(function (c) {
+          const actions = CAN_WRITE
+            ? (c.status === "ASSIGNED"
+                ? ('<button class="btn btn-sm btn-soft-danger js-lost">' + gettext("فقدان") + '</button> ') +
+                  ('<button class="btn btn-sm btn-soft-secondary js-replace">' + gettext("استبدال") + '</button>')
+                : (c.status === "AVAILABLE"
+                    ? ('<button class="btn btn-sm btn-soft-secondary js-disable">' + gettext("تعطيل") + '</button>') : ""))
+            : "";
+          return "<tr data-id='" + c.id + "' data-number='" + c.card_number + "'>" +
+            "<td>" + c.card_number + "</td>" +
+            "<td class='text-muted small'><code>" + c.token_masked + "</code></td>" +
+            '<td><span class="badge text-bg-' + (STATUS_CLASS[c.status] || "secondary") + '">' + c.status_display + "</span></td>" +
+            "<td>" + (c.student && c.student.name ? "<a href='/students/" + c.student.id + "/'>" + c.student.name + "</a>" : "—") + "</td>" +
+            "<td>" + (c.batch || "—") + "</td>" +
+            "<td class='text-end'>" + actions + "</td></tr>";
+        }).join("")
+      : ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("لا توجد بطاقات") + '</td></tr>');
+    document.getElementById("count-label").textContent =
+      (gettext("إجمالي") + " ") + data.count + (" " + gettext("بطاقة — صفحة") + " ") + data.page + (" " + gettext("من") + " ") + data.pages;
+    document.getElementById("prev-page").disabled = !data.has_previous;
+    document.getElementById("next-page").disabled = !data.has_next;
+  } catch (error) { app.handleError(error); }
+}
+
+function reasonModal(title, onConfirm) {
+  app.openModal(
+    title,
+    ('<div class="mb-2"><label class="form-label">' + gettext("السبب (مطلوب)") + '</label>') +
+    '<textarea class="form-control" name="reason" rows="2"></textarea></div>',
+    ('<button class="btn btn-primary" id="confirm-action" disabled>' + gettext("تأكيد") + '</button>')
+  );
+  const reason = document.querySelector('#app-modal [name="reason"]');
+  const confirm = document.getElementById("confirm-action");
+  reason.addEventListener("input", () => (confirm.disabled = !reason.value.trim()));
+  confirm.addEventListener("click", () => onConfirm(reason.value.trim()));
+}
+
+document.getElementById("cards-body").addEventListener("click", function (event) {
+  const row = event.target.closest("tr");
+  if (!row) { return; }
+  const id = row.dataset.id;
+
+  if (event.target.closest(".js-lost")) {
+    reasonModal((gettext("الإبلاغ عن فقد البطاقة") + " ") + row.dataset.number, async function (reason) {
+      try {
+        await http.post("/api/cards/" + id + "/mark-lost/", { reason: reason });
+        bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+        app.toast(gettext("تم تسجيل الفقد — البطاقة لم تعد تعمل"), "warning");
+        load();
+      } catch (error) { app.handleError(error); }
+    });
+  }
+
+  if (event.target.closest(".js-disable")) {
+    reasonModal((gettext("تعطيل البطاقة") + " ") + row.dataset.number, async function (reason) {
+      try {
+        await http.post("/api/cards/" + id + "/disable/", { reason: reason });
+        bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+        app.toast(gettext("تم تعطيل البطاقة"), "secondary");
+        load();
+      } catch (error) { app.handleError(error); }
+    });
+  }
+
+  if (event.target.closest(".js-replace")) {
+    app.openModal(
+      (gettext("استبدال البطاقة") + " ") + row.dataset.number,
+      ('<div class="mb-2"><label class="form-label">' + gettext("امسح البطاقة الجديدة") + '</label>') +
+      '<input class="form-control" name="new_token" autocomplete="off"></div>' +
+      ('<div class="mb-2"><label class="form-label">' + gettext("حالة البطاقة القديمة") + '</label>') +
+      ('<select class="form-select" name="old_status"><option value="LOST">' + gettext("مفقودة") + '</option>') +
+      ('<option value="REPLACED">' + gettext("مستبدلة") + '</option><option value="DISABLED">' + gettext("معطّلة") + '</option></select></div>') +
+      ('<div class="mb-2"><label class="form-label">' + gettext("السبب (مطلوب)") + '</label>') +
+      '<textarea class="form-control" name="reason" rows="2"></textarea></div>',
+      ('<button class="btn btn-primary" id="confirm-replace">' + gettext("تأكيد") + '</button>')
+    );
+    document.getElementById("confirm-replace").addEventListener("click", async function () {
+      const value = (n) => document.querySelector('#app-modal [name="' + n + '"]').value.trim();
+      try {
+        await http.post("/api/cards/" + id + "/replace/", {
+          new_qr_token: value("new_token"),
+          old_status: value("old_status"),
+          reason: value("reason")
+        });
+        bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+        app.toast(gettext("تم الاستبدال — سجل الحضور السابق لم يتغيّر"), "success");
+        load();
+      } catch (error) { app.handleError(error); }
+    });
+  }
+});
+
+/* ------------------------------------------------------- create stock -- */
+document.getElementById("generate-cards")?.addEventListener("click", function () {
+  app.openModal(
+    "{% translate 'إنشاء بطاقات جديدة' %}",
+    '<p class="text-muted small">{% translate "النظام يولّد رموزًا عشوائية غير قابلة للتخمين، ثم تُصدَّر كشفًا للطباعة." %}</p>' +
+    '<div class="mb-2"><label class="form-label">{% translate "عدد البطاقات" %}</label>' +
+    '<input class="form-control" type="number" name="count" min="1" max="20000" value="100">' +
+    '<div class="text-danger small" data-error-for="count"></div></div>' +
+    '<div class="mb-2"><label class="form-label">{% translate "اسم الدفعة (اختياري)" %}</label>' +
+    '<input class="form-control" name="batch" placeholder="B1" maxlength="30"></div>',
+    '<button class="btn btn-primary" id="confirm-generate">{% translate "إنشاء" %}</button>'
+  );
+  document.getElementById("confirm-generate").addEventListener("click", function () {
+    const button = this;
+    const value = (name) => document.querySelector('#app-modal [name="' + name + '"]').value.trim();
+    ui.withBusy(button, async function () {
+      app.clearFieldErrors(document.getElementById("app-modal"));
+      try {
+        const result = await http.post("{% url 'cards_api:generate' %}", {
+          count: Number(value("count")),
+          batch: value("batch")
+        });
+        app.closeModal();
+        app.toast(
+          "{% translate 'تم إنشاء' %} " + result.data.created + " {% translate 'بطاقة' %} (" +
+          result.data.first + " … " + result.data.last + ")", "success"
+        );
+        exportSheet(result.data.batch);   // hand the printer its sheet immediately
+        page = 1;
+        load();
+      } catch (error) { app.handleError(error); }
+    });
+  });
+});
+
+document.getElementById("import-cards")?.addEventListener("click", function () {
+  app.openModal(
+    "{% translate 'استيراد بطاقات مطبوعة' %}",
+    '<p class="text-muted small">{% translate "ملف CSV بعمودين: card_number و qr_token (وعمود batch اختياري). أي سطر خاطئ يلغي الاستيراد كله." %}</p>' +
+    '<div class="mb-2"><input class="form-control" type="file" name="file" accept=".csv,text/csv">' +
+    '<div class="text-danger small" data-error-for="file"></div></div>' +
+    '<div class="mb-2"><label class="form-label">{% translate "اسم الدفعة (اختياري)" %}</label>' +
+    '<input class="form-control" name="batch" maxlength="30"></div>',
+    '<button class="btn btn-primary" id="confirm-import">{% translate "استيراد" %}</button>'
+  );
+  document.getElementById("confirm-import").addEventListener("click", function () {
+    const button = this;
+    ui.withBusy(button, async function () {
+      app.clearFieldErrors(document.getElementById("app-modal"));
+      const fileInput = document.querySelector('#app-modal [name="file"]');
+      const form = new FormData();
+      form.append("file", fileInput.files[0]);
+      form.append("batch", document.querySelector('#app-modal [name="batch"]').value.trim());
+      try {
+        const result = await http.post("{% url 'cards_api:import_csv' %}", form);
+        app.closeModal();
+        app.toast("{% translate 'تم استيراد' %} " + result.data.created + " {% translate 'بطاقة' %}", "success");
+        page = 1;
+        load();
+      } catch (error) { app.handleError(error); }
+    });
+  });
+});
+
+function exportSheet(batch) {
+  const params = new URLSearchParams({ format: "pdf" });
+  if (batch) { params.set("batch", batch); }
+  app.download("{% url 'cards_api:export_batch' %}?" + params.toString());
+}
+
+document.getElementById("export-cards").addEventListener("click", function () {
+  const batch = document.getElementById("f-batch").value;
+  app.openModal(
+    "{% translate 'كشف الطباعة' %}",
+    '<p class="text-muted small">{% translate "الكشف يحتوي على رموز حيّة — سلّمه للمطبعة فقط." %}</p>' +
+    '<div class="mb-2"><label class="form-label">{% translate "الدفعة" %}</label>' +
+    '<input class="form-control" name="batch" value="' + ui.esc(batch) + '" placeholder="{% translate "كل الدفعات" %}"></div>',
+    '<button class="btn btn-primary btn-icon" id="export-pdf">{% translate "PDF للطباعة" %}</button>' +
+    '{% if perms.cards.change_studentcard %}<button class="btn btn-outline-secondary" id="export-csv">CSV</button>{% endif %}'
+  );
+  const value = () => document.querySelector('#app-modal [name="batch"]').value.trim();
+  document.getElementById("export-pdf").addEventListener("click", function () {
+    exportSheet(value());
+    app.closeModal();
+  });
+  document.getElementById("export-csv")?.addEventListener("click", function () {
+    const params = new URLSearchParams({ format: "csv" });
+    if (value()) { params.set("batch", value()); }
+    app.download("{% url 'cards_api:export_batch' %}?" + params.toString());
+    app.closeModal();
+  });
+});
+
+document.getElementById("scan-box").addEventListener("keydown", async function (event) {
+  if (event.key !== "Enter") { return; }
+  event.preventDefault();
+  const token = this.value.trim();
+  this.value = "";
+  if (!token) { return; }
+  try {
+    const result = await http.post("{% url 'cards_api:lookup' %}", { qr_token: token });
+    const card = result.data.card;
+    app.toast((gettext("بطاقة") + " ") + card.card_number + " — " + card.status_display, "success");
+    document.getElementById("f-q").value = card.card_number;
+    page = 1;
+    load();
+  } catch (error) {
+    const card = error.data && error.data.card;
+    if (card) {
+      app.toast(card.card_number + " — " + error.message, "warning");
+      document.getElementById("f-q").value = card.card_number;
+      page = 1;
+      load();
+    } else {
+      app.handleError(error);
+    }
+  }
+});
+
+document.getElementById("f-q").addEventListener("input", app.debounce(function () { page = 1; load(); }, 300));
+["f-status", "f-batch"].forEach(function (id) {
+  document.getElementById(id).addEventListener("change", function () { page = 1; load(); });
+});
+document.getElementById("prev-page").addEventListener("click", function () { if (page > 1) { page -= 1; load(); } });
+document.getElementById("next-page").addEventListener("click", function () { page += 1; load(); });
+
+load();
+</script>
+{% endblock %}

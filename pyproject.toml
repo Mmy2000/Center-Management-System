@@ -1,0 +1,27 @@
+[tool.black]
+line-length = 100
+target-version = ["py313"]
+extend-exclude = "migrations|venv"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = ["migrations", "venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "DJ", "C4"]
+ignore = ["E501"]  # line length is handled by black
+
+[tool.ruff.lint.per-file-ignores]
+"*/settings/*.py" = ["F403", "F405"]
+"apps/reports/models.py" = ["DJ008"]  # permission holder, managed=False, never instantiated
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "cms.settings.test"
+python_files = ["test_*.py", "tests.py"]
+testpaths = ["tests", "apps"]
+addopts = "-q --strict-markers"
+markers = [
+    "postgres: requires PostgreSQL (row locking / concurrency tests)",
+    "slow: long-running test",
+]

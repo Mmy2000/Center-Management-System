@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% load i18n static money %}
+{% block title %}{{ group }}{% endblock %}
+
+{% block content %}
+<nav class="small mb-2">
+  <a href="{% url 'academics:groups' %}">{% translate "المجموعات" %}</a> / {{ group.code }}
+</nav>
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h4 mb-1">{{ group }}</h1>
+    <div class="text-muted small">
+      {{ group.stage }} · {{ group.grade }} · {{ group.subject }}
+      {% if group.instructor %} · {{ group.instructor }}{% endif %}
+    </div>
+  </div>
+  <span class="badge text-bg-{% if group.status == 'ACTIVE' %}success{% else %}secondary{% endif %} align-self-center">
+    {{ group.get_status_display }}
+  </span>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3">
+    <div class="stat-tile"><div class="stat-value">{{ group.monthly_fee|money }}</div>
+      <div class="stat-label">{% translate "الرسوم الشهرية (ج.م)" %}</div></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-tile"><div class="stat-value">{% if group.capacity %}{{ group.capacity }}{% else %}∞{% endif %}</div>
+      <div class="stat-label">{% translate "السعة" %}</div></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-tile"><div class="stat-value" id="stat-students">—</div>
+      <div class="stat-label">{% translate "عدد الطلاب" %}</div></div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-tile"><div class="stat-value" id="stat-rate">—</div>
+      <div class="stat-label">{% translate "نسبة الحضور (30 يومًا) %" %}</div></div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">{% translate "المواعيد الأسبوعية" %}</span>
+        {% if perms.academics.add_groupschedule %}
+          <button class="btn btn-sm btn-primary" id="add-schedule">{% translate "إضافة موعد" %}</button>
+        {% endif %}
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-sm table-compact mb-0">
+          <tbody id="schedules-body">
+            {% for schedule in schedules %}
+              <tr data-id="{{ schedule.id }}">
+                <td>{{ schedule.get_weekday_display }}</td>
+                <td>{{ schedule.start_time|time:"H:i" }} – {{ schedule.end_time|time:"H:i" }}</td>
+                <td>{{ schedule.room|default:"—" }}</td>
+                <td class="text-end">
+                  {% if perms.academics.delete_groupschedule %}
+                    <button class="btn btn-sm btn-soft-danger js-del-schedule">{% translate "حذف" %}</button>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="4" class="text-center text-muted py-4">{% translate "لا توجد مواعيد" %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">{% translate "طلاب المجموعة" %}</span>
+        <span class="badge text-bg-light" id="roster-count">—</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="px-3 py-2 border-bottom small" id="group-money">—</div>
+        <table class="table table-sm table-compact mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>{% translate "الكود" %}</th>
+              <th>{% translate "الاسم" %}</th>
+              <th>{% translate "من" %}</th>
+            </tr>
+          </thead>
+          <tbody id="roster-body">
+            <tr><td colspan="3" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const GROUP_ID = {{ group.id }};
+const WEEKDAYS = [[0, gettext("السبت")], [1, gettext("الأحد")], [2, gettext("الاثنين")], [3, gettext("الثلاثاء")], [4, gettext("الأربعاء")], [5, gettext("الخميس")], [6, gettext("الجمعة")]];
+
+async function loadRoster() {
+  const body = document.getElementById("roster-body");
+  try {
+    const result = await http.get("/api/groups/" + GROUP_ID + "/students/");
+    const data = result.data;
+    document.getElementById("roster-count").textContent =
+      data.count + (data.capacity ? " / " + data.capacity : "") + (data.is_full ? (" " + gettext("— مكتملة")) : "");
+    document.getElementById("stat-students").textContent = data.count;
+    body.innerHTML = data.results.length
+      ? data.results.map(function (a) {
+          return "<tr><td>" + a.student_code + "</td>" +
+            "<td><a href='/students/" + a.student_id + "/'>" + a.student + "</a></td>" +
+            "<td>" + a.start_date + "</td></tr>";
+        }).join("")
+      : ('<tr><td colspan="3" class="text-center text-muted py-4">' + gettext("لا يوجد طلاب") + '</td></tr>');
+  } catch (error) {
+    body.innerHTML = ('<tr><td colspan="3" class="text-center text-muted py-4">' + gettext("تعذر التحميل") + '</td></tr>');
+  }
+}
+loadRoster();
+
+async function loadGroupStats() {
+  try {
+    const result = await http.get("/api/groups/" + GROUP_ID + "/stats/");
+    const data = result.data;
+    document.getElementById("stat-rate").textContent = data.attendance_30d.rate;
+    const money = document.getElementById("group-money");
+    if (money) {
+      money.innerHTML =
+        (gettext("شهر") + " ") + data.money.month + (" " + gettext("— متوقع:") + " " + "<b>") + data.money.expected +
+        ("</b> · " + gettext("محصّل:") + " " + "<b class='text-success'>") + data.money.collected +
+        ("</b> · " + gettext("متبقٍ:") + " " + "<b class='text-danger'>") + data.money.outstanding + "</b>" +
+        ("<div class='small text-muted mt-1'>" + gettext("مسدد") + " ") + data.money.paid + (" · " + gettext("جزئي") + " ") +
+        data.money.partial + (" · " + gettext("غير مسدد") + " ") + data.money.unpaid + "</div>" +
+        ("<div class='small text-muted'>" + gettext("آخر حصة:") + " ") + (data.last_lesson || "—") +
+        (" · " + gettext("القادمة:") + " ") + (data.next_lesson || "—") + "</div>";
+    }
+  } catch (error) { /* stats are informational */ }
+}
+loadGroupStats();
+
+document.getElementById("add-schedule")?.addEventListener("click", function () {
+  const options = WEEKDAYS.map((d) => '<option value="' + d[0] + '">' + d[1] + "</option>").join("");
+  app.openModal(
+    gettext("إضافة موعد أسبوعي"),
+    ('<div class="mb-2"><label class="form-label">' + gettext("اليوم") + '</label><select class="form-select" name="weekday">') + options + "</select></div>" +
+    ('<div class="mb-2"><label class="form-label">' + gettext("من") + '</label><input class="form-control" type="time" name="start_time"></div>') +
+    ('<div class="mb-2"><label class="form-label">' + gettext("إلى") + '</label><input class="form-control" type="time" name="end_time"></div>') +
+    ('<div class="mb-2"><label class="form-label">' + gettext("القاعة") + '</label><input class="form-control" name="room"></div>'),
+    ('<button class="btn btn-primary" id="save-schedule">' + gettext("حفظ") + '</button>')
+  );
+  document.getElementById("save-schedule").addEventListener("click", async function () {
+    const value = (n) => document.querySelector('#app-modal [name="' + n + '"]').value;
+    try {
+      await http.post("/api/groups/" + GROUP_ID + "/schedule/", {
+        weekday: value("weekday"),
+        start_time: value("start_time"),
+        end_time: value("end_time"),
+        room: value("room"),
+        is_active: true
+      });
+      location.reload();
+    } catch (error) { app.handleError(error); }
+  });
+});
+
+document.getElementById("schedules-body").addEventListener("click", async function (event) {
+  const button = event.target.closest(".js-del-schedule");
+  if (!button) { return; }
+  const id = button.closest("tr").dataset.id;
+  try {
+    await http.del("/api/schedule/" + id + "/");
+    button.closest("tr").remove();
+    app.toast(gettext("تم الحذف"), "secondary");
+  } catch (error) { app.handleError(error); }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "الطلاب" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">{% translate "الطلاب" %}</h1>
+  {% if perms.students.add_student %}
+    <a class="btn btn-primary" href="{% url 'students:create' %}">{% translate "طالب جديد" %}</a>
+  {% endif %}
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-lg-4">
+        <label class="form-label small">{% translate "بحث" %}</label>
+        <input class="form-control form-control-sm" id="f-q" type="search"
+               placeholder="{% translate 'كود أو اسم أو هاتف ولي الأمر' %}">
+      </div>
+      <div class="col-6 col-lg-3">
+        <label class="form-label small">{% translate "المرحلة" %}</label>
+        <select class="form-select form-select-sm" id="f-stage">
+          <option value="">{% translate "الكل" %}</option>
+          {% for stage in stages %}<option value="{{ stage.id }}">{{ stage }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-lg-3">
+        <label class="form-label small">{% translate "الصف" %}</label>
+        <select class="form-select form-select-sm" id="f-grade">
+          <option value="">{% translate "الكل" %}</option>
+          {% for grade in grades %}<option value="{{ grade.id }}" data-stage="{{ grade.stage_id }}">{{ grade }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-lg-2">
+        <label class="form-label small">{% translate "الحالة" %}</label>
+        <select class="form-select form-select-sm" id="f-status">
+          <option value="">{% translate "الكل" %}</option>
+          {% for value, label in statuses %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-sm table-compact align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>{% translate "الكود" %}</th>
+          <th>{% translate "الاسم" %}</th>
+          <th>{% translate "الصف" %}</th>
+          <th>{% translate "هاتف ولي الأمر" %}</th>
+          <th>{% translate "الحالة" %}</th>
+        </tr>
+      </thead>
+      <tbody id="students-body">
+        <tr><td colspan="5" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer d-flex justify-content-between align-items-center">
+    <span class="small text-muted" id="count-label"></span>
+    <div class="btn-group btn-group-sm">
+      <button class="btn btn-outline-secondary" id="prev-page">{% translate "السابق" %}</button>
+      <button class="btn btn-outline-secondary" id="next-page">{% translate "التالي" %}</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let page = 1;
+const STATUS_CLASS = {
+  ACTIVE: "success", INACTIVE: "secondary", SUSPENDED: "danger",
+  TRANSFERRED: "info", GRADUATED: "dark"
+};
+
+function params() {
+  const query = new URLSearchParams({ page: page });
+  const map = { q: "f-q", stage: "f-stage", grade: "f-grade", status: "f-status" };
+  Object.entries(map).forEach(function ([key, id]) {
+    const value = document.getElementById(id).value;
+    if (value) { query.set(key, value); }
+  });
+  return query.toString();
+}
+
+async function load() {
+  const body = document.getElementById("students-body");
+  try {
+    const result = await http.get("{% url 'students_api:students' %}?" + params());
+    const data = result.data;
+    body.innerHTML = data.results.length
+      ? data.results.map(function (s) {
+          return "<tr>" +
+            "<td><a href='/students/" + s.id + "/'>" + s.student_code + "</a></td>" +
+            "<td>" + s.full_name + "</td>" +
+            "<td>" + s.grade + "</td>" +
+            "<td>" + (s.guardian_phone || "—") + "</td>" +
+            '<td><span class="badge text-bg-' + (STATUS_CLASS[s.status] || "secondary") + '">' + s.status_display + "</span></td>" +
+            "</tr>";
+        }).join("")
+      : ('<tr><td colspan="5" class="text-center text-muted py-4">' + gettext("لا توجد نتائج") + '</td></tr>');
+    document.getElementById("count-label").textContent =
+      (gettext("إجمالي") + " ") + data.count + (" " + gettext("طالب — صفحة") + " ") + data.page + (" " + gettext("من") + " ") + data.pages;
+    document.getElementById("prev-page").disabled = !data.has_previous;
+    document.getElementById("next-page").disabled = !data.has_next;
+  } catch (error) {
+    app.handleError(error);
+  }
+}
+
+document.getElementById("f-q").addEventListener("input", app.debounce(function () { page = 1; load(); }, 300));
+["f-stage", "f-grade", "f-status"].forEach(function (id) {
+  document.getElementById(id).addEventListener("change", function () { page = 1; load(); });
+});
+document.getElementById("f-stage").addEventListener("change", function () {
+  const stage = this.value;
+  document.querySelectorAll("#f-grade option[data-stage]").forEach(function (option) {
+    option.hidden = Boolean(stage) && option.dataset.stage !== stage;
+  });
+  document.getElementById("f-grade").value = "";
+});
+document.getElementById("prev-page").addEventListener("click", function () { if (page > 1) { page -= 1; load(); } });
+document.getElementById("next-page").addEventListener("click", function () { page += 1; load(); });
+
+load();
+</script>
+{% endblock %}

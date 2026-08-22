@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% block title %}{% translate "تسجيل الدخول" %}{% endblock %}
+
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/auth.css' %}">{% endblock %}
+
+{% block anonymous_content %}
+<div class="auth-shell">
+
+  <aside class="auth-brand d-none d-lg-flex">
+    <div class="auth-logo">
+      <span class="auth-logo-mark">CMS</span>
+      <span>{{ CENTER_NAME }}</span>
+    </div>
+
+    <div>
+      <h1 class="auth-headline">{% translate "إدارة السنتر — من التسجيل حتى التحصيل" %}</h1>
+      <p class="auth-sub">
+        {% translate "حضور بالكارت في أقل من ثانية، اشتراكات متعددة المواد، وحسابات شهرية دقيقة لكل طالب." %}
+      </p>
+
+      <ul class="auth-points">
+        <li class="auth-point">
+          <svg class="icon"><use href="#i-scan"></use></svg>
+          <span>{% translate "مسح كارت الطالب يسجّل الحضور فورًا — ويميّز المجموعة البديلة تلقائيًا." %}</span>
+        </li>
+        <li class="auth-point">
+          <svg class="icon"><use href="#i-money"></use></svg>
+          <span>{% translate "دفعات جزئية ومتعددة لكل مادة، مع إيصال مطبوع لكل عملية." %}</span>
+        </li>
+        <li class="auth-point">
+          <svg class="icon"><use href="#i-reports"></use></svg>
+          <span>{% translate "تقارير الحضور والمتأخرات جاهزة للتصدير PDF و Excel." %}</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="auth-foot">
+      {% if CENTER_PHONE %}{{ CENTER_PHONE }} · {% endif %}{{ CENTER_NAME }}
+    </div>
+  </aside>
+
+  <main class="auth-form-side">
+    <div class="auth-form" id="auth-form-wrap">
+      <div class="auth-tools">
+        {% include "partials/_language.html" %}
+        <button class="btn btn-sm btn-ghost btn-icon-only" id="auth-mode" type="button"
+                title="{% translate 'الوضع' %}" aria-label="{% translate 'الوضع' %}">
+          <svg class="icon"><use href="#i-palette"></use></svg>
+        </button>
+      </div>
+
+      <div class="d-lg-none auth-logo mb-3" style="color: var(--brand-600);">
+        <span class="auth-logo-mark">CMS</span>
+        <span>{{ CENTER_NAME }}</span>
+      </div>
+
+      <h2 class="auth-title">{% translate "تسجيل الدخول" %}</h2>
+      <p class="auth-hint">{% translate "برجاء تسجيل الدخول للمتابعة" %}</p>
+
+      <div class="auth-alert" id="auth-alert" role="alert">
+        <svg class="icon"><use href="#i-error"></use></svg>
+        <span id="auth-alert-text"></span>
+      </div>
+
+      <form method="post" action="{% url 'accounts:login' %}" id="login-form" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.GET.next|default:'' }}">
+
+        <div class="auth-field">
+          <input type="text" name="username" id="id_username" class="form-control"
+                 placeholder="{% translate 'اسم المستخدم' %}" autocomplete="username"
+                 autofocus required aria-label="{% translate 'اسم المستخدم' %}">
+          <svg class="icon field-icon"><use href="#i-users"></use></svg>
+          <div class="text-danger small mt-1" data-error-for="username"></div>
+        </div>
+
+        <div class="auth-field">
+          <input type="password" name="password" id="id_password" class="form-control"
+                 placeholder="{% translate 'كلمة المرور' %}" autocomplete="current-password"
+                 required aria-label="{% translate 'كلمة المرور' %}">
+          <svg class="icon field-icon"><use href="#i-lock"></use></svg>
+          <button class="btn btn-sm btn-ghost btn-icon-only field-action" type="button"
+                  id="toggle-password" aria-label="{% translate 'إظهار كلمة المرور' %}">
+            <svg class="icon"><use href="#i-eye" id="eye-icon"></use></svg>
+          </button>
+          <div class="caps-hint" id="caps-hint">
+            <svg class="icon"><use href="#i-warn"></use></svg>
+            {% translate "مفتاح Caps Lock مفعّل" %}
+          </div>
+          <div class="text-danger small mt-1" data-error-for="password"></div>
+        </div>
+
+        <button class="btn btn-primary btn-block auth-submit" type="submit" id="login-submit">
+          {% translate "دخول" %}
+        </button>
+      </form>
+
+      {% if form.non_field_errors %}
+        {{ form.non_field_errors.0|json_script:"login-error-text" }}
+      {% endif %}
+
+      <div class="auth-meta">{% translate "نظام إدارة السنتر" %}</div>
+    </div>
+  </main>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("login-form");
+  const wrap = document.getElementById("auth-form-wrap");
+  const button = document.getElementById("login-submit");
+  const alertBox = document.getElementById("auth-alert");
+  const alertText = document.getElementById("auth-alert-text");
+
+  /* A failed non-JS post renders the message server-side; show it in the same
+     place the AJAX path uses so there is only one error style. */
+  const serverError = document.getElementById("login-error-text");
+  if (serverError) { showError(JSON.parse(serverError.textContent)); }
+
+  function showError(message) {
+    alertText.textContent = message;
+    alertBox.classList.add("show");
+  }
+
+  function clearErrors() {
+    alertBox.classList.remove("show");
+    app.clearFieldErrors(form);
+  }
+
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    clearErrors();
+
+    const data = Object.fromEntries(new FormData(form).entries());
+    wrap.classList.add("busy");
+
+    await ui.withBusy(button, async function () {
+      try {
+        const result = await http.post("{% url 'accounts:login_ajax' %}", {
+          username: data.username,
+          password: data.password,
+          next: data.next || ""
+        });
+        button.textContent = gettext("جارٍ التحويل…");
+        window.location = result.data.redirect;
+      } catch (error) {
+        wrap.classList.remove("busy");
+        showError(error.message || gettext("تعذر تسجيل الدخول"));
+        Object.entries(error.field_errors || {}).forEach(function ([field, messages]) {
+          const slot = form.querySelector('[data-error-for="' + field + '"]');
+          const input = form.querySelector('[name="' + field + '"]');
+          if (slot) { slot.textContent = messages.join(" "); }
+          if (input) { input.classList.add("is-invalid"); }
+        });
+        const password = document.getElementById("id_password");
+        password.value = "";
+        password.focus();
+      }
+    });
+  });
+
+  /* Show / hide password. */
+  document.getElementById("toggle-password").addEventListener("click", function () {
+    const field = document.getElementById("id_password");
+    const shown = field.type === "text";
+    field.type = shown ? "password" : "text";
+    document.getElementById("eye-icon").setAttribute("href", shown ? "#i-eye" : "#i-eye-off");
+    field.focus();
+  });
+
+  /* Caps Lock is the single most common cause of "the password is wrong". */
+  const capsHint = document.getElementById("caps-hint");
+  document.getElementById("id_password").addEventListener("keyup", function (event) {
+    const on = event.getModifierState && event.getModifierState("CapsLock");
+    capsHint.classList.toggle("show", Boolean(on));
+  });
+
+  /* Light / dark straight from the sign-in screen. */
+  document.getElementById("auth-mode").addEventListener("click", function () {
+    const current = theme.effective().mode;
+    theme.set({ mode: current === "dark" ? "light" : "dark" });
+  });
+});
+</script>
+{% endblock %}

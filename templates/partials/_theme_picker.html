@@ -1,0 +1,125 @@
+{% load i18n %}
+{# Per-user appearance. The center-wide default lives in Settings → المظهر. #}
+<div class="dropdown">
+  <button class="btn btn-sm btn-ghost btn-icon-only" data-bs-toggle="dropdown" data-bs-auto-close="outside"
+          type="button" aria-label="{% translate 'المظهر' %}" title="{% translate 'المظهر' %}">
+    <svg class="icon"><use href="#i-palette"></use></svg>
+  </button>
+
+  <div class="dropdown-menu dropdown-menu-end shadow p-3 theme-panel">
+    <div class="fw-semibold mb-2">{% translate "لوحة الألوان" %}</div>
+    <div class="swatch-grid mb-3" id="theme-swatches"></div>
+
+    <label class="form-label small mb-1" for="accent-input">{% translate "لون مخصص" %}</label>
+    <div class="d-flex gap-2 mb-3">
+      <input type="color" class="form-control form-control-color" id="accent-input" value="#1f6f8b"
+             aria-label="{% translate 'اختيار لون' %}">
+      <input type="text" class="form-control form-control-sm mono" id="accent-hex" maxlength="7"
+             placeholder="#1f6f8b" aria-label="{% translate 'كود اللون' %}">
+    </div>
+
+    <div class="fw-semibold mb-2">{% translate "الوضع" %}</div>
+    <div class="btn-group btn-group-sm w-100 mb-3 mode-toggle" role="group">
+      <button class="btn btn-outline-secondary" data-mode="light">{% translate "فاتح" %}</button>
+      <button class="btn btn-outline-secondary" data-mode="dark">{% translate "داكن" %}</button>
+      <button class="btn btn-outline-secondary" data-mode="auto">{% translate "تلقائي" %}</button>
+    </div>
+
+    <div class="fw-semibold mb-2">{% translate "كثافة العرض" %}</div>
+    <div class="btn-group btn-group-sm w-100 mb-3" role="group">
+      <button class="btn btn-outline-secondary" data-density="comfortable">{% translate "مريح" %}</button>
+      <button class="btn btn-outline-secondary" data-density="compact">{% translate "مضغوط" %}</button>
+    </div>
+
+    <button class="btn btn-sm btn-ghost btn-block" id="theme-reset">
+      {% translate "العودة لإعدادات السنتر" %}
+    </button>
+    <div class="form-text mt-1">{% translate "هذا الاختيار يخصّك على هذا الجهاز فقط." %}</div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const LABELS = {
+    teal: "{% translate 'أزرق مخضر' %}", indigo: "{% translate 'نيلي' %}",
+    violet: "{% translate 'بنفسجي' %}", emerald: "{% translate 'زمردي' %}",
+    sunset: "{% translate 'برتقالي' %}", slate: "{% translate 'رمادي' %}",
+    custom: "{% translate 'مخصص' %}"
+  };
+  /* Preview dots: read straight from themes.css so the picker can never drift
+     from the palettes it offers. */
+  const probe = document.createElement("div");
+  probe.style.display = "none";
+  document.body.appendChild(probe);
+
+  function stopsFor(name) {
+    if (name === "custom") {
+      const accent = theme.effective().accent;
+      const ramp = theme.ramp(accent);
+      return [ramp[300], ramp[500], ramp[700]];
+    }
+    probe.dataset.theme = name;
+    const styles = getComputedStyle(probe);
+    return ["300", "500", "700"].map((stop) => styles.getPropertyValue("--brand-" + stop).trim());
+  }
+
+  function render() {
+    const state = theme.effective();
+    document.getElementById("theme-swatches").innerHTML = theme.PRESETS.concat(["custom"])
+      .map(function (name) {
+        const dots = stopsFor(name)
+          .map((colour) => '<span class="swatch-dot" style="background:' + colour + '"></span>')
+          .join("");
+        return '<button type="button" class="swatch" data-theme-name="' + name + '"' +
+          ' aria-pressed="' + (state.theme === name) + '">' +
+          '<span class="swatch-dots">' + dots + "</span>" + LABELS[name] + "</button>";
+      })
+      .join("");
+
+    document.querySelectorAll("[data-mode]").forEach(function (button) {
+      button.classList.toggle("active", button.dataset.mode === state.mode);
+    });
+    document.querySelectorAll("[data-density]").forEach(function (button) {
+      button.classList.toggle("active", button.dataset.density === state.density);
+    });
+    const accent = document.getElementById("accent-input");
+    const hex = document.getElementById("accent-hex");
+    if (accent) { accent.value = state.accent; }
+    if (hex) { hex.value = state.accent; }
+  }
+
+  document.getElementById("theme-swatches").addEventListener("click", function (event) {
+    const button = event.target.closest("[data-theme-name]");
+    if (!button) { return; }
+    theme.set({ theme: button.dataset.themeName });
+  });
+
+  document.getElementById("accent-input").addEventListener("input", function () {
+    document.getElementById("accent-hex").value = this.value;
+    theme.set({ theme: "custom", accent: this.value });
+  });
+
+  document.getElementById("accent-hex").addEventListener("change", function () {
+    if (!theme.isValidHex(this.value)) {
+      app.toast("{% translate 'كود لون غير صحيح' %}", "danger");
+      return;
+    }
+    const value = this.value.startsWith("#") ? this.value : "#" + this.value;
+    theme.set({ theme: "custom", accent: value });
+  });
+
+  document.querySelectorAll("[data-mode]").forEach(function (button) {
+    button.addEventListener("click", () => theme.set({ mode: button.dataset.mode }));
+  });
+  document.querySelectorAll("[data-density]").forEach(function (button) {
+    button.addEventListener("click", () => theme.set({ density: button.dataset.density }));
+  });
+  document.getElementById("theme-reset").addEventListener("click", function () {
+    theme.reset();
+    app.toast("{% translate 'تمت العودة لإعدادات السنتر' %}", "secondary");
+  });
+
+  document.addEventListener("appearance:change", render);
+  render();
+});
+</script>

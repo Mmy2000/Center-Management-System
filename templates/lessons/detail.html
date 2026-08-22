@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{{ lesson }}{% endblock %}
+
+{% block content %}
+<nav class="small mb-2"><a href="{% url 'lessons:list' %}">{% translate "الحصص" %}</a> / {{ lesson.lesson_date }}</nav>
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+  <div>
+    <h1 class="h5 mb-1">{{ lesson.group.grade_subject.subject }} — {{ lesson.group.name }}</h1>
+    <div class="text-muted small">
+      {{ lesson.lesson_date }} · {{ lesson.scheduled_start|time:"H:i" }}–{{ lesson.scheduled_end|time:"H:i" }}
+      · {% translate "التسجيل" %} {{ lesson.check_in_opens_at|time:"H:i" }}–{{ lesson.check_in_closes_at|time:"H:i" }}
+      · {% translate "التأخير بعد" %} {{ lesson.late_after|time:"H:i" }}
+    </div>
+  </div>
+  <div class="d-flex gap-2 align-items-center">
+    <span class="badge text-bg-{% if lesson.status == 'OPEN' %}success{% elif lesson.status == 'CANCELLED' %}danger{% else %}secondary{% endif %}">
+      {{ lesson.get_status_display }}
+    </span>
+    {% if lesson.status == 'SCHEDULED' and perms.lessons.open_lesson %}
+      <button class="btn btn-success btn-sm" id="open-lesson">{% translate "فتح" %}</button>
+    {% endif %}
+    {% if lesson.status == 'OPEN' %}
+      <a class="btn btn-primary btn-sm" href="{% url 'attendance:scanner' lesson.pk %}">{% translate "شاشة المسح" %}</a>
+      {% if perms.lessons.complete_lesson %}
+        <button class="btn btn-outline-dark btn-sm" id="complete-lesson">{% translate "إنهاء" %}</button>
+      {% endif %}
+    {% endif %}
+    {% if lesson.status != 'COMPLETED' and perms.lessons.cancel_lesson %}
+      <button class="btn btn-outline-danger btn-sm" id="cancel-lesson">{% translate "إلغاء" %}</button>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  {% for key, label in counters_labels %}
+    <div class="col-4 col-lg-2">
+      <div class="stat-tile py-2">
+        <div class="stat-value" data-counter="{{ key }}">0</div>
+        <div class="stat-label">{{ label }}</div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header fw-semibold">{% translate "سجل الحضور" %}</div>
+      <div class="table-responsive">
+        <table class="table table-sm table-compact align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>{% translate "الطالب" %}</th>
+              <th>{% translate "مجموعته" %}</th>
+              <th>{% translate "النوع" %}</th>
+              <th>{% translate "حضور" %}</th>
+              <th>{% translate "انصراف" %}</th>
+              <th>{% translate "الحالة" %}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="attendance-body">
+            <tr><td colspan="7" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">{% translate "لم يحضروا بعد" %}</span>
+        <span class="badge text-bg-light" id="not-arrived-count">0</span>
+      </div>
+      <div class="card-body p-0" style="max-height:260px;overflow:auto;">
+        <table class="table table-sm mb-0"><tbody id="not-arrived-body"></tbody></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header fw-semibold">{% translate "آخر العمليات" %}</div>
+      <div class="card-body p-0" style="max-height:260px;overflow:auto;">
+        <table class="table table-sm mb-0"><tbody id="feed-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const LESSON_ID = {{ lesson.pk }};
+const CAN_CORRECT = {{ perms.attendance.correct_attendance|yesno:"true,false" }};
+const TYPE_CLASS = { NORMAL: "secondary", ALTERNATIVE_GROUP: "warning", MAKEUP: "info", MANUAL: "dark", EXCEPTIONAL: "danger" };
+let cursor = null;
+
+async function load() {
+  try {
+    const result = await http.get("/api/lessons/" + LESSON_ID + "/attendance/");
+    const data = result.data;
+    document.querySelectorAll("[data-counter]").forEach(function (node) {
+      node.textContent = data.counters[node.dataset.counter] ?? 0;
+    });
+
+    document.getElementById("attendance-body").innerHTML = data.results.length
+      ? data.results.map(function (a) {
+          const groups = a.assigned_group && a.assigned_group !== a.attended_group
+            ? a.assigned_group + " ⟶ " + a.attended_group
+            : (a.assigned_group || "—");
+          const actions = (CAN_CORRECT && a.state === "CHECKED_IN")
+            ? ('<button class="btn btn-sm btn-soft-secondary js-checkout">' + gettext("انصراف") + '</button>') : "";
+          return "<tr data-id='" + a.id + "'>" +
+            "<td><a href='/students/" + a.student_id + "/'>" + a.student + "</a>" +
+              (a.is_manual ? (' <span class="badge text-bg-light" title="' + gettext("تم التعديل يدويًا") + '">✎</span>') : "") + "</td>" +
+            "<td class='small'>" + groups + "</td>" +
+            '<td><span class="badge text-bg-' + (TYPE_CLASS[a.type] || "secondary") + '">' + a.type_display + "</span></td>" +
+            "<td>" + (a.check_in || "—") + (a.late_minutes ? ' <span class="text-danger small">+' + a.late_minutes + "</span>" : "") + "</td>" +
+            "<td>" + (a.check_out || "—") + "</td>" +
+            "<td>" + a.status_display + "</td>" +
+            "<td class='text-end'>" + actions + "</td></tr>";
+        }).join("")
+      : ('<tr><td colspan="7" class="text-center text-muted py-4">' + gettext("لا توجد تسجيلات") + '</td></tr>');
+
+    document.getElementById("not-arrived-count").textContent = data.not_arrived.length;
+    document.getElementById("not-arrived-body").innerHTML = data.not_arrived.length
+      ? data.not_arrived.map(function (s) {
+          return "<tr><td>" + s.student + "</td><td class='text-muted small'>" + s.student_code + "</td>" +
+            (CAN_CORRECT ? "<td class='text-end'><button class='btn btn-sm btn-soft-primary js-manual' data-student='" + s.student_id + ("'>" + gettext("تسجيل يدوي") + "</button></td>") : "<td></td>") +
+            "</tr>";
+        }).join("")
+      : ('<tr><td class="text-muted p-3">' + gettext("لا أحد — الجميع مسجّل") + '</td></tr>');
+  } catch (error) { app.handleError(error); }
+}
+
+async function pollFeed() {
+  try {
+    const query = cursor ? "?since=" + encodeURIComponent(cursor) : "";
+    const result = await http.get("/api/lessons/" + LESSON_ID + "/feed/" + query);
+    if (result.data.results.length) {
+      cursor = result.data.cursor;
+      document.getElementById("feed-body").innerHTML = result.data.results.map(function (e) {
+        const tone = e.code.startsWith("OK") ? "success" : (e.code.startsWith("ERR") ? "danger" : "warning");
+        return "<tr><td class='text-muted small'>" + e.at + "</td><td>" + e.student +
+          "</td><td class='text-" + tone + " small'>" + e.message + "</td></tr>";
+      }).join("");
+    }
+  } catch (error) { /* best effort */ }
+}
+
+document.getElementById("attendance-body").addEventListener("click", async function (event) {
+  const button = event.target.closest(".js-checkout");
+  if (!button) { return; }
+  const id = button.closest("tr").dataset.id;
+  try {
+    await http.post("/api/attendance/" + id + "/checkout/", { reason: gettext("انصراف يدوي من لوحة الحصة") });
+    app.toast(gettext("تم تسجيل الانصراف"), "success");
+    load();
+  } catch (error) { app.handleError(error); }
+});
+
+document.getElementById("not-arrived-body").addEventListener("click", function (event) {
+  const button = event.target.closest(".js-manual");
+  if (!button) { return; }
+  const studentId = button.dataset.student;
+  app.openModal(
+    gettext("تسجيل حضور يدوي"),
+    ('<div class="mb-2"><label class="form-label">' + gettext("السبب (مطلوب)") + '</label>') +
+    ('<textarea class="form-control" name="reason" rows="2" placeholder="' + gettext("نسي الكارت") + ' ' + '/ ' + gettext("عطل في القارئ") + '"></textarea></div>'),
+    ('<button class="btn btn-primary" id="confirm-manual" disabled>' + gettext("تسجيل") + '</button>')
+  );
+  const reason = document.querySelector('#app-modal [name="reason"]');
+  const confirm = document.getElementById("confirm-manual");
+  reason.addEventListener("input", () => (confirm.disabled = !reason.value.trim()));
+  confirm.addEventListener("click", async function () {
+    try {
+      await http.post("{% url 'attendance_api:manual' %}", {
+        lesson_id: LESSON_ID, student_id: Number(studentId), reason: reason.value.trim()
+      });
+      bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+      app.toast(gettext("تم التسجيل اليدوي"), "success");
+      load();
+    } catch (error) { app.handleError(error); }
+  });
+});
+
+document.getElementById("open-lesson")?.addEventListener("click", async function () {
+  try { await http.post("/api/lessons/" + LESSON_ID + "/open/", {}); location.reload(); }
+  catch (error) { app.handleError(error); }
+});
+
+document.getElementById("complete-lesson")?.addEventListener("click", async function () {
+  const result = await http.get("/api/lessons/" + LESSON_ID + "/attendance/");
+  const willBeAbsent = result.data.not_arrived.length;
+  app.openModal(
+    gettext("إنهاء الحصة"),
+    ("<p>" + gettext("سيتم تسجيل") + " " + "<b>") + willBeAbsent + ("</b> " + gettext("طالب كغياب، وإغلاق أي حضور مفتوح تلقائيًا.") + "</p>"),
+    ('<button class="btn btn-dark" id="confirm-complete">' + gettext("إنهاء الحصة") + '</button>')
+  );
+  document.getElementById("confirm-complete").addEventListener("click", async function () {
+    try {
+      const done = await http.post("/api/lessons/" + LESSON_ID + "/complete/", {});
+      app.toast((gettext("تم الإنهاء — غياب:") + " ") + done.data.summary.absences, "success");
+      location.reload();
+    } catch (error) { app.handleError(error); }
+  });
+});
+
+document.getElementById("cancel-lesson")?.addEventListener("click", function () {
+  app.openModal(
+    gettext("إلغاء الحصة"),
+    ('<div class="mb-2"><label class="form-label">' + gettext("السبب (مطلوب)") + '</label><textarea class="form-control" name="reason" rows="2"></textarea></div>'),
+    ('<button class="btn btn-danger" id="confirm-cancel" disabled>' + gettext("إلغاء الحصة") + '</button>')
+  );
+  const reason = document.querySelector('#app-modal [name="reason"]');
+  const confirm = document.getElementById("confirm-cancel");
+  reason.addEventListener("input", () => (confirm.disabled = !reason.value.trim()));
+  confirm.addEventListener("click", async function () {
+    try {
+      await http.post("/api/lessons/" + LESSON_ID + "/cancel/", { reason: reason.value.trim() });
+      location.reload();
+    } catch (error) { app.handleError(error); }
+  });
+});
+
+load();
+pollFeed();
+setInterval(load, 15000);
+setInterval(pollFeed, 5000);
+</script>
+{% endblock %}

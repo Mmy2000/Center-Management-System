@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "لوحة التحكم" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">{% translate "لوحة التحكم" %}</h1>
+  <span class="small text-muted" id="dash-date"></span>
+</div>
+
+<h2 class="h6 text-muted mb-2">{% translate "اليوم" %}</h2>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-2">
+    <div class="stat-tile"><div class="stat-value" data-today="lessons">—</div>
+      <div class="stat-label">{% translate "حصص اليوم" %}</div></div>
+  </div>
+  <div class="col-6 col-lg-2">
+    <div class="stat-tile"><div class="stat-value text-success" data-today="active_lessons">—</div>
+      <div class="stat-label">{% translate "جارية الآن" %}</div></div>
+  </div>
+  <div class="col-6 col-lg-2">
+    <div class="stat-tile"><div class="stat-value" data-today="expected_students">—</div>
+      <div class="stat-label">{% translate "متوقع" %}</div></div>
+  </div>
+  <div class="col-6 col-lg-2">
+    <div class="stat-tile"><div class="stat-value" data-today="present">—</div>
+      <div class="stat-label">{% translate "حاضر" %}</div></div>
+  </div>
+  <div class="col-6 col-lg-2">
+    <div class="stat-tile"><div class="stat-value text-danger" data-today="absent">—</div>
+      <div class="stat-label">{% translate "غائب" %}</div></div>
+  </div>
+  <div class="col-6 col-lg-2">
+    <div class="stat-tile"><div class="stat-value text-warning" data-today="alternative">—</div>
+      <div class="stat-label">{% translate "مجموعة بديلة" %}</div></div>
+  </div>
+</div>
+
+{% if perms.payments.view_monthlycharge %}
+  <h2 class="h6 text-muted mb-2">{% translate "الشهر الحالي" %}</h2>
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="stat-tile"><div class="stat-value" data-month="expected">—</div>
+        <div class="stat-label">{% translate "المتوقع (ج.م)" %}</div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-tile"><div class="stat-value text-success" data-month="collected">—</div>
+        <div class="stat-label">{% translate "المحصّل" %}</div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-tile"><div class="stat-value text-danger" data-month="outstanding">—</div>
+        <div class="stat-label">{% translate "المتبقي" %}</div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-tile"><div class="stat-value" id="m-counts">—</div>
+        <div class="stat-label">{% translate "مسدد / جزئي / غير مسدد" %}</div></div>
+    </div>
+  </div>
+{% endif %}
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span class="fw-semibold">{% translate "حصص مفتوحة الآن" %}</span>
+        {% if perms.attendance.add_attendance %}
+          <a class="btn btn-sm btn-primary" href="{% url 'attendance:scanner_picker' %}">{% translate "شاشة المسح" %}</a>
+        {% endif %}
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-sm table-compact mb-0">
+          <tbody id="open-lessons"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card h-100">
+      <div class="card-header fw-semibold">{% translate "إجراءات سريعة" %}</div>
+      <div class="card-body d-flex flex-wrap gap-2">
+        {% if perms.students.add_student %}
+          <a class="btn btn-outline-primary btn-sm" href="{% url 'students:create' %}">{% translate "طالب جديد" %}</a>
+        {% endif %}
+        {% if perms.payments.add_payment %}
+          <a class="btn btn-outline-primary btn-sm" href="{% url 'payments:workspace' %}">{% translate "تحصيل دفعة" %}</a>
+        {% endif %}
+        {% if perms.lessons.view_lesson %}
+          <a class="btn btn-outline-primary btn-sm" href="{% url 'lessons:list' %}">{% translate "الحصص" %}</a>
+        {% endif %}
+        {% if perms.reports.view_reports %}
+          <a class="btn btn-outline-primary btn-sm" href="{% url 'reports:report' 'alternative-groups' %}">{% translate "تقرير المجموعات البديلة" %}</a>
+        {% endif %}
+        {% if perms.reports.view_financial_reports %}
+          <a class="btn btn-outline-primary btn-sm" href="{% url 'reports:report' 'outstanding' %}">{% translate "المتأخرات" %}</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function loadDashboard() {
+  try {
+    const result = await http.get("{% url 'reports_api:dashboard' %}");
+    const data = result.data;
+
+    document.getElementById("dash-date").textContent = data.today.date;
+    Object.entries(data.today).forEach(function ([key, value]) {
+      const node = document.querySelector('[data-today="' + key + '"]');
+      if (node) { node.textContent = value; }
+    });
+    Object.entries(data.month || {}).forEach(function ([key, value]) {
+      const node = document.querySelector('[data-month="' + key + '"]');
+      if (node) { node.textContent = value; }
+    });
+    const counts = document.getElementById("m-counts");
+    if (counts && data.month) {
+      counts.textContent = data.month.paid_students + " / " + data.month.partial_students + " / " + data.month.unpaid_students;
+    }
+
+    document.getElementById("open-lessons").innerHTML = data.open_lessons.length
+      ? data.open_lessons.map(function (lesson) {
+          return "<tr><td><b>" + lesson.subject + "</b> — " + lesson.group + "</td>" +
+            "<td class='text-muted'>" + lesson.start + "</td>" +
+            "<td>" + lesson.expected + " {% translate 'طالب' %}</td>" +
+            "<td class='text-end'><a class='btn btn-sm btn-soft-primary' href='/scan/" + lesson.id + "/'>{% translate 'مسح' %}</a> " +
+            "<a class='btn btn-sm btn-outline-secondary' href='/lessons/" + lesson.id + "/'>{% translate 'اللوحة' %}</a></td></tr>";
+        }).join("")
+      : '<tr><td class="text-muted p-3">{% translate "لا توجد حصص مفتوحة" %}</td></tr>';
+  } catch (error) {
+    app.handleError(error);
+  }
+}
+
+loadDashboard();
+setInterval(loadDashboard, 30000);
+</script>
+{% endblock %}

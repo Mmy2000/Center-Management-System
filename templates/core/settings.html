@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "الإعدادات" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h1 class="h4 mb-0">{% translate "إعدادات النظام" %}</h1>
+  {% if can_edit %}
+    <button class="btn btn-primary" id="save-settings">{% translate "حفظ التغييرات" %}</button>
+  {% endif %}
+</div>
+
+<form id="settings-form">
+  {% for group in groups %}
+    <div class="card mb-3">
+      <div class="card-header fw-semibold">{{ group.label }}</div>
+      <div class="card-body">
+        {% for spec, value in group.items %}
+          <div class="row align-items-center mb-3 policy-row" data-key="{{ spec.key }}" data-type="{{ spec.value_type }}">
+            <div class="col-lg-6">
+              <label class="form-label mb-0" for="f-{{ forloop.parentloop.counter }}-{{ forloop.counter }}">{{ spec.label }}</label>
+              <div class="text-muted small">
+                <code>{{ spec.key }}</code>
+                {% if spec.help_text %} — {{ spec.help_text }}{% endif %}
+              </div>
+            </div>
+            <div class="col-lg-6">
+              {% if spec.value_type == "BOOL" %}
+                <div class="form-check form-switch">
+                  <input class="form-check-input policy-input" type="checkbox"
+                         id="f-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                         {% if value %}checked{% endif %} {% if not can_edit %}disabled{% endif %}>
+                </div>
+              {% elif spec.value_type == "CHOICE" %}
+                <select class="form-select policy-input" id="f-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                        {% if not can_edit %}disabled{% endif %}>
+                  {% for choice in spec.choices %}
+                    <option value="{{ choice }}" {% if choice == value %}selected{% endif %}>{{ choice }}</option>
+                  {% endfor %}
+                </select>
+              {% elif spec.pattern %}
+                <div class="d-flex gap-2">
+                  <input type="color" class="form-control form-control-color policy-input" value="{{ value }}"
+                         id="f-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                         {% if not can_edit %}disabled{% endif %}>
+                  <input type="text" class="form-control mono policy-mirror" value="{{ value }}" maxlength="7"
+                         aria-label="{{ spec.label }}" {% if not can_edit %}disabled{% endif %}>
+                </div>
+              {% elif spec.value_type == "INT" %}
+                <input type="number" class="form-control policy-input" value="{{ value }}"
+                       id="f-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                       {% if spec.min_value != None %}min="{{ spec.min_value }}"{% endif %}
+                       {% if spec.max_value != None %}max="{{ spec.max_value }}"{% endif %}
+                       {% if not can_edit %}disabled{% endif %}>
+              {% else %}
+                <input type="text" class="form-control policy-input" value="{{ value }}"
+                       id="f-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                       {% if not can_edit %}disabled{% endif %}>
+              {% endif %}
+              <div class="invalid-feedback d-block text-danger small" data-error-for="{{ spec.key }}"></div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endfor %}
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* Keep the colour picker and its hex field in step. */
+document.querySelectorAll(".policy-row").forEach(function (row) {
+  const picker = row.querySelector('input[type="color"]');
+  const mirror = row.querySelector(".policy-mirror");
+  if (!picker || !mirror) { return; }
+  picker.addEventListener("input", () => (mirror.value = picker.value));
+  mirror.addEventListener("change", function () {
+    if (/^#[0-9a-fA-F]{6}$/.test(mirror.value)) { picker.value = mirror.value; }
+  });
+});
+
+document.getElementById("save-settings")?.addEventListener("click", async function () {
+  const values = {};
+  document.querySelectorAll(".policy-row").forEach(function (row) {
+    const input = row.querySelector(".policy-input");
+    if (!input) { return; }
+    values[row.dataset.key] = row.dataset.type === "BOOL" ? input.checked : input.value;
+  });
+  document.querySelectorAll("[data-error-for]").forEach(el => (el.textContent = ""));
+  try {
+    const result = await http.post("{% url 'core_api:settings_update' %}", { values: values });
+    const count = Object.keys(result.data.changed || {}).length;
+    app.toast(count ? (gettext("تم حفظ") + " ") + count + (" " + gettext("إعداد")) : gettext("لا توجد تغييرات"), count ? "success" : "secondary");
+    // Appearance is applied by theme.js from these defaults — reload to adopt them.
+    if (Object.keys(result.data.changed || {}).some((key) => key.startsWith("ui."))) {
+      setTimeout(() => location.reload(), 700);
+    }
+  } catch (error) {
+    if (error.field_errors) {
+      Object.entries(error.field_errors).forEach(function ([key, messages]) {
+        const el = document.querySelector('[data-error-for="' + key + '"]');
+        if (el) { el.textContent = messages.join(" "); }
+      });
+    }
+    app.toast(error.message || gettext("تعذر الحفظ"), "danger");
+  }
+});
+</script>
+{% endblock %}

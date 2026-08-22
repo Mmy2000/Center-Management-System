@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% block title %}{% translate "المجموعات" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">{% translate "المجموعات" %}</h1>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="row g-2 align-items-end">
+      <div class="col-6 col-lg-3">
+        <label class="form-label small">{% translate "المرحلة" %}</label>
+        <select class="form-select form-select-sm" id="f-stage"><option value="">{% translate "الكل" %}</option></select>
+      </div>
+      <div class="col-6 col-lg-3">
+        <label class="form-label small">{% translate "الصف" %}</label>
+        <select class="form-select form-select-sm" id="f-grade"><option value="">{% translate "الكل" %}</option></select>
+      </div>
+      <div class="col-6 col-lg-3">
+        <label class="form-label small">{% translate "المادة" %}</label>
+        <select class="form-select form-select-sm" id="f-subject"><option value="">{% translate "الكل" %}</option></select>
+      </div>
+      <div class="col-6 col-lg-3">
+        <label class="form-label small">{% translate "الحالة" %}</label>
+        <select class="form-select form-select-sm" id="f-status">
+          <option value="">{% translate "الكل" %}</option>
+          {% for value, label in statuses %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card"><div class="card-body" id="panel-groups"></div></div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/crud.js' %}"></script>
+<script>
+const CAN_WRITE = {{ perms.academics.add_group|yesno:"true,false" }};
+
+(async function () {
+  const offeringOptions = await crud.options("{% url 'academics_api:offerings' %}");
+  const instructorOptions = [["", "—"]].concat(await crud.options("{% url 'academics_api:instructors' %}"));
+  const stageOptions = await crud.options("{% url 'academics_api:stages' %}");
+  const gradeOptions = await crud.options("{% url 'academics_api:grades' %}");
+  const subjectOptions = await crud.options("{% url 'academics_api:subjects' %}");
+
+  function fill(selectId, options) {
+    const select = document.getElementById(selectId);
+    options.forEach(function (o) {
+      const opt = document.createElement("option");
+      opt.value = o[0];
+      opt.textContent = o[1];
+      select.appendChild(opt);
+    });
+  }
+  fill("f-stage", stageOptions);
+  fill("f-grade", gradeOptions);
+  fill("f-subject", subjectOptions);
+
+  let panel = null;
+  function build() {
+    const params = {};
+    ["stage", "grade", "subject", "status"].forEach(function (key) {
+      const value = document.getElementById("f-" + key).value;
+      if (value) { params[key] = value; }
+    });
+    document.getElementById("panel-groups").innerHTML = "";
+    panel = crud.panel({
+      mount: "#panel-groups",
+      title: gettext("المجموعات"),
+      listUrl: "{% url 'academics_api:groups' %}",
+      detailUrl: (id) => "{% url 'academics_api:groups' %}" + id + "/",
+      canWrite: CAN_WRITE,
+      params: params,
+      columns: [
+        { key: "code", label: gettext("الكود"), render: (r) => '<a href="/groups/' + r.id + '/">' + r.code + "</a>" },
+        { key: "name", label: gettext("المجموعة") },
+        { key: "subject", label: gettext("المادة") },
+        { key: "grade", label: gettext("الصف") },
+        { key: "instructor", label: gettext("المدرّس") },
+        { key: "capacity", label: gettext("السعة") },
+        { key: "monthly_fee", label: gettext("الرسوم") },
+        { key: "status_display", label: gettext("الحالة") }
+      ],
+      fields: [
+        { name: "grade_subject", label: (gettext("المادة") + "/" + gettext("الصف")), type: "select", options: offeringOptions },
+        { name: "name", label: gettext("اسم المجموعة") },
+        { name: "name_ar", label: gettext("الاسم بالعربية") },
+        { name: "code", label: gettext("الكود") },
+        { name: "instructor", label: gettext("المدرّس"), type: "select", options: instructorOptions },
+        { name: "capacity", label: (gettext("السعة (0") + " " + "= " + gettext("بلا حد)")), type: "number", default: 0 },
+        { name: "monthly_fee", label: gettext("الرسوم الشهرية"), type: "number" },
+        { name: "academic_year", label: gettext("العام الدراسي") },
+        { name: "status", label: gettext("الحالة"), type: "select", options: [["ACTIVE", gettext("نشطة")], ["PAUSED", gettext("متوقفة")], ["CLOSED", gettext("مغلقة")]] },
+        { name: "default_late_after_minutes", label: gettext("حد التأخير (دقائق)"), type: "number" },
+        { name: "notes", label: gettext("ملاحظات") }
+      ]
+    });
+  }
+
+  ["f-stage", "f-grade", "f-subject", "f-status"].forEach(function (id) {
+    document.getElementById(id).addEventListener("change", build);
+  });
+  build();
+})();
+</script>
+{% endblock %}

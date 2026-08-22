@@ -1,0 +1,202 @@
+/* ==========================================================================
+   buttons.css — the button system.
+   --------------------------------------------------------------------------
+   Four families (solid · outline · soft · ghost) and one tone map. Every
+   family reads --btn-tone-*, so adding a colour is three variables, never a
+   new block of rules — and every button follows the active palette because
+   the tones resolve to --brand-* / --ink-*.
+   ========================================================================== */
+
+.btn {
+  --bs-btn-font-weight: 600;
+  --bs-btn-border-radius: var(--radius);
+  --bs-btn-padding-y: .45rem;
+  --bs-btn-padding-x: .9rem;
+  --bs-btn-font-size: .9rem;
+
+  --btn-tone: var(--brand-500);
+  --btn-tone-dark: var(--brand-600);
+  --btn-tone-darker: var(--brand-700);
+  --btn-tone-soft: var(--brand-50);
+  --btn-tone-soft-border: var(--brand-200);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .4rem;
+  line-height: 1.45;
+  letter-spacing: -.005em;
+  transition: background-color var(--dur-fast) var(--ease),
+              background-image var(--dur-fast) var(--ease),
+              border-color var(--dur-fast) var(--ease),
+              color var(--dur-fast) var(--ease),
+              box-shadow var(--dur-fast) var(--ease),
+              transform var(--dur-fast) var(--ease);
+}
+.btn .icon { width: 1.05em; height: 1.05em; }
+.btn:disabled, .btn.disabled { opacity: .55; box-shadow: none; transform: none; cursor: not-allowed; }
+.btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--btn-tone) 30%, transparent);
+}
+
+/* ------------------------------------------------------------- tone map -- */
+.btn-primary, .btn-outline-primary, .btn-soft-primary {
+  --btn-tone: var(--brand-500); --btn-tone-dark: var(--brand-600);
+  --btn-tone-darker: var(--brand-700); --btn-tone-soft: var(--brand-50);
+  --btn-tone-soft-border: var(--brand-200);
+}
+.btn-success, .btn-outline-success, .btn-soft-success {
+  --btn-tone: var(--success-500); --btn-tone-dark: #0d6b4c; --btn-tone-darker: #095239;
+  --btn-tone-soft: var(--success-050); --btn-tone-soft-border: #bfe3d5;
+}
+.btn-danger, .btn-outline-danger, .btn-soft-danger {
+  --btn-tone: var(--danger-500); --btn-tone-dark: #a52c3d; --btn-tone-darker: #85222f;
+  --btn-tone-soft: var(--danger-050); --btn-tone-soft-border: #f2c4cc;
+}
+.btn-warning, .btn-outline-warning, .btn-soft-warning {
+  --btn-tone: var(--accent-500); --btn-tone-dark: var(--accent-600); --btn-tone-darker: #8c5907;
+  --btn-tone-soft: var(--warning-050); --btn-tone-soft-border: #f0dcb4;
+}
+.btn-info, .btn-outline-info, .btn-soft-info {
+  --btn-tone: var(--info-500); --btn-tone-dark: #235a89; --btn-tone-darker: #1c476c;
+  --btn-tone-soft: var(--info-050); --btn-tone-soft-border: #c3dbf0;
+}
+.btn-secondary, .btn-outline-secondary, .btn-soft-secondary {
+  --btn-tone: var(--ink-500); --btn-tone-dark: var(--ink-700); --btn-tone-darker: var(--ink-900);
+  --btn-tone-soft: var(--ink-050); --btn-tone-soft-border: var(--ink-200);
+}
+.btn-dark, .btn-outline-dark, .btn-soft-dark {
+  --btn-tone: var(--ink-900); --btn-tone-dark: #0a161d; --btn-tone-darker: #060f14;
+  --btn-tone-soft: var(--ink-050); --btn-tone-soft-border: var(--ink-200);
+}
+
+/* ---------------------------------------------------------------- solid -- */
+/* A single-stop gradient plus an inset top highlight: reads as a raised
+   surface without looking like a 2010 skeuomorph. */
+.btn-primary, .btn-success, .btn-danger, .btn-warning,
+.btn-info, .btn-dark, .btn-secondary {
+  --bs-btn-color: #fff;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-active-color: #fff;
+  --bs-btn-disabled-color: #fff;
+  color: #fff;
+  background-image: linear-gradient(180deg, color-mix(in srgb, var(--btn-tone) 86%, white) 0%, var(--btn-tone) 100%);
+  background-color: var(--btn-tone);
+  border-color: color-mix(in srgb, var(--btn-tone) 82%, black);
+  box-shadow: var(--shadow-xs), inset 0 1px 0 rgba(255, 255, 255, .2);
+}
+.btn-primary:hover, .btn-success:hover, .btn-danger:hover, .btn-warning:hover,
+.btn-info:hover, .btn-dark:hover, .btn-secondary:hover {
+  color: #fff;
+  background-image: linear-gradient(180deg, var(--btn-tone) 0%, var(--btn-tone-dark) 100%);
+  border-color: var(--btn-tone-dark);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, .22);
+  transform: translateY(-1px);
+}
+.btn-primary:active, .btn-success:active, .btn-danger:active, .btn-warning:active,
+.btn-info:active, .btn-dark:active, .btn-secondary:active,
+.btn-check:checked + .btn-primary, .btn-check:checked + .btn-secondary {
+  background-image: none;
+  background-color: var(--btn-tone-darker);
+  border-color: var(--btn-tone-darker);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, .22);
+  transform: translateY(0);
+}
+
+/* -------------------------------------------------------------- outline -- */
+.btn-outline-primary, .btn-outline-success, .btn-outline-danger, .btn-outline-warning,
+.btn-outline-info, .btn-outline-dark, .btn-outline-secondary {
+  color: var(--btn-tone-dark);
+  background-color: var(--surface);
+  border-color: var(--btn-tone-soft-border);
+  box-shadow: var(--shadow-xs);
+}
+.btn-outline-primary:hover, .btn-outline-success:hover, .btn-outline-danger:hover,
+.btn-outline-warning:hover, .btn-outline-info:hover, .btn-outline-dark:hover,
+.btn-outline-secondary:hover {
+  color: var(--btn-tone-darker);
+  background-color: var(--btn-tone-soft);
+  border-color: var(--btn-tone);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+.btn-outline-primary:active, .btn-outline-success:active, .btn-outline-danger:active,
+.btn-outline-warning:active, .btn-outline-info:active, .btn-outline-dark:active,
+.btn-outline-secondary:active {
+  background-color: color-mix(in srgb, var(--btn-tone) 16%, var(--surface));
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, .08);
+  transform: translateY(0);
+}
+
+/* ----------------------------------------------------------------- soft -- */
+/* The workhorse inside table rows: visible, but it never competes with the
+   page's primary action. */
+.btn-soft, [class*="btn-soft-"] {
+  color: var(--btn-tone-dark);
+  background-color: var(--btn-tone-soft);
+  border-color: transparent;
+  box-shadow: none;
+}
+.btn-soft:hover, [class*="btn-soft-"]:hover {
+  color: var(--btn-tone-darker);
+  background-color: color-mix(in srgb, var(--btn-tone) 18%, var(--surface));
+  transform: translateY(-1px);
+}
+.btn-soft:active, [class*="btn-soft-"]:active {
+  background-color: color-mix(in srgb, var(--btn-tone) 26%, var(--surface));
+  transform: none;
+}
+
+/* ---------------------------------------------------------------- ghost -- */
+.btn-ghost {
+  color: var(--ink-700);
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.btn-ghost:hover { color: var(--ink-900); background-color: var(--ink-050); }
+.btn-ghost:active { background-color: var(--ink-100); }
+
+/* ------------------------------------------------------ sizes and shapes -- */
+.btn-sm {
+  --bs-btn-padding-y: .3rem; --bs-btn-padding-x: .65rem;
+  --bs-btn-font-size: .8rem; --bs-btn-border-radius: var(--radius-sm);
+}
+.btn-lg {
+  --bs-btn-padding-y: .65rem; --bs-btn-padding-x: 1.3rem;
+  --bs-btn-font-size: 1rem;
+}
+.btn-pill { --bs-btn-border-radius: var(--radius-pill); }
+.btn-icon-only { --bs-btn-padding-x: .5rem; aspect-ratio: 1; }
+.btn-icon-only.btn-sm { --bs-btn-padding-x: .35rem; }
+.btn-block { width: 100%; }
+
+/* Groups seam their borders instead of stacking two of them. */
+.btn-group > .btn { box-shadow: none; }
+.btn-group > .btn:not(:first-child) { margin-inline-start: -1px; }
+.btn-group > .btn:hover { transform: none; z-index: 2; }
+
+/* Busy state (ui.withBusy injects .spinner) keeps the label width stable. */
+.btn > .spinner { border-color: rgba(255, 255, 255, .35); border-top-color: #fff; }
+.btn-outline-primary > .spinner, .btn-outline-secondary > .spinner,
+.btn-soft > .spinner, [class*="btn-soft-"] > .spinner, .btn-ghost > .spinner {
+  border-color: var(--ink-200);
+  border-top-color: var(--btn-tone);
+}
+
+.btn-toolbar-tight { display: inline-flex; gap: .35rem; flex-wrap: wrap; }
+
+/* Dark mode: outline/ghost buttons sit on the elevated surface, not on white. */
+[data-bs-theme="dark"] .btn-outline-primary, [data-bs-theme="dark"] .btn-outline-secondary,
+[data-bs-theme="dark"] .btn-outline-success, [data-bs-theme="dark"] .btn-outline-danger,
+[data-bs-theme="dark"] .btn-outline-warning, [data-bs-theme="dark"] .btn-outline-info,
+[data-bs-theme="dark"] .btn-outline-dark {
+  background-color: transparent;
+  color: color-mix(in srgb, var(--btn-tone) 65%, white);
+  border-color: color-mix(in srgb, var(--btn-tone) 45%, transparent);
+}
+[data-bs-theme="dark"] .btn-soft, [data-bs-theme="dark"] [class*="btn-soft-"] {
+  color: color-mix(in srgb, var(--btn-tone) 70%, white);
+  background-color: color-mix(in srgb, var(--btn-tone) 18%, transparent);
+}

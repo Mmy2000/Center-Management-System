@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "المستخدمون" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h1 class="h4 mb-0">{% translate "المستخدمون" %}</h1>
+  {% if perms.accounts.add_user %}
+    <button class="btn btn-primary" id="new-user">{% translate "مستخدم جديد" %}</button>
+  {% endif %}
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-sm table-compact align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>{% translate "اسم المستخدم" %}</th>
+          <th>{% translate "الاسم" %}</th>
+          <th>{% translate "الدور" %}</th>
+          <th>{% translate "الحالة" %}</th>
+          <th>{% translate "آخر دخول" %}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="users-body">
+        <tr><td colspan="6" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const ROLES = {{ roles_json|safe }};
+const CAN_EDIT = {{ perms.accounts.change_user|yesno:"true,false" }};
+
+function roleOptions(selected) {
+  return ROLES.map(function (r) {
+    return '<option value="' + r[0] + '"' + (r[0] === selected ? " selected" : "") + ">" + r[1] + "</option>";
+  }).join("");
+}
+
+async function loadUsers() {
+  const body = document.getElementById("users-body");
+  try {
+    const result = await http.get("{% url 'accounts_api:users' %}");
+    const rows = result.data.results;
+    body.innerHTML = rows.length
+      ? rows.map(function (u) {
+          return (
+            "<tr data-id=" + u.id + ">" +
+            "<td>" + u.username + "</td>" +
+            "<td>" + (u.full_name || "—") + "</td>" +
+            "<td>" + u.role_display + "</td>" +
+            '<td>' + (u.is_active
+              ? ('<span class="badge text-bg-success">' + gettext("نشط") + '</span>')
+              : ('<span class="badge text-bg-secondary">' + gettext("معطّل") + '</span>')) + "</td>" +
+            "<td class='small text-muted'>" + (u.last_login ? u.last_login.slice(0, 16).replace("T", " ") : "—") + "</td>" +
+            "<td class='text-end'>" + (CAN_EDIT
+              ? ('<button class="btn btn-sm btn-soft-secondary edit-user">' + gettext("تعديل") + '</button>') : "") + "</td>" +
+            "</tr>"
+          );
+        }).join("")
+      : ('<tr><td colspan="6" class="text-center text-muted py-4">' + gettext("لا يوجد مستخدمون") + '</td></tr>');
+  } catch (error) {
+    app.handleError(error);
+  }
+}
+
+document.getElementById("new-user")?.addEventListener("click", function () {
+  app.openModal(
+    gettext("مستخدم جديد"),
+    ('<div class="mb-2"><label class="form-label">' + gettext("اسم المستخدم") + '</label><input class="form-control" name="username"></div>') +
+    ('<div class="mb-2"><label class="form-label">' + gettext("الاسم الكامل") + '</label><input class="form-control" name="full_name"></div>') +
+    ('<div class="mb-2"><label class="form-label">' + gettext("الهاتف") + '</label><input class="form-control" name="phone"></div>') +
+    ('<div class="mb-2"><label class="form-label">' + gettext("الدور") + '</label><select class="form-select" name="role">') + roleOptions("SCAN_OPERATOR") + "</select></div>" +
+    ('<div class="mb-2"><label class="form-label">' + gettext("كلمة المرور") + '</label><input type="password" class="form-control" name="password"></div>'),
+    ('<button class="btn btn-primary" id="save-user">' + gettext("حفظ") + '</button>')
+  );
+  document.getElementById("save-user").addEventListener("click", async function () {
+    const value = (name) => document.querySelector('#app-modal [name="' + name + '"]').value;
+    try {
+      await http.post("{% url 'accounts_api:users' %}", {
+        username: value("username"),
+        full_name: value("full_name"),
+        phone: value("phone"),
+        role: value("role"),
+        password: value("password")
+      });
+      bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+      app.toast(gettext("تم إنشاء المستخدم"), "success");
+      loadUsers();
+    } catch (error) {
+      app.handleError(error);
+    }
+  });
+});
+
+document.getElementById("users-body").addEventListener("click", function (event) {
+  const button = event.target.closest(".edit-user");
+  if (!button) { return; }
+  const id = button.closest("tr").dataset.id;
+  const cells = button.closest("tr").children;
+  app.openModal(
+    (gettext("تعديل مستخدم:") + " ") + cells[0].textContent,
+    ('<div class="mb-2"><label class="form-label">' + gettext("الاسم الكامل") + '</label><input class="form-control" name="full_name" value="') + (cells[1].textContent === "—" ? "" : cells[1].textContent) + '"></div>' +
+    ('<div class="mb-2"><label class="form-label">' + gettext("الدور") + '</label><select class="form-select" name="role">') + roleOptions("") + "</select></div>" +
+    ('<div class="form-check mb-2"><input class="form-check-input" type="checkbox" name="is_active" checked><label class="form-check-label">' + gettext("نشط") + '</label></div>') +
+    ('<div class="mb-2"><label class="form-label">' + gettext("كلمة مرور جديدة (اختياري)") + '</label><input type="password" class="form-control" name="new_password"></div>'),
+    ('<button class="btn btn-primary" id="update-user">' + gettext("حفظ") + '</button>')
+  );
+  document.getElementById("update-user").addEventListener("click", async function () {
+    const field = (name) => document.querySelector('#app-modal [name="' + name + '"]');
+    const payload = {
+      full_name: field("full_name").value,
+      role: field("role").value,
+      is_active: field("is_active").checked
+    };
+    if (field("new_password").value) { payload.new_password = field("new_password").value; }
+    try {
+      await http.patch("/api/users/" + id + "/", payload);
+      bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+      app.toast(gettext("تم الحفظ"), "success");
+      loadUsers();
+    } catch (error) {
+      app.handleError(error);
+    }
+  });
+});
+
+loadUsers();
+</script>
+{% endblock %}

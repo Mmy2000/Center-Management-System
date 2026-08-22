@@ -1,0 +1,135 @@
+/* ==========================================================================
+   themes.css — palettes and modes.
+   --------------------------------------------------------------------------
+   Every component in app.css is painted from --brand-* / --ink-* / --surface.
+   A theme therefore only has to redefine those ramps: nothing else changes,
+   and nothing is duplicated per component.
+
+       <html data-theme="indigo" data-bs-theme="dark" data-density="compact">
+
+   A custom colour skips these blocks entirely — theme.js writes the same
+   --brand-* variables inline from a single hex.
+   ========================================================================== */
+
+/* --------------------------------------------------------------- palettes */
+[data-theme="teal"] {           /* default — calm, administrative */
+  --brand-50:#eef6f8; --brand-100:#d3e8ee; --brand-200:#a7d1dd; --brand-300:#6fb2c5;
+  --brand-400:#3d8ea8; --brand-500:#1f6f8b; --brand-600:#175a72; --brand-700:#12475b;
+  --brand-800:#0e3746; --brand-900:#0a2833;
+}
+[data-theme="indigo"] {         /* crisp and corporate */
+  --brand-50:#eef1fb; --brand-100:#d8def6; --brand-200:#b3bdee; --brand-300:#8592e0;
+  --brand-400:#5b68cf; --brand-500:#4149b8; --brand-600:#343a97; --brand-700:#2a2f79;
+  --brand-800:#20245e; --brand-900:#171a45;
+}
+[data-theme="violet"] {         /* warmer, modern */
+  --brand-50:#f4eefb; --brand-100:#e6d8f6; --brand-200:#cbb0ec; --brand-300:#ac85de;
+  --brand-400:#8f5ecb; --brand-500:#7442ad; --brand-600:#5e348d; --brand-700:#4b2a70;
+  --brand-800:#3a2158; --brand-900:#291840;
+}
+[data-theme="emerald"] {        /* growth, "paid" energy */
+  --brand-50:#eaf7f0; --brand-100:#cfeade; --brand-200:#a0d6bd; --brand-300:#68bd97;
+  --brand-400:#3aa176; --brand-500:#1f855c; --brand-600:#186c4b; --brand-700:#13563c;
+  --brand-800:#0f422e; --brand-900:#0a2f21;
+}
+[data-theme="sunset"] {         /* high-energy front desk */
+  --brand-50:#fdf1ea; --brand-100:#f9ddcc; --brand-200:#f1b995; --brand-300:#e6905c;
+  --brand-400:#d76f31; --brand-500:#b9571e; --brand-600:#964618; --brand-700:#773813;
+  --brand-800:#5c2b0f; --brand-900:#421f0b;
+}
+[data-theme="slate"] {          /* neutral, lets data carry the colour */
+  --brand-50:#eff2f5; --brand-100:#dce2e8; --brand-200:#bac5d0; --brand-300:#8fa0b1;
+  --brand-400:#66798d; --brand-500:#4b5d70; --brand-600:#3c4b5b; --brand-700:#303b48;
+  --brand-800:#242d37; --brand-900:#1a2029;
+}
+
+/* Keep Bootstrap's own primary in step with whichever palette is active. */
+[data-theme] {
+  --bs-primary: var(--brand-500);
+  --bs-link-color: var(--brand-600);
+  --bs-link-hover-color: var(--brand-700);
+}
+
+/* ------------------------------------------------------------------ dark */
+/* Bootstrap 5.3 handles its own components via data-bs-theme; these are the
+   tokens our components read. Sidebar/topbar/tables follow automatically. */
+[data-bs-theme="dark"] {
+  --ink-900:#e8eef1; --ink-700:#c4d0d6; --ink-500:#93a4ac; --ink-300:#6d7f88;
+  --ink-200:#43535c; --ink-100:#2c3a43; --ink-050:#222e35;
+  --surface:#1a242a; --canvas:#131b20;
+
+  --success-050:#12302a; --danger-050:#3a1f26; --warning-050:#33290f; --info-050:#16293a;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, .35);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .45), 0 1px 2px rgba(0, 0, 0, .3);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, .5);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, .6);
+
+  --bs-body-bg: var(--canvas);
+  --bs-body-color: var(--ink-900);
+  --bs-border-color: var(--ink-100);
+  --bs-heading-color: var(--ink-900);
+  --bs-emphasis-color: var(--ink-900);
+  --bs-secondary-color: var(--ink-500);
+  --bs-tertiary-bg: var(--ink-050);
+  color-scheme: dark;
+}
+
+[data-bs-theme="dark"] .app-sidebar {
+  background: linear-gradient(180deg, #16212a 0%, #0e161c 100%);
+}
+[data-bs-theme="dark"] .app-topbar { background: rgba(26, 36, 42, .9); }
+[data-bs-theme="dark"] .app-search .form-control { background: var(--ink-050); color: var(--ink-900); }
+[data-bs-theme="dark"] .card,
+[data-bs-theme="dark"] .stat-tile,
+[data-bs-theme="dark"] .filter-bar,
+[data-bs-theme="dark"] .modal-content,
+[data-bs-theme="dark"] .list-group-item { background: var(--surface); color: var(--ink-900); }
+[data-bs-theme="dark"] .table { --bs-table-bg: transparent; --bs-table-color: var(--ink-900); }
+[data-bs-theme="dark"] .table > thead th { background: var(--ink-050); color: var(--ink-500); }
+[data-bs-theme="dark"] .table > tbody > tr:hover { background: rgba(255, 255, 255, .04); }
+[data-bs-theme="dark"] .table tfoot td { background: var(--ink-050); }
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select { background: var(--ink-050); color: var(--ink-900); border-color: var(--ink-200); }
+[data-bs-theme="dark"] .scan-idle { background: var(--surface); }
+[data-bs-theme="dark"] .skeleton {
+  background: linear-gradient(90deg, var(--ink-050) 25%, var(--ink-100) 37%, var(--ink-050) 63%);
+  background-size: 400% 100%;
+}
+[data-bs-theme="dark"] code { color: var(--brand-300); }
+
+/* --------------------------------------------------------------- density */
+/* Compact fits ~30% more rows on a receptionist's 1366×768 screen. */
+[data-density="compact"] {
+  --topbar-h: 50px;
+  --sidebar-w: 224px;
+  font-size: .92rem;
+}
+[data-density="compact"] .app-content { padding: .85rem 1rem; }
+[data-density="compact"] .card-header { padding: .55rem .8rem; }
+[data-density="compact"] .table td, [data-density="compact"] .table th { padding: .32rem .5rem; }
+[data-density="compact"] .stat-tile { padding: .6rem .75rem; }
+[data-density="compact"] .stat-tile .stat-value { font-size: 1.35rem; }
+[data-density="compact"] .app-sidebar .nav-link { padding: .4rem .6rem; font-size: .88rem; }
+[data-density="compact"] .btn { --bs-btn-padding-y: .28rem; --bs-btn-padding-x: .6rem; }
+
+/* ---------------------------------------------------------- theme picker */
+.swatch-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+.swatch {
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  padding: .45rem .5rem;
+  background: var(--ink-050);
+  cursor: pointer;
+  text-align: start;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--ink-700);
+  transition: border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.swatch:hover { transform: translateY(-1px); }
+.swatch[aria-pressed="true"] { border-color: var(--brand-500); }
+.swatch-dots { display: flex; gap: 3px; margin-bottom: .3rem; }
+.swatch-dot { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .08); }
+.theme-panel { width: 320px; }
+.mode-toggle .btn { flex: 1; }

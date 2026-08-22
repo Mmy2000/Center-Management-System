@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% block title %}{% translate "الهيكل الدراسي" %}{% endblock %}
+
+{% block content %}
+<h1 class="h4 mb-3">{% translate "الهيكل الدراسي" %}</h1>
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-stages" type="button">{% translate "المراحل" %}</button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-grades" type="button">{% translate "الصفوف" %}</button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-subjects" type="button">{% translate "المواد" %}</button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-offerings" type="button">{% translate "مواد الصفوف" %}</button></li>
+  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-instructors" type="button">{% translate "المدرّسون" %}</button></li>
+</ul>
+
+<div class="tab-content">
+  <div class="tab-pane fade show active" id="tab-stages"><div class="card"><div class="card-body" id="panel-stages"></div></div></div>
+  <div class="tab-pane fade" id="tab-grades"><div class="card"><div class="card-body" id="panel-grades"></div></div></div>
+  <div class="tab-pane fade" id="tab-subjects"><div class="card"><div class="card-body" id="panel-subjects"></div></div></div>
+  <div class="tab-pane fade" id="tab-offerings">
+    <div class="card"><div class="card-body" id="panel-offerings"></div></div>
+    <p class="text-muted small mt-2 mb-0">
+      {% translate "«مواد الصفوف» تحدّد أي مادة تُدرَّس لأي صف وبكم — وعليها تُبنى المجموعات والاشتراكات والفواتير." %}
+    </p>
+  </div>
+  <div class="tab-pane fade" id="tab-instructors"><div class="card"><div class="card-body" id="panel-instructors"></div></div></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/crud.js' %}"></script>
+<script>
+const CAN_WRITE = {{ perms.academics.add_grade|yesno:"true,false" }};
+const YESNO = (v) => (v ? "✔" : "—");
+
+(async function () {
+  crud.panel({
+    mount: "#panel-stages",
+    title: gettext("المراحل الدراسية"),
+    listUrl: "{% url 'academics_api:stages' %}",
+    detailUrl: (id) => "{% url 'academics_api:stages' %}" + id + "/",
+    canWrite: CAN_WRITE,
+    columns: [
+      { key: "name", label: gettext("الاسم") },
+      { key: "name_ar", label: gettext("بالعربية") },
+      { key: "code", label: gettext("الكود") },
+      { key: "order", label: gettext("الترتيب") },
+      { key: "is_active", label: gettext("مفعّلة"), render: (r) => YESNO(r.is_active) }
+    ],
+    fields: [
+      { name: "name", label: gettext("الاسم") },
+      { name: "name_ar", label: gettext("الاسم بالعربية") },
+      { name: "code", label: gettext("الكود") },
+      { name: "order", label: gettext("الترتيب"), type: "number", default: 0 },
+      { name: "is_active", label: gettext("مفعّلة"), type: "checkbox", default: true }
+    ],
+    onChange: () => reloadDependentOptions()
+  });
+
+  const stageOptions = await crud.options("{% url 'academics_api:stages' %}");
+  const gradesPanel = crud.panel({
+    mount: "#panel-grades",
+    title: gettext("الصفوف الدراسية"),
+    listUrl: "{% url 'academics_api:grades' %}",
+    detailUrl: (id) => "{% url 'academics_api:grades' %}" + id + "/",
+    canWrite: CAN_WRITE,
+    columns: [
+      { key: "stage", label: gettext("المرحلة") },
+      { key: "name", label: gettext("الاسم") },
+      { key: "name_ar", label: gettext("بالعربية") },
+      { key: "code", label: gettext("الكود") },
+      { key: "order", label: gettext("الترتيب") },
+      { key: "is_active", label: gettext("مفعّل"), render: (r) => YESNO(r.is_active) }
+    ],
+    fields: [
+      { name: "stage", label: gettext("المرحلة"), type: "select", options: stageOptions },
+      { name: "name", label: gettext("الاسم") },
+      { name: "name_ar", label: gettext("الاسم بالعربية") },
+      { name: "code", label: gettext("الكود") },
+      { name: "order", label: gettext("الترتيب"), type: "number", default: 0 },
+      { name: "is_active", label: gettext("مفعّل"), type: "checkbox", default: true }
+    ]
+  });
+
+  crud.panel({
+    mount: "#panel-subjects",
+    title: gettext("المواد"),
+    listUrl: "{% url 'academics_api:subjects' %}",
+    detailUrl: (id) => "{% url 'academics_api:subjects' %}" + id + "/",
+    canWrite: CAN_WRITE,
+    columns: [
+      { key: "name", label: gettext("الاسم") },
+      { key: "name_ar", label: gettext("بالعربية") },
+      { key: "code", label: gettext("الكود") },
+      { key: "is_active", label: gettext("مفعّلة"), render: (r) => YESNO(r.is_active) }
+    ],
+    fields: [
+      { name: "name", label: gettext("الاسم") },
+      { name: "name_ar", label: gettext("الاسم بالعربية") },
+      { name: "code", label: gettext("الكود") },
+      { name: "color", label: gettext("اللون"), default: "#2b6cb0" },
+      { name: "is_active", label: gettext("مفعّلة"), type: "checkbox", default: true }
+    ]
+  });
+
+  const gradeOptions = await crud.options("{% url 'academics_api:grades' %}");
+  const subjectOptions = await crud.options("{% url 'academics_api:subjects' %}");
+  crud.panel({
+    mount: "#panel-offerings",
+    title: gettext("مواد الصفوف"),
+    listUrl: "{% url 'academics_api:offerings' %}",
+    detailUrl: (id) => "{% url 'academics_api:offerings' %}" + id + "/",
+    canWrite: CAN_WRITE,
+    columns: [
+      { key: "grade", label: gettext("الصف") },
+      { key: "subject", label: gettext("المادة") },
+      { key: "default_monthly_fee", label: gettext("الرسوم الشهرية") },
+      { key: "is_active", label: gettext("مفعّلة"), render: (r) => YESNO(r.is_active) }
+    ],
+    fields: [
+      { name: "grade", label: gettext("الصف"), type: "select", options: gradeOptions },
+      { name: "subject", label: gettext("المادة"), type: "select", options: subjectOptions },
+      { name: "default_monthly_fee", label: gettext("الرسوم الشهرية"), type: "number", default: 0 },
+      { name: "is_active", label: gettext("مفعّلة"), type: "checkbox", default: true }
+    ]
+  });
+
+  crud.panel({
+    mount: "#panel-instructors",
+    title: gettext("المدرّسون"),
+    listUrl: "{% url 'academics_api:instructors' %}",
+    detailUrl: (id) => "{% url 'academics_api:instructors' %}" + id + "/",
+    canWrite: CAN_WRITE,
+    columns: [
+      { key: "full_name", label: gettext("الاسم") },
+      { key: "phone", label: gettext("الهاتف") },
+      { key: "is_active", label: gettext("مفعّل"), render: (r) => YESNO(r.is_active) }
+    ],
+    fields: [
+      { name: "full_name", label: gettext("الاسم") },
+      { name: "phone", label: gettext("الهاتف") },
+      { name: "is_active", label: gettext("مفعّل"), type: "checkbox", default: true }
+    ]
+  });
+
+  function reloadDependentOptions() {
+    if (gradesPanel) { gradesPanel.reload(); }
+  }
+})();
+</script>
+{% endblock %}

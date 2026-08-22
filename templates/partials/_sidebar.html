@@ -1,0 +1,101 @@
+{% load i18n %}
+{# One nav, one icon system, one active-state rule. #}
+<aside class="app-sidebar">
+  <div class="app-brand">
+    <span class="app-brand-mark">CMS</span>
+    <span>
+      <span class="app-brand-text d-block">{{ CENTER_NAME }}</span>
+      <span class="app-brand-sub">{% translate "نظام إدارة السنتر" %}</span>
+    </span>
+  </div>
+
+  <nav class="nav flex-column">
+    <a class="nav-link {% if request.resolver_match.namespace == 'dashboard' %}active{% endif %}"
+       href="{% url 'dashboard:home' %}">
+      <svg class="icon"><use href="#i-dashboard"></use></svg>{% translate "لوحة التحكم" %}
+    </a>
+
+    {% if perms.attendance.add_attendance %}
+      <a class="nav-link {% if request.resolver_match.namespace == 'attendance' %}active{% endif %}"
+         href="{% url 'attendance:scanner_picker' %}" id="shortcut-scan">
+        <svg class="icon"><use href="#i-scan"></use></svg>{% translate "المسح" %}
+      </a>
+    {% endif %}
+
+    {% if perms.students.view_student %}
+      <a class="nav-link {% if request.resolver_match.namespace == 'students' %}active{% endif %}"
+         href="{% url 'students:list' %}">
+        <svg class="icon"><use href="#i-students"></use></svg>{% translate "الطلاب" %}
+      </a>
+    {% endif %}
+
+    {% if perms.academics.view_group %}
+      <a class="nav-link {% if request.resolver_match.url_name == 'groups' or request.resolver_match.url_name == 'group_detail' %}active{% endif %}"
+         href="{% url 'academics:groups' %}">
+        <svg class="icon"><use href="#i-groups"></use></svg>{% translate "المجموعات" %}
+      </a>
+    {% endif %}
+
+    {% if perms.lessons.view_lesson %}
+      <a class="nav-link {% if request.resolver_match.namespace == 'lessons' %}active{% endif %}"
+         href="{% url 'lessons:list' %}">
+        <svg class="icon"><use href="#i-lessons"></use></svg>{% translate "الحصص" %}
+      </a>
+    {% endif %}
+
+    {% if perms.payments.view_monthlycharge %}
+      <a class="nav-link {% if request.resolver_match.namespace == 'payments' %}active{% endif %}"
+         href="{% url 'payments:workspace' %}">
+        <svg class="icon"><use href="#i-payments"></use></svg>{% translate "المدفوعات" %}
+      </a>
+    {% endif %}
+
+    {% if perms.reports.view_reports or perms.reports.view_financial_reports %}
+      <a class="nav-link {% if request.resolver_match.namespace == 'reports' %}active{% endif %}"
+         href="{% url 'reports:index' %}">
+        <svg class="icon"><use href="#i-reports"></use></svg>{% translate "التقارير" %}
+      </a>
+    {% endif %}
+
+    {% if perms.academics.view_educationalstage or perms.cards.view_studentcard %}
+      <div class="nav-section">{% translate "الإدارة" %}</div>
+    {% endif %}
+
+    {% if perms.academics.view_educationalstage %}
+      <a class="nav-link {% if request.resolver_match.url_name == 'structure' %}active{% endif %}"
+         href="{% url 'academics:structure' %}">
+        <svg class="icon"><use href="#i-structure"></use></svg>{% translate "الهيكل الدراسي" %}
+      </a>
+    {% endif %}
+
+    {% if perms.cards.view_studentcard %}
+      <a class="nav-link {% if request.resolver_match.namespace == 'cards' %}active{% endif %}"
+         href="{% url 'cards:list' %}">
+        <svg class="icon"><use href="#i-cards"></use></svg>{% translate "البطاقات" %}
+      </a>
+    {% endif %}
+
+    {% if perms.core.view_setting or perms.accounts.view_user or perms.core.view_auditlog %}
+      <div class="nav-section">{% translate "النظام" %}</div>
+    {% endif %}
+
+    {% if perms.core.view_setting %}
+      <a class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}"
+         href="{% url 'core:settings' %}">
+        <svg class="icon"><use href="#i-settings"></use></svg>{% translate "الإعدادات" %}
+      </a>
+    {% endif %}
+    {% if perms.accounts.view_user %}
+      <a class="nav-link {% if request.resolver_match.url_name == 'users' %}active{% endif %}"
+         href="{% url 'accounts:users' %}">
+        <svg class="icon"><use href="#i-users"></use></svg>{% translate "المستخدمون" %}
+      </a>
+    {% endif %}
+    {% if perms.core.view_auditlog %}
+      <a class="nav-link {% if request.resolver_match.url_name == 'audit_log' %}active{% endif %}"
+         href="{% url 'core:audit_log' %}">
+        <svg class="icon"><use href="#i-audit"></use></svg>{% translate "سجل التدقيق" %}
+      </a>
+    {% endif %}
+  </nav>
+</aside>

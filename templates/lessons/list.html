@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "الحصص" %}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">{% translate "الحصص" %}</h1>
+  <div class="d-flex gap-2">
+    {% if perms.lessons.generate_lessons %}
+      <button class="btn btn-outline-primary" id="generate-lessons">{% translate "توليد حصص" %}</button>
+    {% endif %}
+    {% if perms.lessons.add_lesson %}
+      <button class="btn btn-primary" id="new-lesson">{% translate "حصة جديدة" %}</button>
+    {% endif %}
+  </div>
+</div>
+
+<ul class="nav nav-pills mb-3" id="scope-tabs">
+  <li class="nav-item"><button class="nav-link active" data-scope="today">{% translate "اليوم" %}</button></li>
+  <li class="nav-item"><button class="nav-link" data-scope="open">{% translate "جارية" %}</button></li>
+  <li class="nav-item"><button class="nav-link" data-scope="upcoming">{% translate "قادمة" %}</button></li>
+  <li class="nav-item"><button class="nav-link" data-scope="completed">{% translate "منتهية" %}</button></li>
+  <li class="nav-item"><button class="nav-link" data-scope="all">{% translate "الكل" %}</button></li>
+</ul>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="row g-2 align-items-end">
+      <div class="col-12 col-lg-5">
+        <label class="form-label small">{% translate "المجموعة" %}</label>
+        <select class="form-select form-select-sm" id="f-group">
+          <option value="">{% translate "الكل" %}</option>
+          {% for group in groups %}
+            <option value="{{ group.id }}">{{ group.grade_subject.subject }} — {{ group.name }} ({{ group.grade_subject.grade }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-6 col-lg-3">
+        <label class="form-label small">{% translate "من تاريخ" %}</label>
+        <input class="form-control form-control-sm" type="date" id="f-from">
+      </div>
+      <div class="col-6 col-lg-3">
+        <label class="form-label small">{% translate "إلى تاريخ" %}</label>
+        <input class="form-control form-control-sm" type="date" id="f-to">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-sm table-compact align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>{% translate "التاريخ" %}</th>
+          <th>{% translate "الوقت" %}</th>
+          <th>{% translate "المادة" %}</th>
+          <th>{% translate "المجموعة" %}</th>
+          <th>{% translate "المدرّس" %}</th>
+          <th>{% translate "الحالة" %}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="lessons-body">
+        <tr><td colspan="7" class="text-center text-muted py-4">{% translate "جارٍ التحميل…" %}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer d-flex justify-content-between align-items-center">
+    <span class="small text-muted" id="count-label"></span>
+    <div class="btn-group btn-group-sm">
+      <button class="btn btn-outline-secondary" id="prev-page">{% translate "السابق" %}</button>
+      <button class="btn btn-outline-secondary" id="next-page">{% translate "التالي" %}</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CAN_OPEN = {{ perms.lessons.open_lesson|yesno:"true,false" }};
+const STATUS_CLASS = { SCHEDULED: "secondary", OPEN: "success", COMPLETED: "dark", CANCELLED: "danger" };
+let scope = "today";
+let page = 1;
+
+function query() {
+  const params = new URLSearchParams({ page: page });
+  if (scope === "today") { params.set("scope", "today"); }
+  if (scope === "open") { params.set("status", "OPEN"); }
+  if (scope === "upcoming") { params.set("scope", "upcoming"); }
+  if (scope === "completed") { params.set("status", "COMPLETED"); }
+  ["group", "from", "to"].forEach(function (key) {
+    const value = document.getElementById("f-" + key).value;
+    if (value) { params.set(key, value); }
+  });
+  return params.toString();
+}
+
+async function load() {
+  try {
+    const result = await http.get("{% url 'lessons_api:lessons' %}?" + query());
+    const data = result.data;
+    document.getElementById("lessons-body").innerHTML = data.results.length
+      ? data.results.map(function (l) {
+          const scan = (CAN_OPEN && l.status !== "CANCELLED" && l.status !== "COMPLETED")
+            ? '<a class="btn btn-sm btn-outline-primary" href="/scan/' + l.id + ('/">' + gettext("مسح") + '</a> ') : "";
+          return "<tr>" +
+            "<td>" + l.lesson_date + "</td>" +
+            "<td>" + l.start + " – " + l.end + "</td>" +
+            "<td>" + l.subject + "</td>" +
+            "<td>" + l.group + "</td>" +
+            "<td>" + (l.instructor || "—") + "</td>" +
+            '<td><span class="badge text-bg-' + (STATUS_CLASS[l.status] || "secondary") + '">' + l.status_display + "</span></td>" +
+            "<td class='text-end'>" + scan +
+            '<a class="btn btn-sm btn-soft-secondary" href="/lessons/' + l.id + ('/">' + gettext("تفاصيل") + '</a></td>') +
+            "</tr>";
+        }).join("")
+      : ('<tr><td colspan="7" class="text-center text-muted py-4">' + gettext("لا توجد حصص") + '</td></tr>');
+    document.getElementById("count-label").textContent =
+      (gettext("إجمالي") + " ") + data.count + (" " + gettext("حصة — صفحة") + " ") + data.page + (" " + gettext("من") + " ") + data.pages;
+    document.getElementById("prev-page").disabled = !data.has_previous;
+    document.getElementById("next-page").disabled = !data.has_next;
+  } catch (error) { app.handleError(error); }
+}
+
+document.getElementById("scope-tabs").addEventListener("click", function (event) {
+  const button = event.target.closest("[data-scope]");
+  if (!button) { return; }
+  document.querySelectorAll("#scope-tabs .nav-link").forEach((n) => n.classList.remove("active"));
+  button.classList.add("active");
+  scope = button.dataset.scope;
+  page = 1;
+  load();
+});
+["f-group", "f-from", "f-to"].forEach(function (id) {
+  document.getElementById(id).addEventListener("change", function () { page = 1; load(); });
+});
+document.getElementById("prev-page").addEventListener("click", function () { if (page > 1) { page -= 1; load(); } });
+document.getElementById("next-page").addEventListener("click", function () { page += 1; load(); });
+
+document.getElementById("generate-lessons")?.addEventListener("click", function () {
+  const groupOptions = Array.from(document.getElementById("f-group").options)
+    .filter((o) => o.value)
+    .map((o) => '<option value="' + o.value + '">' + o.textContent + "</option>").join("");
+  const today = new Date().toISOString().slice(0, 10);
+  app.openModal(
+    gettext("توليد حصص من الجدول الأسبوعي"),
+    ('<div class="mb-2"><label class="form-label">' + gettext("المجموعة") + '</label><select class="form-select" name="group">') + groupOptions + "</select></div>" +
+    ('<div class="mb-2"><label class="form-label">' + gettext("من") + '</label><input class="form-control" type="date" name="from" value="') + today + '"></div>' +
+    ('<div class="mb-2"><label class="form-label">' + gettext("إلى") + '</label><input class="form-control" type="date" name="to"></div>') +
+    '<div id="generate-preview" class="small text-muted"></div>',
+    ('<button class="btn btn-outline-secondary" id="preview-generate">' + gettext("معاينة") + '</button> ') +
+    ('<button class="btn btn-primary" id="confirm-generate">' + gettext("توليد") + '</button>')
+  );
+  const value = (n) => document.querySelector('#app-modal [name="' + n + '"]').value;
+  async function run(dryRun) {
+    try {
+      const result = await http.post("{% url 'lessons_api:generate' %}", {
+        group_id: Number(value("group")), from: value("from"), to: value("to"), dry_run: dryRun
+      });
+      if (dryRun) {
+        document.getElementById("generate-preview").textContent =
+          (gettext("سيتم إنشاء") + " ") + result.data.created + (" " + gettext("حصة (تخطي") + " ") + result.data.skipped + ")" +
+          (result.data.reason === "NO_SCHEDULE" ? (" " + gettext("— لا يوجد جدول أسبوعي لهذه المجموعة")) : "");
+      } else {
+        bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+        app.toast((gettext("تم إنشاء") + " ") + result.data.created + (" " + gettext("حصة")), "success");
+        load();
+      }
+    } catch (error) { app.handleError(error); }
+  }
+  document.getElementById("preview-generate").addEventListener("click", () => run(true));
+  document.getElementById("confirm-generate").addEventListener("click", () => run(false));
+});
+
+document.getElementById("new-lesson")?.addEventListener("click", function () {
+  const groupOptions = Array.from(document.getElementById("f-group").options)
+    .filter((o) => o.value)
+    .map((o) => '<option value="' + o.value + '">' + o.textContent + "</option>").join("");
+  app.openModal(
+    gettext("حصة جديدة"),
+    ('<div class="mb-2"><label class="form-label">' + gettext("المجموعة") + '</label><select class="form-select" name="group">') + groupOptions + "</select></div>" +
+    ('<div class="mb-2"><label class="form-label">' + gettext("التاريخ") + '</label><input class="form-control" type="date" name="date"></div>') +
+    ('<div class="row"><div class="col mb-2"><label class="form-label">' + gettext("من") + '</label><input class="form-control" type="time" name="start"></div>') +
+    ('<div class="col mb-2"><label class="form-label">' + gettext("إلى") + '</label><input class="form-control" type="time" name="end"></div></div>'),
+    ('<button class="btn btn-primary" id="confirm-lesson">' + gettext("حفظ") + '</button>')
+  );
+  document.getElementById("confirm-lesson").addEventListener("click", async function () {
+    const value = (n) => document.querySelector('#app-modal [name="' + n + '"]').value;
+    try {
+      await http.post("{% url 'lessons_api:lessons' %}", {
+        group_id: Number(value("group")), date: value("date"), start: value("start"), end: value("end")
+      });
+      bootstrap.Modal.getInstance(document.getElementById("app-modal")).hide();
+      app.toast(gettext("تم إنشاء الحصة"), "success");
+      load();
+    } catch (error) { app.handleError(error); }
+  });
+});
+
+load();
+</script>
+{% endblock %}
