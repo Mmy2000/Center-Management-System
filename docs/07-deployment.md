@@ -54,6 +54,7 @@ cms/settings/
 ├── base.py     shared; reads env via django-environ
 ├── dev.py      DEBUG=True, SQLite or local Postgres, console mail, django-debug-toolbar
 ├── prod.py     DEBUG=False (asserted), Postgres, Redis cache+sessions, security headers, Sentry
+├── pythonanywhere.py  free-tier host: SQLite, locmem, PythonAnywhere-served static (§L.9)
 └── test.py     fast hashers, in-memory locmem cache, Postgres for CI
 ```
 Environment variables: `DJANGO_SETTINGS_MODULE`, `SECRET_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `DATABASE_URL`, `REDIS_URL`, `SENTRY_DSN`, `TIME_ZONE=Africa/Cairo`, `LANGUAGE_CODE=ar`, `MEDIA_ROOT`, `BACKUP_*`. `.env` is never committed; a committed `.env.example` documents every key.
@@ -110,3 +111,79 @@ Migration discipline: additive-first (add column nullable → backfill → switc
 5. One real group loaded with real students; one lesson run live in parallel with paper as a fallback.
 6. Backup taken **and restored** once before real data exists.
 7. Staff trained on: enrollment, scanning, collecting payment, correcting a mistake (with reason), lost-card replacement.
+
+## L.9 PythonAnywhere (free tier)
+
+A free account has no PostgreSQL, no Redis and no nginx, so `prod.py` refuses to
+start on it by design. `cms.settings.pythonanywhere` is the subset that runs
+there: SQLite, the local-memory cache, PythonAnywhere's own static mapping.
+Good enough for one center working on one screen; §L.1 still applies the moment
+a scanning station and a cashier work at the same time.
+
+**`Bad Request (400)` on a blank page is `ALLOWED_HOSTS`.** With `DEBUG=False`
+Django refuses any `Host:` header it was not told about, and says nothing else
+about why. It is not the database, the static files, or the WSGI file.
+
+### Steps
+
+```bash
+# Bash console
+git clone <repo> ~/Center_Management_System && cd ~/Center_Management_System
+mkvirtualenv --python=/usr/bin/python3.13 cms      # Django 6.1 needs 3.12+
+pip install -r requirements/pythonanywhere.txt
+
+cat > .env <<'ENV'
+DJANGO_SETTINGS_MODULE=cms.settings.pythonanywhere
+SECRET_KEY=<python -c "from django.core.management.utils import get_random_secret_key as k; print(k())">
+DEBUG=False
+ALLOWED_HOSTS=<username>.pythonanywhere.com
+ENV
+
+python manage.py migrate
+python manage.py seed_roles && python manage.py seed_settings
+python manage.py createsuperuser
+python manage.py collectstatic --noinput
+python manage.py extract_messages -l en --compile   # only if locale/en/…/django.mo is missing
+python manage.py check --deploy
+```
+
+**Web tab** → *Add a new web app* → *Manual configuration* (not the Django
+wizard: it writes its own project).
+
+- **Virtualenv**: `/home/<username>/.virtualenvs/cms`
+- **Source code**: `/home/<username>/Center_Management_System`
+- **WSGI configuration file** — replace its contents with:
+
+```python
+import os
+import sys
+
+path = "/home/<username>/Center_Management_System"
+if path not in sys.path:
+    sys.path.insert(0, path)
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "cms.settings.pythonanywhere"
+
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
+```
+
+- **Static files**: `/static/` → `/home/<username>/Center_Management_System/staticfiles`
+  and `/media/` → `/home/<username>/Center_Management_System/media`
+- **Reload** the web app. Errors land in the *Error log* on the same tab.
+
+Turn on *Force HTTPS* in the Web tab, then add `FORCE_HTTPS=True` to `.env` and
+reload. In that order — the flag alone, without the toggle, loops the browser.
+
+### What the free tier costs you
+
+| Limit | Effect |
+|---|---|
+| SQLite on a network filesystem | One writer at a time; the scan and payment paths are short transactions, so a single busy screen is fine, two are not. MySQL is *not* an alternative: it ignores partial unique indexes, and the "one active card per student" and "one attendance per lesson" guarantees are partial unique indexes. |
+| Per-process local-memory cache | Settings changed in the UI reach the worker that served the request. On free there is effectively one worker, so this is invisible — until it isn't (§L.1 uses Redis). |
+| No always-on tasks | Nightly backups and any scheduled generation must be a *Scheduled task* (one per day on free) or run by hand. |
+| Outbound internet whitelisted | Irrelevant here — nothing in the app calls out. Fonts, Bootstrap and the QR library are all bundled. |
+| App sleeps after ~3 months idle | Click the button in the Web tab to keep it alive. |
+
+Card sheets, receipts and reports are all generated in-process with ReportLab —
+no Chromium, so PDF export works on the free tier exactly as it does locally.
