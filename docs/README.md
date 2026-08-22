@@ -16,6 +16,8 @@ Target stack: **Django 6.1 (MVT) + AJAX**, Python 3.13, PostgreSQL 16 (SQLite fo
 | 07 | [Deployment Architecture](07-deployment.md) | L. Docker, nginx, Postgres, Redis, SSL, backups, monitoring, CI/CD |
 | 08 | [Implementation Roadmap](08-roadmap.md) | M. 12 phases with objectives, tasks, deps, deliverables, acceptance |
 | 09 | [Task Backlog](09-tasks.md) | Sequential, independently testable tasks (TASK-001 …) |
+| 10 | [Multi-Tenancy Architecture](10-multi-tenancy.md) | N. Shared-schema tenancy, subdomain routing, feature flags, plans & limits, platform console |
+| 11 | [Multi-Tenancy Task Backlog](11-tenancy-tasks.md) | Phases 13–17 (TASK-089 … 123) |
 
 ## The seven non-negotiable principles
 

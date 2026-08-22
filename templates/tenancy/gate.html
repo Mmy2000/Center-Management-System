@@ -1,0 +1,47 @@
+{% load static i18n %}<!doctype html>
+{# Standalone by design: no sidebar, no topbar, no theme JS, no settings registry — a suspended center is exactly when the rest of the shell may not be safe to render. #}
+<html lang="ar" dir="rtl" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% translate "الخدمة موقوفة مؤقتًا" %}</title>
+  <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap.rtl.min.css' %}">
+  <style>
+    body { min-height: 100dvh; display: grid; place-items: center; background: #f6f7f9;
+           font-family: "Cairo", system-ui, sans-serif; margin: 0; padding: 1.5rem; }
+    .gate { max-width: 34rem; background: #fff; border-radius: 1rem; padding: 2.5rem 2rem;
+            box-shadow: 0 1px 3px rgb(0 0 0 / .08), 0 12px 32px rgb(0 0 0 / .06); text-align: center; }
+    .gate-mark { width: 3.5rem; height: 3.5rem; border-radius: 50%; display: grid; place-items: center;
+                 margin: 0 auto 1.25rem; background: #fdecec; color: #b42318; font-size: 1.75rem; }
+    .gate h1 { font-size: 1.35rem; font-weight: 700; margin: 0 0 .75rem; color: #101828; }
+    .gate p { color: #475467; line-height: 1.9; margin: 0 0 .5rem; }
+    .gate-contact { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid #eaecf0;
+                    color: #667085; font-size: .9rem; }
+    .gate-name { font-weight: 600; color: #101828; }
+  </style>
+</head>
+<body>
+  <main class="gate">
+    <div class="gate-mark" aria-hidden="true">!</div>
+
+    {% if is_archived %}
+      <h1>{% translate "تم إنهاء الخدمة لهذا الحساب" %}</h1>
+      <p>
+        {% blocktranslate with name=tenant.name %}حساب <span class="gate-name">{{ name }}</span> مؤرشف حاليًا، وبياناته محفوظة دون إتاحة الدخول.{% endblocktranslate %}
+      </p>
+    {% else %}
+      <h1>{% translate "الخدمة موقوفة مؤقتًا" %}</h1>
+      <p>
+        {% blocktranslate with name=tenant.name %}تم إيقاف الدخول إلى حساب <span class="gate-name">{{ name }}</span> مؤقتًا.{% endblocktranslate %}
+      </p>
+      <p>{% translate "بياناتكم كاملة وسليمة ولم يُحذف منها شيء، وتعود الخدمة فور معالجة الأمر." %}</p>
+    {% endif %}
+
+    <div class="gate-contact">
+      {% translate "للاستفسار يُرجى التواصل مع مشغّل النظام." %}
+      {% if tenant.owner_email %}<div class="mt-2">{{ tenant.owner_email }}</div>{% endif %}
+    </div>
+  </main>
+</body>
+</html>

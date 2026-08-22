@@ -4,15 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-
-class TimeStampedModel(models.Model):
-    """Base for every domain model."""
-
-    created_at = models.DateTimeField(_("أُنشئ في"), auto_now_add=True)
-    updated_at = models.DateTimeField(_("عُدّل في"), auto_now=True)
-
-    class Meta:
-        abstract = True
+# Re-exported: `from apps.core.models import TimeStampedModel` is the import
+# every domain app already uses. The definition moved to core.base only to keep
+# core and tenancy from importing each other — see apps/core/base.py.
+from .base import TimeStampedModel  # noqa: F401
 
 
 class Setting(models.Model):

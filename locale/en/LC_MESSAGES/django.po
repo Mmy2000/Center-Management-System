@@ -58,6 +58,10 @@ msgstr "Scan events"
 msgid "أخرى"
 msgstr "Other"
 
+#: apps/tenancy/constants.py:79
+msgid "أرشفة عميل"
+msgstr "Archive client"
+
 #: apps/cards/importer.py:85
 msgid "أرقام موجودة بالفعل: %(n)s"
 msgstr "Already in the database: %(n)s"
@@ -90,9 +94,14 @@ msgstr "Cashier"
 msgid "أنثى"
 msgstr "Female"
 
-#: apps/core/models.py:11
+#: apps/core/base.py:17
 msgid "أُنشئ في"
 msgstr "Created at"
+
+#: apps/tenancy/features.py:145
+msgid "إتاحة سياسة منع أو تنبيه الطالب المتأخر عند المسح."
+msgstr ""
+"Enables the policy that blocks or warns a student in arrears at scan time."
 
 #: templates/dashboard/home.html:81
 msgid "إجراءات سريعة"
@@ -120,11 +129,23 @@ msgstr "Monthly total:"
 msgid "إجمالي متوقع:"
 msgstr "Expected total:"
 
+#: apps/tenancy/features.py:111
+msgid "إدارة البطاقات"
+msgstr "Card management"
+
 #: templates/accounts/login.html:17
 msgid "إدارة السنتر — من التسجيل حتى التحصيل"
 msgstr "Run the center — from enrolment to collection"
 
-#: templates/payments/workspace.html:359 apps/core/models.py:77
+#: apps/tenancy/features.py:64
+msgid "إدارة الطلاب"
+msgstr "Student management"
+
+#: apps/tenancy/features.py:179
+msgid "إدارة المستخدمين"
+msgstr "User management"
+
+#: templates/payments/workspace.html:359 apps/core/models.py:72
 msgid "إصدار رسوم"
 msgstr "Issue charges"
 
@@ -144,7 +165,7 @@ msgstr "Issue and print"
 msgid "إضافة"
 msgstr "Add"
 
-#: apps/core/models.py:56
+#: apps/core/models.py:51
 msgid "إضافة طالب لمجموعة"
 msgstr "Student added to group"
 
@@ -156,11 +177,19 @@ msgstr "Add slot"
 msgid "إضافة موعد أسبوعي"
 msgstr "Add weekly slot"
 
+#: apps/tenancy/constants.py:85
+msgid "إضافة نطاق"
+msgstr "Add domain"
+
 #: templates/accounts/login.html:84
 msgid "إظهار كلمة المرور"
 msgstr "Show password"
 
-#: templates/core/settings.html:94 apps/core/models.py:39
+#: apps/tenancy/constants.py:78
+msgid "إعادة تفعيل عميل"
+msgstr "Resume client"
+
+#: templates/core/settings.html:94 apps/core/models.py:34
 msgid "إعداد"
 msgstr "Setting"
 
@@ -176,7 +205,7 @@ msgstr "Waive"
 msgid "إعفاء من الرسوم"
 msgstr "Waive charges"
 
-#: apps/core/models.py:79
+#: apps/core/models.py:74
 msgid "إعفاء من رسوم"
 msgstr "Charge waived"
 
@@ -202,15 +231,15 @@ msgstr "Cancel"
 msgid "إلغاء الحصة"
 msgstr "Cancel lesson"
 
-#: apps/core/models.py:71
+#: apps/core/models.py:66
 msgid "إلغاء حصة"
 msgstr "Lesson cancelled"
 
-#: apps/core/models.py:74
+#: apps/core/models.py:69
 msgid "إلغاء حضور"
 msgstr "Attendance cancelled"
 
-#: apps/core/models.py:80
+#: apps/core/models.py:75
 msgid "إلغاء رسوم"
 msgstr "Charge cancelled"
 
@@ -232,15 +261,19 @@ msgstr "Create"
 msgid "إنشاء بطاقات جديدة"
 msgstr "Create new cards"
 
-#: apps/core/models.py:67
+#: apps/core/models.py:62
 msgid "إنشاء حصة"
 msgstr "Lesson created"
 
-#: apps/core/models.py:53
+#: apps/core/models.py:48
 msgid "إنشاء طالب"
 msgstr "Student created"
 
-#: apps/core/models.py:49
+#: apps/tenancy/constants.py:75
+msgid "إنشاء عميل"
+msgstr "Create client"
+
+#: apps/core/models.py:44
 msgid "إنشاء مستخدم"
 msgstr "User created"
 
@@ -249,7 +282,7 @@ msgstr "User created"
 msgid "إنهاء"
 msgstr "Complete"
 
-#: apps/core/models.py:57
+#: apps/core/models.py:52
 msgid "إنهاء اشتراك طالب بمجموعة"
 msgstr "Student enrollment ended"
 
@@ -262,7 +295,11 @@ msgstr "End enrollment"
 msgid "إنهاء الحصة"
 msgstr "Complete the lesson"
 
-#: apps/core/models.py:70
+#: apps/tenancy/constants.py:88
+msgid "إنهاء الدخول نيابةً"
+msgstr "End impersonation"
+
+#: apps/core/models.py:65
 msgid "إنهاء حصة"
 msgstr "Lesson completed"
 
@@ -278,6 +315,14 @@ msgstr "Refund receipt"
 msgid "إيصال استلام نقدية"
 msgstr "Payment receipt"
 
+#: apps/tenancy/features.py:135
+msgid "إيصالات PDF"
+msgstr "PDF receipts"
+
+#: apps/tenancy/constants.py:77
+msgid "إيقاف عميل"
+msgstr "Suspend client"
+
 #: templates/partials/_topbar.html:11
 msgid "ابحث بكود الطالب أو الاسم أو رقم ولي الأمر…  (/)"
 msgstr "Search by student code, name or guardian phone…  (/)"
@@ -289,6 +334,10 @@ msgstr "Choose a lesson"
 #: apps/cards/api.py:225
 msgid "اختر ملف CSV"
 msgstr "Choose a CSV file"
+
+#: apps/tenancy/features.py:160
+msgid "اختيار الألوان والمظهر"
+msgstr "Theme and colour picker"
 
 #: templates/partials/_theme_picker.html:16
 msgid "اختيار لون"
@@ -302,7 +351,7 @@ msgstr "Replace"
 msgid "استبدال البطاقة"
 msgstr "Replace card"
 
-#: apps/core/models.py:65
+#: apps/core/models.py:60
 msgid "استبدال بطاقة"
 msgstr "Card replaced"
 
@@ -311,12 +360,20 @@ msgstr "Card replaced"
 msgid "استثنائي"
 msgstr "Exceptional"
 
+#: apps/tenancy/models.py:300
+msgid "استخدام العملاء"
+msgstr "Client usage"
+
+#: apps/tenancy/models.py:299
+msgid "استخدام عميل"
+msgstr "Client usage"
+
 #: templates/payments/workspace.html:227 templates/payments/workspace.html:337
 #: apps/payments/models.py:37
 msgid "استرداد"
 msgstr "Refund"
 
-#: templates/payments/workspace.html:332 apps/core/models.py:82
+#: templates/payments/workspace.html:332 apps/core/models.py:77
 #: apps/payments/models.py:248
 msgid "استرداد دفعة"
 msgstr "Refund a payment"
@@ -329,13 +386,17 @@ msgstr "Import"
 msgid "استيراد CSV"
 msgstr "Import CSV"
 
-#: apps/core/models.py:60
+#: apps/core/models.py:55
 msgid "استيراد بطاقات"
 msgstr "Cards imported"
 
 #: templates/cards/list.html:250
 msgid "استيراد بطاقات مطبوعة"
 msgstr "Import pre-printed cards"
+
+#: apps/tenancy/features.py:118
+msgid "استيراد دفعات البطاقات"
+msgstr "Bulk card import"
 
 #: apps/cards/importer.py:101
 msgid "استيراد دفعة بطاقات"
@@ -345,13 +406,17 @@ msgstr "Card batch imported"
 msgid "اسم الدفعة (اختياري)"
 msgstr "Batch name (optional)"
 
-#: apps/core/policies.py:292
+#: apps/core/policies.py:292 apps/tenancy/models.py:118
 msgid "اسم السنتر"
 msgstr "Center name"
 
 #: templates/academics/groups.html:91
 msgid "اسم المجموعة"
 msgstr "Group name"
+
+#: apps/tenancy/models.py:139
+msgid "اسم المسؤول"
+msgstr "Owner name"
 
 #: templates/accounts/login.html:72 templates/accounts/login.html:73
 #: templates/accounts/profile.html:12 templates/accounts/users.html:18
@@ -407,7 +472,7 @@ msgstr "Approve exceptional attendance"
 msgid "اعتماد المشرف وتسجيل الحضور"
 msgstr "Supervisor approval — record attendance"
 
-#: apps/core/models.py:75
+#: apps/core/models.py:70
 msgid "اعتماد حضور استثنائي"
 msgstr "Exceptional attendance approved"
 
@@ -431,7 +496,7 @@ msgstr "Sunday"
 msgid "الأربعاء"
 msgstr "Wednesday"
 
-#: apps/core/apps.py:9
+#: apps/core/apps.py:9 apps/tenancy/features.py:29
 msgid "الأساسيات"
 msgstr "Core"
 
@@ -443,11 +508,12 @@ msgstr "Mother"
 msgid "الإبلاغ عن فقد البطاقة"
 msgstr "Report card lost"
 
-#: apps/core/models.py:63
+#: apps/core/models.py:58
 msgid "الإبلاغ عن فقد بطاقة"
 msgstr "Card reported lost"
 
-#: templates/core/audit_log.html:15 apps/core/models.py:98
+#: templates/core/audit_log.html:15 apps/core/models.py:93
+#: apps/tenancy/models.py:335
 msgid "الإجراء"
 msgstr "Action"
 
@@ -459,18 +525,22 @@ msgstr "Action when blocked for non-payment"
 msgid "الإجمالي"
 msgstr "Total"
 
-#: templates/partials/_sidebar.html:61
+#: templates/partials/_sidebar.html:61 apps/tenancy/features.py:35
 msgid "الإدارة"
 msgstr "Administration"
 
 #: templates/core/settings.html:3 templates/partials/_sidebar.html:85
-#: apps/core/models.py:40
+#: apps/core/models.py:35
 msgid "الإعدادات"
 msgstr "Settings"
 
 #: apps/payments/models.py:157
 msgid "الإعفاء من الرسوم"
 msgstr "Waive charges"
+
+#: apps/tenancy/features.py:132
+msgid "الإعفاءات"
+msgstr "Waivers"
 
 #: apps/lessons/models.py:77
 msgid "الإنهاء الفعلي"
@@ -485,6 +555,10 @@ msgstr "Receipt"
 msgid "الاثنين"
 msgstr "Monday"
 
+#: apps/tenancy/features.py:131
+msgid "الاستردادات"
+msgstr "Refunds"
+
 #: templates/academics/group_detail.html:86
 #: templates/academics/structure.html:44 templates/academics/structure.html:51
 #: templates/academics/structure.html:69 templates/academics/structure.html:77
@@ -497,6 +571,10 @@ msgstr "Name"
 #: apps/students/models.py:55
 msgid "الاسم الكامل"
 msgstr "Full name"
+
+#: apps/tenancy/models.py:119
+msgid "الاسم بالإنجليزية"
+msgstr "Name in English"
 
 #: templates/academics/groups.html:92 templates/academics/structure.html:52
 #: templates/academics/structure.html:78 templates/academics/structure.html:99
@@ -525,13 +603,25 @@ msgstr "Current enrollments"
 msgid "الانصراف"
 msgstr "Check-out"
 
+#: apps/tenancy/models.py:74
+msgid "الباقات"
+msgstr "Plans"
+
+#: apps/tenancy/models.py:129
+msgid "الباقة"
+msgstr "Plan"
+
 #: apps/lessons/models.py:63
 msgid "البداية"
 msgstr "Start"
 
+#: apps/tenancy/features.py:92
+msgid "البديل عن قارئ الباركود عبر كاميرا الجهاز."
+msgstr "The fallback to the barcode reader, using the device camera."
+
 #: templates/cards/list.html:3 templates/partials/_sidebar.html:74
 #: templates/students/detail.html:45 apps/cards/apps.py:9
-#: apps/core/policies.py:348
+#: apps/core/policies.py:348 apps/tenancy/features.py:31
 msgid "البطاقات"
 msgstr "Cards"
 
@@ -614,14 +704,24 @@ msgstr "Check-in closed"
 msgid "التسجيل مفتوح"
 msgstr "Check-in open"
 
-#: templates/core/audit_log.html:17 apps/core/models.py:103
+#: templates/core/audit_log.html:17 apps/core/models.py:98
+#: apps/tenancy/models.py:337
 msgid "التغييرات"
 msgstr "Changes"
 
 #: templates/partials/_sidebar.html:56 templates/reports/report.html:3
 #: templates/reports/report.html:9 apps/reports/apps.py:9
+#: apps/tenancy/features.py:33
 msgid "التقارير"
 msgstr "Reports"
+
+#: apps/tenancy/features.py:149
+msgid "التقارير التشغيلية"
+msgstr "Operational reports"
+
+#: apps/tenancy/features.py:152
+msgid "التقارير المالية"
+msgstr "Financial reports"
 
 #: apps/payments/documents.py:68
 msgid "التوقيع"
@@ -673,8 +773,13 @@ msgstr "Lessons"
 
 #: templates/students/detail.html:43 apps/attendance/apps.py:9
 #: apps/attendance/models.py:111 apps/core/policies.py:345
+#: apps/tenancy/features.py:30
 msgid "الحضور"
 msgstr "Attendance"
+
+#: apps/tenancy/features.py:96
+msgid "الحضور الاستثنائي"
+msgstr "Exceptional attendance"
 
 #: apps/reports/registry.py:76
 msgid "الحضور اليومي"
@@ -691,6 +796,14 @@ msgstr "Attendance in an alternative group"
 #: templates/attendance/scanner.html:128
 msgid "الحضور:"
 msgstr "Check-in:"
+
+#: apps/tenancy/models.py:93 apps/tenancy/models.py:253
+msgid "الخاصية"
+msgstr "Feature"
+
+#: templates/tenancy/gate.html:7 templates/tenancy/gate.html:34
+msgid "الخدمة موقوفة مؤقتًا"
+msgstr "Service temporarily suspended"
 
 #: templates/payments/workspace.html:86 apps/payments/documents.py:54
 #: apps/payments/models.py:92
@@ -742,6 +855,12 @@ msgstr "Monthly fee (EGP)"
 msgid "الرسوم الشهرية الافتراضية"
 msgstr "Default monthly fee"
 
+#: apps/tenancy/features.py:129
+msgid "الرسوم الشهرية والتحصيل. تعطيلها يخفي الشاشات ولا يحذف أي بيانات."
+msgstr ""
+"Monthly charges and collection. Disabling it hides the screens and deletes "
+"no data."
+
 #: templates/cards/list.html:73
 msgid "الرمز"
 msgstr "Token"
@@ -753,7 +872,8 @@ msgid "السابق"
 msgstr "Previous"
 
 #: templates/core/audit_log.html:18 templates/students/detail.html:101
-#: templates/students/detail.html:398 apps/core/models.py:104
+#: templates/students/detail.html:398 apps/core/models.py:99
+#: apps/tenancy/models.py:338
 msgid "السبب"
 msgstr "Reason"
 
@@ -910,9 +1030,21 @@ msgstr "Expected count"
 msgid "العدد يجب أن يكون بين 1 و %(max)s"
 msgstr "The count must be between 1 and %(max)s"
 
-#: apps/core/models.py:138
+#: apps/core/models.py:133
 msgid "العدّادات"
 msgstr "Sequences"
+
+#: apps/tenancy/models.py:152
+msgid "العملاء"
+msgstr "Clients"
+
+#: apps/tenancy/apps.py:9
+msgid "العملاء والاشتراكات"
+msgstr "Clients and subscriptions"
+
+#: apps/tenancy/models.py:208 apps/tenancy/models.py:333
+msgid "العميل"
+msgstr "Client"
 
 #: templates/core/audit_log.html:16
 msgid "العنصر"
@@ -951,7 +1083,7 @@ msgstr "Scanner ready — no mouse needed"
 msgid "القاعة"
 msgstr "Room"
 
-#: apps/core/models.py:27
+#: apps/core/models.py:22
 msgid "القيمة"
 msgstr "Value"
 
@@ -963,7 +1095,7 @@ msgstr "Below the minimum (%(m)s)"
 msgid "القيمة أكبر من الحد الأقصى (%(m)s)"
 msgstr "Above the maximum (%(m)s)"
 
-#: apps/core/models.py:133
+#: apps/core/models.py:128
 msgid "القيمة التالية"
 msgstr "Next value"
 
@@ -986,6 +1118,10 @@ msgstr "Code"
 #: templates/partials/_language.html:7
 msgid "اللغة"
 msgstr "Language"
+
+#: apps/tenancy/models.py:137
+msgid "اللغة الافتراضية"
+msgstr "Default language"
 
 #: templates/dashboard/home.html:134
 msgid "اللوحة"
@@ -1159,6 +1295,10 @@ msgstr "Stages"
 msgid "المراحل الدراسية"
 msgstr "Educational stages"
 
+#: apps/tenancy/features.py:75
+msgid "المراحل والصفوف والمواد والمجموعات — لا يمكن تعطيلها."
+msgstr "Stages, grades, subjects and groups — cannot be disabled."
+
 #: templates/academics/groups.html:14 templates/academics/structure.html:68
 #: templates/academics/structure.html:76 templates/reports/report.html:65
 #: templates/students/list.html:22 apps/academics/models.py:60
@@ -1170,7 +1310,8 @@ msgstr "Stage"
 msgid "المستحق"
 msgstr "Due"
 
-#: templates/core/audit_log.html:14 apps/core/models.py:96
+#: templates/core/audit_log.html:14 apps/core/models.py:91
+#: apps/tenancy/models.py:325
 msgid "المستخدم"
 msgstr "User"
 
@@ -1188,6 +1329,10 @@ msgstr "Users and permissions"
 msgid "المسح"
 msgstr "Scan"
 
+#: apps/tenancy/features.py:89
+msgid "المسح بكاميرا الهاتف"
+msgstr "Camera scanning"
+
 #: apps/attendance/models.py:208
 msgid "المسح لأي مجموعة"
 msgstr "Scan for any group"
@@ -1197,7 +1342,19 @@ msgstr "Scan for any group"
 msgid "المظهر"
 msgstr "Appearance"
 
-#: apps/core/models.py:26 apps/core/models.py:132
+#: apps/tenancy/models.py:57 apps/tenancy/models.py:116
+msgid "المعرّف"
+msgstr "Identifier"
+
+#: apps/tenancy/models.py:33
+msgid ""
+"المعرّف يجب أن يتكون من حروف إنجليزية صغيرة وأرقام وشرطات، ويبدأ وينتهي بحرف"
+" أو رقم."
+msgstr ""
+"The identifier must contain only lowercase letters, digits and hyphens, and "
+"start and end with a letter or digit."
+
+#: apps/core/models.py:21 apps/core/models.py:127
 msgid "المفتاح"
 msgstr "Key"
 
@@ -1225,6 +1382,10 @@ msgstr "A file is required"
 msgid "الملف يجب أن يحتوي على عمودي card_number و qr_token"
 msgstr "The file must contain the columns card_number and qr_token"
 
+#: apps/tenancy/models.py:136
+msgid "المنطقة الزمنية"
+msgstr "Time zone"
+
 #: templates/academics/structure.html:11 templates/academics/structure.html:87
 #: apps/academics/models.py:90 apps/academics/models.py:148
 msgid "المواد"
@@ -1234,9 +1395,21 @@ msgstr "Subjects"
 msgid "المواعيد الأسبوعية"
 msgstr "Weekly schedule"
 
+#: apps/tenancy/models.py:210
+msgid "النطاق"
+msgstr "Domain"
+
 #: apps/lessons/services.py:95
 msgid "النطاق أطول من سنة"
 msgstr "The range is longer than a year"
+
+#: apps/tenancy/models.py:211
+msgid "النطاق الأساسي"
+msgstr "Primary domain"
+
+#: apps/tenancy/models.py:218
+msgid "النطاقات"
+msgstr "Domains"
 
 #: templates/partials/_sidebar.html:79 apps/attendance/models.py:48
 msgid "النظام"
@@ -1270,12 +1443,24 @@ msgstr "Type"
 msgid "الهاتف"
 msgstr "Phone"
 
+#: apps/tenancy/features.py:72
+msgid "الهيكل التعليمي"
+msgstr "Educational structure"
+
 #: templates/academics/structure.html:3 templates/academics/structure.html:6
 #: templates/partials/_sidebar.html:67 apps/academics/apps.py:9
 msgid "الهيكل الدراسي"
 msgstr "Academic structure"
 
-#: apps/core/models.py:102
+#: apps/tenancy/features.py:34
+msgid "الواجهة"
+msgstr "Interface"
+
+#: apps/tenancy/features.py:163
+msgid "الواجهة الإنجليزية"
+msgstr "English interface"
+
+#: apps/core/models.py:97 apps/tenancy/models.py:59 apps/tenancy/models.py:336
 msgid "الوصف"
 msgstr "Description"
 
@@ -1343,6 +1528,10 @@ msgstr "Checked out"
 msgid "بادئة رمز البطاقة"
 msgstr "Card token prefix"
 
+#: apps/tenancy/models.py:73
+msgid "باقة"
+msgstr "Plan"
+
 #: apps/attendance/models.py:23 apps/attendance/views.py:42
 #: apps/lessons/views.py:35
 msgid "بالداخل"
@@ -1360,6 +1549,10 @@ msgstr "Search"
 #: templates/payments/workspace.html:50
 msgid "بحث عن طالب"
 msgstr "Find a student"
+
+#: apps/tenancy/constants.py:87
+msgid "بدء الدخول نيابةً"
+msgstr "Start impersonation"
 
 #: apps/cards/documents.py:36
 msgid "بدون"
@@ -1381,6 +1574,10 @@ msgstr "Sunset"
 #: templates/accounts/login.html:59
 msgid "برجاء تسجيل الدخول للمتابعة"
 msgstr "Please sign in to continue"
+
+#: apps/tenancy/models.py:140
+msgid "بريد المسؤول"
+msgstr "Owner email"
 
 #: templates/students/detail.html:195
 msgid "بطاقات الطالب"
@@ -1443,6 +1640,13 @@ msgstr "Incorrect username or password"
 msgid "بيانات غير صحيحة"
 msgstr "Invalid data"
 
+#: templates/tenancy/gate.html:38
+msgid ""
+"بياناتكم كاملة وسليمة ولم يُحذف منها شيء، وتعود الخدمة فور معالجة الأمر."
+msgstr ""
+"Your data is complete and intact — nothing has been deleted — and the "
+"service resumes as soon as the matter is settled."
+
 #: templates/attendance/scanner.html:131
 msgid "تأخير:"
 msgstr "Late by:"
@@ -1458,6 +1662,14 @@ msgstr "Confirm issue"
 #: apps/cards/models.py:58
 msgid "تاريخ أول تخصيص"
 msgstr "First issued at"
+
+#: apps/tenancy/models.py:147
+msgid "تاريخ الأرشفة"
+msgstr "Archived on"
+
+#: apps/tenancy/models.py:145
+msgid "تاريخ الإيقاف"
+msgstr "Suspended on"
 
 #: apps/cards/models.py:61
 msgid "تاريخ الاستبدال"
@@ -1475,9 +1687,17 @@ msgstr "Enrolled on"
 msgid "تاريخ البدء"
 msgstr "Start date"
 
+#: apps/tenancy/models.py:213
+msgid "تاريخ التحقق"
+msgstr "Verified on"
+
 #: apps/cards/models.py:60
 msgid "تاريخ التعطيل"
 msgstr "Disabled at"
+
+#: apps/tenancy/models.py:144
+msgid "تاريخ التفعيل"
+msgstr "Activated on"
 
 #: apps/cards/models.py:59
 msgid "تاريخ الفقد"
@@ -1496,11 +1716,15 @@ msgstr "Invalid date"
 msgid "تاريخ/وقت غير صحيح"
 msgstr "Invalid date/time"
 
+#: apps/tenancy/constants.py:51
+msgid "تجريبي"
+msgstr "Trial"
+
 #: templates/payments/workspace.html:190 apps/payments/models.py:36
 msgid "تحصيل"
 msgstr "Collect"
 
-#: templates/dashboard/home.html:87 apps/core/models.py:81
+#: templates/dashboard/home.html:87 apps/core/models.py:76
 msgid "تحصيل دفعة"
 msgstr "Collect a payment"
 
@@ -1519,6 +1743,10 @@ msgstr "Bank transfer"
 #: apps/cards/models.py:26
 msgid "تخرج/مغادرة"
 msgstr "Graduated / left"
+
+#: apps/tenancy/features.py:106
+msgid "تخزين عمليات المسح محليًا عند انقطاع الإنترنت ورفعها لاحقًا."
+msgstr "Queue scans locally when the internet drops and upload them later."
 
 #: apps/cards/models.py:150
 msgid "تخصيص بطاقة"
@@ -1548,6 +1776,10 @@ msgstr "Record"
 msgid "تسجيل الانصراف تلقائيًا عند إنهاء الحصة"
 msgstr "Check students out automatically when a lesson completes"
 
+#: apps/tenancy/features.py:80
+msgid "تسجيل الحضور"
+msgstr "Attendance check-in"
+
 #: templates/partials/_topbar.html:33
 msgid "تسجيل الخروج"
 msgstr "Sign out"
@@ -1555,6 +1787,10 @@ msgstr "Sign out"
 #: templates/accounts/login.html:3 templates/accounts/login.html:58
 msgid "تسجيل الدخول"
 msgstr "Sign in"
+
+#: apps/tenancy/features.py:67
+msgid "تسجيل الطلاب وبياناتهم — لا يمكن تعطيلها."
+msgstr "Student enrolment and records — cannot be disabled."
 
 #: apps/core/policies.py:179
 msgid "تسجيل الغياب تلقائيًا عند إنهاء الحصة"
@@ -1564,9 +1800,15 @@ msgstr "Record absences automatically when a lesson completes"
 msgid "تسجيل انصراف"
 msgstr "Check-out"
 
-#: apps/attendance/models.py:229 apps/core/models.py:72
+#: apps/attendance/models.py:229 apps/core/models.py:67
 msgid "تسجيل حضور"
 msgstr "Check-in"
+
+#: apps/tenancy/features.py:99
+msgid "تسجيل حضور خارج المجموعة أو خارج النافذة الزمنية باعتماد."
+msgstr ""
+"Record attendance outside the group or outside the time window, with "
+"approval."
 
 #: templates/lessons/detail.html:172
 msgid "تسجيل حضور يدوي"
@@ -1584,15 +1826,27 @@ msgstr "Manual entry"
 msgid "تصحيح الحضور يدويًا"
 msgstr "Correct attendance manually"
 
+#: apps/tenancy/features.py:157
+msgid "تصدير Excel"
+msgstr "Excel export"
+
 #: apps/reports/api.py:205
 msgid "تصدير Excel غير متاح على هذا الخادم — استخدم CSV"
 msgstr "Excel export is unavailable on this server — use CSV"
+
+#: apps/tenancy/features.py:158
+msgid "تصدير PDF"
+msgstr "PDF export"
 
 #: apps/reports/models.py:18
 msgid "تصدير التقارير"
 msgstr "Export reports"
 
-#: apps/core/models.py:84
+#: apps/tenancy/constants.py:81
+msgid "تصدير بيانات عميل"
+msgstr "Export client data"
+
+#: apps/core/models.py:79
 msgid "تصدير تقرير"
 msgstr "Report exported"
 
@@ -1608,23 +1862,31 @@ msgstr "Schedule conflict"
 msgid "تعديل"
 msgstr "Edit"
 
-#: apps/core/models.py:68
+#: apps/tenancy/features.py:172
+msgid "تعديل الإعدادات"
+msgstr "Settings editor"
+
+#: apps/core/models.py:63
 msgid "تعديل حصة"
 msgstr "Lesson updated"
 
-#: apps/core/models.py:73
+#: apps/core/models.py:68
 msgid "تعديل حضور"
 msgstr "Attendance modified"
 
-#: apps/core/models.py:78
+#: apps/core/models.py:73
 msgid "تعديل رسوم"
 msgstr "Charge modified"
 
-#: apps/core/models.py:54
+#: apps/core/models.py:49
 msgid "تعديل طالب"
 msgstr "Student updated"
 
-#: apps/core/models.py:50
+#: apps/tenancy/constants.py:76
+msgid "تعديل عميل"
+msgstr "Update client"
+
+#: apps/core/models.py:45
 msgid "تعديل مستخدم"
 msgstr "User updated"
 
@@ -1660,9 +1922,23 @@ msgstr "Disable"
 msgid "تعطيل البطاقة"
 msgstr "Disable card"
 
-#: apps/core/models.py:64
+#: apps/core/models.py:59
 msgid "تعطيل بطاقة"
 msgstr "Card disabled"
+
+#: apps/tenancy/features.py:175
+msgid "تعطيلها يجمّد السياسات على ما تم ضبطه عند التجهيز."
+msgstr ""
+"Disabling it freezes the policies at whatever was set during provisioning."
+
+#: apps/tenancy/features.py:166
+msgid "تعطيلها يخفي مبدّل اللغة ويثبّت الواجهة على العربية."
+msgstr ""
+"Disabling it hides the language switch and fixes the interface to Arabic."
+
+#: apps/tenancy/features.py:182
+msgid "تعطيلها يعني أن المشغّل هو من ينشئ حسابات موظفي السنتر."
+msgstr "Disabling it means the operator creates the center's staff accounts."
 
 #: apps/attendance/models.py:122
 msgid "تعويض عن حصة"
@@ -1673,21 +1949,37 @@ msgstr "Make-up for lesson"
 msgid "تعويضية"
 msgstr "Make-up"
 
-#: apps/core/models.py:51
+#: apps/core/models.py:46
 msgid "تغيير إعداد"
 msgstr "Setting changed"
+
+#: apps/tenancy/constants.py:82
+msgid "تغيير الباقة"
+msgstr "Change plan"
 
 #: templates/students/detail.html:34
 msgid "تغيير الحالة"
 msgstr "Change status"
 
+#: apps/tenancy/constants.py:89
+msgid "تغيير حالة الاشتراك"
+msgstr "Subscription status change"
+
 #: templates/students/detail.html:575
 msgid "تغيير حالة الطالب"
 msgstr "Change the student's status"
 
-#: apps/core/models.py:55
+#: apps/core/models.py:50
 msgid "تغيير حالة طالب"
 msgstr "Student status changed"
+
+#: apps/tenancy/constants.py:84
+msgid "تغيير حد"
+msgstr "Change limit"
+
+#: apps/tenancy/constants.py:83
+msgid "تغيير خاصية"
+msgstr "Change feature"
 
 #: templates/accounts/password_change.html:3
 #: templates/accounts/password_change.html:10
@@ -1746,6 +2038,10 @@ msgstr "User created"
 #: templates/students/detail.html:409
 msgid "تم إنهاء الاشتراك — السجل محفوظ"
 msgstr "Enrollment ended — the history is kept"
+
+#: templates/tenancy/gate.html:29
+msgid "تم إنهاء الخدمة لهذا الحساب"
+msgstr "Service ended for this account"
 
 #: templates/cards/list.html:269
 msgid "تم استيراد"
@@ -1954,9 +2250,25 @@ msgstr "The photo must not exceed 2 MB"
 msgid "حجم الملف أكبر من 2 ميجابايت"
 msgstr "The file is larger than 2 MB"
 
+#: apps/tenancy/models.py:66
+msgid "حد البطاقات"
+msgstr "Card limit"
+
 #: templates/academics/groups.html:99 apps/academics/models.py:193
 msgid "حد التأخير (دقائق)"
 msgstr "Late threshold (minutes)"
+
+#: apps/tenancy/models.py:63
+msgid "حد الطلاب"
+msgstr "Student limit"
+
+#: apps/tenancy/models.py:65
+msgid "حد المجموعات"
+msgstr "Group limit"
+
+#: apps/tenancy/models.py:64
+msgid "حد المستخدمين"
+msgstr "User limit"
 
 #: static/js/app.js:27
 msgid "حدث خطأ غير متوقع، برجاء المحاولة مرة أخرى"
@@ -1969,6 +2281,14 @@ msgstr "Scan event"
 #: templates/academics/group_detail.html:61
 msgid "حذف"
 msgstr "Delete"
+
+#: apps/tenancy/constants.py:80
+msgid "حذف بيانات عميل"
+msgstr "Purge client data"
+
+#: apps/tenancy/constants.py:86
+msgid "حذف نطاق"
+msgstr "Remove domain"
 
 #: apps/payments/models.py:236
 msgid "حركة مالية"
@@ -1986,6 +2306,10 @@ msgstr "User account"
 #: templates/partials/_topbar.html:27
 msgid "حسابي"
 msgstr "My account"
+
+#: apps/tenancy/constants.py:67
+msgid "حسب الباقة"
+msgstr "Follow the plan"
 
 #: templates/lessons/list.html:166 apps/lessons/models.py:93
 msgid "حصة"
@@ -2075,6 +2399,26 @@ msgstr "Save and continue"
 msgid "خارج وقت التسجيل — تم التسجيل استثنائيًا"
 msgstr "Outside the window — recorded as exceptional"
 
+#: apps/tenancy/models.py:96
+msgid "خاصية باقة"
+msgstr "Plan feature"
+
+#: apps/tenancy/models.py:268
+msgid "خاصية عميل"
+msgstr "Client feature"
+
+#: apps/tenancy/models.py:46
+msgid "خاصية غير معروفة: %(v)s"
+msgstr "Unknown feature: %(v)s"
+
+#: apps/tenancy/models.py:97
+msgid "خصائص الباقات"
+msgstr "Plan features"
+
+#: apps/tenancy/models.py:269
+msgid "خصائص العملاء"
+msgstr "Client features"
+
 #: apps/attendance/result_codes.py:93
 msgid "خطأ غير متوقع"
 msgstr "Unexpected error"
@@ -2121,11 +2465,15 @@ msgstr "Male"
 msgid "ربط"
 msgstr "Link"
 
-#: apps/core/policies.py:211
+#: apps/tenancy/features.py:114
+msgid "ربط البطاقات المطبوعة بالطلاب وإدارة الفقد والاستبدال."
+msgstr "Bind pre-printed cards to students and handle loss and replacement."
+
+#: apps/core/policies.py:211 apps/tenancy/features.py:142
 msgid "ربط الحضور بالسداد"
 msgstr "Tie attendance to payment"
 
-#: templates/students/detail.html:197 apps/core/models.py:61
+#: templates/students/detail.html:197 apps/core/models.py:56
 msgid "ربط بطاقة"
 msgstr "Link a card"
 
@@ -2224,6 +2572,10 @@ msgstr "A reason for cancelling is required"
 msgid "سبب الإنهاء"
 msgstr "Reason for ending"
 
+#: apps/tenancy/models.py:146
+msgid "سبب الإيقاف"
+msgstr "Suspension reason"
+
 #: apps/payments/services.py:284
 msgid "سبب الاسترداد مطلوب"
 msgstr "A reason for the refund is required"
@@ -2249,7 +2601,7 @@ msgid "سجل الاشتراكات"
 msgstr "Enrollment history"
 
 #: templates/core/audit_log.html:3 templates/core/audit_log.html:6
-#: templates/partials/_sidebar.html:97
+#: templates/partials/_sidebar.html:97 apps/tenancy/features.py:169
 msgid "سجل التدقيق"
 msgstr "Audit log"
 
@@ -2265,11 +2617,15 @@ msgstr "This attendance record is cancelled — reinstate it first"
 msgid "سجل الرسوم —"
 msgstr "Charge ledger —"
 
+#: apps/tenancy/models.py:344
+msgid "سجل المنصة"
+msgstr "Platform log entry"
+
 #: apps/cards/models.py:151
 msgid "سجل تخصيص البطاقات"
 msgstr "Card assignment history"
 
-#: apps/core/models.py:110
+#: apps/core/models.py:105
 msgid "سجل تدقيق"
 msgstr "Audit entry"
 
@@ -2277,13 +2633,17 @@ msgstr "Audit entry"
 msgid "سجل مدفوعات الطلاب"
 msgstr "Student payment ledger"
 
-#: apps/core/models.py:111
+#: apps/core/models.py:106
 msgid "سجلات التدقيق"
 msgstr "Audit log"
 
 #: apps/attendance/models.py:167
 msgid "سجلات الحضور"
 msgstr "Attendance records"
+
+#: apps/tenancy/models.py:345
+msgid "سجلات المنصة"
+msgstr "Platform logs"
 
 #: apps/payments/models.py:25
 msgid "سداد زائد"
@@ -2368,6 +2728,10 @@ msgstr "Invalid month format (YYYY-MM)"
 #: apps/core/policies.py:68
 msgid "صيغة غير صحيحة"
 msgstr "Invalid format"
+
+#: apps/tenancy/features.py:103
+msgid "طابور المسح دون اتصال"
+msgstr "Offline scan queue"
 
 #: templates/dashboard/home.html:132 apps/students/models.py:104
 msgid "طالب"
@@ -2457,7 +2821,7 @@ msgstr "Too many attempts from this device. Please try again in a minute."
 msgid "عدد محاولات كبير، برجاء المحاولة بعد قليل"
 msgstr "Too many attempts — please try again shortly"
 
-#: apps/core/models.py:137
+#: apps/core/models.py:132
 msgid "عدّاد"
 msgstr "Sequence"
 
@@ -2486,6 +2850,10 @@ msgstr "Scanner malfunction"
 msgid "عليه مستحقات مالية"
 msgstr "Payment outstanding"
 
+#: apps/tenancy/models.py:151
+msgid "عميل"
+msgstr "Client"
+
 #: apps/core/policies.py:212
 msgid "عند الإيقاف لا يتم تنفيذ أي استعلام مالي أثناء المسح"
 msgstr "While off, no financial query runs during a scan"
@@ -2494,11 +2862,11 @@ msgstr "While off, no financial query runs during a scan"
 msgid "عنوان السنتر"
 msgstr "Center address"
 
-#: apps/core/models.py:35
+#: apps/core/models.py:30
 msgid "عُدّل بواسطة"
 msgstr "Updated by"
 
-#: apps/core/models.py:12 apps/core/models.py:28
+#: apps/core/base.py:18 apps/core/models.py:23
 msgid "عُدّل في"
 msgstr "Updated at"
 
@@ -2544,7 +2912,7 @@ msgstr "Open check-in before the lesson starts (minutes)"
 msgid "فتح الحصة"
 msgstr "Open the lesson"
 
-#: apps/core/models.py:69
+#: apps/core/models.py:64
 msgid "فتح حصة"
 msgstr "Lesson opened"
 
@@ -2552,7 +2920,7 @@ msgstr "Lesson opened"
 msgid "فقدان"
 msgstr "Report lost"
 
-#: apps/core/models.py:62
+#: apps/core/models.py:57
 msgid "فك ربط بطاقة"
 msgstr "Card released"
 
@@ -2812,6 +3180,10 @@ msgstr "You cannot deactivate your own account."
 msgid "لا يمكن تغيير المادة/الصف بعد إنشاء حصص للمجموعة."
 msgstr "The offering cannot change once the group has lessons."
 
+#: apps/tenancy/models.py:172
+msgid "لا يمكن تغيير معرّف العميل بعد إنشائه."
+msgstr "A client's identifier cannot be changed after creation."
+
 #: apps/payments/models.py:267
 msgid "لا يمكن حذف حركة مالية."
 msgstr "A transaction cannot be deleted."
@@ -2852,6 +3224,10 @@ msgstr "No students"
 msgid "لا يوجد مستخدمون"
 msgstr "No users"
 
+#: templates/tenancy/gate.html:42
+msgid "للاستفسار يُرجى التواصل مع مشغّل النظام."
+msgstr "For enquiries, please contact the system operator."
+
 #: apps/attendance/services.py:589
 msgid "للطالب تسجيل بالفعل في هذه الحصة"
 msgstr "The student already has a record for this lesson"
@@ -2889,6 +3265,10 @@ msgstr "Custom colour"
 msgid "لون مخصص (Hex)"
 msgstr "Custom colour (hex)"
 
+#: apps/tenancy/constants.py:55
+msgid "مؤرشف"
+msgstr "Archived"
+
 #: apps/academics/models.py:89
 msgid "مادة"
 msgstr "Subject"
@@ -2907,9 +3287,17 @@ msgstr "Financial"
 msgid "متأخر"
 msgstr "Late"
 
+#: apps/tenancy/constants.py:53
+msgid "متأخر السداد"
+msgstr "Past due"
+
 #: templates/students/detail.html:525
 msgid "متاح في المخزون:"
 msgstr "Available in stock:"
+
+#: apps/tenancy/models.py:60
+msgid "متاح للعرض"
+msgstr "Publicly listed"
 
 #: apps/cards/models.py:15
 msgid "متاحة"
@@ -2996,6 +3384,10 @@ msgstr "Custom"
 msgid "مخصصة"
 msgstr "Assigned"
 
+#: apps/tenancy/models.py:68
+msgid "مدة الاحتفاظ بعد الأرشفة (يوم)"
+msgstr "Retention after archiving (days)"
+
 #: templates/attendance/scanner.html:43
 msgid "مدخل المسح"
 msgstr "Scan input"
@@ -3044,6 +3436,10 @@ msgstr "Denied"
 msgid "مريح"
 msgstr "Comfortable"
 
+#: apps/tenancy/models.py:67
+msgid "مساحة التخزين (ميجابايت)"
+msgstr "Storage (MB)"
+
 #: templates/cards/list.html:192 apps/cards/models.py:19
 msgid "مستبدلة"
 msgstr "Replaced"
@@ -3071,6 +3467,10 @@ msgstr "Refunded:"
 #: templates/dashboard/home.html:133 templates/lessons/list.html:105
 msgid "مسح"
 msgstr "Scan"
+
+#: apps/tenancy/features.py:83
+msgid "مسح البطاقات وتسجيل الحضور — لا يمكن تعطيلها."
+msgstr "Card scanning and attendance check-in — cannot be disabled."
 
 #: templates/accounts/login.html:25
 msgid "مسح كارت الطالب يسجّل الحضور فورًا — ويميّز المجموعة البديلة تلقائيًا."
@@ -3163,6 +3563,18 @@ msgstr "Lost"
 msgid "ملاحظات"
 msgstr "Notes"
 
+#: apps/tenancy/models.py:142
+msgid "ملاحظات داخلية"
+msgstr "Internal notes"
+
+#: apps/tenancy/models.py:257
+msgid "ملاحظة"
+msgstr "Note"
+
+#: apps/tenancy/models.py:70
+msgid "ملاحظة السعر"
+msgstr "Price note"
+
 #: apps/lessons/models.py:20
 msgid "ملغاة"
 msgstr "Cancelled"
@@ -3234,8 +3646,17 @@ msgid "موعد أسبوعي"
 msgstr "Weekly slot"
 
 #: templates/students/detail.html:225 apps/students/models.py:29
+#: apps/tenancy/constants.py:54
 msgid "موقوف"
 msgstr "Suspended"
+
+#: apps/tenancy/constants.py:69
+msgid "مُعطّل"
+msgstr "Off"
+
+#: apps/tenancy/constants.py:68
+msgid "مُفعّل"
+msgstr "On"
 
 #: apps/reports/registry.py:278
 msgid "نسبة التحصيل %"
@@ -3256,7 +3677,7 @@ msgstr "Forgot the card"
 
 #: templates/accounts/users.html:56 templates/accounts/users.html:106
 #: templates/students/detail.html:225 apps/students/models.py:27
-#: apps/students/models.py:141
+#: apps/students/models.py:141 apps/tenancy/constants.py:52
 msgid "نشط"
 msgstr "Active"
 
@@ -3264,9 +3685,17 @@ msgstr "Active"
 msgid "نشطة"
 msgstr "Active"
 
+#: apps/tenancy/models.py:217
+msgid "نطاق"
+msgstr "Domain"
+
 #: apps/lessons/services.py:93
 msgid "نطاق التواريخ غير صحيح"
 msgstr "Invalid date range"
+
+#: apps/tenancy/models.py:212
+msgid "نطاق خاص بالعميل"
+msgstr "Custom domain"
 
 #: templates/accounts/login.html:103 templates/base.html:11
 #: templates/partials/_sidebar.html:8
@@ -3289,9 +3718,21 @@ msgstr "Transfer"
 msgid "نقل الطالب لمجموعة أخرى"
 msgstr "Transfer the student to another group"
 
-#: apps/core/models.py:58
+#: apps/core/models.py:53
 msgid "نقل طالب بين المجموعات"
 msgstr "Student transferred between groups"
+
+#: apps/tenancy/models.py:133
+msgid "نهاية الاشتراك"
+msgstr "Subscription ends"
+
+#: apps/tenancy/models.py:132
+msgid "نهاية التجربة"
+msgstr "Trial ends"
+
+#: apps/tenancy/models.py:134
+msgid "نهاية فترة السماح"
+msgstr "Grace period ends"
 
 #: templates/partials/_theme_picker.html:44
 msgid "نيلي"
@@ -3306,6 +3747,10 @@ msgstr "Center phone"
 msgid "هاتف الطالب"
 msgstr "Student phone"
 
+#: apps/tenancy/models.py:141
+msgid "هاتف المسؤول"
+msgstr "Owner phone"
+
 #: templates/students/create.html:43 templates/students/list.html:54
 #: apps/reports/registry.py:200 apps/reports/registry.py:253
 #: apps/students/forms.py:66 apps/students/models.py:63
@@ -3319,6 +3764,10 @@ msgstr "This setting cannot be changed"
 #: templates/partials/_theme_picker.html:37
 msgid "هذا الاختيار يخصّك على هذا الجهاز فقط."
 msgstr "This choice applies to you on this device only."
+
+#: apps/tenancy/models.py:38
+msgid "هذا المعرّف محجوز للنظام: %(v)s"
+msgstr "This identifier is reserved by the system: %(v)s"
 
 #: apps/attendance/result_codes.py:74 apps/cards/services.py:24
 msgid "هذه البطاقة تم استبدالها"
@@ -3421,6 +3870,10 @@ msgstr "Cashier day book"
 #: templates/payments/workspace.html:41
 msgid "يومية الخزنة"
 msgstr "Day book"
+
+#: apps/tenancy/models.py:148
+msgid "يُحذف نهائيًا بعد"
+msgstr "Purge after"
 
 #: apps/core/policies.py:321
 msgid "يُستخدم عند اختيار «مخصص» — ويظهر أيضًا في رأس مستندات PDF"

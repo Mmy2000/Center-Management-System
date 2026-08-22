@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.humanize",
     "apps.core",
+    "apps.tenancy",
     "apps.accounts",
     "apps.academics",
     "apps.students",
@@ -169,7 +170,15 @@ AUTH_PASSWORD_VALIDATORS = [
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_AGE = 60 * 60 * 8  # one working day
+SESSION_COOKIE_DOMAIN = None  # per-host cookies — see docs/10 §N.6
 CSRF_COOKIE_SAMESITE = "Lax"
+
+# A free account has no wildcard subdomain and no custom domain, so this host
+# can only ever serve ONE center. The tenancy app is installed (one tenant), but
+# the resolution middleware is not: there is nothing for it to choose between.
+# Multi-tenant production is the topology in docs/10 §N.11 — a real VPS.
+CONSOLE_HOST = ""
+CONSOLE_URLCONF = "cms.urls_console"
 
 
 # =========================================================================== #

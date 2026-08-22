@@ -19,6 +19,7 @@ urlpatterns = [
         name="javascript-catalog",
     ),
     path("", include("apps.core.urls")),
+    path("", include("apps.tenancy.urls")),
     path("", include("apps.dashboard.urls")),
     path("accounts/", include("apps.accounts.urls")),
     path("", include("apps.academics.urls")),

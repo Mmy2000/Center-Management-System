@@ -22,6 +22,7 @@ env = environ.Env(
     SENTRY_DSN=(str, ""),
     TIME_ZONE=(str, "Africa/Cairo"),
     LANGUAGE_CODE=(str, "ar"),
+    CONSOLE_HOST=(str, ""),
 )
 # Optional: dev uses it, and cms.settings.pythonanywhere deliberately does not.
 # Reading a missing file logs a warning that reads like an error in a host's log.
@@ -50,6 +51,9 @@ DJANGO_APPS = [
 
 LOCAL_APPS = [
     "apps.core",
+    # Must precede every app that will carry a `tenant` FK. `core` stays first:
+    # `tenancy.base` extends `core.base.TimeStampedModel`.
+    "apps.tenancy",
     "apps.accounts",
     "apps.academics",
     "apps.students",
@@ -75,6 +79,33 @@ MIDDLEWARE = [
     "apps.core.middleware.AuditContextMiddleware",
     "apps.core.middleware.ForcePasswordChangeMiddleware",
 ]
+
+# Tenant resolution is written and tested (TASK-092) but NOT yet in the stack:
+# with it active, every request needs a `Domain` row, and the domain models do
+# not carry a `tenant` column until Phase 14. TASK-104 ("Release C") inserts
+# these three at positions [3], [8] and [11] — see docs/10 §N.3:
+#
+#   "apps.tenancy.middleware.TenantResolutionMiddleware"     after SessionMiddleware
+#   "apps.tenancy.middleware.TenantSessionGuardMiddleware"   after AuthenticationMiddleware
+#   "apps.tenancy.middleware.TenantStatusMiddleware"         after XFrameOptionsMiddleware
+#
+# Until then the middleware tests install them with override_settings.
+
+
+# --------------------------------------------------------------------------- #
+# Multi-tenancy (docs/10-multi-tenancy.md)
+# --------------------------------------------------------------------------- #
+
+# The platform console answers on its own hostname and its own URLconf, so a
+# tenant host cannot route to it at all. Empty disables console routing.
+CONSOLE_HOST = env("CONSOLE_HOST")
+CONSOLE_URLCONF = "cms.urls_console"
+
+# Deliberately unset (None): each subdomain then gets its own session cookie, so
+# a session simply cannot travel from one center to another. Setting this to
+# ".example.com" would share one cookie across every client — the single worst
+# bug available in this design (docs/10 §N.6).
+SESSION_COOKIE_DOMAIN = None
 
 ROOT_URLCONF = "cms.urls"
 WSGI_APPLICATION = "cms.wsgi.application"
