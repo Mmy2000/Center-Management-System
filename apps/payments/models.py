@@ -13,7 +13,12 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from apps.core.models import TimeStampedModel
+from apps.tenancy.base import (
+    AllTenantsManager,
+    TenantManager,
+    TenantOwnedModel,
+    TenantQuerySet,
+)
 
 ZERO = Decimal("0.00")
 
@@ -50,7 +55,7 @@ class GeneratedBy(models.TextChoices):
     MANUAL = "MANUAL", _("يدوي")
 
 
-class MonthlyChargeQuerySet(models.QuerySet):
+class MonthlyChargeQuerySet(TenantQuerySet):
     def outstanding(self):
         return self.filter(balance__gt=0).exclude(
             status__in=[ChargeStatus.CANCELLED, ChargeStatus.WAIVED]
@@ -64,7 +69,7 @@ class MonthlyChargeQuerySet(models.QuerySet):
         return self.select_related("student", "grade_subject__subject", "grade_subject__grade", "group")
 
 
-class MonthlyCharge(TimeStampedModel):
+class MonthlyCharge(TenantOwnedModel):
     student = models.ForeignKey(
         "students.Student",
         on_delete=models.PROTECT,
@@ -119,7 +124,8 @@ class MonthlyCharge(TimeStampedModel):
         related_name="charges_updated",
     )
 
-    objects = MonthlyChargeQuerySet.as_manager()
+    objects = TenantManager.from_queryset(MonthlyChargeQuerySet)()
+    all_tenants = AllTenantsManager.from_queryset(MonthlyChargeQuerySet)()
 
     class Meta:
         verbose_name = _("رسوم شهرية")
@@ -179,7 +185,7 @@ class MonthlyCharge(TimeStampedModel):
         return self.grade_subject.subject
 
 
-class PaymentQuerySet(models.QuerySet):
+class PaymentQuerySet(TenantQuerySet):
     def payments(self):
         return self.filter(kind=PaymentKind.PAYMENT)
 
@@ -187,7 +193,7 @@ class PaymentQuerySet(models.QuerySet):
         return self.filter(kind=PaymentKind.REFUND)
 
 
-class Payment(TimeStampedModel):
+class Payment(TenantOwnedModel):
     """An immutable ledger line. Never updated, never deleted — corrected by a
     REFUND that points back at the original."""
 
@@ -212,7 +218,9 @@ class Payment(TimeStampedModel):
     method = models.CharField(
         _("طريقة الدفع"), max_length=20, choices=PaymentMethod.choices, default=PaymentMethod.CASH
     )
-    receipt_number = models.CharField(_("رقم الإيصال"), max_length=30, unique=True)
+    # Receipts restart at 1 for every center, so two clients will legitimately
+    # both hold R000001 — unique per tenant, never globally.
+    receipt_number = models.CharField(_("رقم الإيصال"), max_length=30, db_index=True)
     reference = models.CharField(_("مرجع"), max_length=60, blank=True)
     collected_by = models.ForeignKey(
         "accounts.User",
@@ -230,20 +238,26 @@ class Payment(TimeStampedModel):
     )
     notes = models.TextField(_("ملاحظات"), blank=True)
 
-    objects = PaymentQuerySet.as_manager()
+    objects = TenantManager.from_queryset(PaymentQuerySet)()
+    all_tenants = AllTenantsManager.from_queryset(PaymentQuerySet)()
 
     class Meta:
         verbose_name = _("حركة مالية")
         verbose_name_plural = _("الحركات المالية")
         ordering = ["-paid_at", "-id"]
         constraints = [
-            models.CheckConstraint(condition=models.Q(amount__gt=0), name="ck_payment_amount_positive"),
+            models.UniqueConstraint(
+                fields=["tenant", "receipt_number"], name="uq_receipt_number_per_tenant"
+            ),
+            models.CheckConstraint(
+                condition=models.Q(amount__gt=0), name="ck_payment_amount_positive"
+            ),
         ]
         indexes = [
-            models.Index(fields=["student", "-paid_at"]),
-            models.Index(fields=["monthly_charge", "paid_at"]),
-            models.Index(fields=["paid_at", "method"]),
-            models.Index(fields=["collected_by", "paid_at"]),
+            models.Index(fields=["tenant", "student", "-paid_at"]),
+            models.Index(fields=["tenant", "monthly_charge", "paid_at"]),
+            models.Index(fields=["tenant", "paid_at", "method"]),
+            models.Index(fields=["tenant", "collected_by", "paid_at"]),
         ]
         permissions = [("refund_payment", _("استرداد دفعة"))]
 

@@ -39,10 +39,22 @@ class TenantResolutionMiddleware:
     which is the first step of enumerating your client list.
     """
 
+    #: Paths that answer without a tenant. ``/healthz/`` is a *process* check
+    #: (docs/07 §L.6) and must not touch the database — resolving a tenant in
+    #: front of it would make a database outage look like a dead process, and
+    #: an unknown host make a healthy one look dead. ``/readyz/`` deliberately
+    #: is not here: it is the check that *should* fail when the DB is gone.
+    TENANTLESS_PREFIXES = ("/healthz/", "/static/", "/media/")
+
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
+        if request.path.startswith(self.TENANTLESS_PREFIXES):
+            request.tenant = None
+            request.is_console = False
+            return self.get_response(request)
+
         host = normalize_host(request.get_host())
         console = _console_host()
 

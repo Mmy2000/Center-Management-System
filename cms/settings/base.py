@@ -70,27 +70,20 @@ INSTALLED_APPS = DJANGO_APPS + LOCAL_APPS
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    # Before AuthenticationMiddleware: the user lookup is itself tenant-scoped.
+    # request.user is lazy, so resolving here is early enough (docs/10 §N.3).
+    "apps.tenancy.middleware.TenantResolutionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.tenancy.middleware.TenantSessionGuardMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "apps.tenancy.middleware.TenantStatusMiddleware",
     "apps.core.middleware.AuditContextMiddleware",
     "apps.core.middleware.ForcePasswordChangeMiddleware",
 ]
-
-# Tenant resolution is written and tested (TASK-092) but NOT yet in the stack:
-# with it active, every request needs a `Domain` row, and the domain models do
-# not carry a `tenant` column until Phase 14. TASK-104 ("Release C") inserts
-# these three at positions [3], [8] and [11] — see docs/10 §N.3:
-#
-#   "apps.tenancy.middleware.TenantResolutionMiddleware"     after SessionMiddleware
-#   "apps.tenancy.middleware.TenantSessionGuardMiddleware"   after AuthenticationMiddleware
-#   "apps.tenancy.middleware.TenantStatusMiddleware"         after XFrameOptionsMiddleware
-#
-# Until then the middleware tests install them with override_settings.
-
 
 # --------------------------------------------------------------------------- #
 # Multi-tenancy (docs/10-multi-tenancy.md)
@@ -156,6 +149,14 @@ ATOMIC_REQUESTS = False
 # --------------------------------------------------------------------------- #
 
 AUTH_USER_MODEL = "accounts.User"
+# The username is unique per tenant, not globally (docs/10 §N.6), so the login
+# lookup has to be scoped before it runs.
+AUTHENTICATION_BACKENDS = ["apps.accounts.backends.TenantModelBackend"]
+# auth.W004: USERNAME_FIELD is not globally unique. Deliberate — two centers must
+# both be able to have an "admin", and telling one of them the name is taken
+# would leak the other's existence. Uniqueness is enforced by
+# uq_username_per_tenant plus uq_platform_username (docs/10 §N.6).
+SILENCED_SYSTEM_CHECKS = ["auth.W004"]
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "dashboard:home"
 LOGOUT_REDIRECT_URL = "accounts:login"

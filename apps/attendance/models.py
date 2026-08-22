@@ -13,7 +13,12 @@ Three orthogonal axes, never collapsed:
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from apps.core.models import TimeStampedModel
+from apps.tenancy.base import (
+    AllTenantsManager,
+    TenantManager,
+    TenantOwnedModel,
+    TenantQuerySet,
+)
 
 
 class AttendanceState(models.TextChoices):
@@ -48,7 +53,7 @@ class ScanSource(models.TextChoices):
     SYSTEM = "SYSTEM", _("النظام")
 
 
-class AttendanceQuerySet(models.QuerySet):
+class AttendanceQuerySet(TenantQuerySet):
     def with_related(self):
         return self.select_related(
             "student",
@@ -66,7 +71,7 @@ class AttendanceQuerySet(models.QuerySet):
         )
 
 
-class Attendance(TimeStampedModel):
+class Attendance(TenantOwnedModel):
     lesson = models.ForeignKey(
         "lessons.Lesson",
         on_delete=models.PROTECT,
@@ -160,7 +165,8 @@ class Attendance(TimeStampedModel):
     )
     notes = models.TextField(_("ملاحظات"), blank=True)
 
-    objects = AttendanceQuerySet.as_manager()
+    objects = TenantManager.from_queryset(AttendanceQuerySet)()
+    all_tenants = AllTenantsManager.from_queryset(AttendanceQuerySet)()
 
     class Meta:
         verbose_name = _("حضور")
@@ -168,6 +174,7 @@ class Attendance(TimeStampedModel):
         ordering = ["-check_in_at", "-id"]
         constraints = [
             # The idempotency anchor: two scanners racing produce one row.
+            # Already tenant-scoped through `lesson`, which is tenant-owned.
             models.UniqueConstraint(
                 fields=["lesson", "student"], name="uq_attendance_lesson_student"
             ),
@@ -194,12 +201,12 @@ class Attendance(TimeStampedModel):
             ),
         ]
         indexes = [
-            models.Index(fields=["lesson", "state"]),
-            models.Index(fields=["student", "-check_in_at"]),
-            models.Index(fields=["attended_group", "lesson"]),
-            models.Index(fields=["-check_in_at"], name="ix_att_recent"),
+            models.Index(fields=["tenant", "lesson", "state"]),
+            models.Index(fields=["tenant", "student", "-check_in_at"]),
+            models.Index(fields=["tenant", "attended_group", "lesson"]),
+            models.Index(fields=["tenant", "-check_in_at"], name="ix_att_recent"),
             models.Index(
-                fields=["lesson", "attendance_type"],
+                fields=["tenant", "lesson", "attendance_type"],
                 condition=~models.Q(attendance_type="NORMAL"),
                 name="ix_att_alternative",
             ),
@@ -235,7 +242,7 @@ class AttendanceEventType(models.TextChoices):
     APPROVAL = "APPROVAL", _("اعتماد")
 
 
-class AttendanceEvent(models.Model):
+class AttendanceEvent(TenantOwnedModel):
     """Append-only forensic log of every scan attempt, including refusals.
 
     Never stores the raw QR token — only the card it resolved to.
@@ -259,18 +266,33 @@ class AttendanceEvent(models.Model):
     operator = models.ForeignKey(
         "accounts.User", on_delete=models.SET_NULL, null=True, blank=True, related_name="scan_events"
     )
-    idempotency_key = models.CharField(max_length=64, unique=True, null=True, blank=True)
+    # Client-generated, so two centers will eventually pick the same value:
+    # unique per tenant, never globally (docs/10 §N.5).
+    # null, not , precisely so the partial unique constraint below can
+    # ignore the events that carry no key: NULLs do not collide, empty
+    # strings do. (Ruff's DJ001 waives this for unique=True fields; the
+    # reasoning is identical now that uniqueness lives in a constraint.)
+    idempotency_key = models.CharField(  # noqa: DJ001
+        max_length=64, null=True, blank=True
+    )
     latency_ms = models.PositiveIntegerField(null=True, blank=True)
     payload = models.JSONField(default=dict, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
         verbose_name = _("حدث مسح")
         verbose_name_plural = _("أحداث المسح")
         ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["tenant", "idempotency_key"],
+                condition=models.Q(idempotency_key__isnull=False),
+                name="uq_event_idempotency_per_tenant",
+            ),
+        ]
         indexes = [
-            models.Index(fields=["lesson", "-created_at"]),
-            models.Index(fields=["result_code", "-created_at"]),
+            models.Index(fields=["tenant", "lesson", "-created_at"]),
+            models.Index(fields=["tenant", "result_code", "-created_at"]),
+            models.Index(fields=["tenant", "-created_at"]),
         ]
 
     def __str__(self):

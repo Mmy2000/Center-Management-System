@@ -14,6 +14,61 @@ Format per task: **Objective · Prerequisites · Requirements · Implementation 
 | 16 — Platform Console | ~5 | 111 → 118 | The dashboard you asked for. |
 | 17 — Hardening & Deploy | ~4 | 119 → 123 | Leak suite, RLS, wildcard TLS, runbook. |
 
+## Implementation log
+
+**Phase 13 — done** (TASK-089 → 093). Control plane, resolution, managers, system check.
+
+**Phase 14 — done** (TASK-094 → 105). All 20 models carry `tenant`; the existing
+installation was migrated and verified row-for-row.
+
+Four deviations from the plan above, each made while building and each for a
+reason worth keeping:
+
+1. **TASK-103 is not a separate release.** A `NOT NULL` column cannot exist
+   before its backfill, so splitting them across deploys buys a half-migrated
+   schema rather than safety. The sequence is instead three reversible steps in
+   one `migrate`: `*_add_tenant` (nullable) → `tenancy.0002_bootstrap_default_tenant`
+   (creates the tenant from the existing `center.name` setting, backfills every
+   table, refuses to continue if any row is left unstamped) → `*_require_tenant`
+   (`NOT NULL`). Every step has a reverse. Verified against the real
+   `db.sqlite3`: 22 tables, identical row counts, zero null tenants.
+
+2. **TASK-104 landed with Phase 14, not after it.** The middleware has to be in
+   the stack for the suite and the app to run against tenant-scoped models at
+   all; deferring it would have meant a branch that could not be exercised.
+
+3. **`/healthz/` resolves no tenant.** It is a *process* check (07 §L.6) and must
+   not touch the database — with resolution in front of it, a database outage
+   would look like a dead process and an unknown Host header like a dead site.
+   `/readyz/` deliberately keeps its tenant, since it is the check that *should*
+   fail when the database is gone.
+
+4. **Two mechanisms the plan did not anticipate**, both in `tenancy/base.py`:
+   - *Deferred querysets.* A `ModelForm` builds its `ModelChoiceField` querysets
+     when the class is **defined** — before any request, so before any tenant.
+     Raising there makes the app unimportable. A queryset built outside a tenant
+     is therefore marked deferred and resolves at evaluation time, which for a
+     form field is inside a request. Every route to the database is covered,
+     including `resolve_expression()` — a queryset used as `filter(x__in=qs)`
+     would otherwise be compiled into SQL unfiltered.
+   - *Constraint error re-keying.* Moving `unique=True` into
+     `UniqueConstraint(["tenant", x])` silently disabled the check at the form
+     layer, because `tenant` is `editable=False` and Django skips any constraint
+     mentioning an excluded field — turning a duplicate student code into a 500
+     at INSERT. `TenantOwnedModel` un-excludes `tenant` and reports the violation
+     against `x` alone, so the message and the highlighted field are what they
+     were before tenancy.
+
+**TASK-119 partially done.** The model sweep, the cache/settings/sequence/rate-limit
+isolation checks and the AST-based `all_tenants` guard are in
+`apps/tenancy/tests/test_isolation.py` and run over every tenant-owned model
+automatically. Still outstanding for TASK-119: the **URL sweep** (every detail
+URL, another center's pk → 404).
+
+**Not started:** Phase 15 (features), 16 (console), 17 (hardening).
+
+---
+
 **Three rules for the implementing agent.**
 
 1. Never edit an existing `objects.` call site to add a tenant filter. If a query needs a filter that the manager does not already apply, the manager is wrong — fix the manager. There are 143 call sites; touching them by hand is how one gets missed.

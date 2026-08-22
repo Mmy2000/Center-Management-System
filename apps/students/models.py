@@ -13,8 +13,13 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from apps.core.models import TimeStampedModel
 from apps.core.text import normalize_arabic
+from apps.tenancy.base import (
+    AllTenantsManager,
+    TenantManager,
+    TenantOwnedModel,
+    TenantQuerySet,
+)
 
 
 def student_photo_path(instance, filename: str) -> str:
@@ -42,7 +47,7 @@ class GuardianRelation(models.TextChoices):
     OTHER = "OTHER", _("آخر")
 
 
-class StudentQuerySet(models.QuerySet):
+class StudentQuerySet(TenantQuerySet):
     def active(self):
         return self.filter(status=StudentStatus.ACTIVE)
 
@@ -50,8 +55,8 @@ class StudentQuerySet(models.QuerySet):
         return self.select_related("grade__stage")
 
 
-class Student(TimeStampedModel):
-    student_code = models.CharField(_("كود الطالب"), max_length=20, unique=True, db_index=True)
+class Student(TenantOwnedModel):
+    student_code = models.CharField(_("كود الطالب"), max_length=20, db_index=True)
     full_name = models.CharField(_("الاسم الكامل"), max_length=150, db_index=True)
     search_name = models.CharField(max_length=150, blank=True, db_index=True, editable=False)
     photo = models.ImageField(_("الصورة"), upload_to=student_photo_path, blank=True, null=True)
@@ -98,17 +103,23 @@ class Student(TimeStampedModel):
         related_name="students_updated",
     )
 
-    objects = StudentQuerySet.as_manager()
+    objects = TenantManager.from_queryset(StudentQuerySet)()
+    all_tenants = AllTenantsManager.from_queryset(StudentQuerySet)()
 
     class Meta:
         verbose_name = _("طالب")
         verbose_name_plural = _("الطلاب")
         ordering = ["full_name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["tenant", "student_code"], name="uq_student_code_per_tenant"
+            ),
+        ]
         indexes = [
-            models.Index(fields=["status", "grade"]),
-            models.Index(fields=["full_name"]),
-            models.Index(fields=["search_name"]),
-            models.Index(fields=["guardian_phone"]),
+            models.Index(fields=["tenant", "status", "grade"]),
+            models.Index(fields=["tenant", "full_name"]),
+            models.Index(fields=["tenant", "search_name"]),
+            models.Index(fields=["tenant", "guardian_phone"]),
         ]
 
     def save(self, *args, **kwargs):
@@ -151,7 +162,7 @@ class EndReason(models.TextChoices):
     OTHER = "OTHER", _("أخرى")
 
 
-class StudentGroupAssignment(TimeStampedModel):
+class StudentGroupAssignment(TenantOwnedModel):
     """The student's *usual* group for one subject offering (docs/01 §B.3).
 
     History-preserving: changing groups ends this row and opens a new one; the
@@ -219,9 +230,9 @@ class StudentGroupAssignment(TimeStampedModel):
             ),
         ]
         indexes = [
-            models.Index(fields=["student", "status"]),
-            models.Index(fields=["group", "status"]),
-            models.Index(fields=["grade_subject", "status"]),
+            models.Index(fields=["tenant", "student", "status"]),
+            models.Index(fields=["tenant", "group", "status"]),
+            models.Index(fields=["tenant", "grade_subject", "status"]),
         ]
 
     def __str__(self):

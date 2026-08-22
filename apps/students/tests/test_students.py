@@ -249,6 +249,17 @@ def test_list_is_paginated_and_filterable(admin_client_, grade):
 def test_list_query_count_is_bounded(admin_client_, grade, django_assert_num_queries):
     for index in range(30):
         make_student(grade, full_name=f"طالب {index}")
+
+    # Tenant resolution costs one query on a cold cache and none once warm
+    # (docs/10 §N.13); its own budget is asserted in
+    # apps/tenancy/tests/test_middleware.py. Warming it here keeps this test
+    # measuring what it was written to measure — the *view's* queries — so a
+    # future N+1 still shows up as a failure rather than hiding inside a
+    # loosened bound.
+    from apps.tenancy.resolution import resolve_host
+
+    resolve_host("testserver")
+
     # session + user + permissions + count + page  — no N+1 over grades/stages
     with django_assert_num_queries(6):
         admin_client_.get(reverse("students_api:students"))

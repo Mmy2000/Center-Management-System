@@ -20,13 +20,99 @@ from .exceptions import CrossTenantWrite, TenantContextRequired
 
 
 class TenantQuerySet(models.QuerySet):
-    """Adds the write-side guarantees ``save()`` cannot give us.
+    """Tenant filtering, plus the write-side guarantees ``save()`` cannot give.
+
+    **Deferred resolution.** Normally the manager filters eagerly and this flag
+    is never set. The exception is import time: a ``ModelForm`` builds each
+    ``ModelChoiceField`` when the class is *defined*, calling
+    ``Model._default_manager.using(...)`` before any request — and therefore
+    before any tenant — exists. Raising there would make the app unimportable;
+    filtering by "no tenant" would bake an empty choice list into the field
+    forever. So a queryset built outside a tenant is marked deferred and
+    resolves its tenant when it is finally used, which for a form field is
+    inside a request. ``ModelChoiceField.__deepcopy__`` clones the queryset per
+    form instance, so each request resolves its own tenant.
+
+    Every path that reaches the database is covered: iteration, ``count()``,
+    ``exists()``, ``aggregate()``, ``update()``, ``delete()``, ``iterator()``
+    — and ``resolve_expression()``, which is how a queryset used as a subquery
+    (``filter(x__in=qs)``) would otherwise slip past unfiltered.
 
     ``bulk_create`` bypasses ``Model.save()`` entirely, so the tenant stamp that
     ``TenantOwnedModel.save()`` applies would never run — and the card importer
     and the lesson generator both go through it. Stamping here closes that hole
     at the only layer both paths share.
     """
+
+    #: Set by TenantManager when it built this queryset with no tenant around.
+    _tenant_deferred = False
+
+    def _clone(self):
+        clone = super()._clone()
+        clone._tenant_deferred = self._tenant_deferred
+        return clone
+
+    def _resolve_tenant(self):
+        """Apply the deferred tenant filter, or refuse to run."""
+        if not self._tenant_deferred:
+            return
+        tenant = current_tenant()
+        if tenant is None:
+            raise TenantContextRequired(
+                f"{self.model.__name__}.objects was used with no tenant in context. "
+                f"Wrap the call in tenant_context(tenant), or use "
+                f"{self.model.__name__}.all_tenants if crossing tenants is intended."
+            )
+        # In place: this queryset is being consumed right now, and mutating the
+        # clone Django already made is exactly what .filter() would have done.
+        self._tenant_deferred = False
+        self.query.add_q(models.Q(tenant_id=tenant.pk))
+
+    # -- every route to the database ---------------------------------------
+    def _fetch_all(self):
+        self._resolve_tenant()
+        return super()._fetch_all()
+
+    def count(self):
+        self._resolve_tenant()
+        return super().count()
+
+    def exists(self):
+        self._resolve_tenant()
+        return super().exists()
+
+    def aggregate(self, *args, **kwargs):
+        self._resolve_tenant()
+        return super().aggregate(*args, **kwargs)
+
+    def update(self, **kwargs):
+        self._resolve_tenant()
+        return super().update(**kwargs)
+
+    def delete(self):
+        self._resolve_tenant()
+        return super().delete()
+
+    def iterator(self, *args, **kwargs):
+        self._resolve_tenant()
+        return super().iterator(*args, **kwargs)
+
+    def in_bulk(self, *args, **kwargs):
+        self._resolve_tenant()
+        return super().in_bulk(*args, **kwargs)
+
+    def contains(self, obj):
+        self._resolve_tenant()
+        return super().contains(obj)
+
+    def explain(self, *args, **kwargs):
+        self._resolve_tenant()
+        return super().explain(*args, **kwargs)
+
+    def resolve_expression(self, *args, **kwargs):
+        """Used as a subquery — resolve before the SQL is built, not after."""
+        self._resolve_tenant()
+        return super().resolve_expression(*args, **kwargs)
 
     def bulk_create(self, objs, *args, **kwargs):
         objs = list(objs)
@@ -50,26 +136,36 @@ class TenantQuerySet(models.QuerySet):
 class TenantManager(models.Manager.from_queryset(TenantQuerySet)):
     """The default manager: every read is scoped to the tenant in context.
 
-    A missing tenant raises instead of returning ``.none()``. An empty result is
-    indistinguishable from a quiet day — a report showing zero students would
-    look plausible and ship. A traceback does not.
+    Inside a tenant the filter is applied **eagerly**, which is what makes
+    subqueries, prefetches and every other queryset composition correct without
+    thinking about it. Outside one the queryset is marked deferred instead of
+    raising here, because Django builds ``ModelForm`` fields at import time —
+    see :class:`TenantQuerySet`. Either way, a query that reaches the database
+    without a tenant raises; it never quietly returns nothing, because an empty
+    result is indistinguishable from a quiet Saturday and would ship.
     """
 
     def get_queryset(self):
         queryset = super().get_queryset()
         tenant = current_tenant()
         if tenant is None:
-            raise TenantContextRequired(
-                f"{self.model.__name__}.objects was used with no tenant in context. "
-                f"Wrap the call in tenant_context(tenant), or use "
-                f"{self.model.__name__}.all_tenants if crossing tenants is intended."
-            )
+            queryset._tenant_deferred = True
+            return queryset
         return queryset.filter(tenant_id=tenant.pk)
 
 
 class AllTenantsManager(models.Manager.from_queryset(models.QuerySet)):
     """Unfiltered access. Only ``apps.tenancy``, ``apps.console`` and migrations
     may use it, and a test in the leak suite enforces that."""
+
+
+def _has_tenant_field(model) -> bool:
+    """Whether ``model`` carries a ``tenant`` column at all."""
+    try:
+        model._meta.get_field("tenant")
+    except Exception:
+        return False
+    return True
 
 
 class TenantOwnedModel(TimeStampedModel):
@@ -126,22 +222,31 @@ class TenantOwnedModel(TimeStampedModel):
 
         The database cannot express this without composite foreign keys, so it
         is enforced here and re-checked by the leak suite. Only *loaded* related
-        objects and cached ids are inspected — this must not fire a query per FK
-        on the scan path.
+        objects are inspected — this must not fire a query per FK on the scan
+        path, whose whole budget is six.
+
+        Any related model carrying a ``tenant`` field counts, not only
+        ``TenantOwnedModel`` subclasses: ``accounts.User`` has a nullable one and
+        is the FK behind ``created_by`` on half the domain. A *null* tenant on
+        the far side is allowed — that is platform staff acting inside a center,
+        which impersonation makes legitimate (TASK-115).
         """
         for field in self._meta.concrete_fields:
             if not field.is_relation or field.name == "tenant":
                 continue
             related_model = field.related_model
-            if not issubclass(related_model, TenantOwnedModel):
+            if related_model is None or not _has_tenant_field(related_model):
                 continue
             if getattr(self, field.attname) is None:
                 continue
             related = self._get_loaded_related(field)
-            if related is not None and related.tenant_id != self.tenant_id:
+            if related is None:
+                continue
+            related_tenant_id = getattr(related, "tenant_id", None)
+            if related_tenant_id is not None and related_tenant_id != self.tenant_id:
                 raise CrossTenantWrite(
                     f"{type(self).__name__}.{field.name} points at "
-                    f"{related_model.__name__} of tenant {related.tenant_id}, "
+                    f"{related_model.__name__} of tenant {related_tenant_id}, "
                     f"but this row belongs to tenant {self.tenant_id}"
                 )
 
@@ -160,5 +265,77 @@ class TenantOwnedModel(TimeStampedModel):
 
     def clean(self):
         super().clean()
+        # Stamp early so the per-tenant unique constraints below have a tenant
+        # to check against. Tolerant of a missing context — save() is where an
+        # absent tenant becomes an error; a form must not blow up in clean().
+        if self.tenant_id is None and current_tenant() is not None:
+            self.tenant = current_tenant()
         if self.tenant_id is not None:
             self._check_foreign_keys()
+
+    # -- keeping the per-tenant unique constraints enforceable in forms -----
+    #
+    # `tenant` is editable=False, so it never appears in a ModelForm, so the
+    # form adds it to the validation exclusions — and Django skips any
+    # constraint that mentions an excluded field. That would silently disable
+    # every UNIQUE(tenant, …) constraint at the form layer and turn a duplicate
+    # student code into a 500 at INSERT instead of a field error.
+    #
+    # Un-excluding it is safe precisely because it is not user input: the value
+    # comes from the request's tenant and is already stamped by clean() above.
+
+    def _unexclude_tenant(self, exclude):
+        if exclude and "tenant" in exclude and self.tenant_id is not None:
+            return {name for name in exclude if name != "tenant"}
+        return exclude
+
+    def validate_unique(self, exclude=None):
+        return super().validate_unique(exclude=self._unexclude_tenant(exclude))
+
+    def validate_constraints(self, exclude=None):
+        """Report a ``UNIQUE(tenant, x)`` violation as an error on ``x``.
+
+        Django keys a multi-field constraint violation under ``__all__``, which
+        is right when a user chose both fields. Here they chose one: ``tenant``
+        is invisible to them and came from the hostname. So a duplicate student
+        code should highlight the student-code input and read "a student with
+        this code already exists" — exactly what ``unique=True`` produced before
+        tenancy — rather than a form-wide "student with this Client and this
+        Code already exists".
+
+        Constraints of other shapes (partial, three-field, non-unique) are left
+        entirely to Django.
+        """
+        from django.core.exceptions import ValidationError
+
+        exclude = set(self._unexclude_tenant(exclude) or ())
+        errors: dict[str, list] = {}
+        handled: set[str] = set()
+
+        if self.tenant_id is not None:
+            for constraint in self._meta.constraints:
+                fields = tuple(getattr(constraint, "fields", None) or ())
+                if len(fields) != 2 or fields[0] != "tenant":
+                    continue
+                if getattr(constraint, "condition", None) is not None:
+                    continue
+                target = fields[1]
+                if target in exclude:
+                    continue
+                handled.add(target)
+                try:
+                    constraint.validate(type(self), self, exclude=exclude or None)
+                except ValidationError:
+                    # Re-message as a single-field violation, so the wording
+                    # names the field the user actually typed into.
+                    errors.setdefault(target, []).append(
+                        self.unique_error_message(type(self), (target,))
+                    )
+
+        try:
+            super().validate_constraints(exclude=(exclude | handled) or None)
+        except ValidationError as exc:
+            errors = exc.update_error_dict(errors)
+
+        if errors:
+            raise ValidationError(errors)

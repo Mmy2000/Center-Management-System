@@ -97,12 +97,17 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    # Before AuthenticationMiddleware: the user lookup is itself tenant-scoped.
+    # request.user is lazy, so resolving here is early enough (docs/10 §N.3).
+    "apps.tenancy.middleware.TenantResolutionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "apps.tenancy.middleware.TenantSessionGuardMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "apps.tenancy.middleware.TenantStatusMiddleware",
     "apps.core.middleware.AuditContextMiddleware",
     "apps.core.middleware.ForcePasswordChangeMiddleware",
 ]
@@ -153,6 +158,9 @@ ATOMIC_REQUESTS = False
 # =========================================================================== #
 
 AUTH_USER_MODEL = "accounts.User"
+# The username is unique per tenant, not globally (docs/10 §N.6), so the login
+# lookup has to be scoped before it runs.
+AUTHENTICATION_BACKENDS = ["apps.accounts.backends.TenantModelBackend"]
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "dashboard:home"
 LOGOUT_REDIRECT_URL = "accounts:login"
@@ -267,7 +275,11 @@ MAILERS = {
     },
 }
 
-SILENCED_SYSTEM_CHECKS = ["mail.E001"]
+SILENCED_SYSTEM_CHECKS = [
+    "mail.E001",
+    # USERNAME_FIELD is unique per tenant, not globally — see docs/10 §N.6.
+    "auth.W004",
+]
 
 
 # =========================================================================== #

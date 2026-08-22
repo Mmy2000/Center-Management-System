@@ -6,10 +6,13 @@ from .models import Sequence
 
 
 def next_number(key: str) -> int:
-    """Reserve and return the next integer for ``key``.
+    """Reserve and return the next integer for ``key``, within this tenant.
 
     Must be called inside a transaction; the row lock serialises concurrent
     callers (a no-op on SQLite, real on PostgreSQL — see docs/04 §F.3).
+
+    One counter per center, so student codes and receipt numbers both restart at
+    1 for a new client — two centers legitimately holding R000001 at once.
     """
     with transaction.atomic():
         sequence, _created = Sequence.objects.get_or_create(key=key)

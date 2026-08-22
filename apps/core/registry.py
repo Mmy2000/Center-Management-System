@@ -10,27 +10,39 @@ Cache backend matters: LocMemCache is per-process, so a settings change made in
 one worker (or in a shell) is invisible to the others until the 300 s TTL
 expires. Production therefore runs Redis (see docs/07 §L.3), where the
 invalidation on save is shared by every worker.
+
+Every key is namespaced by tenant (docs/10 §N.7). This is not a nicety: a shared
+cache key would serve one center's fees to another, and no queryset filter would
+catch it. Reading another tenant's settings is possible only inside
+``tenant_context(other)``, which also gives that read the right cache key.
 """
 
 from typing import Any
 
 from django.core.cache import cache
 
+from apps.tenancy.context import require_tenant
+
 from . import policies
 from .policies import PolicySpec, spec_for
 
-CACHE_KEY = "core:settings:overrides"
+CACHE_KEY_PREFIX = "core:settings:"
 CACHE_TTL = 300
+
+
+def cache_key(tenant_id: int) -> str:
+    return f"{CACHE_KEY_PREFIX}{tenant_id}:overrides"
 
 
 class SettingsRegistry:
     def _overrides(self) -> dict[str, Any]:
-        data = cache.get(CACHE_KEY)
+        key = cache_key(require_tenant().pk)
+        data = cache.get(key)
         if data is None:
             from .models import Setting
 
             data = dict(Setting.objects.values_list("key", "value"))
-            cache.set(CACHE_KEY, data, CACHE_TTL)
+            cache.set(key, data, CACHE_TTL)
         return data
 
     def get(self, key: str) -> Any:
@@ -84,7 +96,7 @@ class SettingsRegistry:
         self.invalidate()
 
     def invalidate(self) -> None:
-        cache.delete(CACHE_KEY)
+        cache.delete(cache_key(require_tenant().pk))
 
 
 settings_registry = SettingsRegistry()

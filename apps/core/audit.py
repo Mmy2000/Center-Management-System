@@ -122,7 +122,12 @@ def record(
         content_type = ContentType.objects.get_for_model(instance.__class__)
         object_id = instance.pk
 
+    from apps.tenancy.context import current_tenant
+
     return AuditLog.objects.create(
+        # Read from context, never passed in: a management command with no
+        # tenant writes a null one rather than crashing (docs/10 §N.2).
+        tenant=current_tenant(),
         actor=actor if actor is not None else current_actor(),
         action=action,
         content_type=content_type,

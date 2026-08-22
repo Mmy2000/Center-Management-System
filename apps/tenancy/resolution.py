@@ -46,32 +46,37 @@ def cache_key(host: str) -> str:
 def resolve_host(host: str):
     """Return the ``Tenant`` for ``host``, or ``None``.
 
-    The cache stores the tenant's primary key rather than the instance: pickling
-    a model into the cache is how a stale ``plan`` or a stale ``status`` outlives
-    a suspension. One `get` by pk on a cached id is still cheap, and the tenant
-    row itself is cached separately under the same TTL.
+    The whole tenant instance is cached, not just its id, so a warm request
+    costs **zero** queries — principle 6 says the scan path gets six, and none
+    of them should go on plumbing. Staleness is handled by invalidation rather
+    than by a short TTL: saving a Tenant or a Domain drops the key (see
+    ``tenancy.signals``), so a suspension bites on the very next request.
+
+    Unpickling is defensive: a cached instance written before a schema change
+    would otherwise raise on every request until the TTL expired. A bad entry is
+    simply dropped and re-read.
     """
-    from .models import Domain, Tenant
+    from .models import Domain
 
     key = cache_key(host)
-    cached = cache.get(key)
+    try:
+        cached = cache.get(key)
+    except Exception:  # unpicklable payload from an older deploy
+        logger.warning("Dropping unreadable tenancy cache entry for %s", host)
+        cache.delete(key)
+        cached = None
 
     if cached == _MISS:
         return None
-
     if cached is not None:
-        tenant = Tenant.objects.filter(pk=cached).select_related("plan").first()
-        if tenant is not None:
-            return tenant
-        # The tenant was deleted while its host key lived on.
-        cache.delete(key)
+        return cached
 
     domain = Domain.objects.select_related("tenant", "tenant__plan").filter(host=host).first()
     if domain is None:
         cache.set(key, _MISS, NEGATIVE_CACHE_TTL)
         return None
 
-    cache.set(key, domain.tenant_id, CACHE_TTL)
+    cache.set(key, domain.tenant, CACHE_TTL)
     return domain.tenant
 
 

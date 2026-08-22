@@ -44,33 +44,10 @@ EXEMPT_MODELS = {
 }
 
 #: Models still waiting for their tenant column, mapped to the task that adds
-#: it. This is the Phase 14 checklist, kept in code rather than in a document so
-#: it cannot drift: each task deletes its own line, and when the dict is empty
-#: the warning disappears on its own.
-#:
-#: A model listed here reports ``tenancy.W001`` (a warning — the retrofit is
-#: known to be in progress). A model listed *nowhere* reports ``tenancy.E001``,
-#: which is the case that matters: somebody added a model and forgot.
-PENDING_MIGRATION = {
-    "core.setting": "TASK-095",
-    "core.sequence": "TASK-095",
-    "academics.educationalstage": "TASK-096",
-    "academics.grade": "TASK-096",
-    "academics.subject": "TASK-096",
-    "academics.gradesubject": "TASK-096",
-    "academics.instructor": "TASK-096",
-    "academics.group": "TASK-096",
-    "academics.groupschedule": "TASK-096",
-    "students.student": "TASK-097",
-    "students.studentgroupassignment": "TASK-097",
-    "cards.studentcard": "TASK-098",
-    "cards.cardassignment": "TASK-098",
-    "lessons.lesson": "TASK-099",
-    "attendance.attendance": "TASK-100",
-    "attendance.attendanceevent": "TASK-100",
-    "payments.monthlycharge": "TASK-101",
-    "payments.payment": "TASK-101",
-}
+#: it. This was the Phase 14 checklist, kept in code rather than in a document
+#: so it could not drift: each task deleted its own line. It is empty now, and
+#: staying empty is the point — a model listed nowhere reports ``tenancy.E001``.
+PENDING_MIGRATION: dict[str, str] = {}
 
 
 @register(Tags.models)

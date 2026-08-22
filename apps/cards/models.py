@@ -8,7 +8,12 @@ no-op for history.
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from apps.core.models import TimeStampedModel
+from apps.tenancy.base import (
+    AllTenantsManager,
+    TenantManager,
+    TenantOwnedModel,
+    TenantQuerySet,
+)
 
 
 class CardStatus(models.TextChoices):
@@ -28,7 +33,7 @@ class ReleaseReason(models.TextChoices):
     OTHER = "OTHER", _("أخرى")
 
 
-class StudentCardQuerySet(models.QuerySet):
+class StudentCardQuerySet(TenantQuerySet):
     def available(self):
         return self.filter(status=CardStatus.AVAILABLE)
 
@@ -36,8 +41,12 @@ class StudentCardQuerySet(models.QuerySet):
         return self.filter(status=CardStatus.ASSIGNED)
 
 
-class StudentCard(TimeStampedModel):
-    card_number = models.CharField(_("رقم البطاقة"), max_length=30, unique=True, db_index=True)
+class StudentCard(TenantOwnedModel):
+    card_number = models.CharField(_("رقم البطاقة"), max_length=30, db_index=True)
+    # Globally unique on purpose (docs/10 §N.5): the token is 64 random
+    # characters, so global uniqueness costs nothing and guarantees a scanned
+    # token can never resolve to two rows in two centers. The scan path still
+    # filters by tenant — this is a safety net, not the authorisation.
     qr_token = models.CharField(_("رمز QR"), max_length=64, unique=True, db_index=True)
     status = models.CharField(
         _("الحالة"),
@@ -69,14 +78,19 @@ class StudentCard(TimeStampedModel):
     )
     notes = models.TextField(_("ملاحظات"), blank=True)
 
-    objects = StudentCardQuerySet.as_manager()
+    objects = TenantManager.from_queryset(StudentCardQuerySet)()
+    all_tenants = AllTenantsManager.from_queryset(StudentCardQuerySet)()
 
     class Meta:
         verbose_name = _("بطاقة طالب")
         verbose_name_plural = _("بطاقات الطلاب")
         ordering = ["card_number"]
         constraints = [
-            # One active card per student.
+            models.UniqueConstraint(
+                fields=["tenant", "card_number"], name="uq_card_number_per_tenant"
+            ),
+            # One active card per student. Already tenant-scoped through
+            # `current_student`, which is tenant-owned.
             models.UniqueConstraint(
                 fields=["current_student"],
                 condition=models.Q(status="ASSIGNED"),
@@ -92,7 +106,9 @@ class StudentCard(TimeStampedModel):
             ),
         ]
         indexes = [
-            models.Index(fields=["status", "batch"]),
+            models.Index(fields=["tenant", "status", "batch"]),
+            # The scan path: tenant first, token second.
+            models.Index(fields=["tenant", "qr_token"]),
         ]
 
     def __str__(self):
@@ -110,7 +126,7 @@ class StudentCard(TimeStampedModel):
         return mask_token(self.qr_token)
 
 
-class CardAssignment(TimeStampedModel):
+class CardAssignment(TenantOwnedModel):
     """Append-only history: who held which card, when, and why it ended."""
 
     card = models.ForeignKey(
@@ -169,7 +185,7 @@ class CardAssignment(TimeStampedModel):
                 name="ck_card_assign_dates",
             ),
         ]
-        indexes = [models.Index(fields=["student", "-assigned_at"])]
+        indexes = [models.Index(fields=["tenant", "student", "-assigned_at"])]
 
     def __str__(self):
         return f"{self.card} → {self.student}"

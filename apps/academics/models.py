@@ -10,7 +10,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from apps.core.models import TimeStampedModel
+from apps.tenancy.base import TenantOwnedModel
 
 
 class Weekday(models.IntegerChoices):
@@ -36,10 +36,10 @@ class GroupStatus(models.TextChoices):
     CLOSED = "CLOSED", _("مغلقة")
 
 
-class EducationalStage(TimeStampedModel):
-    name = models.CharField(_("الاسم"), max_length=100, unique=True)
+class EducationalStage(TenantOwnedModel):
+    name = models.CharField(_("الاسم"), max_length=100, db_index=True)
     name_ar = models.CharField(_("الاسم بالعربية"), max_length=100, blank=True)
-    code = models.CharField(_("الكود"), max_length=20, unique=True)
+    code = models.CharField(_("الكود"), max_length=20, db_index=True)
     order = models.PositiveSmallIntegerField(_("الترتيب"), default=0)
     is_active = models.BooleanField(_("مفعّلة"), default=True)
 
@@ -47,12 +47,16 @@ class EducationalStage(TimeStampedModel):
         verbose_name = _("مرحلة دراسية")
         verbose_name_plural = _("المراحل الدراسية")
         ordering = ["order", "id"]
+        constraints = [
+            models.UniqueConstraint(fields=["tenant", "name"], name="uq_stage_name_per_tenant"),
+            models.UniqueConstraint(fields=["tenant", "code"], name="uq_stage_code_per_tenant"),
+        ]
 
     def __str__(self):
         return self.name_ar or self.name
 
 
-class Grade(TimeStampedModel):
+class Grade(TenantOwnedModel):
     stage = models.ForeignKey(
         EducationalStage,
         on_delete=models.PROTECT,
@@ -61,7 +65,7 @@ class Grade(TimeStampedModel):
     )
     name = models.CharField(_("الاسم"), max_length=100)
     name_ar = models.CharField(_("الاسم بالعربية"), max_length=100, blank=True)
-    code = models.CharField(_("الكود"), max_length=20, unique=True)
+    code = models.CharField(_("الكود"), max_length=20, db_index=True)
     order = models.PositiveSmallIntegerField(_("الترتيب"), default=0)
     is_active = models.BooleanField(_("مفعّل"), default=True)
 
@@ -70,18 +74,21 @@ class Grade(TimeStampedModel):
         verbose_name_plural = _("الصفوف الدراسية")
         ordering = ["stage__order", "order", "id"]
         constraints = [
+            # Already tenant-scoped through `stage`, which is tenant-owned:
+            # prefixing it with `tenant` would add a column and no guarantee.
             models.UniqueConstraint(fields=["stage", "name"], name="uq_grade_name_per_stage"),
+            models.UniqueConstraint(fields=["tenant", "code"], name="uq_grade_code_per_tenant"),
         ]
-        indexes = [models.Index(fields=["stage", "order"])]
+        indexes = [models.Index(fields=["tenant", "stage", "order"])]
 
     def __str__(self):
         return self.name_ar or self.name
 
 
-class Subject(TimeStampedModel):
-    name = models.CharField(_("الاسم"), max_length=100, unique=True)
+class Subject(TenantOwnedModel):
+    name = models.CharField(_("الاسم"), max_length=100, db_index=True)
     name_ar = models.CharField(_("الاسم بالعربية"), max_length=100, blank=True)
-    code = models.CharField(_("الكود"), max_length=20, unique=True)
+    code = models.CharField(_("الكود"), max_length=20, db_index=True)
     color = models.CharField(_("اللون"), max_length=7, default="#2b6cb0")
     is_active = models.BooleanField(_("مفعّلة"), default=True)
 
@@ -89,12 +96,16 @@ class Subject(TimeStampedModel):
         verbose_name = _("مادة")
         verbose_name_plural = _("المواد")
         ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(fields=["tenant", "name"], name="uq_subject_name_per_tenant"),
+            models.UniqueConstraint(fields=["tenant", "code"], name="uq_subject_code_per_tenant"),
+        ]
 
     def __str__(self):
         return self.name_ar or self.name
 
 
-class GradeSubject(TimeStampedModel):
+class GradeSubject(TenantOwnedModel):
     """A subject *offering*: this grade studies this subject, at this fee."""
 
     grade = models.ForeignKey(
@@ -123,7 +134,7 @@ class GradeSubject(TimeStampedModel):
                 name="ck_offering_fee_non_negative",
             ),
         ]
-        indexes = [models.Index(fields=["subject", "grade"])]
+        indexes = [models.Index(fields=["tenant", "subject", "grade"])]
 
     def __str__(self):
         return f"{self.subject} — {self.grade}"
@@ -133,7 +144,7 @@ class GradeSubject(TimeStampedModel):
         return self.grade.stage
 
 
-class Instructor(TimeStampedModel):
+class Instructor(TenantOwnedModel):
     user = models.OneToOneField(
         "accounts.User",
         on_delete=models.SET_NULL,
@@ -159,7 +170,7 @@ class Instructor(TimeStampedModel):
         return self.full_name
 
 
-class Group(TimeStampedModel):
+class Group(TenantOwnedModel):
     grade_subject = models.ForeignKey(
         GradeSubject,
         on_delete=models.PROTECT,
@@ -168,7 +179,7 @@ class Group(TimeStampedModel):
     )
     name = models.CharField(_("الاسم"), max_length=100)
     name_ar = models.CharField(_("الاسم بالعربية"), max_length=100, blank=True)
-    code = models.CharField(_("الكود"), max_length=30, unique=True)
+    code = models.CharField(_("الكود"), max_length=30, db_index=True)
     instructor = models.ForeignKey(
         Instructor,
         on_delete=models.PROTECT,
@@ -199,16 +210,18 @@ class Group(TimeStampedModel):
         verbose_name_plural = _("المجموعات")
         ordering = ["grade_subject__grade__order", "grade_subject__subject__name", "name"]
         constraints = [
+            # Already tenant-scoped through `grade_subject`.
             models.UniqueConstraint(
                 fields=["grade_subject", "name"], name="uq_group_name_per_offering"
             ),
+            models.UniqueConstraint(fields=["tenant", "code"], name="uq_group_code_per_tenant"),
             models.CheckConstraint(
                 condition=models.Q(monthly_fee__gte=0), name="ck_group_fee_non_negative"
             ),
         ]
         indexes = [
-            models.Index(fields=["grade_subject", "status"]),
-            models.Index(fields=["status"]),
+            models.Index(fields=["tenant", "grade_subject", "status"]),
+            models.Index(fields=["tenant", "status"]),
         ]
 
     def __str__(self):
@@ -232,7 +245,7 @@ class Group(TimeStampedModel):
         return self.status == GroupStatus.ACTIVE
 
 
-class GroupSchedule(TimeStampedModel):
+class GroupSchedule(TenantOwnedModel):
     """A recurring weekly slot; lessons are generated from these."""
 
     group = models.ForeignKey(

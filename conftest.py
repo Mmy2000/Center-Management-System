@@ -25,3 +25,50 @@ def admin_user_(user_factory):
     from apps.accounts.models import Role
 
     return user_factory(username="admin1", role=Role.SUPER_ADMIN, is_superuser=True, is_staff=True)
+
+
+@pytest.fixture(autouse=True)
+def default_tenant(request):
+    """Every database test runs inside one center, served at ``testserver``.
+
+    The suite predates tenancy: 562 tests call ``Student.objects...`` and
+    ``client.get("/students/")`` with no idea a tenant exists. Rather than
+    editing all of them, this fixture supplies the thing they now assume — a
+    tenant in context, and a Domain the test client's Host header resolves to.
+
+    That is also the honest shape of production: every request runs inside
+    exactly one tenant, and code that forgets it raises rather than guessing.
+
+    Tests that need *two* centers (the isolation suite) create their own and
+    switch contexts explicitly; ``apps/tenancy/conftest.py`` opts that package
+    out of this fixture entirely.
+    """
+    # `_django_db_helper` is what the `django_db` *marker* pulls in; `db` and
+    # `transactional_db` are what a test asks for by name. A test that uses none
+    # of them touches no database and needs no tenant.
+    wanted = [
+        name
+        for name in ("_django_db_helper", "transactional_db", "db")
+        if name in request.fixturenames
+    ]
+    if not wanted:
+        yield None
+        return
+    # Being *named* in fixturenames is not the same as being set up: request it
+    # explicitly, or the first ORM call below runs before the test database is.
+    request.getfixturevalue(wanted[0])
+
+    from apps.tenancy.constants import TenantStatus
+    from apps.tenancy.context import tenant_context
+    from apps.tenancy.models import Domain, Plan, Tenant
+
+    plan, _ = Plan.objects.get_or_create(
+        slug="test", defaults={"name": "Test plan", "is_public": False}
+    )
+    tenant = Tenant.objects.create(
+        slug="testcenter", name="سنتر الاختبار", status=TenantStatus.ACTIVE, plan=plan
+    )
+    Domain.objects.create(tenant=tenant, host="testserver", is_primary=True)
+
+    with tenant_context(tenant):
+        yield tenant

@@ -10,7 +10,12 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from apps.core.models import TimeStampedModel
+from apps.tenancy.base import (
+    AllTenantsManager,
+    TenantManager,
+    TenantOwnedModel,
+    TenantQuerySet,
+)
 
 
 class LessonStatus(models.TextChoices):
@@ -26,7 +31,7 @@ class WindowState(models.TextChoices):
     AFTER_CLOSE = "AFTER_CLOSE", _("التسجيل مغلق")
 
 
-class LessonQuerySet(models.QuerySet):
+class LessonQuerySet(TenantQuerySet):
     def with_related(self):
         return self.select_related(
             "group__grade_subject__subject",
@@ -42,7 +47,7 @@ class LessonQuerySet(models.QuerySet):
         return self.filter(lesson_date=day)
 
 
-class Lesson(TimeStampedModel):
+class Lesson(TenantOwnedModel):
     group = models.ForeignKey(
         "academics.Group",
         on_delete=models.PROTECT,
@@ -87,13 +92,15 @@ class Lesson(TimeStampedModel):
         related_name="lessons_created",
     )
 
-    objects = LessonQuerySet.as_manager()
+    objects = TenantManager.from_queryset(LessonQuerySet)()
+    all_tenants = AllTenantsManager.from_queryset(LessonQuerySet)()
 
     class Meta:
         verbose_name = _("حصة")
         verbose_name_plural = _("الحصص")
         ordering = ["-scheduled_start"]
         constraints = [
+            # Already tenant-scoped through `group`, which is tenant-owned.
             models.UniqueConstraint(
                 fields=["group", "scheduled_start"], name="uq_lesson_group_start"
             ),
@@ -107,9 +114,9 @@ class Lesson(TimeStampedModel):
             ),
         ]
         indexes = [
-            models.Index(fields=["group", "lesson_date"]),
-            models.Index(fields=["status", "scheduled_start"]),
-            models.Index(fields=["lesson_date", "status"]),
+            models.Index(fields=["tenant", "group", "lesson_date"]),
+            models.Index(fields=["tenant", "status", "scheduled_start"]),
+            models.Index(fields=["tenant", "lesson_date", "status"]),
         ]
         permissions = [
             ("open_lesson", _("فتح الحصة")),

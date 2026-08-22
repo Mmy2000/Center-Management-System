@@ -12,6 +12,8 @@ from functools import wraps
 from django.core.cache import cache
 from django.utils.translation import gettext as _
 
+from apps.tenancy.context import current_tenant_id
+
 from .audit import client_ip
 from .http import DomainError
 
@@ -19,7 +21,10 @@ from .http import DomainError
 def hit(scope: str, identity: str, *, limit: int, window: int) -> bool:
     """Register one hit. Returns True when the caller is still within budget."""
     bucket = int(time.time() // window)
-    key = f"rl:{scope}:{identity}:{bucket}"
+    # Namespaced by tenant: one center's traffic must never spend another
+    # center's budget, and a shared bucket would let either do it accidentally
+    # or on purpose (docs/10 §N.7).
+    key = f"rl:{current_tenant_id() or 0}:{scope}:{identity}:{bucket}"
     try:
         added = cache.add(key, 1, window + 1)
         count = 1 if added else cache.incr(key)

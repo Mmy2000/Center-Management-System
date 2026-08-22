@@ -85,9 +85,10 @@ def test_resolution_is_cached(django_assert_num_queries):
     cache.clear()
 
     resolve_host("alpha.testserver")  # warms it
-    # One query remains: the tenant row itself, by cached primary key. The
-    # Domain join — the part that would grow with the client list — is gone.
-    with django_assert_num_queries(1):
+    # Zero, not one: principle 6 gives the scan path six queries and none of
+    # them may go on plumbing. The whole tenant is cached, and correctness comes
+    # from invalidation on save rather than from a short TTL.
+    with django_assert_num_queries(0):
         resolve_host("alpha.testserver")
 
 
@@ -135,7 +136,7 @@ def test_cache_key_shape():
 @tenant_stack
 def test_known_host_resolves_and_serves():
     make_tenant("alpha", host="alpha.testserver")
-    response = Client().get("/healthz/", headers={"host": "alpha.testserver"})
+    response = Client().get("/readyz/", headers={"host": "alpha.testserver"})
     assert response.status_code == 200
 
 
@@ -144,14 +145,14 @@ def test_unknown_host_is_a_flat_404():
     """Never a redirect and never a 'no such center' page — both would confirm
     which hostnames exist, which is step one of enumerating the client list."""
     make_tenant("alpha", host="alpha.testserver")
-    response = Client().get("/healthz/", headers={"host": "nope.testserver"})
+    response = Client().get("/readyz/", headers={"host": "nope.testserver"})
     assert response.status_code == 404
 
 
 @tenant_stack
 def test_host_is_case_insensitive():
     make_tenant("alpha", host="alpha.testserver")
-    response = Client().get("/healthz/", headers={"host": "ALPHA.testserver"})
+    response = Client().get("/readyz/", headers={"host": "ALPHA.testserver"})
     assert response.status_code == 200
 
 
@@ -181,7 +182,7 @@ def test_request_carries_the_tenant():
 @tenant_stack
 def test_context_is_reset_after_the_response():
     make_tenant("alpha", host="alpha.testserver")
-    Client().get("/healthz/", headers={"host": "alpha.testserver"})
+    Client().get("/readyz/", headers={"host": "alpha.testserver"})
     assert current_tenant() is None
 
 
@@ -210,9 +211,9 @@ def test_context_is_reset_after_an_exception():
 def test_two_hosts_are_served_independently():
     make_two_tenants()
     client = Client()
-    assert client.get("/healthz/", headers={"host": "alpha.testserver"}).status_code == 200
+    assert client.get("/readyz/", headers={"host": "alpha.testserver"}).status_code == 200
     assert current_tenant() is None
-    assert client.get("/healthz/", headers={"host": "beta.testserver"}).status_code == 200
+    assert client.get("/readyz/", headers={"host": "beta.testserver"}).status_code == 200
     assert current_tenant() is None
 
 
@@ -248,7 +249,7 @@ def test_console_host_swaps_the_urlconf():
 
 @tenant_stack
 def test_console_host_needs_no_domain_row():
-    response = Client().get("/healthz/", headers={"host": "console.testserver"})
+    response = Client().get("/readyz/", headers={"host": "console.testserver"})
     assert response.status_code == 200
 
 
@@ -256,7 +257,7 @@ def test_console_host_needs_no_domain_row():
 def test_empty_console_host_disables_console_routing():
     """An unset CONSOLE_HOST must not accidentally match a blank Host header."""
     make_tenant("alpha", host="alpha.testserver")
-    assert Client().get("/healthz/", headers={"host": "console.testserver"}).status_code == 404
+    assert Client().get("/readyz/", headers={"host": "console.testserver"}).status_code == 404
 
 
 # --------------------------------------------------------------------------- #
@@ -277,7 +278,7 @@ def test_suspended_tenant_is_gated(status):
 @pytest.mark.parametrize("status", [TenantStatus.TRIAL, TenantStatus.ACTIVE, TenantStatus.PAST_DUE])
 def test_operational_statuses_are_not_gated(status):
     make_tenant("alpha", host="alpha.testserver", status=status)
-    response = Client().get("/healthz/", headers={"host": "alpha.testserver"})
+    response = Client().get("/readyz/", headers={"host": "alpha.testserver"})
     assert response.status_code == 200
 
 
@@ -285,7 +286,20 @@ def test_operational_statuses_are_not_gated(status):
 def test_health_checks_stay_reachable_while_suspended():
     """Monitoring must be able to tell 'suspended' from 'down'."""
     make_tenant("alpha", host="alpha.testserver", status=TenantStatus.SUSPENDED)
-    response = Client().get("/healthz/", headers={"host": "alpha.testserver"})
+    response = Client().get("/readyz/", headers={"host": "alpha.testserver"})
+    assert response.status_code == 200
+
+
+@tenant_stack
+def test_healthz_needs_no_tenant_at_all(django_assert_num_queries):
+    """A *process* check must not touch the database (docs/07 §L.6).
+
+    Resolving a tenant in front of it would make a database outage look like a
+    dead process, and an unknown Host header make a healthy one look dead.
+    ``/readyz/`` is the check that is supposed to fail when the DB is gone.
+    """
+    with django_assert_num_queries(0):
+        response = Client().get("/healthz/", headers={"host": "nobody.testserver"})
     assert response.status_code == 200
 
 

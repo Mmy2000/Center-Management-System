@@ -7,20 +7,27 @@ from django.utils.translation import gettext_lazy as _
 # Re-exported: `from apps.core.models import TimeStampedModel` is the import
 # every domain app already uses. The definition moved to core.base only to keep
 # core and tenancy from importing each other — see apps/core/base.py.
+from apps.tenancy.base import TenantOwnedModel
+
 from .base import TimeStampedModel  # noqa: F401
 
 
-class Setting(models.Model):
-    """A policy *override*.
+class Setting(TenantOwnedModel):
+    """A policy *override*, per center.
 
     Defaults live in :mod:`apps.core.policies`; only changed values are stored
     here. Metadata (label, type, group, bounds) belongs to the PolicySpec, not
     to the row, so the two can never drift.
+
+    ``key`` was the primary key before tenancy; it is now unique *within* a
+    tenant, which is what lets two centers hold different fees under the same
+    policy name. The registry's cache key is namespaced to match — a shared one
+    would serve one center's fees to another, and no queryset filter would catch
+    it (docs/10 §N.7).
     """
 
-    key = models.CharField(_("المفتاح"), max_length=100, primary_key=True)
+    key = models.CharField(_("المفتاح"), max_length=100, db_index=True)
     value = models.JSONField(_("القيمة"))
-    updated_at = models.DateTimeField(_("عُدّل في"), auto_now=True)
     updated_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -34,6 +41,9 @@ class Setting(models.Model):
         verbose_name = _("إعداد")
         verbose_name_plural = _("الإعدادات")
         ordering = ["key"]
+        constraints = [
+            models.UniqueConstraint(fields=["tenant", "key"], name="uq_setting_key_per_tenant"),
+        ]
 
     def __str__(self):
         return f"{self.key} = {self.value!r}"
@@ -80,8 +90,21 @@ class AuditAction(models.TextChoices):
 
 
 class AuditLog(models.Model):
-    """Append-only record of every sensitive mutation (docs/06 §I.1)."""
+    """Append-only record of every sensitive mutation (docs/06 §I.1).
 
+    Not a ``TenantOwnedModel``: ``tenant`` is nullable because a platform action
+    belongs to no center, and the console has to read rows across every tenant.
+    The center's own audit screen filters explicitly instead (TASK-102).
+    """
+
+    tenant = models.ForeignKey(
+        "tenancy.Tenant",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="audit_entries",
+        verbose_name=_("العميل"),
+    )
     actor = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -106,9 +129,10 @@ class AuditLog(models.Model):
         verbose_name_plural = _("سجلات التدقيق")
         ordering = ["-created_at"]
         indexes = [
-            models.Index(fields=["content_type", "object_id", "-created_at"]),
-            models.Index(fields=["action", "-created_at"]),
-            models.Index(fields=["actor", "-created_at"]),
+            models.Index(fields=["tenant", "-created_at"]),
+            models.Index(fields=["tenant", "content_type", "object_id", "-created_at"]),
+            models.Index(fields=["tenant", "action", "-created_at"]),
+            models.Index(fields=["tenant", "actor", "-created_at"]),
             models.Index(fields=["-created_at"]),
         ]
 
@@ -116,21 +140,26 @@ class AuditLog(models.Model):
         return f"{self.created_at:%Y-%m-%d %H:%M} {self.action} {self.object_repr}"
 
 
-class Sequence(models.Model):
+class Sequence(TenantOwnedModel):
     """Gapless-ish counter for human-facing codes (student codes, receipts).
 
     Incremented inside the caller's transaction with ``select_for_update`` so
     two concurrent creations can never take the same number; the unique index on
     the target column remains the final arbiter.
+
+    One counter per center: student codes and receipt numbers both restart at 1
+    for every new client, which is what a center expects of its own paperwork.
     """
 
-    key = models.CharField(_("المفتاح"), max_length=50, primary_key=True)
+    key = models.CharField(_("المفتاح"), max_length=50, db_index=True)
     next_value = models.PositiveIntegerField(_("القيمة التالية"), default=1)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = _("عدّاد")
         verbose_name_plural = _("العدّادات")
+        constraints = [
+            models.UniqueConstraint(fields=["tenant", "key"], name="uq_sequence_key_per_tenant"),
+        ]
 
     def __str__(self):
         return f"{self.key}={self.next_value}"
