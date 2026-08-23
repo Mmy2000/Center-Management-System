@@ -86,7 +86,36 @@ and never passes through the middleware, so tests that use it must supply the
 tenant themselves; and `cms/settings/test.py` now allows `.testserver`, which
 mirrors production's `.yourapp.com` so multi-host tests are possible at all.
 
-**Not started:** Phase 16 (console), 17 (hardening).
+**Phase 16 — done** (TASK-111 → 118). The platform console.
+
+Three bugs the tests caught, all of them the kind that only show up when the
+code actually runs:
+
+1. **The console URLconf was importing tenant views.** `cms/urls_console.py`
+   did `include("apps.core.urls")` for the health checks, which also mounted the
+   tenant-facing `/settings/` and `/audit/` pages on the console host — where
+   `/audit/` then shadowed the console's own. Including a whole app's URLs into
+   that file is exactly the leak the separate URLconf exists to prevent, so
+   routes now arrive one at a time and on purpose.
+
+2. **`Tenant.primary_host` ignored `prefetch_related`.** `self.domains.filter(...)`
+   builds a fresh queryset, so the client list fired one query per client — 21
+   queries for 20 clients. The property now honours the prefetch when one exists.
+
+3. **`branding` assumed a tenant.** It runs on every template render including
+   the console's, where there is no center to brand; it now falls back to the
+   catalogue defaults instead of raising.
+
+Also settled: the throwaway models that prove `TenantOwnedModel` (`Widget`,
+`Gadget`) register at *collection* time, so their tables must exist for the
+whole session — otherwise every sweep over `apps.get_models()` (export, purge,
+leak suite) hits a registered model with no table and fails in whichever
+unrelated test runs next. They live in `apps/tenancy/tests/models.py` with a
+session fixture in the **root** conftest, so `pytest apps/console` alone still
+finds them.
+
+**Not started:** Phase 17 (hardening: the URL leak sweep, RLS, wildcard TLS,
+per-tenant backups, runbook).
 
 ---
 

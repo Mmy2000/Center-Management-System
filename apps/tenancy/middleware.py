@@ -142,13 +142,74 @@ class TenantSessionGuardMiddleware:
         return None
 
     def _impersonation_matches(self, request, tenant) -> bool:
-        record = request.session.get("impersonation") or {}
+        from . import impersonation
+
+        record = impersonation.current(request)
         return bool(record) and record.get("tenant_id") == tenant.pk
 
     def _flush(self, request):
         from django.contrib.auth import logout
 
         logout(request)
+
+
+class ImpersonationGuardMiddleware:
+    """Keep an operator inside a client's account within their bounds (TASK-115).
+
+    Placed after the session guard, which is what let them in at all. This one
+    decides what they may *do*: read-only unless the entry said otherwise, and
+    never money or credentials in either mode (see
+    :mod:`apps.tenancy.impersonation` for why).
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        return self.get_response(request)
+
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        from . import impersonation
+
+        record = impersonation.current(request)
+        request.impersonation = record
+        if not record:
+            return None
+
+        reason = impersonation.blocks(request, record)
+        if reason is None:
+            return None
+
+        logger.warning(
+            "Impersonation refused (%s): operator=%s tenant=%s path=%s",
+            reason,
+            record.get("operator_id"),
+            record.get("tenant_slug"),
+            request.path,
+        )
+        return self._refuse(request, reason)
+
+    @staticmethod
+    def _refuse(request, reason):
+        from django.utils.translation import gettext as _
+
+        message = (
+            _("لا يمكن تنفيذ هذا الإجراء أثناء الدخول نيابةً عن العميل.")
+            if reason == "forbidden endpoint"
+            else _("جلسة قراءة فقط — لا يمكن التعديل.")
+        )
+        if request.headers.get("x-requested-with") == "XMLHttpRequest" or request.path.startswith(
+            "/api/"
+        ):
+            from apps.core.http import fail
+
+            return fail("ERR_IMPERSONATION_READ_ONLY", message, status=403)
+
+        from django.contrib import messages
+        from django.shortcuts import redirect
+
+        messages.error(request, message)
+        return redirect(request.META.get("HTTP_REFERER") or "/")
 
 
 class TenantStatusMiddleware:

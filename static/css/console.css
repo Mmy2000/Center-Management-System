@@ -1,0 +1,101 @@
+/* The platform console.
+   Deliberately not the tenant palette: an operator must be able to tell at a
+   glance whether they are looking at the platform or at a client's data. */
+
+:root {
+  --console-bg: #0f172a;
+  --console-bg-soft: #1e293b;
+  --console-ink: #e2e8f0;
+  --console-muted: #94a3b8;
+  --console-accent: #38bdf8;
+  --console-danger: #f87171;
+  --console-ok: #4ade80;
+}
+
+body {
+  background: #f1f5f9;
+  font-family: "Cairo", system-ui, -apple-system, sans-serif;
+  margin: 0;
+}
+
+.console-nav {
+  display: flex;
+  align-items: center;
+  gap: .25rem;
+  background: var(--console-bg);
+  color: var(--console-ink);
+  padding: 0 1rem;
+  min-height: 3.25rem;
+  flex-wrap: wrap;
+}
+
+.console-brand { text-decoration: none; margin-inline-end: 1rem; }
+.console-mark {
+  font-weight: 800;
+  letter-spacing: .12em;
+  font-size: .8rem;
+  color: var(--console-accent);
+}
+
+.console-link {
+  color: var(--console-muted);
+  text-decoration: none;
+  padding: .5rem .75rem;
+  border-radius: .375rem;
+  font-size: .9rem;
+}
+.console-link:hover { color: var(--console-ink); background: var(--console-bg-soft); }
+.console-link.active { color: var(--console-ink); background: var(--console-bg-soft); }
+
+.console-spacer { flex: 1 1 auto; }
+.console-user { color: var(--console-muted); font-size: .85rem; padding-inline: .5rem; }
+
+.console-main { max-width: 78rem; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.console-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: .75rem;
+  padding: 1rem 1.25rem;
+}
+
+.console-stat { display: flex; flex-direction: column; gap: .15rem; }
+.console-stat-value { font-size: 1.6rem; font-weight: 700; line-height: 1.1; }
+.console-stat-label { color: #64748b; font-size: .8rem; }
+
+.status-pill {
+  display: inline-block;
+  padding: .15rem .55rem;
+  border-radius: 999px;
+  font-size: .75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.status-TRIAL    { background: #e0f2fe; color: #075985; }
+.status-ACTIVE   { background: #dcfce7; color: #166534; }
+.status-PAST_DUE { background: #fef3c7; color: #92400e; }
+.status-SUSPENDED{ background: #fee2e2; color: #991b1b; }
+.status-ARCHIVED { background: #e2e8f0; color: #475569; }
+
+.quota-bar { height: .35rem; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
+.quota-bar > span { display: block; height: 100%; background: #38bdf8; }
+.quota-bar.high > span { background: #fbbf24; }
+.quota-bar.full > span { background: #f87171; }
+
+/* Feature toggles: plan default, override, effective — all three visible. */
+.feature-row { display: grid; grid-template-columns: 1fr auto auto; gap: .75rem; align-items: center; padding: .5rem 0; border-bottom: 1px solid #f1f5f9; }
+.feature-key { font-family: ui-monospace, monospace; font-size: .75rem; color: #94a3b8; }
+.feature-effective { font-size: .75rem; font-weight: 600; }
+.feature-effective.on { color: #16a34a; }
+.feature-effective.off { color: #dc2626; }
+
+.one-time-secret {
+  font-family: ui-monospace, monospace;
+  font-size: 1.25rem;
+  letter-spacing: .05em;
+  background: #0f172a;
+  color: #4ade80;
+  padding: .75rem 1rem;
+  border-radius: .5rem;
+  user-select: all;
+}

@@ -1,0 +1,27 @@
+{% extends "console/base.html" %}
+{% block title %}Client created{% endblock %}
+{% block content %}
+<div class="console-card" style="max-width:40rem">
+  <h1 class="h5 mb-3">{{ tenant.name }} is live</h1>
+
+  <dl class="row small mb-3">
+    <dt class="col-4">Site</dt>
+    <dd class="col-8"><code>{{ tenant.primary_host }}</code></dd>
+    <dt class="col-4">Plan</dt><dd class="col-8">{{ tenant.plan.name }}</dd>
+    <dt class="col-4">Status</dt>
+    <dd class="col-8"><span class="status-pill status-{{ tenant.status }}">{{ tenant.status }}</span></dd>
+    <dt class="col-4">Username</dt><dd class="col-8"><code>{{ owner.username }}</code></dd>
+  </dl>
+
+  <div class="alert alert-warning py-2 small">
+    This password is shown <strong>once</strong> and is not stored anywhere.
+    Copy it now; the owner must change it at first sign-in.
+  </div>
+  <div class="one-time-secret mb-3">{{ password }}</div>
+
+  <div class="d-flex gap-2">
+    <a class="btn btn-dark" href="{% url 'console:tenant_detail' tenant.pk %}">Open client</a>
+    <a class="btn btn-outline-secondary" href="{% url 'console:tenant_new' %}">Create another</a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% extends "console/base.html" %}
+{% block title %}{{ tenant.name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
+  <div>
+    <h1 class="h4 mb-1">{{ tenant.name }}</h1>
+    <div class="text-muted small">
+      <code>{{ tenant.slug }}</code> ·
+      <span class="status-pill status-{{ tenant.status }}">{{ tenant.status }}</span> ·
+      {{ tenant.plan.name }}
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    <a class="btn btn-sm btn-outline-dark" href="{% url 'console:tenant_features' tenant.pk %}">Features</a>
+    <a class="btn btn-sm btn-outline-dark" href="{% url 'console:tenant_export' tenant.pk %}">Export</a>
+  </div>
+</div>
+
+{% if not tenant.is_operational %}
+  <div class="alert alert-danger py-2 small">
+    Suspended{% if tenant.suspended_reason %}: {{ tenant.suspended_reason }}{% endif %}
+    — data is untouched and resuming restores it exactly.
+  </div>
+{% endif %}
+
+<div class="row g-3">
+  <div class="col-12 col-lg-7">
+    <div class="console-card mb-3">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h2 class="h6 mb-0">Usage against plan limits</h2>
+        <form method="post" action="{% url 'console:tenant_usage_refresh' tenant.pk %}">
+          {% csrf_token %}
+          <button class="btn btn-sm btn-outline-secondary" type="submit">Refresh</button>
+        </form>
+      </div>
+      <table class="table table-sm mb-0">
+        <tbody>
+          {% for resource, label, used, cap in limits %}
+            <tr>
+              <td class="small text-capitalize">{{ resource }}</td>
+              <td class="text-end small"><strong>{{ used }}</strong>{% if cap %} / {{ cap }}{% else %} <span class="text-muted">/ unlimited</span>{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if usage.computed_at %}
+        <div class="text-muted small mt-2">Counted {{ usage.computed_at|timesince }} ago.</div>
+      {% else %}
+        <div class="text-muted small mt-2">Never counted — press Refresh.</div>
+      {% endif %}
+    </div>
+
+    <div class="console-card mb-3">
+      <h2 class="h6 mb-2">Domains</h2>
+      <ul class="list-unstyled mb-0 small">
+        {% for domain in tenant.domains.all %}
+          <li>
+            <code>{{ domain.host }}</code>
+            {% if domain.is_primary %}<span class="badge text-bg-secondary">primary</span>{% endif %}
+            {% if domain.is_custom %}<span class="badge text-bg-light">custom</span>{% endif %}
+            {% if domain.is_custom and not domain.is_verified %}<span class="badge text-bg-warning">unverified</span>{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="console-card">
+      <h2 class="h6 mb-2">Platform activity</h2>
+      <table class="table table-sm mb-0">
+        <tbody>
+          {% for entry in timeline %}
+            <tr>
+              <td class="text-muted small" style="width:10rem">{{ entry.created_at|date:"Y-m-d H:i" }}</td>
+              <td class="small">{{ entry.get_action_display }}{% if entry.reason %} — <span class="text-muted">{{ entry.reason }}</span>{% endif %}</td>
+              <td class="text-muted small">{{ entry.actor.display_name|default:"—" }}</td>
+            </tr>
+          {% empty %}<tr><td class="text-muted small">Nothing yet.</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5">
+    <div class="console-card mb-3">
+      <h2 class="h6 mb-2">Owner</h2>
+      <dl class="row small mb-0">
+        <dt class="col-4">Name</dt><dd class="col-8">{{ tenant.owner_name|default:"—" }}</dd>
+        <dt class="col-4">Email</dt><dd class="col-8">{{ tenant.owner_email|default:"—" }}</dd>
+        <dt class="col-4">Phone</dt><dd class="col-8">{{ tenant.owner_phone|default:"—" }}</dd>
+        <dt class="col-4">Trial ends</dt><dd class="col-8">{{ tenant.trial_ends_at|date:"Y-m-d"|default:"—" }}</dd>
+        <dt class="col-4">Renews</dt><dd class="col-8">{{ tenant.expires_at|date:"Y-m-d"|default:"—" }}</dd>
+      </dl>
+    </div>
+
+    <div class="console-card mb-3">
+      <h2 class="h6 mb-2">Plan</h2>
+      <form method="post" action="{% url 'console:tenant_plan' tenant.pk %}" class="d-flex gap-2">
+        {% csrf_token %}
+        <select class="form-select form-select-sm" name="plan">
+          {% for plan in plans %}
+            <option value="{{ plan.pk }}" {% if plan.pk == tenant.plan_id %}selected{% endif %}>{{ plan.name }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn btn-sm btn-dark" type="submit">Change</button>
+      </form>
+    </div>
+
+    <div class="console-card mb-3">
+      <h2 class="h6 mb-2">Enter this client's account</h2>
+      <p class="text-muted small">
+        Read-only unless you say otherwise. Collecting money, issuing refunds and
+        changing credentials are refused in both modes, and the client's own
+        audit log records that you acted on their behalf.
+      </p>
+      <form method="post" action="{% url 'console:tenant_enter' tenant.pk %}">
+        {% csrf_token %}
+        <select class="form-select form-select-sm mb-2" name="mode">
+          <option value="read">Read only</option>
+          <option value="write">Read and write</option>
+        </select>
+        <textarea class="form-control form-control-sm mb-2" name="reason" rows="2"
+                  placeholder="Why are you entering this account?"></textarea>
+        <button class="btn btn-sm btn-outline-dark w-100" type="submit"
+                {% if not tenant.is_operational %}disabled{% endif %}>Enter</button>
+      </form>
+    </div>
+
+    <div class="console-card">
+      <h2 class="h6 mb-2">Lifecycle</h2>
+      <form method="post" action="{% url 'console:tenant_status' tenant.pk %}">
+        {% csrf_token %}
+        <textarea class="form-control form-control-sm mb-2" name="reason" rows="2"
+                  placeholder="Reason (required to suspend or archive)"></textarea>
+        <div class="d-flex gap-2 flex-wrap">
+          {% if tenant.is_operational %}
+            <button class="btn btn-sm btn-warning" name="action" value="suspend" type="submit">Suspend</button>
+          {% else %}
+            <button class="btn btn-sm btn-success" name="action" value="resume" type="submit">Resume</button>
+          {% endif %}
+          <button class="btn btn-sm btn-outline-danger" name="action" value="archive" type="submit">Archive</button>
+        </div>
+      </form>
+
+      <hr>
+      <h3 class="h6 mb-2 text-danger">Delete</h3>
+      <p class="text-muted small mb-2">
+        Archives now and schedules a purge after {{ tenant.plan.retention_days }} days.
+        Export first — this is the only copy they get.
+      </p>
+      <form method="post" action="{% url 'console:tenant_delete' tenant.pk %}">
+        {% csrf_token %}
+        <input class="form-control form-control-sm mb-2" name="confirm_slug"
+               placeholder="Type &quot;{{ tenant.slug }}&quot; to confirm">
+        <textarea class="form-control form-control-sm mb-2" name="reason" rows="2" placeholder="Reason"></textarea>
+        <button class="btn btn-sm btn-outline-danger w-100" type="submit">Archive and schedule purge</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

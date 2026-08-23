@@ -1,0 +1,105 @@
+{% extends "console/base.html" %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<h1 class="h4 mb-3">Overview</h1>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="console-card console-stat">
+      <span class="console-stat-value">{{ total_tenants }}</span>
+      <span class="console-stat-label">clients</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="console-card console-stat">
+      <span class="console-stat-value">{{ totals.students|default:0 }}</span>
+      <span class="console-stat-label">students across all clients</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="console-card console-stat">
+      <span class="console-stat-value">{{ totals.scans|default:0 }}</span>
+      <span class="console-stat-label">scans, last 30 days</span>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="console-card console-stat">
+      <span class="console-stat-value">{{ new_this_month }}</span>
+      <span class="console-stat-label">new this month</span>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-lg-4">
+    <div class="console-card h-100">
+      <h2 class="h6 mb-3">By status</h2>
+      {% for value, label, count in status_rows %}
+        <div class="d-flex justify-content-between align-items-center py-1">
+          <a class="text-decoration-none" href="{% url 'console:tenant_list' %}?status={{ value }}">
+            <span class="status-pill status-{{ value }}">{{ label }}</span>
+          </a>
+          <strong>{{ count }}</strong>
+        </div>
+      {% endfor %}
+      <a class="btn btn-sm btn-dark w-100 mt-3" href="{% url 'console:tenant_new' %}">New client</a>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div class="console-card h-100">
+      <h2 class="h6 mb-3">Expiring in 30 days</h2>
+      {% for tenant in expiring %}
+        <div class="d-flex justify-content-between py-1 small">
+          <a href="{% url 'console:tenant_detail' tenant.pk %}">{{ tenant.name }}</a>
+          <span class="text-muted">{{ tenant.expires_at|date:"Y-m-d" }}</span>
+        </div>
+      {% empty %}<p class="text-muted small mb-0">Nothing expiring.</p>{% endfor %}
+
+      {% if trials_ending %}
+        <h3 class="h6 mt-3 mb-2">Trials ending</h3>
+        {% for tenant in trials_ending %}
+          <div class="d-flex justify-content-between py-1 small">
+            <a href="{% url 'console:tenant_detail' tenant.pk %}">{{ tenant.name }}</a>
+            <span class="text-muted">{{ tenant.trial_ends_at|date:"Y-m-d" }}</span>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-4">
+    <div class="console-card h-100">
+      <h2 class="h6 mb-3">Near a plan limit</h2>
+      {% for tenant in over_quota %}
+        <div class="d-flex justify-content-between py-1 small">
+          <a href="{% url 'console:tenant_detail' tenant.pk %}">{{ tenant.name }}</a>
+          <span class="text-muted">{{ tenant.plan.name }}</span>
+        </div>
+      {% empty %}<p class="text-muted small mb-0">Everyone has headroom.</p>{% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="console-card mt-3">
+  <h2 class="h6 mb-3">Recent platform activity</h2>
+  <div class="table-responsive">
+    <table class="table table-sm align-middle mb-0">
+      <tbody>
+        {% for entry in recent_audit %}
+          <tr>
+            <td class="text-muted small" style="width:11rem">{{ entry.created_at|date:"Y-m-d H:i" }}</td>
+            <td class="small">{{ entry.get_action_display }}</td>
+            <td class="small">
+              {% if entry.tenant %}<a href="{% url 'console:tenant_detail' entry.tenant.pk %}">{{ entry.tenant.name }}</a>{% else %}—{% endif %}
+            </td>
+            <td class="text-muted small">{{ entry.actor.display_name|default:"—" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td class="text-muted small">Nothing yet.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

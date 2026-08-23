@@ -1,0 +1,17 @@
+{% load i18n %}
+{# A red bar on every page while an operator is inside a client's account (docs/10 §N.10). Impossible to miss and always offering a way out — an invisible impersonation is the version that loses a client's trust. #}
+{% if request.impersonation %}
+  <div class="alert alert-danger d-flex align-items-center justify-content-between gap-2 mb-3"
+       role="alert" style="border-inline-start: .35rem solid #991b1b;">
+    <div class="small">
+      <strong>{% translate "دخول نيابةً عن العميل" %}</strong> —
+      {{ request.impersonation.operator_name }}
+      {% if request.impersonation.mode == "write" %}
+        ({% translate "قراءة وتعديل" %})
+      {% else %}
+        ({% translate "قراءة فقط" %})
+      {% endif %}
+    </div>
+    <a class="btn btn-sm btn-outline-light" href="{% url 'accounts:logout' %}">{% translate "إنهاء" %}</a>
+  </div>
+{% endif %}

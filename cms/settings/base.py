@@ -23,6 +23,7 @@ env = environ.Env(
     TIME_ZONE=(str, "Africa/Cairo"),
     LANGUAGE_CODE=(str, "ar"),
     CONSOLE_HOST=(str, ""),
+    TENANT_BASE_DOMAIN=(str, "localhost"),
 )
 # Optional: dev uses it, and cms.settings.pythonanywhere deliberately does not.
 # Reading a missing file logs a warning that reads like an error in a host's log.
@@ -54,6 +55,7 @@ LOCAL_APPS = [
     # Must precede every app that will carry a `tenant` FK. `core` stays first:
     # `tenancy.base` extends `core.base.TimeStampedModel`.
     "apps.tenancy",
+    "apps.console",
     "apps.accounts",
     "apps.academics",
     "apps.students",
@@ -78,6 +80,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "apps.tenancy.middleware.TenantSessionGuardMiddleware",
+    "apps.tenancy.middleware.ImpersonationGuardMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apps.tenancy.middleware.TenantStatusMiddleware",
@@ -93,6 +96,10 @@ MIDDLEWARE = [
 # tenant host cannot route to it at all. Empty disables console routing.
 CONSOLE_HOST = env("CONSOLE_HOST")
 CONSOLE_URLCONF = "cms.urls_console"
+
+# The suffix every client's subdomain hangs off: <slug>.TENANT_BASE_DOMAIN is
+# the primary host the provisioning wizard creates (docs/10 §N.11).
+TENANT_BASE_DOMAIN = env("TENANT_BASE_DOMAIN")
 
 # Deliberately unset (None): each subdomain then gets its own session cookie, so
 # a session simply cannot travel from one center to another. Setting this to

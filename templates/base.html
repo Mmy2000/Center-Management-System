@@ -35,6 +35,7 @@
   <div class="app-main">
     {% include "partials/_topbar.html" %}
     <main class="app-content">
+      {% include "partials/_impersonation_banner.html" %}
       {% include "partials/_subscription_banner.html" %}
       {% block breadcrumb %}{% endblock %}
       <div id="messages">

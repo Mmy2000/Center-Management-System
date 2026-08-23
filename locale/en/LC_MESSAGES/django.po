@@ -213,7 +213,7 @@ msgstr "Waive charges"
 msgid "إعفاء من رسوم"
 msgstr "Charge waived"
 
-#: templates/base.html:44 templates/partials/_modal.html:8
+#: templates/base.html:45 templates/partials/_modal.html:8
 msgid "إغلاق"
 msgstr "Close"
 
@@ -281,8 +281,9 @@ msgstr "Create client"
 msgid "إنشاء مستخدم"
 msgstr "User created"
 
-#: templates/lessons/detail.html:27 templates/students/detail.html:337
-#: templates/students/detail.html:401
+#: templates/lessons/detail.html:27
+#: templates/partials/_impersonation_banner.html:15
+#: templates/students/detail.html:337 templates/students/detail.html:401
 msgid "إنهاء"
 msgstr "Complete"
 
@@ -364,11 +365,11 @@ msgstr "Card replaced"
 msgid "استثنائي"
 msgstr "Exceptional"
 
-#: apps/tenancy/models.py:362
+#: apps/tenancy/models.py:371
 msgid "استخدام العملاء"
 msgstr "Client usage"
 
-#: apps/tenancy/models.py:361
+#: apps/tenancy/models.py:370
 msgid "استخدام عميل"
 msgstr "Client usage"
 
@@ -517,7 +518,7 @@ msgid "الإبلاغ عن فقد بطاقة"
 msgstr "Card reported lost"
 
 #: templates/core/audit_log.html:15 apps/core/models.py:116
-#: apps/tenancy/models.py:397
+#: apps/tenancy/models.py:406
 msgid "الإجراء"
 msgstr "Action"
 
@@ -709,7 +710,7 @@ msgid "التسجيل مفتوح"
 msgstr "Check-in open"
 
 #: templates/core/audit_log.html:17 apps/core/models.py:121
-#: apps/tenancy/models.py:399
+#: apps/tenancy/models.py:408
 msgid "التغييرات"
 msgstr "Changes"
 
@@ -801,7 +802,7 @@ msgstr "Attendance in an alternative group"
 msgid "الحضور:"
 msgstr "Check-in:"
 
-#: apps/tenancy/models.py:93 apps/tenancy/models.py:315
+#: apps/tenancy/models.py:93 apps/tenancy/models.py:324
 msgid "الخاصية"
 msgstr "Feature"
 
@@ -877,7 +878,7 @@ msgstr "Previous"
 
 #: templates/core/audit_log.html:18 templates/students/detail.html:101
 #: templates/students/detail.html:398 apps/core/models.py:122
-#: apps/tenancy/models.py:400
+#: apps/tenancy/models.py:409
 msgid "السبب"
 msgstr "Reason"
 
@@ -1047,7 +1048,7 @@ msgid "العملاء والاشتراكات"
 msgstr "Clients and subscriptions"
 
 #: apps/accounts/models.py:47 apps/core/models.py:106
-#: apps/tenancy/models.py:270 apps/tenancy/models.py:395
+#: apps/tenancy/models.py:279 apps/tenancy/models.py:404
 msgid "العميل"
 msgstr "Client"
 
@@ -1320,7 +1321,7 @@ msgid "المستحق"
 msgstr "Due"
 
 #: templates/core/audit_log.html:14 apps/core/models.py:114
-#: apps/tenancy/models.py:387
+#: apps/tenancy/models.py:396
 msgid "المستخدم"
 msgstr "User"
 
@@ -1404,7 +1405,7 @@ msgstr "Subjects"
 msgid "المواعيد الأسبوعية"
 msgstr "Weekly schedule"
 
-#: apps/tenancy/models.py:272
+#: apps/tenancy/models.py:281
 msgid "النطاق"
 msgstr "Domain"
 
@@ -1412,11 +1413,11 @@ msgstr "Domain"
 msgid "النطاق أطول من سنة"
 msgstr "The range is longer than a year"
 
-#: apps/tenancy/models.py:273
+#: apps/tenancy/models.py:282
 msgid "النطاق الأساسي"
 msgstr "Primary domain"
 
-#: apps/tenancy/models.py:280
+#: apps/tenancy/models.py:289
 msgid "النطاقات"
 msgstr "Domains"
 
@@ -1470,7 +1471,7 @@ msgid "الواجهة الإنجليزية"
 msgstr "English interface"
 
 #: apps/core/models.py:120 apps/tenancy/models.py:59
-#: apps/tenancy/models.py:398
+#: apps/tenancy/models.py:407
 msgid "الوصف"
 msgstr "Description"
 
@@ -1703,7 +1704,7 @@ msgstr "Enrolled on"
 msgid "تاريخ البدء"
 msgstr "Start date"
 
-#: apps/tenancy/models.py:275
+#: apps/tenancy/models.py:284
 msgid "تاريخ التحقق"
 msgstr "Verified on"
 
@@ -2251,6 +2252,10 @@ msgstr "New"
 msgid "جزئي"
 msgstr "Partial"
 
+#: apps/tenancy/middleware.py:199
+msgid "جلسة قراءة فقط — لا يمكن التعديل."
+msgstr "Read-only session — changes are not allowed."
+
 #: templates/dashboard/home.html:27 apps/attendance/models.py:34
 #: apps/attendance/views.py:38 apps/lessons/views.py:31
 #: apps/reports/registry.py:112 apps/reports/registry.py:133
@@ -2431,7 +2436,7 @@ msgstr "Outside the window — recorded as exceptional"
 msgid "خاصية باقة"
 msgstr "Plan feature"
 
-#: apps/tenancy/models.py:330
+#: apps/tenancy/models.py:339
 msgid "خاصية عميل"
 msgstr "Client feature"
 
@@ -2443,7 +2448,7 @@ msgstr "Unknown feature: %(v)s"
 msgid "خصائص الباقات"
 msgstr "Plan features"
 
-#: apps/tenancy/models.py:331
+#: apps/tenancy/models.py:340
 msgid "خصائص العملاء"
 msgstr "Client features"
 
@@ -2462,6 +2467,10 @@ msgstr "Dark"
 #: templates/accounts/login.html:95
 msgid "دخول"
 msgstr "Sign in"
+
+#: templates/partials/_impersonation_banner.html:7
+msgid "دخول نيابةً عن العميل"
+msgstr "Acting on behalf of this client"
 
 #: templates/accounts/login.html:29
 msgid "دفعات جزئية ومتعددة لكل مادة، مع إيصال مطبوع لكل عملية."
@@ -2645,7 +2654,7 @@ msgstr "This attendance record is cancelled — reinstate it first"
 msgid "سجل الرسوم —"
 msgstr "Charge ledger —"
 
-#: apps/tenancy/models.py:406
+#: apps/tenancy/models.py:415
 msgid "سجل المنصة"
 msgstr "Platform log entry"
 
@@ -2669,7 +2678,7 @@ msgstr "Audit log"
 msgid "سجلات الحضور"
 msgstr "Attendance records"
 
-#: apps/tenancy/models.py:407
+#: apps/tenancy/models.py:416
 msgid "سجلات المنصة"
 msgstr "Platform logs"
 
@@ -2973,6 +2982,14 @@ msgstr "Before check-in opens"
 msgid "قبول بطاقات بدون بادئة (بطاقات مطبوعة مسبقًا)"
 msgstr "Accept tokens without a prefix (pre-printed cards)"
 
+#: templates/partials/_impersonation_banner.html:12
+msgid "قراءة فقط"
+msgstr "Read only"
+
+#: templates/partials/_impersonation_banner.html:10
+msgid "قراءة وتعديل"
+msgstr "Read and write"
+
 #: apps/payments/services.py:242
 msgid "قيمة الاسترداد أكبر من المحصّل"
 msgstr "The refund exceeds the amount collected"
@@ -3216,6 +3233,10 @@ msgstr "The offering cannot change once the group has lessons."
 #: apps/tenancy/models.py:172
 msgid "لا يمكن تغيير معرّف العميل بعد إنشائه."
 msgstr "A client's identifier cannot be changed after creation."
+
+#: apps/tenancy/middleware.py:197
+msgid "لا يمكن تنفيذ هذا الإجراء أثناء الدخول نيابةً عن العميل."
+msgstr "This action cannot be performed while acting on behalf of a client."
 
 #: apps/payments/models.py:281
 msgid "لا يمكن حذف حركة مالية."
@@ -3600,7 +3621,7 @@ msgstr "Notes"
 msgid "ملاحظات داخلية"
 msgstr "Internal notes"
 
-#: apps/tenancy/models.py:319
+#: apps/tenancy/models.py:328
 msgid "ملاحظة"
 msgstr "Note"
 
@@ -3722,7 +3743,7 @@ msgstr "Active"
 msgid "نشطة"
 msgstr "Active"
 
-#: apps/tenancy/models.py:279
+#: apps/tenancy/models.py:288
 msgid "نطاق"
 msgstr "Domain"
 
@@ -3730,7 +3751,7 @@ msgstr "Domain"
 msgid "نطاق التواريخ غير صحيح"
 msgstr "Invalid date range"
 
-#: apps/tenancy/models.py:274
+#: apps/tenancy/models.py:283
 msgid "نطاق خاص بالعميل"
 msgstr "Custom domain"
 

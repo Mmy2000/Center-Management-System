@@ -72,3 +72,30 @@ def default_tenant(request):
 
     with tenant_context(tenant):
         yield tenant
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _tenancy_test_tables(django_db_setup, django_db_blocker):
+    """Real tables for ``apps/tenancy/tests/models.py``, for the whole session.
+
+    Those two throwaway models prove ``TenantOwnedModel`` itself. They are
+    registered the moment pytest *collects* the tenancy tests — before any test
+    runs — so their tables have to exist for the whole session too. Anything
+    narrower leaves a registered tenant-owned model with no table behind it, and
+    every sweep over ``apps.get_models()`` (the export, the purge command, the
+    leak suite) then fails in whichever unrelated test happens to run next.
+
+    Lives here rather than in ``apps/tenancy/conftest.py`` for exactly that
+    reason: running only ``pytest apps/console`` must still find the tables.
+    """
+    from django.db import connection
+
+    from apps.tenancy.tests.models import Gadget, Widget
+
+    with django_db_blocker.unblock(), connection.schema_editor() as editor:
+        editor.create_model(Widget)
+        editor.create_model(Gadget)
+    yield
+    with django_db_blocker.unblock(), connection.schema_editor() as editor:
+        editor.delete_model(Gadget)
+        editor.delete_model(Widget)

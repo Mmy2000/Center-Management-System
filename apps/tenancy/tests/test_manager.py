@@ -1,54 +1,18 @@
 """TASK-093 — the default manager filters, and nothing else has to.
 
-Phase 14 puts twenty real models behind ``TenantOwnedModel``. These two throwaway
-models exist so the base class itself is proven *before* any of them depend on
-it: the manager, the write guards and the cross-tenant FK check are all tested
-against a table this module creates and drops itself.
+Phase 14 puts twenty real models behind ``TenantOwnedModel``. The two throwaway
+models in ``tests/models.py`` exist so the base class itself is proven *before*
+any of them depend on it: the manager, the write guards and the cross-tenant FK
+check are all tested against models that carry nothing else.
 """
 
 import pytest
-from django.db import connection, models
 
-from apps.tenancy.base import TenantOwnedModel
 from apps.tenancy.context import tenant_context
 from apps.tenancy.exceptions import CrossTenantWrite, TenantContextRequired
 
 from .factories import make_two_tenants
-
-
-class Widget(TenantOwnedModel):
-    """A minimal tenant-owned model."""
-
-    name = models.CharField(max_length=50)
-
-    class Meta:
-        app_label = "tenancy"
-
-
-class Gadget(TenantOwnedModel):
-    """Carries a FK to another tenant-owned model, so the cross-tenant FK guard
-    has something to guard. Declares its own Meta on purpose — a subclass must
-    not have to remember any manager plumbing."""
-
-    widget = models.ForeignKey(Widget, on_delete=models.CASCADE, related_name="gadgets")
-    label = models.CharField(max_length=50)
-
-    class Meta:
-        app_label = "tenancy"
-        verbose_name = "gadget"
-
-
-@pytest.fixture(scope="module", autouse=True)
-def _tables(django_db_setup, django_db_blocker):
-    with django_db_blocker.unblock():
-        with connection.schema_editor() as editor:
-            editor.create_model(Widget)
-            editor.create_model(Gadget)
-        yield
-        with connection.schema_editor() as editor:
-            editor.delete_model(Gadget)
-            editor.delete_model(Widget)
-
+from .models import Gadget, Widget
 
 pytestmark = pytest.mark.django_db
 
@@ -167,9 +131,8 @@ def test_save_with_no_tenant_anywhere_raises(pair):
 
 def test_save_refuses_a_tenant_mismatch(pair):
     alpha, beta = pair
-    with tenant_context(alpha):
-        with pytest.raises(CrossTenantWrite):
-            Widget(name="w", tenant=beta).save()
+    with tenant_context(alpha), pytest.raises(CrossTenantWrite):
+        Widget(name="w", tenant=beta).save()
 
 
 def test_cross_tenant_fk_is_rejected(pair):
@@ -177,9 +140,8 @@ def test_cross_tenant_fk_is_rejected(pair):
     alpha, beta = pair
     with tenant_context(beta):
         theirs = Widget.objects.create(name="theirs")
-    with tenant_context(alpha):
-        with pytest.raises(CrossTenantWrite):
-            Gadget.objects.create(widget=theirs, label="smuggled")
+    with tenant_context(alpha), pytest.raises(CrossTenantWrite):
+        Gadget.objects.create(widget=theirs, label="smuggled")
 
 
 def test_same_tenant_fk_is_fine(pair):
@@ -205,7 +167,7 @@ def test_bulk_create_stamps_every_row(pair):
     the card importer and the lesson generator both go through it."""
     alpha, _beta = pair
     with tenant_context(alpha):
-        Widget.objects.bulk_create([Widget(name=f"w{i}") for i in range(50)])
+        Widget.objects.bulk_create([Widget(name=f"w{index}") for index in range(50)])
         assert Widget.objects.count() == 50
     assert Widget.all_tenants.filter(tenant=alpha).count() == 50
 
@@ -217,9 +179,8 @@ def test_bulk_create_without_context_raises(pair):
 
 def test_bulk_create_refuses_a_foreign_row(pair):
     alpha, beta = pair
-    with tenant_context(alpha):
-        with pytest.raises(CrossTenantWrite):
-            Widget.objects.bulk_create([Widget(name="w", tenant=beta)])
+    with tenant_context(alpha), pytest.raises(CrossTenantWrite):
+        Widget.objects.bulk_create([Widget(name="w", tenant=beta)])
 
 
 def test_tenant_field_is_not_editable():

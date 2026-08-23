@@ -1,0 +1,46 @@
+{% load static %}<!doctype html>
+{# Visually distinct from the tenant UI on purpose: an operator must never be in doubt about whether they are looking at the platform or at a client. LTR, dark chrome, no center branding. #}
+<html lang="en" dir="ltr" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Console{% endblock %} · Platform</title>
+  <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/console.css' %}">
+</head>
+<body>
+{% if user.is_authenticated and user.is_platform_staff %}
+<nav class="console-nav">
+  <a class="console-brand" href="{% url 'console:dashboard' %}">
+    <span class="console-mark">PLATFORM</span>
+  </a>
+  <a class="console-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+     href="{% url 'console:dashboard' %}">Overview</a>
+  <a class="console-link {% if 'tenant' in request.resolver_match.url_name %}active{% endif %}"
+     href="{% url 'console:tenant_list' %}">Clients</a>
+  <a class="console-link {% if request.resolver_match.url_name == 'plan_list' %}active{% endif %}"
+     href="{% url 'console:plan_list' %}">Plans</a>
+  <a class="console-link {% if request.resolver_match.url_name == 'audit' %}active{% endif %}"
+     href="{% url 'console:audit' %}">Audit</a>
+  <span class="console-spacer"></span>
+  <span class="console-user">{{ user.display_name }}</span>
+  <a class="console-link" href="{% url 'console:logout' %}">Sign out</a>
+</nav>
+{% endif %}
+
+<main class="console-main">
+  {% if messages %}
+    <div class="mb-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} py-2">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+
+<script src="{% static 'vendor/bootstrap.bundle.min.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

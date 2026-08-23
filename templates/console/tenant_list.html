@@ -1,0 +1,100 @@
+{% extends "console/base.html" %}
+{% block title %}Clients{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">Clients</h1>
+  <a class="btn btn-dark" href="{% url 'console:tenant_new' %}">New client</a>
+</div>
+
+<form class="console-card mb-3" method="get">
+  <div class="row g-2 align-items-end">
+    <div class="col-12 col-lg-4">
+      <label class="form-label small" for="f-q">Search</label>
+      <input class="form-control form-control-sm" id="f-q" name="q" type="search"
+             value="{{ filters.q|default:'' }}" placeholder="name, slug, domain or owner email">
+    </div>
+    <div class="col-6 col-lg-2">
+      <label class="form-label small" for="f-status">Status</label>
+      <select class="form-select form-select-sm" id="f-status" name="status">
+        <option value="">All</option>
+        {% for value, label in status_choices %}
+          <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ value }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label class="form-label small" for="f-plan">Plan</label>
+      <select class="form-select form-select-sm" id="f-plan" name="plan">
+        <option value="">All</option>
+        {% for plan in plans %}
+          <option value="{{ plan.slug }}" {% if filters.plan == plan.slug %}selected{% endif %}>{{ plan.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="f-expiring" name="expiring" value="1"
+               {% if filters.expiring %}checked{% endif %}>
+        <label class="form-check-label small" for="f-expiring">Expiring soon</label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="f-quota" name="over_quota" value="1"
+               {% if filters.over_quota %}checked{% endif %}>
+        <label class="form-check-label small" for="f-quota">Near a limit</label>
+      </div>
+    </div>
+    <div class="col-6 col-lg-2">
+      <button class="btn btn-sm btn-dark w-100" type="submit">Filter</button>
+    </div>
+  </div>
+</form>
+
+<div class="console-card p-0">
+  <div class="table-responsive">
+    <table class="table align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Client</th><th>Status</th><th>Plan</th>
+          <th class="text-end">Students</th><th class="text-end">Users</th>
+          <th style="width:9rem">Usage</th><th>Renews</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tenant in page %}
+          <tr>
+            <td>
+              <a class="fw-semibold text-decoration-none" href="{% url 'console:tenant_detail' tenant.pk %}">{{ tenant.name }}</a>
+              <div class="text-muted small">{{ tenant.primary_host }}</div>
+            </td>
+            <td><span class="status-pill status-{{ tenant.status }}">{{ tenant.status }}</span></td>
+            <td class="small">{{ tenant.plan.name }}</td>
+            <td class="text-end small">{{ tenant.usage.students|default:0 }}</td>
+            <td class="text-end small">{{ tenant.usage.users|default:0 }}</td>
+            <td>
+              <div class="quota-bar {% if tenant.quota_pressure >= 100 %}full{% elif tenant.quota_pressure >= 90 %}high{% endif %}">
+                <span style="width: {% if tenant.quota_pressure > 100 %}100{% else %}{{ tenant.quota_pressure }}{% endif %}%"></span>
+              </div>
+              <div class="text-muted small">{{ tenant.quota_pressure }}%</div>
+            </td>
+            <td class="small text-muted">{{ tenant.expires_at|date:"Y-m-d"|default:"—" }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7" class="text-center text-muted py-4">No clients match.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if page.has_other_pages %}
+  <nav class="mt-3"><ul class="pagination pagination-sm">
+    {% if page.has_previous %}
+      <li class="page-item"><a class="page-link" href="?page={{ page.previous_page_number }}">Previous</a></li>
+    {% endif %}
+    <li class="page-item disabled"><span class="page-link">{{ page.number }} / {{ page.paginator.num_pages }}</span></li>
+    {% if page.has_next %}
+      <li class="page-item"><a class="page-link" href="?page={{ page.next_page_number }}">Next</a></li>
+    {% endif %}
+  </ul></nav>
+{% endif %}
+{% endblock %}

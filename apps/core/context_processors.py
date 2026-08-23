@@ -61,18 +61,33 @@ def subscription_notice(request):
     return {"subscription_notice": None}
 
 
+BRANDING_KEYS = (
+    ("CENTER_NAME", "center.name"),
+    ("CENTER_PHONE", "center.phone"),
+    ("CENTER_ADDRESS", "center.address"),
+    ("UI_THEME", "ui.theme"),
+    ("UI_ACCENT", "ui.accent"),
+    ("UI_MODE", "ui.mode"),
+    ("UI_DENSITY", "ui.density"),
+)
+
+
 def branding(request):
     """Center identity and appearance defaults.
 
     The appearance values are only *defaults*: theme.js layers each user's own
     choice (localStorage) on top before the first paint.
+
+    Outside a tenant — the console host, the gate page for an unresolved host —
+    there is no center to brand, so this falls back to the catalogue defaults in
+    ``core.policies`` rather than raising. That is not the manager's
+    silent-empty-result problem: these are presentation defaults, and a missing
+    center name renders as a missing center name.
     """
-    return {
-        "CENTER_NAME": settings_registry.get("center.name"),
-        "CENTER_PHONE": settings_registry.get("center.phone"),
-        "CENTER_ADDRESS": settings_registry.get("center.address"),
-        "UI_THEME": settings_registry.get("ui.theme"),
-        "UI_ACCENT": settings_registry.get("ui.accent"),
-        "UI_MODE": settings_registry.get("ui.mode"),
-        "UI_DENSITY": settings_registry.get("ui.density"),
-    }
+    from apps.tenancy.context import current_tenant
+
+    from .policies import spec_for
+
+    if current_tenant() is None:
+        return {name: spec_for(key).default for name, key in BRANDING_KEYS}
+    return {name: settings_registry.get(key) for name, key in BRANDING_KEYS}

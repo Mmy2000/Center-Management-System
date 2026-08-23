@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "apps.core",
     "apps.tenancy",
+    "apps.console",
     "apps.accounts",
     "apps.academics",
     "apps.students",
@@ -105,6 +106,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "apps.tenancy.middleware.TenantSessionGuardMiddleware",
+    "apps.tenancy.middleware.ImpersonationGuardMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apps.tenancy.middleware.TenantStatusMiddleware",
@@ -189,6 +191,10 @@ CSRF_COOKIE_SAMESITE = "Lax"
 # Multi-tenant production is the topology in docs/10 §N.11 — a real VPS.
 CONSOLE_HOST = ""
 CONSOLE_URLCONF = "cms.urls_console"
+
+# The suffix every client's subdomain hangs off: <slug>.TENANT_BASE_DOMAIN is
+# the primary host the provisioning wizard creates (docs/10 §N.11).
+TENANT_BASE_DOMAIN = "localhost"
 
 
 # =========================================================================== #

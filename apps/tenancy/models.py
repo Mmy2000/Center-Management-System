@@ -183,6 +183,15 @@ class Tenant(TimeStampedModel):
 
     @property
     def primary_domain(self):
+        """The tenant's main hostname.
+
+        Honours ``prefetch_related("domains")`` when the caller set one up —
+        ``self.domains.filter(...)`` would build a fresh queryset and ignore the
+        prefetch, which on the console's client list meant one query per client.
+        """
+        cache = getattr(self, "_prefetched_objects_cache", None)
+        if cache and "domains" in cache:
+            return next((d for d in self.domains.all() if d.is_primary), None)
         return self.domains.filter(is_primary=True).first()
 
     @property
