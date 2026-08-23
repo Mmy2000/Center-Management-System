@@ -4,7 +4,7 @@ black==26.5.1
 charset-normalizer==3.5.1
 click==8.4.2
 colorama==0.4.6
-Django==6.1
+Django==5.1
 django-environ==0.14.0
 factory_boy==3.3.3
 Faker==40.37.0
