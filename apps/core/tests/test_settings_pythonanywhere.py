@@ -83,9 +83,30 @@ def test_it_really_is_standalone():
 
 
 def test_the_host_is_derived_from_one_name():
-    """One typo cannot make ALLOWED_HOSTS and the CSRF origin disagree."""
-    assert pa.ALLOWED_HOSTS == [f"{pa.USERNAME}.pythonanywhere.com"]
-    assert pa.CSRF_TRUSTED_ORIGINS == [f"https://{pa.USERNAME}.pythonanywhere.com"]
+    """One typo cannot make the host, the CSRF origin and tenancy disagree.
+
+    Lowercased on the way through: PythonAnywhere displays a username with its
+    original capitals but serves the site on a lowercase hostname, and
+    ``Domain.host`` is stored lowercase — so a capital anywhere in this chain
+    would simply never match a request.
+    """
+    expected = f"{pa.USERNAME}.pythonanywhere.com".lower()
+
+    assert pa.SITE_HOST == expected
+    assert pa.ALLOWED_HOSTS == [expected]
+    assert pa.CSRF_TRUSTED_ORIGINS == [f"https://{expected}"]
+    # Tenancy resolves requests by hostname, so it has to agree with the rest.
+    assert pa.TENANT_BASE_DOMAIN == expected
+
+
+def test_the_console_is_reachable_on_a_single_host():
+    """One hostname leaves none for the console, so it is served from a path.
+
+    Without this the console would be unreachable on the free tier and the
+    install could only be managed from a bash console.
+    """
+    assert pa.CONSOLE_HOST == ""
+    assert pa.CONSOLE_PATH_PREFIX
 
 
 def test_https_settings_follow_one_flag():

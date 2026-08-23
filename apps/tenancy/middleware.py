@@ -31,6 +31,16 @@ def _console_host(request=None) -> str:
     return normalize_host(getattr(settings, "CONSOLE_HOST", "") or "")
 
 
+def _console_path_match(request) -> bool:
+    """Whether this request is for a path-mounted console (single-host hosting)."""
+    from django.conf import settings
+
+    prefix = (getattr(settings, "CONSOLE_PATH_PREFIX", "") or "").strip("/")
+    if not prefix:
+        return False
+    return request.path == f"/{prefix}" or request.path.startswith(f"/{prefix}/")
+
+
 class TenantResolutionMiddleware:
     """Resolve the tenant, or 404.
 
@@ -55,17 +65,27 @@ class TenantResolutionMiddleware:
             request.is_console = False
             return self.get_response(request)
 
+        from django.conf import settings
+
         host = normalize_host(request.get_host())
         console = _console_host()
+        via_path = _console_path_match(request)
 
-        if console and host == console:
+        if (console and host == console) or via_path:
             # The console has its own URLconf, so a tenant host cannot route to
             # it at all — no permission bug or proxy mistake can bridge them.
-            from django.conf import settings
-
+            # Under CONSOLE_PATH_PREFIX that structural wall is gone by
+            # definition (same origin); `platform_staff_required` is then the
+            # only wall, which is why the prefix is opt-in and documented as
+            # single-host hosting only.
             request.tenant = None
             request.is_console = True
-            request.urlconf = getattr(settings, "CONSOLE_URLCONF", "cms.urls_console")
+            request.console_via_path = via_path
+            request.urlconf = (
+                getattr(settings, "CONSOLE_PATH_URLCONF", "cms.urls_console_path")
+                if via_path
+                else getattr(settings, "CONSOLE_URLCONF", "cms.urls_console")
+            )
             token = set_tenant(None)
             try:
                 return self.get_response(request)
@@ -172,6 +192,12 @@ class TenantSessionGuardMiddleware:
         if getattr(request, "is_console", False):
             # Only platform staff belong on the console host.
             if not getattr(user, "is_platform_staff", False):
+                # Under a path-mounted console the two share an origin, so a
+                # center admin who mistypes a URL is not a cross-host session —
+                # they are one of their own users on their own site. Let the
+                # view 404 them instead of signing them out of their center.
+                if getattr(request, "console_via_path", False):
+                    return None
                 return "tenant user on console host"
             return None
 

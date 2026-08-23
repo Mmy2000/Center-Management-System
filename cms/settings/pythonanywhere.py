@@ -56,7 +56,12 @@ SECRET_KEY = "928!bj4y51&zzu^lq3f0*9e2lj+q-fn=8woml97u@8@%jo+ib#"  # noqa: S105
 
 # With DEBUG off, Django answers a blank "Bad Request (400)" to any Host header
 # it was not told about — that page is almost always this list and nothing else.
-ALLOWED_HOSTS = [f"{USERNAME}.pythonanywhere.com"]
+# Lowercased: PythonAnywhere shows your username with its original capitals but
+# serves the site on a lowercase hostname, and Domain.host is stored lowercase
+# too — so a capital here would simply never match.
+SITE_HOST = f"{USERNAME}.pythonanywhere.com".lower()
+
+ALLOWED_HOSTS = [SITE_HOST]
 
 # Django only accepts a cross-origin POST from an origin listed with its scheme,
 # and PythonAnywhere serves the site over https. Without this the sign-in form
@@ -189,19 +194,31 @@ SESSION_COOKIE_DOMAIN = None  # per-host cookies — see docs/10 §N.6
 CSRF_COOKIE_SAMESITE = "Lax"
 
 # A free account has no wildcard subdomain and no custom domain, so this host
-# can only ever serve ONE center. The tenancy app is installed (one tenant), but
-# the resolution middleware is not: there is nothing for it to choose between.
-# Multi-tenant production is the topology in docs/10 §N.11 — a real VPS.
+# can only ever serve ONE center. Tenancy still runs in full — the middleware,
+# the managers, the feature flags — it simply has one tenant to resolve to,
+# which is a legitimate configuration rather than a degraded one.
+#
+# Empty because there is no second hostname to give the console; it is served
+# from a path instead (below). Multi-tenant production is the topology in
+# docs/10 §N.11: a real VPS with a wildcard certificate.
 CONSOLE_HOST = ""
 CONSOLE_URLCONF = "cms.urls_console"
+
+# The free tier gives exactly one hostname, so there is no second host to
+# put the console on. `platform_staff_required` is then the only wall —
+# see cms/urls_console.py for what that costs and why it is acceptable
+# for a single-center install you run yourself.
+CONSOLE_PATH_PREFIX = "platform"
 
 # The console's own language. Its templates are Arabic literals, not translation
 # calls, so this is pinned rather than negotiated from the browser.
 CONSOLE_LANGUAGE = "ar"
 
-# The suffix every client's subdomain hangs off: <slug>.TENANT_BASE_DOMAIN is
-# the primary host the provisioning wizard creates (docs/10 §N.11).
-TENANT_BASE_DOMAIN = "localhost"
+# One hostname means one center, so there is no subdomain suffix to hang new
+# clients off. Provisioning a second client from the console will create a
+# tenant with a hostname that does not resolve — which is the honest outcome
+# of this tier, not a bug to work around.
+TENANT_BASE_DOMAIN = SITE_HOST
 
 
 # =========================================================================== #

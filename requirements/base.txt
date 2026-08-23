@@ -1,7 +1,12 @@
+# Pinned to exactly what the test suite runs against. These three drifted once
+# — base.txt still said reportlab 4.x while the suite had long been green on
+# 5.x — which would have put an untested major version of the PDF engine in
+# front of every Arabic receipt on a deploy. Keep them in step with
+# `pip freeze`, or the thing you ship is not the thing you tested.
 Django==6.1
 django-environ==0.14.0
 Pillow==12.3.0
 qrcode==8.2
-reportlab==4.4.9
-arabic-reshaper==3.0.0
-python-bidi==0.6.7
+reportlab==5.0.1
+arabic-reshaper==3.0.1
+python-bidi==0.6.11

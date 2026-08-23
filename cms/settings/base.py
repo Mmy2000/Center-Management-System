@@ -24,6 +24,7 @@ env = environ.Env(
     LANGUAGE_CODE=(str, "ar"),
     CONSOLE_HOST=(str, ""),
     TENANT_BASE_DOMAIN=(str, "localhost"),
+    CONSOLE_PATH_PREFIX=(str, ""),
 )
 # Optional: dev uses it, and cms.settings.pythonanywhere deliberately does not.
 # Reading a missing file logs a warning that reads like an error in a host's log.
@@ -99,6 +100,11 @@ MIDDLEWARE = [
 # tenant host cannot route to it at all. Empty disables console routing.
 CONSOLE_HOST = env("CONSOLE_HOST")
 CONSOLE_URLCONF = "cms.urls_console"
+
+# Empty in production: the console belongs on its own hostname, where a
+# tenant site has no route to it at all. Set it only when the hosting
+# gives you one hostname and no second host is possible.
+CONSOLE_PATH_PREFIX = env("CONSOLE_PATH_PREFIX")
 
 # The console's own language. Its templates are Arabic literals, not translation
 # calls, so this is pinned rather than negotiated from the browser.
