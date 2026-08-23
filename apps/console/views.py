@@ -5,6 +5,8 @@ provisioning, suspending, toggling a feature — lives in the service so the web
 UI and the management commands cannot drift apart.
 """
 
+import json
+
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
@@ -16,6 +18,7 @@ from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
+from apps.core.http import fail, ok
 from apps.tenancy import quota
 from apps.tenancy.constants import OPERATIONAL_STATUSES, FeatureState, TenantStatus
 from apps.tenancy.features import grouped_specs
@@ -44,19 +47,48 @@ def console_login(request):
     if not getattr(request, "is_console", False):
         raise Http404("not the console host")
 
+    wants_json = request.headers.get("x-requested-with") == "XMLHttpRequest"
     error = None
+
     if request.method == "POST":
-        user = authenticate(
-            request,
-            username=request.POST.get("username", ""),
-            password=request.POST.get("password", ""),
-        )
+        credentials = _credentials(request)
+        user = authenticate(request, **credentials)
+
+        # `is_platform_staff` is checked here as well as in the backend: a
+        # center's admin is already invisible to this host's lookup, but the
+        # answer to "may this account use the console" belongs at the door too.
         if user is not None and user.is_platform_staff:
             login(request, user)
-            return redirect(request.GET.get("next") or reverse("console:dashboard"))
-        error = "بيانات الدخول غير صحيحة."
+            destination = request.GET.get("next") or reverse("console:dashboard")
+            if wants_json:
+                return ok({"next": destination})
+            return redirect(destination)
 
-    return render(request, "console/login.html", {"error": error}, status=200 if not error else 401)
+        # One message for every failure — unknown user, wrong password, a
+        # center's account. Distinguishing them would tell an attacker which
+        # usernames exist on the platform.
+        error = "بيانات الدخول غير صحيحة."
+        if wants_json:
+            return fail("ERR_AUTH_FAILED", error, status=401)
+
+    return render(request, "console/login.html", {"error": error}, status=401 if error else 200)
+
+
+def _credentials(request) -> dict:
+    """Read the login from a JSON body or a plain form post, whichever came."""
+    if (request.content_type or "").startswith("application/json") and request.body:
+        import json
+
+        try:
+            payload = json.loads(request.body.decode("utf-8"))
+        except (ValueError, UnicodeDecodeError):
+            payload = {}
+    else:
+        payload = request.POST
+    return {
+        "username": (payload.get("username") or "").strip(),
+        "password": payload.get("password") or "",
+    }
 
 
 @never_cache
@@ -103,6 +135,7 @@ def dashboard(request):
         request,
         "console/dashboard.html",
         {
+            "nav": "dashboard",
             # Built here, not in the template: Django templates cannot index a
             # dict by a loop variable, and a custom filter for one screen is
             # more machinery than a list comprehension.
@@ -184,6 +217,7 @@ def tenant_list(request):
         request,
         "console/tenant_list.html",
         {
+            "nav": "tenants",
             "page": page,
             "plans": Plan.objects.all(),
             "status_choices": TenantStatus.choices,
@@ -197,27 +231,22 @@ def tenant_detail(request, pk):
     tenant = get_object_or_404(
         Tenant.objects.select_related("plan", "usage").prefetch_related("domains"), pk=pk
     )
+    from .api import _usage_json
+
     return render(
         request,
         "console/tenant_detail.html",
         {
+            "nav": "tenants",
             "tenant": tenant,
             "usage": getattr(tenant, "usage", None),
-            "limits": [
-                (
-                    resource,
-                    quota.LABELS[resource],
-                    getattr(getattr(tenant, "usage", None), quota.RESOURCES[resource][2], 0),
-                    getattr(tenant.plan, f"max_{resource}", None),
-                )
-                for resource in quota.RESOURCES
-            ],
+            # Rendered into the page rather than fetched on load: the numbers
+            # are already in hand, and a table that flashes empty on every visit
+            # is a worse experience than one that is simply correct.
+            "usage_json": json.dumps(_usage_json(tenant), ensure_ascii=False),
             "features": enabled_features(tenant),
             "timeline": PlatformAuditLog.objects.filter(tenant=tenant).select_related("actor")[:25],
             "plans": Plan.objects.all(),
-            "reason_form": forms.ReasonForm(),
-            "delete_form": forms.TenantDeleteForm(tenant=tenant),
-            "impersonation_form": forms.ImpersonationForm(),
         },
     )
 
@@ -271,7 +300,7 @@ def tenant_new(request):
     return render(
         request,
         "console/tenant_new.html",
-        {"form": form, "base_domain": django_settings.TENANT_BASE_DOMAIN},
+        {"nav": "tenants", "form": form, "base_domain": django_settings.TENANT_BASE_DOMAIN},
     )
 
 
@@ -355,7 +384,12 @@ def tenant_features(request, pk):
     return render(
         request,
         "console/tenant_features.html",
-        {"tenant": tenant, "groups": groups, "states": FeatureState.choices},
+        {
+            "nav": "tenants",
+            "tenant": tenant,
+            "groups": groups,
+            "states": FeatureState.choices,
+        },
     )
 
 
@@ -537,6 +571,7 @@ def audit(request):
         request,
         "console/audit.html",
         {
+            "nav": "audit",
             "page": Paginator(entries, 50).get_page(request.GET.get("page")),
             "tenants": Tenant.objects.order_by("name"),
             "actions": PlatformAction.choices,

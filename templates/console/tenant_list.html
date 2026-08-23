@@ -1,100 +1,173 @@
 {% extends "console/base.html" %}
-{% block title %}Clients{% endblock %}
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="h4 mb-0">Clients</h1>
-  <a class="btn btn-dark" href="{% url 'console:tenant_new' %}">New client</a>
-</div>
+{% block title %}العملاء{% endblock %}
+{% block heading %}العملاء{% endblock %}
+{% block subheading %}<div class="console-sub" id="count-line">&nbsp;</div>{% endblock %}
 
-<form class="console-card mb-3" method="get">
+{% block topbar_actions %}
+  <a class="btn btn-sm btn-primary" href="{% url 'console:tenant_new' %}">
+    <svg class="icon"><use href="#i-plus"></use></svg>عميل جديد
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="filter-bar mb-3">
   <div class="row g-2 align-items-end">
     <div class="col-12 col-lg-4">
-      <label class="form-label small" for="f-q">Search</label>
-      <input class="form-control form-control-sm" id="f-q" name="q" type="search"
-             value="{{ filters.q|default:'' }}" placeholder="name, slug, domain or owner email">
+      <label class="form-label" for="f-q">بحث</label>
+      <div class="app-search">
+        <input class="form-control" id="f-q" type="search"
+               placeholder="اسم، معرّف، نطاق أو بريد المسؤول"
+               value="{{ request.GET.q|default:'' }}">
+      </div>
     </div>
     <div class="col-6 col-lg-2">
-      <label class="form-label small" for="f-status">Status</label>
-      <select class="form-select form-select-sm" id="f-status" name="status">
-        <option value="">All</option>
+      <label class="form-label" for="f-status">الحالة</label>
+      <select class="form-select" id="f-status">
+        <option value="">الكل</option>
         {% for value, label in status_choices %}
-          <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ value }}</option>
+          <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
       </select>
     </div>
     <div class="col-6 col-lg-2">
-      <label class="form-label small" for="f-plan">Plan</label>
-      <select class="form-select form-select-sm" id="f-plan" name="plan">
-        <option value="">All</option>
+      <label class="form-label" for="f-plan">الباقة</label>
+      <select class="form-select" id="f-plan">
+        <option value="">الكل</option>
         {% for plan in plans %}
-          <option value="{{ plan.slug }}" {% if filters.plan == plan.slug %}selected{% endif %}>{{ plan.name }}</option>
+          <option value="{{ plan.slug }}" {% if request.GET.plan == plan.slug %}selected{% endif %}>{{ plan.name }}</option>
         {% endfor %}
       </select>
     </div>
-    <div class="col-6 col-lg-2">
+    <div class="col-12 col-lg-4 d-flex gap-3 pb-1">
       <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="f-expiring" name="expiring" value="1"
-               {% if filters.expiring %}checked{% endif %}>
-        <label class="form-check-label small" for="f-expiring">Expiring soon</label>
+        <input class="form-check-input" type="checkbox" id="f-expiring"
+               {% if request.GET.expiring %}checked{% endif %}>
+        <label class="form-check-label small" for="f-expiring">ينتهي قريبًا</label>
       </div>
       <div class="form-check">
-        <input class="form-check-input" type="checkbox" id="f-quota" name="over_quota" value="1"
-               {% if filters.over_quota %}checked{% endif %}>
-        <label class="form-check-label small" for="f-quota">Near a limit</label>
+        <input class="form-check-input" type="checkbox" id="f-quota"
+               {% if request.GET.over_quota %}checked{% endif %}>
+        <label class="form-check-label small" for="f-quota">قارب على الحد</label>
       </div>
-    </div>
-    <div class="col-6 col-lg-2">
-      <button class="btn btn-sm btn-dark w-100" type="submit">Filter</button>
+      <button class="btn btn-sm btn-ghost ms-auto" type="button" id="clear">مسح</button>
     </div>
   </div>
-</form>
+</div>
 
-<div class="console-card p-0">
+<div class="console-card">
   <div class="table-responsive">
-    <table class="table align-middle mb-0">
-      <thead class="table-light">
+    <table class="table table-sticky mb-0">
+      <thead>
         <tr>
-          <th>Client</th><th>Status</th><th>Plan</th>
-          <th class="text-end">Students</th><th class="text-end">Users</th>
-          <th style="width:9rem">Usage</th><th>Renews</th>
+          <th>العميل</th>
+          <th>الحالة</th>
+          <th>الباقة</th>
+          <th class="text-end">الطلاب</th>
+          <th class="text-end">المستخدمون</th>
+          <th>الاستهلاك</th>
+          <th>التجديد</th>
         </tr>
       </thead>
-      <tbody>
-        {% for tenant in page %}
-          <tr>
-            <td>
-              <a class="fw-semibold text-decoration-none" href="{% url 'console:tenant_detail' tenant.pk %}">{{ tenant.name }}</a>
-              <div class="text-muted small">{{ tenant.primary_host }}</div>
-            </td>
-            <td><span class="status-pill status-{{ tenant.status }}">{{ tenant.status }}</span></td>
-            <td class="small">{{ tenant.plan.name }}</td>
-            <td class="text-end small">{{ tenant.usage.students|default:0 }}</td>
-            <td class="text-end small">{{ tenant.usage.users|default:0 }}</td>
-            <td>
-              <div class="quota-bar {% if tenant.quota_pressure >= 100 %}full{% elif tenant.quota_pressure >= 90 %}high{% endif %}">
-                <span style="width: {% if tenant.quota_pressure > 100 %}100{% else %}{{ tenant.quota_pressure }}{% endif %}%"></span>
-              </div>
-              <div class="text-muted small">{{ tenant.quota_pressure }}%</div>
-            </td>
-            <td class="small text-muted">{{ tenant.expires_at|date:"Y-m-d"|default:"—" }}</td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="7" class="text-center text-muted py-4">No clients match.</td></tr>
-        {% endfor %}
-      </tbody>
+      <tbody id="tenants-body"></tbody>
     </table>
   </div>
 </div>
+{% endblock %}
 
-{% if page.has_other_pages %}
-  <nav class="mt-3"><ul class="pagination pagination-sm">
-    {% if page.has_previous %}
-      <li class="page-item"><a class="page-link" href="?page={{ page.previous_page_number }}">Previous</a></li>
-    {% endif %}
-    <li class="page-item disabled"><span class="page-link">{{ page.number }} / {{ page.paginator.num_pages }}</span></li>
-    {% if page.has_next %}
-      <li class="page-item"><a class="page-link" href="?page={{ page.next_page_number }}">Next</a></li>
-    {% endif %}
-  </ul></nav>
-{% endif %}
+{% block extra_js %}
+<script>
+const LIST = "{% url 'console:api_tenants' %}";
+const DETAIL = "{% url 'console:tenant_detail' 0 %}";
+
+const q = document.getElementById("f-q");
+const status = document.getElementById("f-status");
+const plan = document.getElementById("f-plan");
+const expiring = document.getElementById("f-expiring");
+const quota = document.getElementById("f-quota");
+
+function params() {
+  const search = new URLSearchParams();
+  if (q.value.trim()) { search.set("q", q.value.trim()); }
+  if (status.value) { search.set("status", status.value); }
+  if (plan.value) { search.set("plan", plan.value); }
+  if (expiring.checked) { search.set("expiring", "1"); }
+  if (quota.checked) { search.set("over_quota", "1"); }
+  return search;
+}
+
+function meter(pressure) {
+  const tone = pressure >= 100 ? " full" : pressure >= 90 ? " warn" : "";
+  return (
+    '<div class="meter' + tone + '"><div class="meter-track">' +
+    '<span class="meter-fill" style="width:' + Math.min(100, pressure) + '%"></span></div>' +
+    '<div class="meter-text">' + pressure + "%</div></div>"
+  );
+}
+
+const COLUMNS = [
+  {
+    render: function (row) {
+      return (
+        '<a class="fw-semibold" href="' + DETAIL.replace("/0/", "/" + row.id + "/") + '">' +
+        ui.esc(row.name) + "</a>" +
+        '<div class="text-muted small mono">' + ui.esc(row.host || row.slug) + "</div>"
+      );
+    }
+  },
+  {
+    render: function (row) {
+      return '<span class="status-pill status-' + row.status + '">' + ui.esc(row.status_label) + "</span>";
+    }
+  },
+  { key: "plan", className: "small" },
+  { key: "students", className: "text-end num" },
+  { key: "users", className: "text-end num" },
+  { render: function (row) { return meter(row.pressure); } },
+  {
+    className: "small",
+    render: function (row) {
+      const when = row.expires_at || row.trial_ends_at;
+      if (!when) { return '<span class="text-muted">—</span>'; }
+      const left = row.days_left;
+      if (left !== null && left <= 7) { return ui.badge(when, "danger"); }
+      if (left !== null && left <= 30) { return ui.badge(when, "warning"); }
+      return '<span class="text-muted">' + ui.esc(when) + "</span>";
+    }
+  }
+];
+
+async function load() {
+  const search = params();
+  // Keep the address bar in step so a filtered view can be shared or reloaded.
+  const query = search.toString();
+  history.replaceState(null, "", query ? "?" + query : location.pathname);
+
+  await ui.table("tenants-body", async function (tbody) {
+    const payload = await http.get(LIST + "?" + query);
+    ui.renderRows(tbody, payload.data.results, COLUMNS, {
+      emptyMessage: "لا يوجد عميل مطابق",
+      emptyIcon: "groups"
+    });
+    document.getElementById("count-line").textContent =
+      payload.data.count + (payload.data.count === 1 ? " عميل" : " عميل");
+  });
+}
+
+q.addEventListener("input", app.debounce(load, 250));
+[status, plan, expiring, quota].forEach(function (control) {
+  control.addEventListener("change", load);
+});
+document.getElementById("clear").addEventListener("click", function () {
+  q.value = "";
+  // select.js wraps the native `value` setter, so assigning it repaints the
+  // custom control too — nothing extra to notify.
+  status.value = "";
+  plan.value = "";
+  expiring.checked = false;
+  quota.checked = false;
+  load();
+});
+
+load();
+</script>
 {% endblock %}

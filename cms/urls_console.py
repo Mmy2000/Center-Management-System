@@ -14,6 +14,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from django.views.i18n import JavaScriptCatalog
 
 from apps.core import views as core_views
 
@@ -26,6 +27,13 @@ urlpatterns = [
     # a time and on purpose.
     path("healthz/", core_views.healthz, name="healthz"),
     path("readyz/", core_views.readyz, name="readyz"),
+    # ui.js calls gettext() for its empty and error states, so the console needs
+    # the same catalog the product loads. Same domain, same .po file.
+    path(
+        "jsi18n/",
+        JavaScriptCatalog.as_view(domain="django"),
+        name="javascript-catalog",
+    ),
     path("", include("apps.console.urls")),
 ]
 

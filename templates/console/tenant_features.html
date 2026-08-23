@@ -1,95 +1,129 @@
 {% extends "console/base.html" %}
-{% block title %}{{ tenant.name }} · Features{% endblock %}
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
+{% block title %}{{ tenant.name }} · الخصائص{% endblock %}
+
+{% block topbar %}
   <div>
-    <h1 class="h4 mb-1">Features</h1>
-    <div class="text-muted small">
-      <a href="{% url 'console:tenant_detail' tenant.pk %}">{{ tenant.name }}</a> · plan {{ tenant.plan.name }}
+    <div class="breadcrumb-mini">
+      <a href="{% url 'console:tenant_list' %}">العملاء</a> ›
+      <a href="{% url 'console:tenant_detail' tenant.pk %}">{{ tenant.name }}</a> ›
     </div>
+    <h1 class="console-title">الخصائص</h1>
+  </div>
+{% endblock %}
+
+{% block topbar_actions %}
+  <span class="badge badge-soft badge-soft-primary">باقة {{ tenant.plan.name }}</span>
+{% endblock %}
+
+{% block content %}
+<div class="alert alert-info d-flex gap-2 align-items-start">
+  <svg class="icon"><use href="#i-info"></use></svg>
+  <div class="small">
+    <strong>الباقة</strong> هي ما تمنحه الباقة. <strong>التخصيص</strong> هو ما تضبطه أنت لهذا
+    العميل. <strong>الفعلي</strong> هو ما يحصل عليه بالفعل — تُطبَّق التبعيات، فإيقاف
+    المدفوعات يأخذ معه الاستردادات والإيصالات والتقارير المالية.
+    <br>تعطيل أي خاصية <strong>لا يحذف أي بيانات</strong>: إعادة تفعيلها تُرجع كل شيء كما كان.
   </div>
 </div>
-
-<div class="alert alert-light border py-2 small">
-  <strong>Plan</strong> is what the plan grants. <strong>Override</strong> is what you set for
-  this client. <strong>Effective</strong> is what they actually get — dependencies are applied,
-  so switching payments off takes refunds, receipts and the financial reports with it.
-  Turning a feature off never deletes data.
-</div>
-
-<form id="csrf-holder">{% csrf_token %}</form>
 
 {% for group in groups %}
   <div class="console-card mb-3">
-    <h2 class="h6 mb-3">{{ group.label }}</h2>
-    {% for row in group.rows %}
-      <div class="feature-row" data-key="{{ row.spec.key }}">
-        <div>
-          <div>{{ row.spec.label }}{% if row.spec.is_core %} <span class="badge text-bg-secondary">core</span>{% endif %}</div>
-          <div class="feature-key">{{ row.spec.key }}</div>
-          {% if row.spec.help_text %}<div class="text-muted small">{{ row.spec.help_text }}</div>{% endif %}
-        </div>
-        <div class="text-muted small text-nowrap">
-          plan: {% if row.plan_default %}on{% else %}off{% endif %}
-        </div>
-        <div class="d-flex align-items-center gap-2">
-          <select class="form-select form-select-sm feature-state" style="width:9rem"
-                  {% if row.spec.is_core %}disabled title="Core features cannot be switched off."{% endif %}>
-            {% for value, label in states %}
-              <option value="{{ value }}" {% if row.state == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-          <span class="feature-effective {% if row.effective %}on{% else %}off{% endif %}">
-            {% if row.effective %}ON{% else %}OFF{% endif %}
-          </span>
-        </div>
+    <div class="console-card-head">
+      <h2>{{ group.label }}</h2>
+      <div class="d-none d-lg-flex text-muted small gap-4">
+        <span style="width:5.5rem;text-align:center">الباقة</span>
+        <span style="width:11rem;text-align:center">التخصيص</span>
+        <span style="width:4.5rem;text-align:center">الفعلي</span>
       </div>
-    {% endfor %}
+    </div>
+    <div class="console-card-body py-1">
+      {% for row in group.rows %}
+        <div class="feature-row" data-key="{{ row.spec.key }}">
+          <div>
+            <div class="feature-name">
+              {{ row.spec.label }}
+              {% if row.spec.is_core %}
+                <span class="badge badge-soft badge-soft-secondary">أساسية</span>
+              {% endif %}
+            </div>
+            <div class="feature-key">{{ row.spec.key }}</div>
+            {% if row.spec.help_text %}<div class="feature-help">{{ row.spec.help_text }}</div>{% endif %}
+          </div>
+
+          <div class="feature-plan" data-plan>
+            {% if row.plan_default %}
+              <span class="badge badge-soft badge-soft-success">مُتاح</span>
+            {% else %}
+              <span class="badge badge-soft badge-soft-secondary">غير مُتاح</span>
+            {% endif %}
+          </div>
+
+          <div>
+            <select class="form-select form-select-sm feature-state"
+                    aria-label="{{ row.spec.label }}"
+                    {% if row.spec.is_core %}disabled title="خاصية أساسية — لا يمكن تعطيلها."{% endif %}>
+              {% for value, label in states %}
+                <option value="{{ value }}" {% if row.state == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="feature-effective {% if row.effective %}on{% else %}off{% endif %}" data-effective>
+            {% if row.effective %}مُفعّل{% else %}مُعطّل{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
   </div>
 {% endfor %}
+{% endblock %}
 
+{% block extra_js %}
 <script>
-  (function () {
-    var endpoint = "{% url 'console:tenant_feature_set' tenant.pk %}";
-    var tokenField = document.querySelector('#csrf-holder [name=csrfmiddlewaretoken]');
-    var token = tokenField ? tokenField.value : '';
+const SET_URL = "{% url 'console:api_tenant_feature' tenant.pk %}";
 
-    function repaint(effective) {
-      // Repaint every badge, not only the one just changed: dependencies mean a
-      // single toggle can flip several rows, and updating one would mislead.
-      var enabled = {};
-      effective.forEach(function (key) { enabled[key] = true; });
-      document.querySelectorAll('.feature-row').forEach(function (row) {
-        var badge = row.querySelector('.feature-effective');
-        var on = Boolean(enabled[row.dataset.key]);
-        badge.textContent = on ? 'ON' : 'OFF';
-        badge.classList.toggle('on', on);
-        badge.classList.toggle('off', !on);
-      });
+/* Repaint every row, not only the one just changed: dependencies mean a single
+   toggle can flip several, and updating one would leave the screen lying. */
+function repaint(effective) {
+  const enabled = new Set(effective);
+  document.querySelectorAll(".feature-row").forEach(function (row) {
+    const badge = row.querySelector("[data-effective]");
+    const on = enabled.has(row.dataset.key);
+    const changed = badge.classList.contains("on") !== on;
+    badge.textContent = on ? "مُفعّل" : "مُعطّل";
+    badge.classList.toggle("on", on);
+    badge.classList.toggle("off", !on);
+    if (changed) {
+      row.classList.remove("flash");
+      void row.offsetWidth;          // restart the animation
+      row.classList.add("flash");
     }
+  });
+}
 
-    document.querySelectorAll('.feature-state').forEach(function (select) {
-      select.addEventListener('change', function () {
-        var row = select.closest('.feature-row');
-        var body = new FormData();
-        body.append('feature_key', row.dataset.key);
-        body.append('state', select.value);
+document.querySelectorAll(".feature-state").forEach(function (select) {
+  const row = select.closest(".feature-row");
+  let previous = select.value;
 
-        fetch(endpoint, {
-          method: 'POST',
-          headers: { 'X-CSRFToken': token, 'X-Requested-With': 'XMLHttpRequest' },
-          body: body
-        })
-          .then(function (response) { return response.json(); })
-          .then(function (payload) {
-            if (!payload.ok) {
-              window.alert(payload.message || 'Failed');
-              return;
-            }
-            repaint(payload.data.effective);
-          });
+  select.addEventListener("change", async function () {
+    row.classList.add("is-busy");
+    try {
+      const payload = await http.post(SET_URL, {
+        feature_key: row.dataset.key,
+        state: select.value
       });
-    });
-  })();
+      repaint(payload.data.effective);
+      previous = select.value;
+      app.toast("تم الحفظ", "success");
+    } catch (error) {
+      // Put the control back where it was: a select showing a value the server
+      // refused is worse than no feedback at all.
+      select.value = previous;
+      app.handleError(error);
+    } finally {
+      row.classList.remove("is-busy");
+    }
+  });
+});
 </script>
 {% endblock %}

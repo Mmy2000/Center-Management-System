@@ -1,27 +1,62 @@
 {% extends "console/base.html" %}
-{% block title %}Client created{% endblock %}
+{% block title %}تم إنشاء العميل{% endblock %}
+{% block heading %}تم الإنشاء{% endblock %}
+
 {% block content %}
-<div class="console-card" style="max-width:40rem">
-  <h1 class="h5 mb-3">{{ tenant.name }} is live</h1>
-
-  <dl class="row small mb-3">
-    <dt class="col-4">Site</dt>
-    <dd class="col-8"><code>{{ tenant.primary_host }}</code></dd>
-    <dt class="col-4">Plan</dt><dd class="col-8">{{ tenant.plan.name }}</dd>
-    <dt class="col-4">Status</dt>
-    <dd class="col-8"><span class="status-pill status-{{ tenant.status }}">{{ tenant.status }}</span></dd>
-    <dt class="col-4">Username</dt><dd class="col-8"><code>{{ owner.username }}</code></dd>
-  </dl>
-
-  <div class="alert alert-warning py-2 small">
-    This password is shown <strong>once</strong> and is not stored anywhere.
-    Copy it now; the owner must change it at first sign-in.
+<div class="console-card mx-auto" style="max-width: 40rem">
+  <div class="console-card-head">
+    <h2>{{ tenant.name }} جاهز للعمل</h2>
+    <span class="status-pill status-{{ tenant.status }}">{{ tenant.get_status_display }}</span>
   </div>
-  <div class="one-time-secret mb-3">{{ password }}</div>
 
-  <div class="d-flex gap-2">
-    <a class="btn btn-dark" href="{% url 'console:tenant_detail' tenant.pk %}">Open client</a>
-    <a class="btn btn-outline-secondary" href="{% url 'console:tenant_new' %}">Create another</a>
+  <div class="console-card-body">
+    <dl class="kv mb-3">
+      <dt>الموقع</dt>
+      <dd><a href="http://{{ tenant.primary_host }}/" target="_blank" rel="noopener"><code>{{ tenant.primary_host }}</code></a></dd>
+      <dt>الباقة</dt><dd>{{ tenant.plan.name }}</dd>
+      <dt>اسم المستخدم</dt><dd><code>{{ owner.username }}</code></dd>
+      {% if tenant.trial_ends_at %}
+        <dt>نهاية التجربة</dt><dd>{{ tenant.trial_ends_at|date:"Y-m-d" }}</dd>
+      {% endif %}
+    </dl>
+
+    <div class="alert alert-warning d-flex gap-2 py-2">
+      <svg class="icon"><use href="#i-warn"></use></svg>
+      <div class="small">
+        كلمة المرور معروضة <strong>مرة واحدة</strong> ولا تُحفظ في أي مكان.
+        انسخها الآن — يُطلب من المسؤول تغييرها عند أول دخول.
+      </div>
+    </div>
+
+    <div class="one-time-secret mb-3">
+      <code id="secret" dir="ltr">{{ password }}</code>
+      <button class="btn btn-sm btn-soft-secondary" type="button" id="copy">
+        <svg class="icon"><use href="#i-check"></use></svg>نسخ
+      </button>
+    </div>
+
+    <div class="d-flex gap-2">
+      <a class="btn btn-primary" href="{% url 'console:tenant_detail' tenant.pk %}">فتح صفحة العميل</a>
+      <a class="btn btn-soft-secondary" href="{% url 'console:tenant_new' %}">إنشاء عميل آخر</a>
+    </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById("copy").addEventListener("click", async function () {
+  try {
+    await navigator.clipboard.writeText(document.getElementById("secret").textContent.trim());
+    app.toast("تم نسخ كلمة المرور", "success");
+  } catch (error) {
+    // Clipboard access needs a secure context; selecting it is the fallback.
+    const range = document.createRange();
+    range.selectNodeContents(document.getElementById("secret"));
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+    app.toast("حدّد النص وانسخه", "info");
+  }
+});
+</script>
 {% endblock %}

@@ -1,54 +1,69 @@
 {% extends "console/base.html" %}
-{% block title %}Audit{% endblock %}
-{% block content %}
-<h1 class="h4 mb-3">Platform audit</h1>
+{% block title %}سجل المنصة{% endblock %}
+{% block heading %}سجل المنصة{% endblock %}
+{% block subheading %}<div class="console-sub">مَن فعل ماذا، بأي عميل، ولماذا</div>{% endblock %}
 
-<form class="console-card mb-3" method="get">
+{% block content %}
+<form class="filter-bar mb-3" method="get">
   <div class="row g-2 align-items-end">
     <div class="col-12 col-lg-4">
-      <label class="form-label small" for="f-tenant">Client</label>
-      <select class="form-select form-select-sm" id="f-tenant" name="tenant">
-        <option value="">All</option>
+      <label class="form-label" for="f-tenant">العميل</label>
+      <select class="form-select" id="f-tenant" name="tenant">
+        <option value="">الكل</option>
         {% for tenant in tenants %}
           <option value="{{ tenant.pk }}" {% if filters.tenant == tenant.pk|stringformat:"s" %}selected{% endif %}>{{ tenant.name }}</option>
         {% endfor %}
       </select>
     </div>
     <div class="col-12 col-lg-4">
-      <label class="form-label small" for="f-action">Action</label>
-      <select class="form-select form-select-sm" id="f-action" name="action">
-        <option value="">All</option>
+      <label class="form-label" for="f-action">الإجراء</label>
+      <select class="form-select" id="f-action" name="action">
+        <option value="">الكل</option>
         {% for value, label in actions %}
-          <option value="{{ value }}" {% if filters.action == value %}selected{% endif %}>{{ value }}</option>
+          <option value="{{ value }}" {% if filters.action == value %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
       </select>
     </div>
     <div class="col-6 col-lg-2">
-      <button class="btn btn-sm btn-dark w-100" type="submit">Filter</button>
+      <button class="btn btn-primary w-100" type="submit">
+        <svg class="icon"><use href="#i-search"></use></svg>تصفية
+      </button>
+    </div>
+    <div class="col-6 col-lg-2">
+      <a class="btn btn-ghost w-100" href="{% url 'console:audit' %}">مسح</a>
     </div>
   </div>
 </form>
 
-<div class="console-card p-0">
+<div class="console-card">
   <div class="table-responsive">
-    <table class="table table-sm align-middle mb-0">
-      <thead class="table-light">
-        <tr><th>When</th><th>Action</th><th>Client</th><th>Operator</th><th>Reason</th><th>Changes</th></tr>
+    <table class="table table-sticky mb-0">
+      <thead>
+        <tr><th>الوقت</th><th>الإجراء</th><th>العميل</th><th>المشغّل</th><th>السبب</th><th>التغييرات</th></tr>
       </thead>
       <tbody>
         {% for entry in page %}
           <tr>
-            <td class="small text-muted text-nowrap">{{ entry.created_at|date:"Y-m-d H:i" }}</td>
-            <td class="small">{{ entry.get_action_display }}</td>
+            <td class="text-muted small text-nowrap">{{ entry.created_at|date:"Y-m-d H:i" }}</td>
+            <td class="small fw-semibold">{{ entry.get_action_display }}</td>
             <td class="small">
-              {% if entry.tenant %}<a href="{% url 'console:tenant_detail' entry.tenant.pk %}">{{ entry.tenant.name }}</a>{% else %}—{% endif %}
+              {% if entry.tenant %}
+                <a href="{% url 'console:tenant_detail' entry.tenant.pk %}">{{ entry.tenant.name }}</a>
+              {% else %}<span class="text-muted">—</span>{% endif %}
             </td>
-            <td class="small">{{ entry.actor.display_name|default:"system" }}</td>
+            <td class="small">{{ entry.actor.display_name|default:"النظام" }}</td>
             <td class="small text-muted">{{ entry.reason|default:"—" }}</td>
-            <td class="small text-muted"><code>{{ entry.changes }}</code></td>
+            <td class="small text-muted mono" dir="ltr" style="max-width:22rem">
+              {% if entry.changes %}{{ entry.changes }}{% else %}—{% endif %}
+            </td>
           </tr>
         {% empty %}
-          <tr><td colspan="6" class="text-center text-muted py-4">Nothing recorded.</td></tr>
+          <tr><td colspan="6">
+            <div class="empty-state">
+              <svg class="icon icon-xl"><use href="#i-empty"></use></svg>
+              <div class="empty-state-title">لا توجد سجلات مطابقة</div>
+            </div>
+          </td></tr>
         {% endfor %}
       </tbody>
     </table>
@@ -56,10 +71,20 @@
 </div>
 
 {% if page.has_other_pages %}
-  <nav class="mt-3"><ul class="pagination pagination-sm">
-    {% if page.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page.previous_page_number }}">Previous</a></li>{% endif %}
-    <li class="page-item disabled"><span class="page-link">{{ page.number }} / {{ page.paginator.num_pages }}</span></li>
-    {% if page.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page.next_page_number }}">Next</a></li>{% endif %}
-  </ul></nav>
+  <nav class="mt-3 d-flex justify-content-center">
+    <ul class="pagination pagination-sm mb-0">
+      {% if page.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page.previous_page_number }}&tenant={{ filters.tenant|default:'' }}&action={{ filters.action|default:'' }}">السابق</a>
+        </li>
+      {% endif %}
+      <li class="page-item disabled"><span class="page-link num">{{ page.number }} / {{ page.paginator.num_pages }}</span></li>
+      {% if page.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page.next_page_number }}&tenant={{ filters.tenant|default:'' }}&action={{ filters.action|default:'' }}">التالي</a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
 {% endif %}
 {% endblock %}

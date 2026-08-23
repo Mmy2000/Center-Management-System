@@ -1,160 +1,340 @@
 {% extends "console/base.html" %}
 {% block title %}{{ tenant.name }}{% endblock %}
-{% block content %}
-<div class="d-flex justify-content-between align-items-start mb-3 flex-wrap gap-2">
-  <div>
-    <h1 class="h4 mb-1">{{ tenant.name }}</h1>
-    <div class="text-muted small">
-      <code>{{ tenant.slug }}</code> ·
-      <span class="status-pill status-{{ tenant.status }}">{{ tenant.status }}</span> ·
-      {{ tenant.plan.name }}
-    </div>
-  </div>
-  <div class="d-flex gap-2">
-    <a class="btn btn-sm btn-outline-dark" href="{% url 'console:tenant_features' tenant.pk %}">Features</a>
-    <a class="btn btn-sm btn-outline-dark" href="{% url 'console:tenant_export' tenant.pk %}">Export</a>
-  </div>
-</div>
 
+{% block topbar %}
+  <div>
+    <div class="breadcrumb-mini"><a href="{% url 'console:tenant_list' %}">العملاء</a> ›</div>
+    <h1 class="console-title">{{ tenant.name }}</h1>
+  </div>
+{% endblock %}
+
+{% block topbar_actions %}
+  <span class="status-pill status-{{ tenant.status }}" id="status-pill">{{ tenant.get_status_display }}</span>
+  <a class="btn btn-sm btn-soft-secondary" href="{% url 'console:tenant_features' tenant.pk %}">
+    <svg class="icon"><use href="#i-settings"></use></svg>الخصائص
+  </a>
+  <a class="btn btn-sm btn-soft-secondary" href="{% url 'console:tenant_export' tenant.pk %}">
+    <svg class="icon"><use href="#i-download"></use></svg>تصدير
+  </a>
+{% endblock %}
+
+{% block content %}
 {% if not tenant.is_operational %}
-  <div class="alert alert-danger py-2 small">
-    Suspended{% if tenant.suspended_reason %}: {{ tenant.suspended_reason }}{% endif %}
-    — data is untouched and resuming restores it exactly.
+  <div class="alert alert-danger d-flex align-items-center gap-2">
+    <svg class="icon"><use href="#i-warn"></use></svg>
+    <div>
+      <strong>الخدمة موقوفة.</strong>
+      {% if tenant.suspended_reason %}{{ tenant.suspended_reason }} — {% endif %}
+      البيانات كما هي، وإعادة التفعيل تُرجع كل شيء كما كان.
+    </div>
   </div>
 {% endif %}
 
 <div class="row g-3">
-  <div class="col-12 col-lg-7">
+  <div class="col-12 col-xl-7">
     <div class="console-card mb-3">
-      <div class="d-flex justify-content-between align-items-center mb-2">
-        <h2 class="h6 mb-0">Usage against plan limits</h2>
-        <form method="post" action="{% url 'console:tenant_usage_refresh' tenant.pk %}">
-          {% csrf_token %}
-          <button class="btn btn-sm btn-outline-secondary" type="submit">Refresh</button>
-        </form>
+      <div class="console-card-head">
+        <h2>الاستهلاك مقابل حدود الباقة</h2>
+        <button class="btn btn-sm btn-ghost" type="button" id="refresh-usage">
+          <svg class="icon"><use href="#i-clock"></use></svg>إعادة الحساب
+        </button>
       </div>
-      <table class="table table-sm mb-0">
-        <tbody>
-          {% for resource, label, used, cap in limits %}
-            <tr>
-              <td class="small text-capitalize">{{ resource }}</td>
-              <td class="text-end small"><strong>{{ used }}</strong>{% if cap %} / {{ cap }}{% else %} <span class="text-muted">/ unlimited</span>{% endif %}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% if usage.computed_at %}
-        <div class="text-muted small mt-2">Counted {{ usage.computed_at|timesince }} ago.</div>
-      {% else %}
-        <div class="text-muted small mt-2">Never counted — press Refresh.</div>
-      {% endif %}
+      <div class="console-card-body p-0" id="usage-region">
+        <table class="table table-compact mb-0">
+          <thead class="visually-hidden"><tr><th>المورد</th><th>العدد</th><th>الاستهلاك</th></tr></thead>
+          <tbody id="usage-body"></tbody>
+        </table>
+        <div class="px-3 py-2 text-muted small" id="usage-stamp"></div>
+      </div>
     </div>
 
     <div class="console-card mb-3">
-      <h2 class="h6 mb-2">Domains</h2>
-      <ul class="list-unstyled mb-0 small">
-        {% for domain in tenant.domains.all %}
-          <li>
-            <code>{{ domain.host }}</code>
-            {% if domain.is_primary %}<span class="badge text-bg-secondary">primary</span>{% endif %}
-            {% if domain.is_custom %}<span class="badge text-bg-light">custom</span>{% endif %}
-            {% if domain.is_custom and not domain.is_verified %}<span class="badge text-bg-warning">unverified</span>{% endif %}
-          </li>
-        {% endfor %}
-      </ul>
+      <div class="console-card-head"><h2>النطاقات</h2></div>
+      <div class="console-card-body">
+        <ul class="list-unstyled mb-0 d-grid gap-2">
+          {% for domain in tenant.domains.all %}
+            <li class="d-flex align-items-center gap-2">
+              <code>{{ domain.host }}</code>
+              {% if domain.is_primary %}<span class="badge badge-soft badge-soft-primary">أساسي</span>{% endif %}
+              {% if domain.is_custom %}
+                <span class="badge badge-soft badge-soft-secondary">نطاق خاص</span>
+                {% if not domain.is_verified %}
+                  <span class="badge badge-soft badge-soft-warning">لم يتم التحقق</span>
+                {% endif %}
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
 
     <div class="console-card">
-      <h2 class="h6 mb-2">Platform activity</h2>
-      <table class="table table-sm mb-0">
-        <tbody>
-          {% for entry in timeline %}
-            <tr>
-              <td class="text-muted small" style="width:10rem">{{ entry.created_at|date:"Y-m-d H:i" }}</td>
-              <td class="small">{{ entry.get_action_display }}{% if entry.reason %} — <span class="text-muted">{{ entry.reason }}</span>{% endif %}</td>
-              <td class="text-muted small">{{ entry.actor.display_name|default:"—" }}</td>
-            </tr>
-          {% empty %}<tr><td class="text-muted small">Nothing yet.</td></tr>{% endfor %}
-        </tbody>
-      </table>
+      <div class="console-card-head">
+        <h2>ما جرى على هذا العميل</h2>
+        <a class="btn btn-sm btn-ghost" href="{% url 'console:audit' %}?tenant={{ tenant.pk }}">الكل</a>
+      </div>
+      <div class="console-card-body p-0">
+        <table class="table table-compact mb-0">
+          <thead><tr><th>الوقت</th><th>الإجراء</th><th>المشغّل</th></tr></thead>
+          <tbody>
+            {% for entry in timeline %}
+              <tr>
+                <td class="text-muted small text-nowrap">{{ entry.created_at|date:"Y-m-d H:i" }}</td>
+                <td class="small">
+                  {{ entry.get_action_display }}
+                  {% if entry.reason %}<span class="text-muted">— {{ entry.reason }}</span>{% endif %}
+                </td>
+                <td class="small text-muted">{{ entry.actor.display_name|default:"—" }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="3">
+                <div class="empty-state"><svg class="icon icon-xl"><use href="#i-empty"></use></svg>
+                  <div class="empty-state-title">لم يحدث شيء بعد</div></div>
+              </td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <div class="col-12 col-lg-5">
+  <div class="col-12 col-xl-5">
     <div class="console-card mb-3">
-      <h2 class="h6 mb-2">Owner</h2>
-      <dl class="row small mb-0">
-        <dt class="col-4">Name</dt><dd class="col-8">{{ tenant.owner_name|default:"—" }}</dd>
-        <dt class="col-4">Email</dt><dd class="col-8">{{ tenant.owner_email|default:"—" }}</dd>
-        <dt class="col-4">Phone</dt><dd class="col-8">{{ tenant.owner_phone|default:"—" }}</dd>
-        <dt class="col-4">Trial ends</dt><dd class="col-8">{{ tenant.trial_ends_at|date:"Y-m-d"|default:"—" }}</dd>
-        <dt class="col-4">Renews</dt><dd class="col-8">{{ tenant.expires_at|date:"Y-m-d"|default:"—" }}</dd>
-      </dl>
+      <div class="console-card-head"><h2>بيانات العميل</h2></div>
+      <div class="console-card-body">
+        <dl class="kv mb-0">
+          <dt>المعرّف</dt><dd><code>{{ tenant.slug }}</code></dd>
+          <dt>المسؤول</dt><dd>{{ tenant.owner_name|default:"—" }}</dd>
+          <dt>البريد</dt><dd>{{ tenant.owner_email|default:"—" }}</dd>
+          <dt>الهاتف</dt><dd>{{ tenant.owner_phone|default:"—" }}</dd>
+          <dt>نهاية التجربة</dt><dd>{{ tenant.trial_ends_at|date:"Y-m-d"|default:"—" }}</dd>
+          <dt>نهاية الاشتراك</dt><dd>{{ tenant.expires_at|date:"Y-m-d"|default:"—" }}</dd>
+          <dt>أُنشئ في</dt><dd>{{ tenant.created_at|date:"Y-m-d" }}</dd>
+        </dl>
+      </div>
     </div>
 
     <div class="console-card mb-3">
-      <h2 class="h6 mb-2">Plan</h2>
-      <form method="post" action="{% url 'console:tenant_plan' tenant.pk %}" class="d-flex gap-2">
-        {% csrf_token %}
-        <select class="form-select form-select-sm" name="plan">
-          {% for plan in plans %}
-            <option value="{{ plan.pk }}" {% if plan.pk == tenant.plan_id %}selected{% endif %}>{{ plan.name }}</option>
-          {% endfor %}
-        </select>
-        <button class="btn btn-sm btn-dark" type="submit">Change</button>
-      </form>
+      <div class="console-card-head"><h2>الباقة</h2></div>
+      <div class="console-card-body">
+        <div class="d-flex gap-2">
+          <select class="form-select" id="plan-select" aria-label="الباقة">
+            {% for plan in plans %}
+              <option value="{{ plan.pk }}" {% if plan.pk == tenant.plan_id %}selected{% endif %}>{{ plan.name }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-primary" type="button" id="change-plan">تغيير</button>
+        </div>
+        <div class="form-text mt-2">
+          تغيير الباقة يعرض أولًا ما سيفقده العميل وأي حد تجاوزه بالفعل.
+        </div>
+      </div>
     </div>
 
     <div class="console-card mb-3">
-      <h2 class="h6 mb-2">Enter this client's account</h2>
-      <p class="text-muted small">
-        Read-only unless you say otherwise. Collecting money, issuing refunds and
-        changing credentials are refused in both modes, and the client's own
-        audit log records that you acted on their behalf.
-      </p>
-      <form method="post" action="{% url 'console:tenant_enter' tenant.pk %}">
-        {% csrf_token %}
-        <select class="form-select form-select-sm mb-2" name="mode">
-          <option value="read">Read only</option>
-          <option value="write">Read and write</option>
-        </select>
-        <textarea class="form-control form-control-sm mb-2" name="reason" rows="2"
-                  placeholder="Why are you entering this account?"></textarea>
-        <button class="btn btn-sm btn-outline-dark w-100" type="submit"
-                {% if not tenant.is_operational %}disabled{% endif %}>Enter</button>
-      </form>
+      <div class="console-card-head"><h2>الدخول نيابةً عن العميل</h2></div>
+      <div class="console-card-body">
+        <p class="form-text mb-2">
+          قراءة فقط ما لم تختر غير ذلك. تحصيل المدفوعات والاستردادات وتغيير
+          الحسابات مرفوضة في الوضعين، وسجل العميل نفسه يسجّل أنك تصرفت نيابةً عنه.
+        </p>
+        <form method="post" action="{% url 'console:tenant_enter' tenant.pk %}">
+          {% csrf_token %}
+          <select class="form-select mb-2" name="mode" aria-label="الوضع">
+            <option value="read">قراءة فقط</option>
+            <option value="write">قراءة وتعديل</option>
+          </select>
+          <textarea class="form-control mb-2" name="reason" rows="2"
+                    placeholder="لماذا تدخل إلى هذا الحساب؟"></textarea>
+          <button class="btn btn-soft-secondary w-100" type="submit"
+                  {% if not tenant.is_operational %}disabled{% endif %}>
+            <svg class="icon"><use href="#i-eye"></use></svg>دخول
+          </button>
+        </form>
+      </div>
     </div>
 
     <div class="console-card">
-      <h2 class="h6 mb-2">Lifecycle</h2>
-      <form method="post" action="{% url 'console:tenant_status' tenant.pk %}">
-        {% csrf_token %}
-        <textarea class="form-control form-control-sm mb-2" name="reason" rows="2"
-                  placeholder="Reason (required to suspend or archive)"></textarea>
-        <div class="d-flex gap-2 flex-wrap">
-          {% if tenant.is_operational %}
-            <button class="btn btn-sm btn-warning" name="action" value="suspend" type="submit">Suspend</button>
-          {% else %}
-            <button class="btn btn-sm btn-success" name="action" value="resume" type="submit">Resume</button>
-          {% endif %}
-          <button class="btn btn-sm btn-outline-danger" name="action" value="archive" type="submit">Archive</button>
-        </div>
-      </form>
+      <div class="console-card-head"><h2>حالة الخدمة</h2></div>
+      <div class="console-card-body d-grid gap-2" id="lifecycle">
+        {% if tenant.is_operational %}
+          <button class="btn btn-warning" type="button" data-action="suspend">
+            <svg class="icon"><use href="#i-lock"></use></svg>إيقاف الخدمة
+          </button>
+        {% else %}
+          <button class="btn btn-success" type="button" data-action="resume">
+            <svg class="icon"><use href="#i-check"></use></svg>إعادة التفعيل
+          </button>
+        {% endif %}
+        <button class="btn btn-outline-danger" type="button" data-action="archive">أرشفة</button>
 
-      <hr>
-      <h3 class="h6 mb-2 text-danger">Delete</h3>
-      <p class="text-muted small mb-2">
-        Archives now and schedules a purge after {{ tenant.plan.retention_days }} days.
-        Export first — this is the only copy they get.
-      </p>
-      <form method="post" action="{% url 'console:tenant_delete' tenant.pk %}">
-        {% csrf_token %}
-        <input class="form-control form-control-sm mb-2" name="confirm_slug"
-               placeholder="Type &quot;{{ tenant.slug }}&quot; to confirm">
-        <textarea class="form-control form-control-sm mb-2" name="reason" rows="2" placeholder="Reason"></textarea>
-        <button class="btn btn-sm btn-outline-danger w-100" type="submit">Archive and schedule purge</button>
-      </form>
+        <hr class="my-2">
+        <div class="text-danger fw-bold small">حذف نهائي</div>
+        <p class="form-text mb-2">
+          الأرشفة الآن، والحذف النهائي بعد {{ tenant.plan.retention_days }} يومًا.
+          صدّر البيانات أولًا — هذه هي النسخة الوحيدة التي سيحصل عليها العميل.
+        </p>
+        <form method="post" action="{% url 'console:tenant_delete' tenant.pk %}" id="delete-form">
+          {% csrf_token %}
+          <input class="form-control form-control-sm mb-2" name="confirm_slug"
+                 placeholder='اكتب "{{ tenant.slug }}" للتأكيد' autocomplete="off">
+          <textarea class="form-control form-control-sm mb-2" name="reason" rows="2"
+                    placeholder="السبب"></textarea>
+          <button class="btn btn-outline-danger w-100 btn-sm" type="submit">أرشفة وجدولة الحذف</button>
+        </form>
+      </div>
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const TENANT = {{ tenant.pk }};
+const USAGE_URL = "{% url 'console:api_tenant_usage' tenant.pk %}";
+const STATUS_URL = "{% url 'console:api_tenant_status' tenant.pk %}";
+const PLAN_URL = "{% url 'console:api_tenant_plan' tenant.pk %}";
+
+/* ------------------------------------------------------------------ usage */
+function meter(used, limit) {
+  if (!limit) { return '<span class="text-muted small">بلا حد</span>'; }
+  const pressure = Math.round((used * 100) / limit);
+  const tone = pressure >= 100 ? " full" : pressure >= 90 ? " warn" : "";
+  return (
+    '<div class="meter' + tone + '"><div class="meter-track">' +
+    '<span class="meter-fill" style="width:' + Math.min(100, pressure) + '%"></span></div>' +
+    '<div class="meter-text">' + used + " / " + limit + "</div></div>"
+  );
+}
+
+function paintUsage(usage) {
+  ui.renderRows(
+    document.getElementById("usage-body"),
+    usage.rows,
+    [
+      { key: "label" },
+      { className: "text-end num fw-semibold", render: function (row) { return String(row.used); } },
+      { className: "text-end", render: function (row) { return meter(row.used, row.limit); } }
+    ],
+    { emptyMessage: "لا شيء لقياسه" }
+  );
+  document.getElementById("usage-stamp").textContent = usage.computed_at
+    ? "آخر حساب: " + usage.computed_at
+    : "لم يُحسب بعد — اضغط إعادة الحساب.";
+}
+
+paintUsage({{ usage_json|safe }});
+
+document.getElementById("refresh-usage").addEventListener("click", function () {
+  const button = this;
+  ui.withBusy(button, async function () {
+    try {
+      const payload = await http.post(USAGE_URL, {});
+      paintUsage(payload.data.usage);
+      app.toast("تم تحديث الأرقام", "success");
+    } catch (error) { app.handleError(error); }
+  });
+});
+
+/* -------------------------------------------------------------- lifecycle */
+const ACTIONS = {
+  suspend: { title: "إيقاف الخدمة", verb: "إيقاف", tone: "warning",
+             note: "لن يُحذف أي شيء. إعادة التفعيل تُرجع الحساب كما كان تمامًا." },
+  archive: { title: "أرشفة العميل", verb: "أرشفة", tone: "danger",
+             note: "يمنع الدخول ويجدول الحذف النهائي بعد انتهاء مدة الاحتفاظ." },
+  resume:  { title: "إعادة التفعيل", verb: "تفعيل", tone: "success",
+             note: "يعود الحساب للعمل فورًا." }
+};
+
+document.getElementById("lifecycle").addEventListener("click", function (event) {
+  const trigger = event.target.closest("[data-action]");
+  if (!trigger) { return; }
+  const action = trigger.dataset.action;
+  const spec = ACTIONS[action];
+
+  app.openModal(
+    spec.title,
+    '<p class="text-muted small">' + spec.note + "</p>" +
+    '<label class="form-label" for="reason">السبب</label>' +
+    '<textarea class="form-control" id="reason" rows="3" ' +
+    (action === "resume" ? "" : "required") + "></textarea>" +
+    '<div class="text-danger small mt-1" id="reason-error"></div>',
+    '<button class="btn btn-ghost" data-bs-dismiss="modal">إلغاء</button>' +
+    '<button class="btn btn-' + spec.tone + '" id="confirm">' + spec.verb + "</button>"
+  );
+
+  document.getElementById("confirm").addEventListener("click", function () {
+    const button = this;
+    const reason = document.getElementById("reason").value.trim();
+    ui.withBusy(button, async function () {
+      try {
+        await http.post(STATUS_URL, { action: action, reason: reason });
+        app.closeModal();
+        window.location.reload();
+      } catch (error) {
+        const field = error.field_errors && error.field_errors.reason;
+        document.getElementById("reason-error").textContent =
+          field ? field[0] : (error.message || "تعذر التنفيذ");
+      }
+    });
+  });
+});
+
+/* ------------------------------------------------------------------- plan */
+document.getElementById("change-plan").addEventListener("click", function () {
+  const button = this;
+  const planId = Number(document.getElementById("plan-select").value);
+
+  ui.withBusy(button, async function () {
+    let warnings = [];
+    let name = "";
+    try {
+      // Ask first, change second: an operator should not discover that a client
+      // is 300 students over their new cap by having the client phone them.
+      const preview = await http.post(PLAN_URL, { plan: planId, preview: true });
+      warnings = preview.data.warnings;
+      name = preview.data.plan;
+    } catch (error) { app.handleError(error); return; }
+
+    const body = warnings.length
+      ? '<div class="alert alert-warning py-2 small mb-2"><strong>ما سيتغيّر:</strong></div>' +
+        '<ul class="small">' + warnings.map(function (w) { return "<li>" + ui.esc(w) + "</li>"; }).join("") + "</ul>"
+      : '<p class="text-muted small">لا يفقد العميل أي خاصية بهذا التغيير.</p>';
+
+    app.openModal(
+      "نقل العميل إلى " + ui.esc(name),
+      body +
+      '<label class="form-label" for="plan-reason">السبب (اختياري)</label>' +
+      '<input class="form-control" id="plan-reason">',
+      '<button class="btn btn-ghost" data-bs-dismiss="modal">إلغاء</button>' +
+      '<button class="btn btn-primary" id="confirm-plan">تأكيد</button>'
+    );
+
+    document.getElementById("confirm-plan").addEventListener("click", function () {
+      const confirmButton = this;
+      ui.withBusy(confirmButton, async function () {
+        try {
+          await http.post(PLAN_URL, {
+            plan: planId,
+            reason: document.getElementById("plan-reason").value
+          });
+          app.closeModal();
+          window.location.reload();
+        } catch (error) { app.handleError(error); }
+      });
+    });
+  });
+});
+
+/* Typing the slug is the confirmation; the button stays inert until it matches. */
+(function () {
+  const form = document.getElementById("delete-form");
+  const field = form.querySelector('[name="confirm_slug"]');
+  const button = form.querySelector('button[type="submit"]');
+  const slug = "{{ tenant.slug|escapejs }}";
+  function sync() { button.disabled = field.value.trim().toLowerCase() !== slug; }
+  field.addEventListener("input", sync);
+  sync();
+})();
+</script>
 {% endblock %}

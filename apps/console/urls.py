@@ -6,7 +6,7 @@ which is what makes a tenant host structurally unable to reach a console view.
 
 from django.urls import path
 
-from . import views
+from . import api, views
 
 app_name = "console"
 
@@ -29,6 +29,16 @@ urlpatterns = [
     path("tenants/<int:pk>/delete/", views.tenant_delete, name="tenant_delete"),
     path("leave/", views.tenant_leave, name="tenant_leave"),
     path("plans/", views.plan_list, name="plan_list"),
+    # JSON, through the same envelope and the same http.js wrapper the product
+    # uses — so the loading bar, the toasts and the error handling are the ones
+    # already built (docs/05 §G.2).
+    path("api/tenants/", api.tenants, name="api_tenants"),
+    path("api/overview/", api.overview, name="api_overview"),
+    path("api/slug-check/", api.slug_check, name="api_slug_check"),
+    path("api/tenants/<int:pk>/status/", api.tenant_status, name="api_tenant_status"),
+    path("api/tenants/<int:pk>/usage/", api.tenant_usage, name="api_tenant_usage"),
+    path("api/tenants/<int:pk>/plan/", api.tenant_plan, name="api_tenant_plan"),
+    path("api/tenants/<int:pk>/feature/", api.tenant_feature, name="api_tenant_feature"),
     path("audit/", views.audit, name="audit"),
     path("health/", views.health, name="health"),
 ]

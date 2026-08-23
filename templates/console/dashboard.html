@@ -1,105 +1,194 @@
 {% extends "console/base.html" %}
-{% block title %}Overview{% endblock %}
-{% block content %}
-<h1 class="h4 mb-3">Overview</h1>
+{% block title %}نظرة عامة{% endblock %}
+{% block heading %}نظرة عامة{% endblock %}
+{% block subheading %}<div class="console-sub">كل العملاء في لمحة</div>{% endblock %}
 
-<div class="row g-3 mb-4">
+{% block topbar_actions %}
+  <button class="btn btn-sm btn-soft-secondary" type="button" id="refresh">
+    <svg class="icon"><use href="#i-clock"></use></svg>تحديث
+  </button>
+  <a class="btn btn-sm btn-primary" href="{% url 'console:tenant_new' %}">
+    <svg class="icon"><use href="#i-plus"></use></svg>عميل جديد
+  </a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-3 row-in mb-3" id="stats">
   <div class="col-6 col-lg-3">
-    <div class="console-card console-stat">
-      <span class="console-stat-value">{{ total_tenants }}</span>
-      <span class="console-stat-label">clients</span>
+    <div class="stat-tile">
+      <div class="stat-value num" id="s-total">—</div>
+      <div class="stat-label">عميل</div>
     </div>
   </div>
   <div class="col-6 col-lg-3">
-    <div class="console-card console-stat">
-      <span class="console-stat-value">{{ totals.students|default:0 }}</span>
-      <span class="console-stat-label">students across all clients</span>
+    <div class="stat-tile tone-success">
+      <div class="stat-value num" id="s-students">—</div>
+      <div class="stat-label">طالب في كل العملاء</div>
     </div>
   </div>
   <div class="col-6 col-lg-3">
-    <div class="console-card console-stat">
-      <span class="console-stat-value">{{ totals.scans|default:0 }}</span>
-      <span class="console-stat-label">scans, last 30 days</span>
+    <div class="stat-tile tone-muted">
+      <div class="stat-value num" id="s-scans">—</div>
+      <div class="stat-label">عملية مسح (30 يومًا)</div>
     </div>
   </div>
   <div class="col-6 col-lg-3">
-    <div class="console-card console-stat">
-      <span class="console-stat-value">{{ new_this_month }}</span>
-      <span class="console-stat-label">new this month</span>
+    <div class="stat-tile tone-warning">
+      <div class="stat-value num" id="s-new">—</div>
+      <div class="stat-label">عميل جديد هذا الشهر</div>
     </div>
   </div>
 </div>
 
 <div class="row g-3">
-  <div class="col-12 col-lg-4">
+  <div class="col-12 col-xl-4">
     <div class="console-card h-100">
-      <h2 class="h6 mb-3">By status</h2>
-      {% for value, label, count in status_rows %}
-        <div class="d-flex justify-content-between align-items-center py-1">
-          <a class="text-decoration-none" href="{% url 'console:tenant_list' %}?status={{ value }}">
-            <span class="status-pill status-{{ value }}">{{ label }}</span>
-          </a>
-          <strong>{{ count }}</strong>
-        </div>
-      {% endfor %}
-      <a class="btn btn-sm btn-dark w-100 mt-3" href="{% url 'console:tenant_new' %}">New client</a>
+      <div class="console-card-head"><h2>حسب الحالة</h2></div>
+      <div class="console-card-body" id="statuses">
+        <div class="skeleton mb-2" style="width:80%"></div>
+        <div class="skeleton mb-2" style="width:60%"></div>
+        <div class="skeleton" style="width:70%"></div>
+      </div>
     </div>
   </div>
 
-  <div class="col-12 col-lg-4">
+  <div class="col-12 col-xl-4">
     <div class="console-card h-100">
-      <h2 class="h6 mb-3">Expiring in 30 days</h2>
-      {% for tenant in expiring %}
-        <div class="d-flex justify-content-between py-1 small">
-          <a href="{% url 'console:tenant_detail' tenant.pk %}">{{ tenant.name }}</a>
-          <span class="text-muted">{{ tenant.expires_at|date:"Y-m-d" }}</span>
-        </div>
-      {% empty %}<p class="text-muted small mb-0">Nothing expiring.</p>{% endfor %}
-
-      {% if trials_ending %}
-        <h3 class="h6 mt-3 mb-2">Trials ending</h3>
-        {% for tenant in trials_ending %}
-          <div class="d-flex justify-content-between py-1 small">
-            <a href="{% url 'console:tenant_detail' tenant.pk %}">{{ tenant.name }}</a>
-            <span class="text-muted">{{ tenant.trial_ends_at|date:"Y-m-d" }}</span>
-          </div>
-        {% endfor %}
-      {% endif %}
+      <div class="console-card-head">
+        <h2>ينتهي خلال 30 يومًا</h2>
+        <a class="btn btn-sm btn-ghost" href="{% url 'console:tenant_list' %}?expiring=1">الكل</a>
+      </div>
+      <div class="console-card-body p-0">
+        <table class="table table-compact mb-0">
+          <thead class="visually-hidden"><tr><th>العميل</th><th>التاريخ</th></tr></thead>
+          <tbody id="expiring-body"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <div class="col-12 col-lg-4">
+  <div class="col-12 col-xl-4">
     <div class="console-card h-100">
-      <h2 class="h6 mb-3">Near a plan limit</h2>
-      {% for tenant in over_quota %}
-        <div class="d-flex justify-content-between py-1 small">
-          <a href="{% url 'console:tenant_detail' tenant.pk %}">{{ tenant.name }}</a>
-          <span class="text-muted">{{ tenant.plan.name }}</span>
-        </div>
-      {% empty %}<p class="text-muted small mb-0">Everyone has headroom.</p>{% endfor %}
+      <div class="console-card-head">
+        <h2>قارب على حد الباقة</h2>
+        <a class="btn btn-sm btn-ghost" href="{% url 'console:tenant_list' %}?over_quota=1">الكل</a>
+      </div>
+      <div class="console-card-body p-0">
+        <table class="table table-compact mb-0">
+          <thead class="visually-hidden"><tr><th>العميل</th><th>الاستهلاك</th></tr></thead>
+          <tbody id="pressure-body"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
 
 <div class="console-card mt-3">
-  <h2 class="h6 mb-3">Recent platform activity</h2>
-  <div class="table-responsive">
-    <table class="table table-sm align-middle mb-0">
-      <tbody>
-        {% for entry in recent_audit %}
-          <tr>
-            <td class="text-muted small" style="width:11rem">{{ entry.created_at|date:"Y-m-d H:i" }}</td>
-            <td class="small">{{ entry.get_action_display }}</td>
-            <td class="small">
-              {% if entry.tenant %}<a href="{% url 'console:tenant_detail' entry.tenant.pk %}">{{ entry.tenant.name }}</a>{% else %}—{% endif %}
-            </td>
-            <td class="text-muted small">{{ entry.actor.display_name|default:"—" }}</td>
-          </tr>
-        {% empty %}
-          <tr><td class="text-muted small">Nothing yet.</td></tr>
-        {% endfor %}
-      </tbody>
+  <div class="console-card-head">
+    <h2>آخر ما جرى على المنصة</h2>
+    <a class="btn btn-sm btn-ghost" href="{% url 'console:audit' %}">السجل الكامل</a>
+  </div>
+  <div class="console-card-body p-0">
+    <table class="table table-compact mb-0">
+      <thead><tr><th>الوقت</th><th>الإجراء</th><th>العميل</th><th>المشغّل</th><th>السبب</th></tr></thead>
+      <tbody id="audit-body"></tbody>
     </table>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const OVERVIEW = "{% url 'console:api_overview' %}";
+const TENANT_URL = "{% url 'console:tenant_detail' 0 %}";
+
+function tenantLink(row) {
+  return '<a href="' + TENANT_URL.replace("/0/", "/" + row.id + "/") + '">' + ui.esc(row.name) + "</a>";
+}
+
+function meter(pressure) {
+  const tone = pressure >= 100 ? " full" : pressure >= 90 ? " warn" : "";
+  const width = Math.min(100, pressure);
+  return (
+    '<div class="meter' + tone + '"><div class="meter-track">' +
+    '<span class="meter-fill" style="width:' + width + '%"></span></div>' +
+    '<div class="meter-text">' + pressure + "%</div></div>"
+  );
+}
+
+async function load(quiet) {
+  await ui.region("stats", async function () {
+    const payload = await http.get(OVERVIEW, { quiet: quiet });
+    const data = payload.data;
+
+    ui.countTo(document.getElementById("s-total"), data.total);
+    ui.countTo(document.getElementById("s-students"), data.students);
+    ui.countTo(document.getElementById("s-scans"), data.scans);
+    ui.countTo(document.getElementById("s-new"), data.new_this_month);
+
+    document.getElementById("statuses").innerHTML = data.statuses
+      .map(function (row) {
+        return (
+          '<a class="d-flex justify-content-between align-items-center py-1 text-decoration-none" ' +
+          'href="{% url "console:tenant_list" %}?status=' + row.value + '">' +
+          '<span class="status-pill status-' + row.value + '">' + ui.esc(row.label) + "</span>" +
+          '<strong class="num">' + row.count + "</strong></a>"
+        );
+      })
+      .join("");
+
+    ui.renderRows(
+      document.getElementById("expiring-body"),
+      data.expiring,
+      [
+        { render: tenantLink },
+        {
+          className: "text-end",
+          render: function (row) {
+            const when = row.expires_at || row.trial_ends_at || "";
+            const left = row.days_left;
+            const tone = left !== null && left <= 7 ? "danger" : "warning";
+            return when ? ui.badge(when, tone) : "—";
+          }
+        }
+      ],
+      { emptyMessage: "لا شيء ينتهي قريبًا" }
+    );
+
+    ui.renderRows(
+      document.getElementById("pressure-body"),
+      data.pressured,
+      [
+        { render: tenantLink },
+        { className: "text-end", render: function (row) { return meter(row.pressure); } }
+      ],
+      { emptyMessage: "كل العملاء لديهم متسع" }
+    );
+
+    ui.renderRows(
+      document.getElementById("audit-body"),
+      data.audit,
+      [
+        { key: "when", className: "text-muted small text-nowrap" },
+        { key: "action", className: "small" },
+        {
+          className: "small",
+          render: function (row) {
+            return row.tenant_id ? tenantLink({ id: row.tenant_id, name: row.tenant }) : "—";
+          }
+        },
+        { key: "actor", className: "small text-muted" },
+        { key: "reason", className: "small text-muted" }
+      ],
+      { emptyMessage: "لم يحدث شيء بعد" }
+    );
+  });
+}
+
+document.getElementById("refresh").addEventListener("click", function () {
+  ui.withBusy(this, function () { return load(false); });
+});
+
+load(false);
+</script>
 {% endblock %}

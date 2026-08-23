@@ -141,11 +141,19 @@ def test_the_dashboard_renders_with_no_clients(console):
     assert console.get(url("dashboard")).status_code == 200
 
 
-def test_the_dashboard_lists_clients_by_status(console):
+def test_the_dashboard_counts_clients_by_status(console):
+    """The page is a shell; the figures come from the API it fetches, so that
+    is where the assertion belongs."""
     make_tenant("alpha", host="alpha.testserver", status=TenantStatus.ACTIVE)
     make_tenant("beta", host="beta.testserver", status=TenantStatus.SUSPENDED)
-    html = console.get(url("dashboard")).content.decode("utf-8")
-    assert "SUSPENDED" in html or "موقوف" in html
+
+    assert console.get(url("dashboard")).status_code == 200
+
+    data = console.get(url("api_overview")).json()["data"]
+    counts = {row["value"]: row["count"] for row in data["statuses"]}
+    assert counts["ACTIVE"] == 1
+    assert counts["SUSPENDED"] == 1
+    assert data["total"] == 2
 
 
 def test_the_list_does_not_grow_queries_with_clients(console, django_assert_max_num_queries):
@@ -161,19 +169,20 @@ def test_the_list_does_not_grow_queries_with_clients(console, django_assert_max_
 @pytest.mark.parametrize(
     ("query", "expected"),
     [
-        ("?q=alpha", ["alpha"]),
-        ("?status=SUSPENDED", ["beta"]),
-        ("?q=alpha.testserver", ["alpha"]),
+        ("?q=alpha", {"alpha"}),
+        ("?status=SUSPENDED", {"beta"}),
+        ("?q=alpha.testserver", {"alpha"}),
+        ("?q=nobody", set()),
+        ("", {"alpha", "beta"}),
     ],
 )
 def test_the_list_filters(console, query, expected):
     make_tenant("alpha", host="alpha.testserver", status=TenantStatus.ACTIVE)
     make_tenant("beta", host="beta.testserver", status=TenantStatus.SUSPENDED)
-    html = console.get(url("tenant_list") + query).content.decode("utf-8")
-    for slug in expected:
-        assert slug in html
-    for slug in {"alpha", "beta"} - set(expected):
-        assert f"{slug}.testserver" not in html
+
+    payload = console.get(url("api_tenants") + query).json()["data"]
+    assert {row["slug"] for row in payload["results"]} == expected
+    assert payload["count"] == len(expected)
 
 
 def test_the_detail_page_shows_usage_against_limits(console):
@@ -390,11 +399,23 @@ def test_setting_inherit_deletes_the_row(console):
 
 
 def test_the_feature_screen_shows_plan_override_and_effective(console):
+    """All three states on one row, so nobody has to hold the precedence rules
+    in their head."""
     tenant = make_tenant("alpha", plan=make_plan("full"))
-    html = console.get(url("tenant_features", tenant.pk)).content.decode("utf-8")
-    assert "payments" in html
-    assert "plan:" in html
-    assert "ON" in html
+    response = console.get(url("tenant_features", tenant.pk))
+    html = response.content.decode("utf-8")
+
+    assert response.status_code == 200
+    assert 'data-key="payments"' in html  # the row exists
+    assert "data-plan" in html  # what the plan grants
+    assert "data-effective" in html  # what the client actually gets
+    assert 'class="form-select form-select-sm feature-state"' in html  # the override
+
+    groups = response.context["groups"]
+    row = next(r for group in groups for r in group["rows"] if r["spec"].key == "payments")
+    assert row["plan_default"] is True
+    assert row["effective"] is True
+    assert row["state"] == "INHERIT"
 
 
 def test_changing_a_plan_warns_about_what_is_lost(console):

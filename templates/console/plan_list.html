@@ -1,31 +1,49 @@
 {% extends "console/base.html" %}
-{% block title %}Plans{% endblock %}
+{% block title %}الباقات{% endblock %}
+{% block heading %}الباقات{% endblock %}
+{% block subheading %}<div class="console-sub">ما تمنحه كل باقة، وكم عميلًا عليها</div>{% endblock %}
+
 {% block content %}
-<h1 class="h4 mb-3">Plans</h1>
-<div class="row g-3">
+<div class="row g-3 row-in">
   {% for plan in plans %}
     <div class="col-12 col-lg-4">
-      <div class="console-card h-100">
-        <div class="d-flex justify-content-between align-items-start">
-          <h2 class="h6 mb-1">{{ plan.name }}</h2>
-          <span class="badge text-bg-light">{{ plan.tenant_count }} client{{ plan.tenant_count|pluralize }}</span>
+      <div class="console-card h-100 card-hover">
+        <div class="console-card-head">
+          <div>
+            <h2>{{ plan.name }}</h2>
+            <div class="text-muted small mono">{{ plan.slug }}</div>
+          </div>
+          <span class="badge badge-soft badge-soft-primary">
+            {{ plan.tenant_count }} عميل
+          </span>
         </div>
-        <div class="text-muted small mb-2"><code>{{ plan.slug }}</code></div>
-        {% if plan.description %}<p class="small text-muted">{{ plan.description }}</p>{% endif %}
-        <table class="table table-sm small mb-2">
-          <tbody>
-            <tr><td>Students</td><td class="text-end">{{ plan.max_students|default:"unlimited" }}</td></tr>
-            <tr><td>Users</td><td class="text-end">{{ plan.max_users|default:"unlimited" }}</td></tr>
-            <tr><td>Groups</td><td class="text-end">{{ plan.max_groups|default:"unlimited" }}</td></tr>
-            <tr><td>Cards</td><td class="text-end">{{ plan.max_cards|default:"unlimited" }}</td></tr>
-          </tbody>
-        </table>
-        <div class="text-muted small">{{ plan.features.count }} feature{{ plan.features.count|pluralize }} enabled</div>
-        {% if plan.price_note %}<div class="small mt-2">{{ plan.price_note }}</div>{% endif %}
+        <div class="console-card-body">
+          {% if plan.description %}<p class="text-muted small">{{ plan.description }}</p>{% endif %}
+          <table class="table table-compact mb-3">
+            <tbody>
+              <tr><td>الطلاب</td><td class="text-end num">{{ plan.max_students|default:"بلا حد" }}</td></tr>
+              <tr><td>المستخدمون</td><td class="text-end num">{{ plan.max_users|default:"بلا حد" }}</td></tr>
+              <tr><td>المجموعات</td><td class="text-end num">{{ plan.max_groups|default:"بلا حد" }}</td></tr>
+              <tr><td>البطاقات</td><td class="text-end num">{{ plan.max_cards|default:"بلا حد" }}</td></tr>
+            </tbody>
+          </table>
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge badge-soft badge-soft-secondary">{{ plan.features.count }} خاصية</span>
+            {% if plan.price_note %}<span class="small text-muted">{{ plan.price_note }}</span>{% endif %}
+          </div>
+        </div>
       </div>
     </div>
   {% empty %}
-    <div class="col-12"><div class="console-card text-muted">No plans yet — run <code>manage.py seed_plans</code>.</div></div>
+    <div class="col-12">
+      <div class="console-card">
+        <div class="empty-state">
+          <svg class="icon icon-xl"><use href="#i-empty"></use></svg>
+          <div class="empty-state-title">لا توجد باقات بعد</div>
+          <div class="small">شغّل <code>manage.py seed_plans</code></div>
+        </div>
+      </div>
+    </div>
   {% endfor %}
 </div>
 {% endblock %}

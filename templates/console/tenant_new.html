@@ -1,44 +1,195 @@
 {% extends "console/base.html" %}
-{% block title %}New client{% endblock %}
-{% block content %}
-<h1 class="h4 mb-3">New client</h1>
+{% block title %}عميل جديد{% endblock %}
 
-<form method="post" class="console-card" style="max-width:44rem">
+{% block topbar %}
+  <div>
+    <div class="breadcrumb-mini"><a href="{% url 'console:tenant_list' %}">العملاء</a> ›</div>
+    <h1 class="console-title">عميل جديد</h1>
+  </div>
+{% endblock %}
+
+{% block content %}
+<form method="post" id="provision-form" novalidate>
   {% csrf_token %}
+
   {% if form.non_field_errors %}
-    <div class="alert alert-danger py-2 small">{{ form.non_field_errors }}</div>
+    <div class="alert alert-danger py-2">{{ form.non_field_errors.0 }}</div>
   {% endif %}
 
-  {% for field in form %}
-    <div class="mb-3">
-      <label class="form-label small" for="{{ field.id_for_label }}">{{ field.label }}</label>
-      {% if field.field.widget.input_type == 'checkbox' %}
-        <div class="form-check">
-          <input class="form-check-input" type="checkbox" name="{{ field.html_name }}"
-                 id="{{ field.id_for_label }}" {% if field.value %}checked{% endif %}>
-        </div>
-      {% else %}
-        {{ field }}
-      {% endif %}
-      {% if field.name == 'slug' %}
-        <div class="form-text">The site will be <code>&lt;slug&gt;.{{ base_domain }}</code></div>
-      {% endif %}
-      {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
-      {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-    </div>
-  {% endfor %}
+  <div class="row g-3">
+    <div class="col-12 col-xl-7">
+      <div class="console-card mb-3">
+        <div class="console-card-head"><h2>السنتر</h2></div>
+        <div class="console-card-body">
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+            <input class="form-control" type="text" name="{{ form.name.html_name }}"
+                   id="{{ form.name.id_for_label }}" value="{{ form.name.value|default:'' }}"
+                   autocomplete="off" autofocus required>
+            {% for error in form.name.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+          </div>
 
-  <div class="d-flex gap-2">
-    <button class="btn btn-dark" type="submit">Create client</button>
-    <a class="btn btn-outline-secondary" href="{% url 'console:tenant_list' %}">Cancel</a>
+          <div class="mb-2">
+            <label class="form-label" for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
+            <input class="form-control mono" type="text" name="{{ form.slug.html_name }}"
+                   id="{{ form.slug.id_for_label }}" value="{{ form.slug.value|default:'' }}"
+                   autocomplete="off" dir="ltr" required>
+            <div class="d-flex align-items-center gap-2 mt-2">
+              <span class="slug-preview" id="slug-preview" dir="ltr">&lt;slug&gt;.{{ base_domain }}</span>
+              <span class="small text-muted" id="slug-note"></span>
+            </div>
+            <div class="form-text">{{ form.slug.help_text }}</div>
+            {% for error in form.slug.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="console-card">
+        <div class="console-card-head"><h2>حساب المسؤول</h2></div>
+        <div class="console-card-body">
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="{{ form.owner_username.id_for_label }}">{{ form.owner_username.label }}</label>
+              <input class="form-control mono" type="text" dir="ltr"
+                     name="{{ form.owner_username.html_name }}" id="{{ form.owner_username.id_for_label }}"
+                     value="{{ form.owner_username.value|default:'admin' }}" autocomplete="off">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="{{ form.owner_name.id_for_label }}">{{ form.owner_name.label }}</label>
+              <input class="form-control" type="text" name="{{ form.owner_name.html_name }}"
+                     id="{{ form.owner_name.id_for_label }}" value="{{ form.owner_name.value|default:'' }}">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="{{ form.owner_email.id_for_label }}">{{ form.owner_email.label }}</label>
+              <input class="form-control" type="email" dir="ltr" name="{{ form.owner_email.html_name }}"
+                     id="{{ form.owner_email.id_for_label }}" value="{{ form.owner_email.value|default:'' }}">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label" for="{{ form.owner_phone.id_for_label }}">{{ form.owner_phone.label }}</label>
+              <input class="form-control" type="tel" dir="ltr" name="{{ form.owner_phone.html_name }}"
+                     id="{{ form.owner_phone.id_for_label }}" value="{{ form.owner_phone.value|default:'' }}">
+            </div>
+          </div>
+          <div class="form-text mt-3">
+            كلمة مرور لمرة واحدة تُعرض بعد الإنشاء ولا تُحفظ في أي مكان،
+            ويُطلب من المسؤول تغييرها عند أول دخول.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-5">
+      <div class="console-card mb-3">
+        <div class="console-card-head"><h2>الاشتراك</h2></div>
+        <div class="console-card-body">
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.plan.id_for_label }}">{{ form.plan.label }}</label>
+            <select class="form-select" name="{{ form.plan.html_name }}" id="{{ form.plan.id_for_label }}">
+              {% for value, label in form.fields.plan.choices %}
+                {% if value %}
+                  <option value="{{ value }}" {% if form.plan.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+            {% for error in form.plan.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+          </div>
+
+          <div>
+            <label class="form-label" for="{{ form.trial_days.id_for_label }}">{{ form.trial_days.label }}</label>
+            <input class="form-control" type="number" min="0" max="365"
+                   name="{{ form.trial_days.html_name }}" id="{{ form.trial_days.id_for_label }}"
+                   value="{{ form.trial_days.value|default:30 }}">
+            <div class="form-text">صفر = تفعيل فوري بلا فترة تجربة.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="console-card mb-3">
+        <div class="console-card-head"><h2>التجهيز الأولي</h2></div>
+        <div class="console-card-body d-grid gap-2">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="{{ form.seed_academics.html_name }}"
+                   id="{{ form.seed_academics.id_for_label }}" {% if form.seed_academics.value != False %}checked{% endif %}>
+            <label class="form-check-label" for="{{ form.seed_academics.id_for_label }}">
+              {{ form.seed_academics.label }}
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="{{ form.demo.html_name }}"
+                   id="{{ form.demo.id_for_label }}" {% if form.demo.value %}checked{% endif %}>
+            <label class="form-check-label" for="{{ form.demo.id_for_label }}">{{ form.demo.label }}</label>
+            {% for error in form.demo.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="d-grid gap-2">
+        <button class="btn btn-primary btn-lg" type="submit" id="submit">
+          <svg class="icon"><use href="#i-plus"></use></svg>إنشاء العميل
+        </button>
+        <a class="btn btn-ghost" href="{% url 'console:tenant_list' %}">إلغاء</a>
+      </div>
+      <div class="form-text mt-2 text-center">
+        كل شيء يتم في معاملة واحدة — فشل أي خطوة لا يترك عميلًا نصف مُنشأ.
+      </div>
+    </div>
   </div>
 </form>
+{% endblock %}
 
+{% block extra_js %}
 <script>
-  // Every field is a plain Bootstrap control; the form class does not know
-  // about CSS, so the widgets get their classes here rather than in Python.
-  document.querySelectorAll('form input:not([type=checkbox]), form select').forEach(function (el) {
-    el.classList.add(el.tagName === 'SELECT' ? 'form-select' : 'form-control');
-  });
+const CHECK = "{% url 'console:api_slug_check' %}";
+const BASE = "{{ base_domain|escapejs }}";
+
+const nameField = document.getElementById("{{ form.name.id_for_label }}");
+const slugField = document.getElementById("{{ form.slug.id_for_label }}");
+const preview = document.getElementById("slug-preview");
+const note = document.getElementById("slug-note");
+let slugTouched = Boolean(slugField.value);
+
+function suggest(text) {
+  return String(text || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 32);
+}
+
+/* Ask while they type, not on submit: a wizard that fails on something it could
+   have said a second earlier wastes a form the operator just filled in. */
+const check = app.debounce(async function () {
+  const slug = slugField.value.trim().toLowerCase();
+  preview.textContent = (slug || "<slug>") + "." + BASE;
+  preview.classList.remove("ok", "bad");
+  note.textContent = "";
+  if (!slug) { return; }
+
+  try {
+    const payload = await http.get(CHECK + "?slug=" + encodeURIComponent(slug), { quiet: true });
+    if (payload.data.available) {
+      preview.classList.add("ok");
+      note.textContent = "متاح";
+    } else {
+      preview.classList.add("bad");
+      note.textContent = payload.data.reason || "غير متاح";
+    }
+  } catch (error) { /* the form still validates server-side */ }
+}, 300);
+
+nameField.addEventListener("input", function () {
+  if (!slugTouched) { slugField.value = suggest(nameField.value); check(); }
+});
+slugField.addEventListener("input", function () { slugTouched = true; check(); });
+check();
+
+document.getElementById("provision-form").addEventListener("submit", function () {
+  // Provisioning seeds roles, academics and an owner account inside one
+  // transaction; it is not instant, and a second click would try to take the
+  // same slug twice.
+  const button = document.getElementById("submit");
+  button.disabled = true;
+  button.innerHTML = '<span class="spinner"></span> جارٍ الإنشاء…';
+});
 </script>
 {% endblock %}
