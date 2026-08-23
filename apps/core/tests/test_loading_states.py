@@ -47,7 +47,9 @@ def test_no_template_still_hand_rolls_a_loading_row():
     offenders = [
         path.relative_to(TEMPLATES).as_posix()
         for path in TEMPLATES.rglob("*.html")
-        if re.search(r"<td[^>]*>\s*\{% translate \"جارٍ التحميل…\" %\}", path.read_text(encoding="utf-8"))
+        if re.search(
+            r"<td[^>]*>\s*\{% translate \"جارٍ التحميل…\" %\}", path.read_text(encoding="utf-8")
+        )
     ]
     assert offenders == []
 
@@ -71,10 +73,10 @@ def test_a_background_poll_can_opt_out_of_the_bar():
 def test_the_config_panels_paint_before_their_data_arrives():
     """crud.js drives the settings and structure screens."""
     crud_js = (STATIC_JS / "crud.js").read_text(encoding="utf-8")
-    load = crud_js[crud_js.index("async function load()"):]
-    assert load.index("skeleton();") < load.index("await http.get"), (
-        "crud.panel must paint its skeleton before the fetch, not after"
-    )
+    load = crud_js[crud_js.index("async function load()") :]
+    assert load.index("skeleton();") < load.index(
+        "await http.get"
+    ), "crud.panel must paint its skeleton before the fetch, not after"
 
 
 def test_no_template_comment_spans_two_lines():

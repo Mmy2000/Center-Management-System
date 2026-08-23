@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}{% translate "تعديل بيانات الطالب" %}{% endblock %}
+
+{% block content %}
+<nav class="small mb-2">
+  <a href="{% url 'students:list' %}">{% translate "الطلاب" %}</a> /
+  <a href="{% url 'students:detail' student.pk %}">{{ student.student_code }}</a> /
+  {% translate "تعديل" %}
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1 class="h4 mb-0">{% translate "تعديل بيانات" %} {{ student.full_name }}</h1>
+  <span class="badge text-bg-secondary"><code>{{ student.student_code }}</code></span>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    <form id="student-form" class="row g-3" novalidate>
+      {% include "students/_form.html" %}
+
+      <div class="col-12">
+        <label class="form-label" for="f-reason">{% translate "سبب التعديل" %}</label>
+        <input class="form-control" id="f-reason" name="reason"
+               placeholder="{% translate 'يظهر في سجل التدقيق بجوار ما تغيّر' %}">
+        <div class="form-text">
+          {% translate "كود الطالب وحالته لا يتغيّران من هنا — الحالة لها زرّها في صفحة الطالب." %}
+        </div>
+      </div>
+
+      <div class="col-12 d-flex gap-2">
+        <button class="btn btn-primary" type="submit" id="save">{% translate "حفظ التعديلات" %}</button>
+        <a class="btn btn-outline-secondary" href="{% url 'students:detail' student.pk %}">
+          {% translate "إلغاء" %}
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const DETAIL_URL = "{% url 'students_api:student_detail' student.pk %}";
+const BACK_URL = "{% url 'students:detail' student.pk %}";
+
+document.getElementById("student-form").addEventListener("submit", function (event) {
+  event.preventDefault();
+  app.clearFieldErrors(event.target);
+
+  const payload = {};
+  new FormData(event.target).forEach(function (value, key) {
+    // Sent even when blank: clearing a phone number is an edit, and skipping
+    // empty values would make it impossible to remove anything.
+    payload[key] = value;
+  });
+
+  ui.withBusy(document.getElementById("save"), async function () {
+    try {
+      const result = await http.patch(DETAIL_URL, payload);
+      app.toast(gettext("تم حفظ التعديلات"), "success");
+      window.location = BACK_URL;
+      return result;
+    } catch (error) {
+      if (error.field_errors) {
+        Object.entries(error.field_errors).forEach(function ([field, messages]) {
+          const node = document.querySelector('[data-error-for="' + field + '"]');
+          if (node) { node.textContent = messages.join(" "); }
+          else { app.toast(messages.join(" "), "danger"); }
+        });
+      } else {
+        app.handleError(error);
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

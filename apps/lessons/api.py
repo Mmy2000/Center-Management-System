@@ -99,7 +99,9 @@ def lessons(request):
         raise DomainError("ERR_FORBIDDEN", _("لا تملك صلاحية هذا الإجراء"), status=403)
 
     data = request.json
-    group = get_object_or_404(visible_groups(request.user, Group.objects.all()), pk=data.get("group_id"))
+    group = get_object_or_404(
+        visible_groups(request.user, Group.objects.all()), pk=data.get("group_id")
+    )
     day = _parse_date(data.get("date"))
     if not day or not data.get("start") or not data.get("end"):
         raise DomainError(
@@ -110,7 +112,9 @@ def lessons(request):
 
     start = services._localize(day, datetime.strptime(data["start"], "%H:%M").time())
     end = services._localize(day, datetime.strptime(data["end"], "%H:%M").time())
-    lesson = services.create_lesson(group, start, end, actor=request.user, notes=data.get("notes", ""))
+    lesson = services.create_lesson(
+        group, start, end, actor=request.user, notes=data.get("notes", "")
+    )
     return {"lesson": lesson_json(lesson, detail=True)}
 
 
@@ -120,7 +124,9 @@ def lesson_detail(request, pk):
     if request.method == "GET":
         return {"lesson": lesson_json(lesson, detail=True)}
 
-    if not (request.user.has_perm("lessons.change_lesson") and can_touch_lesson(request.user, lesson)):
+    if not (
+        request.user.has_perm("lessons.change_lesson") and can_touch_lesson(request.user, lesson)
+    ):
         raise DomainError("ERR_FORBIDDEN", _("لا تملك صلاحية هذا الإجراء"), status=403)
 
     data = request.json
@@ -187,7 +193,9 @@ def complete_lesson(request, pk):
 @ajax(methods=["POST"], perm="lessons.cancel_lesson")
 def cancel_lesson(request, pk):
     lesson, _action = _lifecycle(request, pk, "lessons.cancel_lesson", "cancel")
-    lesson = services.cancel_lesson(lesson, actor=request.user, reason=request.json.get("reason", ""))
+    lesson = services.cancel_lesson(
+        lesson, actor=request.user, reason=request.json.get("reason", "")
+    )
     return {"lesson": lesson_json(lesson, detail=True)}
 
 
@@ -195,9 +203,11 @@ def cancel_lesson(request, pk):
 def active_lessons(request):
     """Lesson picker for the scanner console."""
     today: date = timezone.localdate()
-    qs = visible_lessons(request.user, Lesson.objects.with_related()).filter(
-        status=LessonStatus.OPEN
-    ).order_by("scheduled_start")
+    qs = (
+        visible_lessons(request.user, Lesson.objects.with_related())
+        .filter(status=LessonStatus.OPEN)
+        .order_by("scheduled_start")
+    )
     scheduled_today = (
         visible_lessons(request.user, Lesson.objects.with_related())
         .filter(status=LessonStatus.SCHEDULED, lesson_date=today)

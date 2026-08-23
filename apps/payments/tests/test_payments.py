@@ -43,15 +43,21 @@ def world(db):
         "physics_sec3": physics_sec3,
         "maths_sec3": maths_sec3,
         "phys_a": Group.objects.create(
-            grade_subject=physics_sec3, name="Group A", code="SEC3-PHY-A",
+            grade_subject=physics_sec3,
+            name="Group A",
+            code="SEC3-PHY-A",
             monthly_fee=Decimal("500.00"),
         ),
         "phys_b": Group.objects.create(
-            grade_subject=physics_sec3, name="Group B", code="SEC3-PHY-B",
+            grade_subject=physics_sec3,
+            name="Group B",
+            code="SEC3-PHY-B",
             monthly_fee=Decimal("500.00"),
         ),
         "math_c": Group.objects.create(
-            grade_subject=maths_sec3, name="Group C", code="SEC3-MATH-C",
+            grade_subject=maths_sec3,
+            name="Group C",
+            code="SEC3-MATH-C",
             monthly_fee=Decimal("400.00"),
         ),
     }
@@ -59,9 +65,7 @@ def world(db):
 
 @pytest.fixture
 def student(world):
-    return create_student(
-        full_name="أحمد محمد", grade=world["grade"], guardian_phone="01012345678"
-    )
+    return create_student(full_name="أحمد محمد", grade=world["grade"], guardian_phone="01012345678")
 
 
 @pytest.fixture
@@ -94,6 +98,7 @@ def _patch(client, url, payload):
 
 
 # ------------------------------------------------------------- generation 27 #
+
 
 def test_27_generation_is_idempotent(world, student):
     assign_svc.assign_student(student, world["phys_a"])
@@ -150,9 +155,7 @@ def test_transfer_mid_month_does_not_duplicate_or_reprice(world, student, charge
 
 
 def test_ended_assignments_are_not_billed_for_later_months(world, student):
-    assignment, _ = assign_svc.assign_student(
-        student, world["phys_a"], start_date=date(2026, 6, 1)
-    )
+    assignment, _ = assign_svc.assign_student(student, world["phys_a"], start_date=date(2026, 6, 1))
     assign_svc.end_assignment(assignment, end_date=date(2026, 7, 31), reason="LEFT_CENTER")
 
     summary = services.generate_monthly_charges(MONTH)
@@ -168,9 +171,7 @@ def test_dry_run_writes_nothing(world, student):
 
 def test_63_mid_month_joiner_is_billed_immediately(world, student):
     """Auto-charge only fires once the month has been generated."""
-    other = create_student(
-        full_name="سارة علي", grade=world["grade"], guardian_phone="01112345678"
-    )
+    other = create_student(full_name="سارة علي", grade=world["grade"], guardian_phone="01112345678")
     assign_svc.assign_student(other, world["phys_a"])
     services.generate_monthly_charges(timezone.localdate())
 
@@ -181,6 +182,7 @@ def test_63_mid_month_joiner_is_billed_immediately(world, student):
 
 
 # ----------------------------------------------------------- collection 23–26 #
+
 
 def test_23_three_partial_payments_walk_the_status(charge, cashier):
     assert charge.status == ChargeStatus.UNPAID
@@ -292,6 +294,7 @@ def test_refund_requires_a_reason_and_cannot_exceed_the_paid_total(charge, cashi
 
 # ---------------------------------------------------------- waive / cancel 30 #
 
+
 def test_30_waived_and_cancelled_are_excluded_from_expected_revenue(world, student, cashier):
     assign_svc.assign_student(student, world["phys_a"])
     other = create_student(full_name="سارة علي", grade=world["grade"], guardian_phone="01112345678")
@@ -350,6 +353,7 @@ def test_discount_cannot_exceed_the_amount_due(charge, cashier):
 
 # -------------------------------------------------------------------- drift #
 
+
 def test_drift_is_detected_and_repaired(charge, cashier):
     services.record_payment(charge, "300.00", collected_by=cashier)
     MonthlyCharge.objects.filter(pk=charge.pk).update(total_paid=Decimal("999.00"))
@@ -371,6 +375,7 @@ def test_balance_is_computed_by_the_database(charge, cashier):
 
 # ----------------------------------------------------------------------- API #
 
+
 def test_collect_endpoint_returns_a_receipt(admin_client_, charge):
     response = _post(
         admin_client_,
@@ -382,9 +387,7 @@ def test_collect_endpoint_returns_a_receipt(admin_client_, charge):
     assert data["payment"]["receipt_number"].startswith("R-")
     assert data["charge"]["balance"] == "300.00"
 
-    receipt = admin_client_.get(
-        reverse("payments_api:receipt", args=[data["payment"]["id"]])
-    )
+    receipt = admin_client_.get(reverse("payments_api:receipt", args=[data["payment"]["id"]]))
     assert receipt.status_code == 200
     assert receipt["Content-Type"] == "application/pdf"
     assert receipt["Content-Disposition"].startswith("attachment;")
@@ -405,9 +408,7 @@ def test_overpayment_is_a_field_error_at_the_api(admin_client_, charge):
 
 def test_charge_list_totals_reconcile_with_the_ledger(admin_client_, charge, cashier):
     services.record_payment(charge, "200.00", collected_by=cashier)
-    data = admin_client_.get(
-        reverse("payments_api:charges") + "?month=2026-08"
-    ).json()["data"]
+    data = admin_client_.get(reverse("payments_api:charges") + "?month=2026-08").json()["data"]
 
     assert data["totals"]["expected"] == "500.00"
     assert data["totals"]["collected"] == "200.00"
@@ -473,6 +474,7 @@ def test_workspace_page_renders(admin_client_):
 
 # ------------------------------------------------------------ PDF receipts #
 
+
 def test_receipt_pdf_carries_the_center_identity(admin_client_, charge, cashier):
     from apps.core.registry import settings_registry
 
@@ -497,8 +499,8 @@ def test_receipt_shows_the_number_the_amount_and_the_balance(admin_client_, char
     page = PdfReader(io.BytesIO(response.content)).pages[0]
     text = page.extract_text(extraction_mode="layout")
     assert payment.receipt_number in text
-    assert "200.00" in text   # amount paid
-    assert "300.00" in text   # balance left
+    assert "200.00" in text  # amount paid
+    assert "300.00" in text  # balance left
 
 
 def test_thermal_receipt_is_narrower_but_still_valid(admin_client_, charge, cashier):

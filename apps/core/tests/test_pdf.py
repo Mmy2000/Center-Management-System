@@ -29,7 +29,7 @@ def test_fonts_register_once():
 
 def test_arabic_is_reshaped_and_reordered():
     shaped = ar("أحمد محمد")
-    assert shaped != "أحمد محمد"          # glyphs were joined
+    assert shaped != "أحمد محمد"  # glyphs were joined
     assert len(shaped) <= len("أحمد محمد")  # ligatures may shorten it
 
 
@@ -170,6 +170,7 @@ def test_mixed_arabic_and_latin_survives_on_the_page():
 
 
 # ------------------------------------------------------------ palette link #
+
 
 def test_documents_follow_the_center_palette():
     """Change the theme in Settings and the paper changes with the screen."""

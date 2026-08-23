@@ -16,7 +16,7 @@ msgstr "%(label)s is required"
 msgid "150 حرفًا على الأكثر: حروف وأرقام و @ . + - _ فقط."
 msgstr "150 characters or fewer: letters, digits and @ . + - _ only."
 
-#: templates/cards/list.html:290
+#: templates/cards/list.html:298
 msgid "PDF للطباعة"
 msgstr "PDF for printing"
 
@@ -28,7 +28,7 @@ msgstr ""
 "“Subject offerings” define which subject is taught to which grade and at "
 "what fee — groups, enrollments and billing are all built on them."
 
-#: templates/students/create.html:53 apps/students/models.py:47
+#: templates/students/_form.html:54 apps/students/models.py:47
 msgid "آخر"
 msgstr "Other"
 
@@ -48,15 +48,15 @@ msgstr "Last lesson:"
 msgid "آخر دخول"
 msgstr "Last login"
 
-#: apps/cards/importer.py:89
+#: apps/cards/importer.py:83
 msgid "أحد الرموز مستخدم بالفعل في النظام"
 msgstr "One of the tokens is already in the system"
 
-#: apps/attendance/models.py:283
+#: apps/attendance/models.py:287
 msgid "أحداث المسح"
 msgstr "Scan events"
 
-#: templates/reports/report.html:131 templates/students/detail.html:400
+#: templates/reports/report.html:131 templates/students/detail.html:416
 #: apps/cards/models.py:33 apps/payments/models.py:50
 #: apps/students/models.py:162
 msgid "أخرى"
@@ -66,7 +66,7 @@ msgstr "Other"
 msgid "أرشفة عميل"
 msgstr "Archive client"
 
-#: apps/cards/importer.py:86
+#: apps/cards/importer.py:81
 msgid "أرقام موجودة بالفعل: %(n)s"
 msgstr "Already in the database: %(n)s"
 
@@ -82,11 +82,11 @@ msgstr "Minimum duration for full attendance (minutes)"
 msgid "أقل مدة قبل اعتبار المسح انصرافًا (دقائق)"
 msgstr "Minimum gap before a scan counts as check-out (minutes)"
 
-#: apps/payments/services.py:244
+#: apps/payments/services.py:245
 msgid "أكبر من المبلغ المحصّل"
 msgstr "Exceeds the amount collected"
 
-#: apps/payments/services.py:325
+#: apps/payments/services.py:331
 msgid "أكبر من المستحق"
 msgstr "Exceeds the amount due"
 
@@ -94,7 +94,7 @@ msgstr "Exceeds the amount due"
 msgid "أمين الخزنة"
 msgstr "Cashier"
 
-#: templates/students/create.html:29 apps/students/models.py:41
+#: templates/students/_form.html:27 apps/students/models.py:41
 msgid "أنثى"
 msgstr "Female"
 
@@ -115,8 +115,8 @@ msgstr ""
 msgid "إجراءات سريعة"
 msgstr "Quick actions"
 
-#: templates/cards/list.html:139 templates/lessons/list.html:119
-#: templates/payments/workspace.html:206 templates/students/detail.html:309
+#: templates/cards/list.html:146 templates/lessons/list.html:123
+#: templates/payments/workspace.html:206 templates/students/detail.html:325
 #: templates/students/list.html:108 static/js/ui.js:279
 msgid "إجمالي"
 msgstr "Total"
@@ -125,11 +125,11 @@ msgstr "Total"
 msgid "إجمالي المستحق"
 msgstr "Total due"
 
-#: apps/payments/documents.py:58
+#: apps/payments/documents.py:54
 msgid "إجمالي المسدد"
 msgstr "Total paid"
 
-#: templates/students/detail.html:326
+#: templates/students/detail.html:342
 msgid "إجمالي شهري:"
 msgstr "Monthly total:"
 
@@ -153,19 +153,19 @@ msgstr "Student management"
 msgid "إدارة المستخدمين"
 msgstr "User management"
 
-#: templates/payments/workspace.html:359 apps/core/models.py:82
+#: templates/payments/workspace.html:359 apps/core/models.py:83
 msgid "إصدار رسوم"
 msgstr "Issue charges"
 
-#: templates/payments/workspace.html:15 apps/payments/models.py:164
+#: templates/payments/workspace.html:15 apps/payments/models.py:172
 msgid "إصدار رسوم الشهر"
 msgstr "Issue this month's charges"
 
-#: apps/cards/api.py:360
+#: apps/cards/api.py:368
 msgid "إصدار من المخزون"
 msgstr "Issued from stock"
 
-#: templates/students/detail.html:481 templates/students/detail.html:509
+#: templates/students/detail.html:498 templates/students/detail.html:526
 msgid "إصدار وطباعة"
 msgstr "Issue and print"
 
@@ -213,7 +213,7 @@ msgstr "Waive"
 msgid "إعفاء من الرسوم"
 msgstr "Waive charges"
 
-#: apps/core/models.py:84
+#: apps/core/models.py:85
 msgid "إعفاء من رسوم"
 msgstr "Charge waived"
 
@@ -229,8 +229,9 @@ msgstr "Check-in closes"
 msgid "إغلاق التسجيل بعد بداية الحصة (دقائق)"
 msgstr "Close check-in after the lesson starts (minutes)"
 
-#: templates/lessons/detail.html:31 templates/students/create.html:77
-#: apps/attendance/models.py:241
+#: templates/cards/list.html:328 templates/lessons/detail.html:31
+#: templates/students/create.html:16 templates/students/edit.html:34
+#: apps/attendance/models.py:239
 msgid "إلغاء"
 msgstr "Cancel"
 
@@ -239,21 +240,21 @@ msgstr "Cancel"
 msgid "إلغاء الحصة"
 msgstr "Cancel lesson"
 
-#: apps/core/models.py:76
+#: apps/core/models.py:77
 msgid "إلغاء حصة"
 msgstr "Lesson cancelled"
 
-#: apps/core/models.py:79
+#: apps/core/models.py:80
 msgid "إلغاء حضور"
 msgstr "Attendance cancelled"
 
-#: apps/core/models.py:85
+#: apps/core/models.py:86
 msgid "إلغاء رسوم"
 msgstr "Charge cancelled"
 
-#: templates/academics/group_detail.html:153 templates/lessons/list.html:149
-#: templates/lessons/list.html:184 templates/payments/workspace.html:116
-#: templates/reports/report.html:53 templates/students/detail.html:99
+#: templates/academics/group_detail.html:153 templates/lessons/list.html:153
+#: templates/lessons/list.html:188 templates/payments/workspace.html:116
+#: templates/reports/report.html:53 templates/students/detail.html:108
 msgid "إلى"
 msgstr "To"
 
@@ -261,7 +262,7 @@ msgstr "To"
 msgid "إلى تاريخ"
 msgstr "To date"
 
-#: templates/cards/list.html:223
+#: templates/cards/list.html:231
 msgid "إنشاء"
 msgstr "Create"
 
@@ -269,11 +270,11 @@ msgstr "Create"
 msgid "إنشاء باقة"
 msgstr "Create plan"
 
-#: templates/cards/list.html:216
+#: templates/cards/list.html:224
 msgid "إنشاء بطاقات جديدة"
 msgstr "Create new cards"
 
-#: apps/core/models.py:72
+#: apps/core/models.py:73
 msgid "إنشاء حصة"
 msgstr "Lesson created"
 
@@ -291,7 +292,7 @@ msgstr "User created"
 
 #: templates/lessons/detail.html:27
 #: templates/partials/_impersonation_banner.html:15
-#: templates/students/detail.html:337 templates/students/detail.html:401
+#: templates/students/detail.html:353 templates/students/detail.html:417
 msgid "إنهاء"
 msgstr "Complete"
 
@@ -299,7 +300,7 @@ msgstr "Complete"
 msgid "إنهاء اشتراك طالب بمجموعة"
 msgstr "Student enrollment ended"
 
-#: templates/students/detail.html:397
+#: templates/students/detail.html:413
 msgid "إنهاء الاشتراك"
 msgstr "End enrollment"
 
@@ -312,11 +313,11 @@ msgstr "Complete the lesson"
 msgid "إنهاء الدخول نيابةً"
 msgstr "End impersonation"
 
-#: apps/core/models.py:75
+#: apps/core/models.py:76
 msgid "إنهاء حصة"
 msgstr "Lesson completed"
 
-#: templates/payments/workspace.html:238 templates/students/detail.html:265
+#: templates/payments/workspace.html:238 templates/students/detail.html:280
 msgid "إيصال"
 msgstr "Receipt"
 
@@ -350,7 +351,7 @@ msgstr "Search by student code, name or guardian phone…  (/)"
 msgid "اختر الحصة"
 msgstr "Choose a lesson"
 
-#: apps/cards/api.py:225
+#: apps/cards/api.py:235
 msgid "اختر ملف CSV"
 msgstr "Choose a CSV file"
 
@@ -362,19 +363,19 @@ msgstr "Theme and colour picker"
 msgid "اختيار لون"
 msgstr "Pick a colour"
 
-#: templates/cards/list.html:125 apps/cards/models.py:30
+#: templates/cards/list.html:130 apps/cards/models.py:30
 msgid "استبدال"
 msgstr "Replace"
 
-#: templates/cards/list.html:187
+#: templates/cards/list.html:194
 msgid "استبدال البطاقة"
 msgstr "Replace card"
 
-#: apps/core/models.py:70
+#: apps/core/models.py:71
 msgid "استبدال بطاقة"
 msgstr "Card replaced"
 
-#: templates/reports/report.html:117 templates/students/detail.html:118
+#: templates/reports/report.html:117 templates/students/detail.html:127
 #: apps/attendance/models.py:46
 msgid "استثنائي"
 msgstr "Exceptional"
@@ -392,12 +393,12 @@ msgstr "Client usage"
 msgid "استرداد"
 msgstr "Refund"
 
-#: templates/payments/workspace.html:332 apps/core/models.py:87
-#: apps/payments/models.py:262
+#: templates/payments/workspace.html:332 apps/core/models.py:88
+#: apps/payments/models.py:270
 msgid "استرداد دفعة"
 msgstr "Refund a payment"
 
-#: templates/cards/list.html:256
+#: templates/cards/list.html:264
 msgid "استيراد"
 msgstr "Import"
 
@@ -409,7 +410,7 @@ msgstr "Import CSV"
 msgid "استيراد بطاقات"
 msgstr "Cards imported"
 
-#: templates/cards/list.html:250
+#: templates/cards/list.html:258
 msgid "استيراد بطاقات مطبوعة"
 msgstr "Import pre-printed cards"
 
@@ -417,11 +418,11 @@ msgstr "Import pre-printed cards"
 msgid "استيراد دفعات البطاقات"
 msgstr "Bulk card import"
 
-#: apps/cards/importer.py:106
+#: apps/cards/importer.py:100
 msgid "استيراد دفعة بطاقات"
 msgstr "Card batch imported"
 
-#: templates/cards/list.html:221 templates/cards/list.html:254
+#: templates/cards/list.html:229 templates/cards/list.html:262
 msgid "اسم الدفعة (اختياري)"
 msgstr "Batch name (optional)"
 
@@ -459,7 +460,7 @@ msgstr "Enrollment"
 msgid "اشتراك طالب بمجموعة"
 msgstr "Student group enrollment"
 
-#: templates/students/detail.html:69 templates/students/detail.html:365
+#: templates/students/detail.html:78 templates/students/detail.html:381
 msgid "اشتراك في مجموعة"
 msgstr "Enroll in a group"
 
@@ -479,11 +480,11 @@ msgstr "Late after"
 msgid "اعتبار الطالب متأخرًا بعد (دقائق)"
 msgstr "Count a student late after (minutes)"
 
-#: apps/attendance/models.py:242
+#: apps/attendance/models.py:240
 msgid "اعتماد"
 msgstr "Approval"
 
-#: apps/attendance/models.py:216
+#: apps/attendance/models.py:215
 msgid "اعتماد الحضور الاستثنائي"
 msgstr "Approve exceptional attendance"
 
@@ -491,7 +492,7 @@ msgstr "Approve exceptional attendance"
 msgid "اعتماد المشرف وتسجيل الحضور"
 msgstr "Supervisor approval — record attendance"
 
-#: apps/core/models.py:80
+#: apps/core/models.py:81
 msgid "اعتماد حضور استثنائي"
 msgstr "Exceptional attendance approved"
 
@@ -499,11 +500,11 @@ msgstr "Exceptional attendance approved"
 msgid "افتح الحصة"
 msgstr "Open the lesson"
 
-#: templates/students/detail.html:454
+#: templates/students/detail.html:471
 msgid "الآن"
 msgstr "Now"
 
-#: templates/students/create.html:51 apps/students/models.py:45
+#: templates/students/_form.html:52 apps/students/models.py:45
 msgid "الأب"
 msgstr "Father"
 
@@ -519,11 +520,11 @@ msgstr "Wednesday"
 msgid "الأساسيات"
 msgstr "Core"
 
-#: templates/students/create.html:52 apps/students/models.py:46
+#: templates/students/_form.html:53 apps/students/models.py:46
 msgid "الأم"
 msgstr "Mother"
 
-#: templates/cards/list.html:164
+#: templates/cards/list.html:171
 msgid "الإبلاغ عن فقد البطاقة"
 msgstr "Report card lost"
 
@@ -531,7 +532,7 @@ msgstr "Report card lost"
 msgid "الإبلاغ عن فقد بطاقة"
 msgstr "Card reported lost"
 
-#: templates/core/audit_log.html:15 apps/core/models.py:116
+#: templates/core/audit_log.html:15 apps/core/models.py:117
 #: apps/tenancy/models.py:520
 msgid "الإجراء"
 msgstr "Action"
@@ -553,7 +554,7 @@ msgstr "Administration"
 msgid "الإعدادات"
 msgstr "Settings"
 
-#: apps/payments/models.py:163
+#: apps/payments/models.py:171
 msgid "الإعفاء من الرسوم"
 msgstr "Waive charges"
 
@@ -566,7 +567,7 @@ msgid "الإنهاء الفعلي"
 msgstr "Actually completed at"
 
 #: templates/payments/workspace.html:138 templates/payments/workspace.html:314
-#: templates/students/detail.html:179 apps/reports/registry.py:352
+#: templates/students/detail.html:189 apps/reports/registry.py:377
 msgid "الإيصال"
 msgstr "Receipt"
 
@@ -586,7 +587,7 @@ msgid "الاسم"
 msgstr "Name"
 
 #: templates/accounts/users.html:72 templates/accounts/users.html:104
-#: templates/students/create.html:13 apps/accounts/models.py:55
+#: templates/students/_form.html:4 apps/accounts/models.py:55
 #: apps/students/models.py:60
 msgid "الاسم الكامل"
 msgstr "Full name"
@@ -605,7 +606,7 @@ msgstr "Name (Arabic)"
 msgid "الاسم قصير جدًا"
 msgstr "That name is too short"
 
-#: templates/students/detail.html:425
+#: templates/students/detail.html:441
 msgid "الاشتراك القديم يُحفظ في السجل ولا يتأثر الحضور السابق."
 msgstr ""
 "The old enrollment is kept in the history and past attendance is untouched."
@@ -614,7 +615,7 @@ msgstr ""
 msgid "الاشتراك غير نشط"
 msgstr "This enrollment is not active"
 
-#: templates/students/detail.html:65
+#: templates/students/detail.html:74
 msgid "الاشتراكات الحالية"
 msgstr "Current enrollments"
 
@@ -639,7 +640,7 @@ msgid "البديل عن قارئ الباركود عبر كاميرا الجه�
 msgstr "The fallback to the barcode reader, using the device camera."
 
 #: templates/cards/list.html:3 templates/partials/_sidebar.html:74
-#: templates/students/detail.html:45 apps/cards/apps.py:9
+#: templates/students/detail.html:53 apps/cards/apps.py:9
 #: apps/core/policies.py:348 apps/tenancy/features.py:31
 msgid "البطاقات"
 msgstr "Cards"
@@ -649,19 +650,25 @@ msgid "البطاقات مخزون: تُنشأ دفعات، ثم تُربط با
 msgstr ""
 "Cards are stock: create a batch, then link them to students at enrollment."
 
-#: templates/students/detail.html:491 apps/cards/models.py:136
+#: templates/students/detail.html:508 apps/cards/models.py:136
 msgid "البطاقة"
 msgstr "Card"
+
+#: apps/cards/services.py:200
+msgid "البطاقة استُخدمت في المسح — عطّلها بدلًا من حذفها حتى لا يضيع السجل."
+msgstr ""
+"The card has been used in a scan — disable it rather than deleting it, so "
+"the record survives."
 
 #: apps/cards/models.py:77
 msgid "البطاقة البديلة"
 msgstr "Replacement card"
 
-#: apps/cards/services.py:206
+#: apps/cards/services.py:269
 msgid "البطاقة الجديدة غير متاحة"
 msgstr "The new card is not available"
 
-#: apps/cards/services.py:200
+#: apps/cards/services.py:263
 msgid "البطاقة القديمة غير مرتبطة بطالب"
 msgstr "The old card is not linked to a student"
 
@@ -669,9 +676,19 @@ msgstr "The old card is not linked to a student"
 msgid "البطاقة المستخدمة"
 msgstr "Card used"
 
+#: apps/cards/services.py:194
+msgid "البطاقة لها سجل تخصيص سابق — عطّلها بدلًا من حذفها حتى لا يضيع السجل."
+msgstr ""
+"The card has a previous assignment history — disable it rather than deleting"
+" it, so the record survives."
+
 #: apps/cards/api.py:86 apps/cards/services.py:56
 msgid "البطاقة مخصصة لطالب آخر"
 msgstr "This card belongs to another student"
+
+#: apps/cards/services.py:188
+msgid "البطاقة مرتبطة بطالب — فُك الارتباط أولًا."
+msgstr "The card is assigned to a student — release it first."
 
 #: apps/cards/services.py:113
 msgid "البطاقة مسجلة كمفقودة بالفعل"
@@ -682,26 +699,26 @@ msgid "التأخير بعد"
 msgstr "Late after"
 
 #: templates/core/audit_log.html:13 templates/lessons/list.html:55
-#: templates/lessons/list.html:182 templates/payments/workspace.html:139
-#: templates/payments/workspace.html:314 templates/students/detail.html:125
+#: templates/lessons/list.html:186 templates/payments/workspace.html:139
+#: templates/payments/workspace.html:314 templates/students/detail.html:134
 msgid "التاريخ"
 msgstr "Date"
 
-#: apps/lessons/api.py:107
+#: apps/lessons/api.py:109
 msgid "التاريخ ووقت البداية والنهاية مطلوبة"
 msgstr "Date, start time and end time are required"
 
-#: templates/cards/list.html:88 templates/lessons/list.html:72
-#: templates/payments/workspace.html:101 templates/students/detail.html:144
+#: templates/cards/list.html:90 templates/lessons/list.html:72
+#: templates/payments/workspace.html:101 templates/students/detail.html:153
 #: templates/students/list.html:66
 msgid "التالي"
 msgstr "Next"
 
-#: templates/students/detail.html:522
+#: templates/students/detail.html:539
 msgid "التالية في المخزون"
 msgstr "Next in stock"
 
-#: apps/reports/registry.py:257
+#: apps/reports/registry.py:272
 msgid "التحصيل اليومي"
 msgstr "Daily collection"
 
@@ -727,7 +744,7 @@ msgstr "Check-in closed"
 msgid "التسجيل مفتوح"
 msgstr "Check-in open"
 
-#: templates/core/audit_log.html:17 apps/core/models.py:121
+#: templates/core/audit_log.html:17 apps/core/models.py:122
 #: apps/tenancy/models.py:522
 msgid "التغييرات"
 msgstr "Changes"
@@ -746,7 +763,7 @@ msgstr "Operational reports"
 msgid "التقارير المالية"
 msgstr "Financial reports"
 
-#: apps/payments/documents.py:68
+#: apps/payments/documents.py:64
 msgid "التوقيع"
 msgstr "Signature"
 
@@ -760,7 +777,7 @@ msgstr "Friday"
 
 #: templates/academics/groups.html:26 templates/academics/groups.html:87
 #: templates/academics/groups.html:98 templates/accounts/users.html:21
-#: templates/cards/list.html:50 templates/cards/list.html:74
+#: templates/cards/list.html:52 templates/cards/list.html:76
 msgid "الحالة"
 msgstr "Status"
 
@@ -768,7 +785,7 @@ msgstr "Status"
 msgid "الحالية:"
 msgstr "Current:"
 
-#: templates/students/detail.html:174 apps/payments/models.py:246
+#: templates/students/detail.html:184 apps/payments/models.py:254
 msgid "الحركات المالية"
 msgstr "Transactions"
 
@@ -776,15 +793,15 @@ msgstr "Transactions"
 msgid "الحصة"
 msgstr "Lesson"
 
-#: apps/attendance/result_codes.py:78
+#: apps/attendance/result_codes.py:93
 msgid "الحصة غير مفتوحة للتسجيل"
 msgstr "The lesson is not open for check-in"
 
-#: apps/attendance/result_codes.py:77
+#: apps/attendance/result_codes.py:92
 msgid "الحصة غير موجودة"
 msgstr "Lesson not found"
 
-#: apps/attendance/result_codes.py:79
+#: apps/attendance/result_codes.py:94
 msgid "الحصة ملغاة"
 msgstr "The lesson is cancelled"
 
@@ -794,7 +811,7 @@ msgstr "The lesson is cancelled"
 msgid "الحصص"
 msgstr "Lessons"
 
-#: templates/students/detail.html:43 apps/attendance/apps.py:9
+#: templates/students/detail.html:48 apps/attendance/apps.py:9
 #: apps/attendance/models.py:116 apps/core/policies.py:345
 #: apps/tenancy/features.py:30
 msgid "الحضور"
@@ -804,7 +821,7 @@ msgstr "Attendance"
 msgid "الحضور الاستثنائي"
 msgstr "Exceptional attendance"
 
-#: apps/reports/registry.py:104
+#: apps/reports/registry.py:103
 msgid "الحضور اليومي"
 msgstr "Daily attendance"
 
@@ -816,7 +833,7 @@ msgstr "Card check-in (QR)"
 msgid "الحضور ببصمة الإصبع"
 msgstr "Fingerprint check-in"
 
-#: apps/reports/registry.py:233
+#: apps/reports/registry.py:246
 msgid "الحضور في مجموعات بديلة"
 msgstr "Alternative-group attendance"
 
@@ -836,12 +853,12 @@ msgstr "Feature"
 msgid "الخدمة موقوفة مؤقتًا"
 msgstr "Service temporarily suspended"
 
-#: templates/payments/workspace.html:86 apps/payments/documents.py:54
-#: apps/payments/models.py:97
+#: templates/payments/workspace.html:86 apps/payments/documents.py:53
+#: apps/payments/models.py:99
 msgid "الخصم"
 msgstr "Discount"
 
-#: apps/payments/services.py:324
+#: apps/payments/services.py:330
 msgid "الخصم أكبر من المستحق"
 msgstr "The discount exceeds the amount due"
 
@@ -853,8 +870,8 @@ msgstr "Discount until"
 msgid "الخميس"
 msgstr "Thursday"
 
-#: templates/cards/list.html:57 templates/cards/list.html:76
-#: templates/cards/list.html:288 apps/cards/models.py:66
+#: templates/cards/list.html:59 templates/cards/list.html:78
+#: templates/cards/list.html:296 apps/cards/models.py:66
 msgid "الدفعة"
 msgstr "Batch"
 
@@ -871,14 +888,14 @@ msgid "الدور"
 msgstr "Role"
 
 #: templates/academics/groups.html:86 templates/payments/workspace.html:40
-#: templates/students/detail.html:79 templates/students/detail.html:152
-#: apps/payments/models.py:204
+#: templates/students/detail.html:88 templates/students/detail.html:162
+#: apps/payments/models.py:212
 msgid "الرسوم"
 msgstr "Charges"
 
 #: templates/academics/groups.html:96 templates/academics/structure.html:117
 #: templates/academics/structure.html:123 apps/academics/models.py:193
-#: apps/payments/models.py:132
+#: apps/payments/models.py:140
 msgid "الرسوم الشهرية"
 msgstr "Monthly fee"
 
@@ -896,30 +913,30 @@ msgstr ""
 "Monthly charges and collection. Disabling it hides the screens and deletes "
 "no data."
 
-#: templates/cards/list.html:73
+#: templates/cards/list.html:75
 msgid "الرمز"
 msgstr "Token"
 
-#: templates/cards/list.html:87 templates/lessons/list.html:71
-#: templates/payments/workspace.html:100 templates/students/detail.html:143
+#: templates/cards/list.html:89 templates/lessons/list.html:71
+#: templates/payments/workspace.html:100 templates/students/detail.html:152
 #: templates/students/list.html:65
 msgid "السابق"
 msgstr "Previous"
 
-#: templates/core/audit_log.html:18 templates/students/detail.html:101
-#: templates/students/detail.html:398 apps/core/models.py:122
-#: apps/tenancy/models.py:523
+#: templates/cards/list.html:325 templates/core/audit_log.html:18
+#: templates/students/detail.html:110 templates/students/detail.html:414
+#: apps/core/models.py:123 apps/tenancy/models.py:523
 msgid "السبب"
 msgstr "Reason"
 
-#: templates/cards/list.html:148 templates/cards/list.html:193
+#: templates/cards/list.html:155 templates/cards/list.html:200
 #: templates/lessons/detail.html:173 templates/lessons/detail.html:217
 #: templates/payments/workspace.html:289 templates/payments/workspace.html:335
 msgid "السبب (مطلوب)"
 msgstr "Reason (required)"
 
-#: apps/attendance/services.py:524 apps/attendance/services.py:571
-#: apps/attendance/services.py:616 apps/cards/services.py:108
+#: apps/attendance/services.py:579 apps/attendance/services.py:626
+#: apps/attendance/services.py:673 apps/cards/services.py:108
 #: apps/cards/services.py:109 apps/cards/services.py:137
 msgid "السبب مطلوب"
 msgstr "A reason is required"
@@ -961,9 +978,9 @@ msgstr "Allow attendance for partially paid students"
 msgid "السماح بحضور غير المسدد"
 msgstr "Allow attendance for unpaid students"
 
-#: templates/reports/report.html:59 templates/students/detail.html:159
-#: apps/payments/documents.py:38 apps/reports/api.py:147
-#: apps/reports/registry.py:284
+#: templates/reports/report.html:59 templates/students/detail.html:169
+#: apps/payments/documents.py:38 apps/reports/api.py:160
+#: apps/reports/registry.py:301
 msgid "الشهر"
 msgstr "Month"
 
@@ -971,7 +988,7 @@ msgstr "Month"
 msgid "الشهر الحالي"
 msgstr "This month"
 
-#: apps/reports/registry.py:267 apps/reports/registry.py:340
+#: apps/reports/registry.py:282 apps/reports/registry.py:363
 msgid "الصافي"
 msgstr "Net"
 
@@ -997,7 +1014,7 @@ msgstr "Grades"
 msgid "الصورة"
 msgstr "Photo"
 
-#: templates/cards/list.html:75 templates/lessons/detail.html:55
+#: templates/cards/list.html:77 templates/lessons/detail.html:55
 #: templates/payments/workspace.html:83 templates/payments/workspace.html:140
 #: apps/attendance/models.py:85 apps/cards/models.py:142
 msgid "الطالب"
@@ -1015,11 +1032,11 @@ msgstr "The student is already in this group"
 msgid "الطالب سجّل الانصراف بالفعل"
 msgstr "The student has already checked out"
 
-#: apps/attendance/result_codes.py:47 apps/attendance/result_codes.py:86
+#: apps/attendance/result_codes.py:47 apps/attendance/result_codes.py:99
 msgid "الطالب غير مقيد بهذه المادة"
 msgstr "The student is not enrolled in this subject"
 
-#: apps/attendance/result_codes.py:75
+#: apps/attendance/result_codes.py:90
 msgid "الطالب غير نشط"
 msgstr "The student is not active"
 
@@ -1033,17 +1050,17 @@ msgstr ""
 "The student is already enrolled in another group for this subject — use "
 "Transfer"
 
-#: apps/attendance/result_codes.py:88
+#: apps/attendance/result_codes.py:101
 msgid "الطالب من صف مختلف"
 msgstr "The student belongs to a different grade"
 
-#: apps/attendance/result_codes.py:76
+#: apps/attendance/result_codes.py:91
 msgid "الطالب موقوف"
 msgstr "The student is suspended"
 
 #: templates/payments/workspace.html:143 templates/payments/workspace.html:257
-#: templates/payments/workspace.html:314 templates/students/detail.html:183
-#: apps/reports/registry.py:336 apps/reports/registry.py:359
+#: templates/payments/workspace.html:314 templates/students/detail.html:193
+#: apps/reports/registry.py:359 apps/reports/registry.py:384
 msgid "الطريقة"
 msgstr "Method"
 
@@ -1054,16 +1071,16 @@ msgstr ""
 "camera."
 
 #: templates/partials/_sidebar.html:28 templates/students/create.html:6
-#: templates/students/detail.html:6 templates/students/list.html:3
-#: templates/students/list.html:7 apps/students/apps.py:9
+#: templates/students/detail.html:6 templates/students/edit.html:7
+#: templates/students/list.html:3 templates/students/list.html:7
 msgid "الطلاب"
 msgstr "Students"
 
-#: apps/reports/registry.py:217
+#: apps/reports/registry.py:228
 msgid "الطلاب الغائبون"
 msgstr "Absent students"
 
-#: apps/reports/registry.py:199
+#: apps/reports/registry.py:208
 msgid "الطلاب المتأخرون"
 msgstr "Late students"
 
@@ -1075,11 +1092,11 @@ msgstr "Academic year"
 msgid "العدد المتوقع"
 msgstr "Expected count"
 
-#: apps/cards/importer.py:125
+#: apps/cards/importer.py:119
 msgid "العدد يجب أن يكون بين 1 و %(max)s"
 msgstr "The count must be between 1 and %(max)s"
 
-#: apps/core/models.py:159
+#: apps/core/models.py:160
 msgid "العدّادات"
 msgstr "Sequences"
 
@@ -1095,7 +1112,7 @@ msgstr "Clients and subscriptions"
 msgid "العملة"
 msgstr "Currency"
 
-#: apps/accounts/models.py:47 apps/core/models.py:106
+#: apps/accounts/models.py:47 apps/core/models.py:107
 #: apps/tenancy/models.py:393 apps/tenancy/models.py:518
 msgid "العميل"
 msgstr "Client"
@@ -1104,7 +1121,7 @@ msgstr "Client"
 msgid "العنصر"
 msgstr "Object"
 
-#: templates/students/create.html:66 templates/students/detail.html:55
+#: templates/students/_form.html:68 templates/students/detail.html:64
 #: apps/students/models.py:72
 msgid "العنوان"
 msgstr "Address"
@@ -1153,17 +1170,17 @@ msgstr "Below the minimum (%(m)s)"
 msgid "القيمة أكبر من الحد الأقصى (%(m)s)"
 msgstr "Above the maximum (%(m)s)"
 
-#: apps/core/models.py:155
+#: apps/core/models.py:156
 msgid "القيمة التالية"
 msgstr "Next value"
 
-#: templates/cards/list.html:287
+#: templates/cards/list.html:295
 msgid "الكشف يحتوي على رموز حيّة — سلّمه للمطبعة فقط."
 msgstr "This sheet contains live tokens — hand it to the print shop only."
 
 #: templates/academics/groups.html:15 templates/academics/groups.html:19
 #: templates/academics/groups.html:23 templates/academics/groups.html:28
-#: templates/cards/list.html:52 templates/cards/list.html:59
+#: templates/cards/list.html:54 templates/cards/list.html:61
 msgid "الكل"
 msgstr "All"
 
@@ -1200,18 +1217,18 @@ msgstr ""
 msgid "المادة"
 msgstr "Subject"
 
-#: apps/academics/models.py:178 apps/payments/models.py:83
+#: apps/academics/models.py:178 apps/payments/models.py:85
 #: apps/students/models.py:190
 msgid "المادة/الصف"
 msgstr "Subject / grade"
 
-#: apps/students/models.py:246
+#: apps/students/models.py:245
 msgid "المادة/الصف يجب أن تطابق مجموعة الطالب."
 msgstr "The offering must match the student's group."
 
 #: templates/payments/workspace.html:142 templates/payments/workspace.html:253
-#: templates/payments/workspace.html:314 templates/students/detail.html:182
-#: apps/payments/models.py:216 apps/reports/registry.py:358
+#: templates/payments/workspace.html:314 templates/students/detail.html:192
+#: apps/payments/models.py:224 apps/reports/registry.py:383
 msgid "المبلغ"
 msgstr "Amount"
 
@@ -1219,11 +1236,11 @@ msgstr "Amount"
 msgid "المبلغ (اتركه فارغًا لاسترداد كامل)"
 msgstr "Amount (leave empty for a full refund)"
 
-#: apps/payments/services.py:236
+#: apps/payments/services.py:237
 msgid "المبلغ أكبر من المتبقي"
 msgstr "The amount exceeds the balance"
 
-#: apps/payments/services.py:234
+#: apps/payments/services.py:235
 msgid "المبلغ أكبر من المتبقي (%(rem)s)"
 msgstr "The amount exceeds the balance (%(rem)s)"
 
@@ -1235,11 +1252,11 @@ msgstr "Amount paid"
 msgid "المبلغ المسترد"
 msgstr "Amount refunded"
 
-#: apps/payments/services.py:214 apps/payments/services.py:215
+#: apps/payments/services.py:215 apps/payments/services.py:216
 msgid "المبلغ يجب أن يكون أكبر من صفر"
 msgstr "The amount must be greater than zero"
 
-#: templates/dashboard/home.html:96 apps/reports/registry.py:273
+#: templates/dashboard/home.html:96 apps/reports/registry.py:290
 msgid "المتأخرات"
 msgstr "Outstanding"
 
@@ -1248,8 +1265,8 @@ msgid "المتأخرون فقط"
 msgstr "Outstanding only"
 
 #: templates/dashboard/home.html:52 templates/payments/workspace.html:31
-#: templates/payments/workspace.html:88 templates/students/detail.html:163
-#: apps/payments/documents.py:59 apps/payments/models.py:103
+#: templates/payments/workspace.html:88 templates/students/detail.html:173
+#: apps/payments/documents.py:55 apps/payments/models.py:105
 msgid "المتبقي"
 msgstr "Balance"
 
@@ -1257,7 +1274,7 @@ msgstr "Balance"
 msgid "المتبقي:"
 msgstr "Balance:"
 
-#: apps/reports/registry.py:303 apps/reports/registry.py:321
+#: apps/reports/registry.py:322 apps/reports/registry.py:342
 msgid "المتوقع"
 msgstr "Expected"
 
@@ -1267,13 +1284,13 @@ msgstr "Expected (EGP)"
 
 #: templates/academics/group_detail.html:7 templates/academics/groups.html:3
 #: templates/academics/groups.html:7 templates/academics/groups.html:74
-#: templates/partials/_sidebar.html:35 templates/students/detail.html:42
+#: templates/partials/_sidebar.html:35 templates/students/detail.html:47
 msgid "المجموعات"
 msgstr "Groups"
 
 #: templates/academics/groups.html:81 templates/lessons/list.html:30
-#: templates/lessons/list.html:58 templates/lessons/list.html:147
-#: templates/lessons/list.html:181 templates/reports/report.html:92
+#: templates/lessons/list.html:58 templates/lessons/list.html:151
+#: templates/lessons/list.html:185 templates/reports/report.html:92
 msgid "المجموعة"
 msgstr "Group"
 
@@ -1281,11 +1298,11 @@ msgstr "Group"
 msgid "المجموعة الأساسية"
 msgstr "Primary group"
 
-#: templates/students/detail.html:423
+#: templates/students/detail.html:439
 msgid "المجموعة الجديدة"
 msgstr "New group"
 
-#: templates/students/detail.html:128 apps/reports/registry.py:248
+#: templates/students/detail.html:137 apps/reports/registry.py:261
 msgid "المجموعة الحاضرة"
 msgstr "Attended group"
 
@@ -1297,7 +1314,7 @@ msgstr "Current group"
 msgid "المجموعة تجاوزت السعة"
 msgstr "The group is over capacity"
 
-#: apps/payments/models.py:92
+#: apps/payments/models.py:94
 msgid "المجموعة وقت الإصدار"
 msgstr "Group when issued"
 
@@ -1306,20 +1323,20 @@ msgid "المجموعة:"
 msgstr "Group:"
 
 #: templates/dashboard/home.html:48 templates/payments/workspace.html:27
-#: templates/payments/workspace.html:144 apps/payments/documents.py:69
-#: apps/reports/api.py:150 apps/reports/registry.py:304
+#: templates/payments/workspace.html:144 apps/payments/documents.py:65
+#: apps/reports/api.py:168 apps/reports/registry.py:323
 msgid "المحصّل"
 msgstr "Collected"
 
-#: templates/students/detail.html:526
+#: templates/students/detail.html:543
 msgid "المخزون فارغ — سيتم إنشاء بطاقة جديدة عند التأكيد."
 msgstr "Stock is empty — a new card will be created on confirmation."
 
-#: templates/students/detail.html:131 apps/attendance/models.py:119
+#: templates/students/detail.html:140 apps/attendance/models.py:119
 msgid "المدة"
 msgstr "Duration"
 
-#: templates/students/create.html:62 apps/students/models.py:80
+#: templates/students/_form.html:64 apps/students/models.py:80
 msgid "المدرسة"
 msgstr "School"
 
@@ -1334,13 +1351,13 @@ msgstr "Instructor"
 msgid "المدرّسون"
 msgstr "Instructors"
 
-#: templates/payments/workspace.html:87 templates/students/detail.html:162
-#: apps/payments/models.py:98 apps/reports/registry.py:286
+#: templates/payments/workspace.html:87 templates/students/detail.html:172
+#: apps/payments/models.py:100 apps/reports/registry.py:303
 msgid "المدفوع"
 msgstr "Paid"
 
 #: templates/partials/_sidebar.html:49 templates/payments/workspace.html:3
-#: templates/payments/workspace.html:7 templates/students/detail.html:44
+#: templates/payments/workspace.html:7 templates/students/detail.html:50
 #: apps/core/policies.py:346 apps/payments/apps.py:9
 msgid "المدفوعات"
 msgstr "Payments"
@@ -1363,12 +1380,12 @@ msgstr "Stages, grades, subjects and groups — cannot be disabled."
 msgid "المرحلة"
 msgstr "Stage"
 
-#: templates/payments/workspace.html:85 templates/students/detail.html:161
-#: apps/payments/models.py:96 apps/reports/registry.py:285
+#: templates/payments/workspace.html:85 templates/students/detail.html:171
+#: apps/payments/models.py:98 apps/reports/registry.py:302
 msgid "المستحق"
 msgstr "Due"
 
-#: templates/core/audit_log.html:14 apps/core/models.py:114
+#: templates/core/audit_log.html:14 apps/core/models.py:115
 #: apps/tenancy/models.py:510
 msgid "المستخدم"
 msgstr "User"
@@ -1391,7 +1408,7 @@ msgstr "Scan"
 msgid "المسح بكاميرا الهاتف"
 msgstr "Camera scanning"
 
-#: apps/attendance/models.py:215
+#: apps/attendance/models.py:214
 msgid "المسح لأي مجموعة"
 msgstr "Scan for any group"
 
@@ -1412,15 +1429,15 @@ msgstr ""
 "The identifier must contain only lowercase letters, digits and hyphens, and "
 "start and end with a letter or digit."
 
-#: apps/core/models.py:29 apps/core/models.py:154
+#: apps/core/models.py:29 apps/core/models.py:155
 msgid "المفتاح"
 msgstr "Key"
 
-#: apps/reports/registry.py:294
+#: apps/reports/registry.py:313
 msgid "الملخص المالي للمجموعات"
 msgstr "Group financial summary"
 
-#: apps/reports/registry.py:312
+#: apps/reports/registry.py:333
 msgid "الملخص المالي للمواد"
 msgstr "Subject financial summary"
 
@@ -1428,11 +1445,11 @@ msgstr "Subject financial summary"
 msgid "الملف فارغ"
 msgstr "The file is empty"
 
-#: apps/cards/api.py:242
+#: apps/cards/api.py:252
 msgid "الملف ليس بترميز UTF-8 — احفظه من Excel كـ CSV UTF-8"
 msgstr "The file is not UTF-8 — save it from Excel as CSV UTF-8"
 
-#: apps/cards/api.py:226
+#: apps/cards/api.py:236
 msgid "الملف مطلوب"
 msgstr "A file is required"
 
@@ -1457,7 +1474,7 @@ msgstr "Weekly schedule"
 msgid "النطاق"
 msgstr "Domain"
 
-#: apps/lessons/services.py:95
+#: apps/lessons/services.py:97
 msgid "النطاق أطول من سنة"
 msgstr "The range is longer than a year"
 
@@ -1473,7 +1490,7 @@ msgstr "Domains"
 msgid "النظام"
 msgstr "System"
 
-#: templates/cards/list.html:217
+#: templates/cards/list.html:225
 msgid ""
 "النظام يولّد رموزًا عشوائية غير قابلة للتخمين، ثم تُصدَّر كشفًا للطباعة."
 msgstr ""
@@ -1491,7 +1508,7 @@ msgstr "End"
 
 #: templates/lessons/detail.html:57 templates/payments/workspace.html:141
 #: templates/payments/workspace.html:314 templates/reports/report.html:112
-#: templates/students/create.html:25 templates/students/detail.html:53
+#: templates/students/_form.html:23 templates/students/detail.html:62
 msgid "النوع"
 msgstr "Type"
 
@@ -1518,7 +1535,7 @@ msgstr "Interface"
 msgid "الواجهة الإنجليزية"
 msgstr "English interface"
 
-#: apps/core/models.py:120 apps/tenancy/models.py:66
+#: apps/core/models.py:121 apps/tenancy/models.py:66
 #: apps/tenancy/models.py:521
 msgid "الوصف"
 msgstr "Description"
@@ -1538,27 +1555,27 @@ msgstr "Time"
 msgid "اليوم"
 msgstr "Today"
 
-#: templates/cards/list.html:188
+#: templates/cards/list.html:195
 msgid "امسح البطاقة الجديدة"
 msgstr "Scan the new card"
 
-#: templates/students/detail.html:485
+#: templates/students/detail.html:502
 msgid "امسح البطاقة المطبوعة الآن — يجب أن تكون متاحة وغير مرتبطة بطالب."
 msgstr "Scan the printed card now — it must be available and unlinked."
 
-#: templates/cards/list.html:43
+#: templates/cards/list.html:45
 msgid "امسح الكارت أو اكتب الرمز…"
 msgstr "Scan a card or type the token…"
 
-#: templates/students/detail.html:486
+#: templates/students/detail.html:503
 msgid "امسح الكارت…"
 msgstr "Scan the card…"
 
-#: templates/students/detail.html:480
+#: templates/students/detail.html:497
 msgid "امسح بطاقة جاهزة"
 msgstr "Scan an existing card"
 
-#: templates/cards/list.html:41
+#: templates/cards/list.html:43
 msgid "امسح بطاقة للبحث عنها"
 msgstr "Scan a card to find it"
 
@@ -1572,12 +1589,12 @@ msgstr ""
 "The subscription has ended. Service continues for now — please contact the "
 "system operator."
 
-#: apps/attendance/result_codes.py:80
+#: apps/attendance/result_codes.py:95
 msgid "انتهى وقت تسجيل الحضور"
 msgstr "The attendance window has closed"
 
 #: templates/lessons/detail.html:59 templates/lessons/detail.html:116
-#: templates/students/detail.html:130
+#: templates/students/detail.html:139
 msgid "انصراف"
 msgstr "Check out"
 
@@ -1597,8 +1614,8 @@ msgstr "Card token prefix"
 msgid "باقة"
 msgstr "Plan"
 
-#: apps/attendance/models.py:28 apps/attendance/views.py:44
-#: apps/lessons/views.py:35
+#: apps/attendance/models.py:28 apps/attendance/views.py:42
+#: apps/lessons/views.py:33
 msgid "بالداخل"
 msgstr "Inside"
 
@@ -1627,8 +1644,8 @@ msgstr "None"
 msgid "بدون صورة"
 msgstr "No photo"
 
-#: apps/attendance/views.py:43 apps/lessons/views.py:34
-#: apps/reports/registry.py:136 apps/reports/registry.py:154
+#: apps/attendance/views.py:41 apps/lessons/views.py:32
+#: apps/reports/registry.py:137 apps/reports/registry.py:157
 msgid "بديل"
 msgstr "Alternative"
 
@@ -1644,7 +1661,7 @@ msgstr "Please sign in to continue"
 msgid "بريد المسؤول"
 msgstr "Owner email"
 
-#: templates/students/detail.html:195
+#: templates/students/detail.html:208
 msgid "بطاقات الطالب"
 msgstr "Student cards"
 
@@ -1656,8 +1673,8 @@ msgstr "Student cards"
 msgid "بطاقات جديدة"
 msgstr "New cards"
 
-#: templates/cards/list.html:237 templates/cards/list.html:269
-#: templates/cards/list.html:315 templates/reports/report.html:129
+#: templates/cards/list.html:245 templates/cards/list.html:277
+#: templates/cards/list.html:358 templates/reports/report.html:129
 #: apps/payments/models.py:48 apps/tenancy/quota.py:100
 msgid "بطاقة"
 msgstr "card"
@@ -1670,11 +1687,11 @@ msgstr "Student card"
 msgid "بطاقة غير مخصصة"
 msgstr "Unassigned card"
 
-#: apps/attendance/result_codes.py:68 apps/cards/services.py:38
+#: apps/attendance/result_codes.py:83 apps/cards/services.py:38
 msgid "بطاقة غير معروفة"
 msgstr "Unknown card"
 
-#: templates/cards/list.html:139
+#: templates/cards/list.html:146
 msgid "بطاقة — صفحة"
 msgstr "cards — page"
 
@@ -1716,7 +1733,7 @@ msgstr ""
 msgid "تأخير:"
 msgstr "Late by:"
 
-#: templates/cards/list.html:150 templates/cards/list.html:195
+#: templates/cards/list.html:157 templates/cards/list.html:202
 msgid "تأكيد"
 msgstr "Confirm"
 
@@ -1740,15 +1757,15 @@ msgstr "Suspended on"
 msgid "تاريخ الاستبدال"
 msgstr "Replaced at"
 
-#: apps/payments/models.py:113
+#: apps/payments/models.py:115
 msgid "تاريخ الاستحقاق"
 msgstr "Due date"
 
-#: templates/students/detail.html:56 apps/students/models.py:88
+#: templates/students/detail.html:65 apps/students/models.py:88
 msgid "تاريخ الالتحاق"
 msgstr "Enrolled on"
 
-#: templates/students/detail.html:367
+#: templates/students/detail.html:383
 msgid "تاريخ البدء"
 msgstr "Start date"
 
@@ -1768,16 +1785,16 @@ msgstr "Activated on"
 msgid "تاريخ الفقد"
 msgstr "Lost at"
 
-#: templates/students/create.html:58 templates/students/detail.html:52
+#: templates/students/_form.html:59 templates/students/detail.html:61
 #: apps/students/models.py:63
 msgid "تاريخ الميلاد"
 msgstr "Date of birth"
 
-#: apps/lessons/api.py:59 apps/reports/api.py:42
+#: apps/lessons/api.py:59 apps/reports/api.py:53
 msgid "تاريخ غير صحيح"
 msgstr "Invalid date"
 
-#: apps/attendance/api.py:222
+#: apps/attendance/api.py:225
 msgid "تاريخ/وقت غير صحيح"
 msgstr "Invalid date/time"
 
@@ -1793,7 +1810,7 @@ msgstr "Trial"
 msgid "تحصيل"
 msgstr "Collect"
 
-#: templates/dashboard/home.html:87 apps/core/models.py:86
+#: templates/dashboard/home.html:87 apps/core/models.py:87
 msgid "تحصيل دفعة"
 msgstr "Collect a payment"
 
@@ -1829,11 +1846,11 @@ msgstr "Manual edit"
 msgid "تذييل الإيصال"
 msgstr "Receipt footer"
 
-#: templates/students/detail.html:399 apps/students/models.py:160
+#: templates/students/detail.html:415 apps/students/models.py:160
 msgid "ترك السنتر"
 msgstr "Left the center"
 
-#: apps/cards/api.py:243
+#: apps/cards/api.py:253
 msgid "ترميز غير مدعوم"
 msgstr "Unsupported encoding"
 
@@ -1869,11 +1886,11 @@ msgstr "Student enrolment and records — cannot be disabled."
 msgid "تسجيل الغياب تلقائيًا عند إنهاء الحصة"
 msgstr "Record absences automatically when a lesson completes"
 
-#: apps/attendance/models.py:237
+#: apps/attendance/models.py:235
 msgid "تسجيل انصراف"
 msgstr "Check-out"
 
-#: apps/attendance/models.py:236 apps/core/models.py:77
+#: apps/attendance/models.py:234 apps/core/models.py:78
 msgid "تسجيل حضور"
 msgstr "Check-in"
 
@@ -1901,7 +1918,7 @@ msgstr "Register a new student"
 msgid "تسجيل يدوي"
 msgstr "Manual entry"
 
-#: apps/attendance/models.py:217
+#: apps/attendance/models.py:216
 msgid "تصحيح الحضور يدويًا"
 msgstr "Correct attendance manually"
 
@@ -1909,7 +1926,7 @@ msgstr "Correct attendance manually"
 msgid "تصدير Excel"
 msgstr "Excel export"
 
-#: apps/reports/api.py:209
+#: apps/reports/api.py:232
 msgid "تصدير Excel غير متاح على هذا الخادم — استخدم CSV"
 msgstr "Excel export is unavailable on this server — use CSV"
 
@@ -1925,19 +1942,20 @@ msgstr "Export reports"
 msgid "تصدير بيانات عميل"
 msgstr "Export client data"
 
-#: apps/core/models.py:89
+#: apps/core/models.py:90
 msgid "تصدير تقرير"
 msgstr "Report exported"
 
-#: apps/cards/api.py:280
+#: apps/cards/api.py:290
 msgid "تصدير كشف بطاقات"
 msgstr "Card sheet exported"
 
-#: templates/students/detail.html:399 apps/students/models.py:161
+#: templates/students/detail.html:415 apps/students/models.py:161
 msgid "تعارض مواعيد"
 msgstr "Schedule conflict"
 
-#: templates/accounts/users.html:60 static/js/crud.js:108
+#: templates/accounts/users.html:60 templates/students/edit.html:9
+#: static/js/crud.js:108
 msgid "تعديل"
 msgstr "Edit"
 
@@ -1945,19 +1963,31 @@ msgstr "Edit"
 msgid "تعديل الإعدادات"
 msgstr "Settings editor"
 
+#: templates/students/detail.html:36
+msgid "تعديل البيانات"
+msgstr "Edit details"
+
 #: apps/tenancy/constants.py:94
 msgid "تعديل باقة"
 msgstr "Update plan"
 
-#: apps/core/models.py:73
+#: templates/students/edit.html:13
+msgid "تعديل بيانات"
+msgstr "Editing"
+
+#: templates/students/edit.html:3
+msgid "تعديل بيانات الطالب"
+msgstr "Edit student details"
+
+#: apps/core/models.py:74
 msgid "تعديل حصة"
 msgstr "Lesson updated"
 
-#: apps/core/models.py:78
+#: apps/core/models.py:79
 msgid "تعديل حضور"
 msgstr "Attendance modified"
 
-#: apps/core/models.py:83
+#: apps/core/models.py:84
 msgid "تعديل رسوم"
 msgstr "Charge modified"
 
@@ -1977,13 +2007,17 @@ msgstr "User updated"
 msgid "تعديل مستخدم:"
 msgstr "Edit user:"
 
-#: templates/students/detail.html:304 apps/attendance/models.py:240
+#: templates/students/detail.html:320 apps/attendance/models.py:238
 msgid "تعديل يدوي"
 msgstr "Manual edit"
 
 #: static/js/ui.js:79
 msgid "تعذر التحميل"
 msgstr "Could not load"
+
+#: templates/cards/list.html:343
+msgid "تعذر الحذف"
+msgstr "Could not delete"
 
 #: templates/core/settings.html:106
 msgid "تعذر الحفظ"
@@ -1993,15 +2027,15 @@ msgstr "Could not save"
 msgid "تعذر تسجيل الدخول"
 msgstr "Could not sign in"
 
-#: templates/students/detail.html:542
+#: templates/students/detail.html:559
 msgid "تعذر ربط البطاقة"
 msgstr "Could not link the card"
 
-#: templates/cards/list.html:127 apps/cards/models.py:32
+#: templates/cards/list.html:132 apps/cards/models.py:32
 msgid "تعطيل"
 msgstr "Disable"
 
-#: templates/cards/list.html:175
+#: templates/cards/list.html:182
 msgid "تعطيل البطاقة"
 msgstr "Disable card"
 
@@ -2027,7 +2061,7 @@ msgstr "Disabling it means the operator creates the center's staff accounts."
 msgid "تعويض عن حصة"
 msgstr "Make-up for lesson"
 
-#: templates/reports/report.html:116 templates/students/detail.html:117
+#: templates/reports/report.html:116 templates/students/detail.html:126
 #: apps/attendance/models.py:44
 msgid "تعويضية"
 msgstr "Make-up"
@@ -2040,7 +2074,7 @@ msgstr "Setting changed"
 msgid "تغيير الباقة"
 msgstr "Change plan"
 
-#: templates/students/detail.html:34
+#: templates/students/detail.html:38
 msgid "تغيير الحالة"
 msgstr "Change status"
 
@@ -2048,7 +2082,7 @@ msgstr "Change status"
 msgid "تغيير حالة الاشتراك"
 msgstr "Subscription status change"
 
-#: templates/students/detail.html:575
+#: templates/students/detail.html:593
 msgid "تغيير حالة الطالب"
 msgstr "Change the student's status"
 
@@ -2074,7 +2108,7 @@ msgstr "Change password"
 msgid "تغيير مجموعة"
 msgstr "Group change"
 
-#: templates/lessons/list.html:114
+#: templates/lessons/list.html:118
 msgid "تفاصيل"
 msgstr "Details"
 
@@ -2086,7 +2120,7 @@ msgstr "Attendance and arrears reports, ready to export as PDF or Excel."
 msgid "تقرير المجموعات البديلة"
 msgstr "Alternative-groups report"
 
-#: apps/reports/api.py:56 apps/reports/api.py:60
+#: apps/reports/api.py:67 apps/reports/api.py:71
 msgid "تقرير غير معروف"
 msgstr "Unknown report"
 
@@ -2102,15 +2136,15 @@ msgstr "Auto"
 msgid "تم إصدار"
 msgstr "Issued"
 
-#: templates/students/detail.html:556
+#: templates/students/detail.html:573
 msgid "تم إصدار البطاقة"
 msgstr "Card issued:"
 
-#: templates/cards/list.html:237 templates/lessons/list.html:166
+#: templates/cards/list.html:245 templates/lessons/list.html:170
 msgid "تم إنشاء"
 msgstr "Created"
 
-#: templates/lessons/list.html:194
+#: templates/lessons/list.html:198
 msgid "تم إنشاء الحصة"
 msgstr "Lesson created"
 
@@ -2118,7 +2152,7 @@ msgstr "Lesson created"
 msgid "تم إنشاء المستخدم"
 msgstr "User created"
 
-#: templates/students/detail.html:409
+#: templates/students/detail.html:425
 msgid "تم إنهاء الاشتراك — السجل محفوظ"
 msgstr "Enrollment ended — the history is kept"
 
@@ -2126,7 +2160,7 @@ msgstr "Enrollment ended — the history is kept"
 msgid "تم إنهاء الخدمة لهذا الحساب"
 msgstr "Service ended for this account"
 
-#: templates/cards/list.html:269
+#: templates/cards/list.html:277
 msgid "تم استيراد"
 msgstr "Imported"
 
@@ -2138,7 +2172,7 @@ msgstr "Waived"
 msgid "تم الإنهاء — غياب:"
 msgstr "Completed — absences:"
 
-#: templates/cards/list.html:206
+#: templates/cards/list.html:213
 msgid "تم الاستبدال — سجل الحضور السابق لم يتغيّر"
 msgstr "Replaced — past attendance is unchanged"
 
@@ -2146,11 +2180,11 @@ msgstr "Replaced — past attendance is unchanged"
 msgid "تم الاسترداد"
 msgstr "Refunded"
 
-#: templates/students/detail.html:382
+#: templates/students/detail.html:398
 msgid "تم الاشتراك"
 msgstr "Enrolled"
 
-#: templates/students/detail.html:381
+#: templates/students/detail.html:397
 msgid "تم الاشتراك — تنبيه: المجموعة تجاوزت السعة"
 msgstr "Enrolled — warning: the group is over capacity"
 
@@ -2179,7 +2213,7 @@ msgstr "Deleted"
 msgid "تم الحفظ"
 msgstr "Saved"
 
-#: templates/students/detail.html:438
+#: templates/students/detail.html:454
 msgid "تم النقل"
 msgstr "Transferred"
 
@@ -2215,23 +2249,31 @@ msgstr "Check-in successful — late"
 msgid "تم تسجيل الحضور — مجموعة بديلة"
 msgstr "Check-in successful — alternative group"
 
-#: templates/students/create.html:97
+#: templates/students/create.html:36
 msgid "تم تسجيل الطالب"
 msgstr "Student registered:"
 
-#: templates/cards/list.html:168
+#: templates/cards/list.html:175
 msgid "تم تسجيل الفقد — البطاقة لم تعد تعمل"
 msgstr "Reported lost — the card no longer works"
 
-#: templates/cards/list.html:179
+#: templates/cards/list.html:186
 msgid "تم تعطيل البطاقة"
 msgstr "Card disabled"
+
+#: templates/cards/list.html:339
+msgid "تم حذف البطاقة"
+msgstr "Card deleted"
 
 #: templates/core/settings.html:94
 msgid "تم حفظ"
 msgstr "Saved"
 
-#: templates/students/detail.html:539
+#: templates/students/edit.html:61
+msgid "تم حفظ التعديلات"
+msgstr "Changes saved"
+
+#: templates/students/detail.html:556
 msgid "تم ربط البطاقة"
 msgstr "Card linked:"
 
@@ -2243,11 +2285,11 @@ msgstr "Back to the center's settings"
 msgid "تمت مزامنة العمليات المؤجلة"
 msgstr "Queued scans have been synchronised"
 
-#: apps/lessons/services.py:78
+#: apps/lessons/services.py:80
 msgid "توجد حصة لهذه المجموعة في نفس التوقيت"
 msgstr "This group already has a lesson at that time"
 
-#: templates/lessons/list.html:152
+#: templates/lessons/list.html:156
 msgid "توليد"
 msgstr "Generate"
 
@@ -2259,21 +2301,21 @@ msgstr "Generate lessons"
 msgid "توليد حصص"
 msgstr "Generate lessons"
 
-#: templates/lessons/list.html:146
+#: templates/lessons/list.html:150
 msgid "توليد حصص من الجدول الأسبوعي"
 msgstr "Generate lessons from the weekly schedule"
 
-#: apps/cards/importer.py:146
+#: apps/cards/importer.py:140
 msgid "توليد دفعة بطاقات"
 msgstr "Card batch generated"
 
 #: templates/attendance/scanner.html:133 templates/payments/workspace.html:255
-#: templates/payments/workspace.html:369 templates/students/detail.html:326
+#: templates/payments/workspace.html:369 templates/students/detail.html:342
 #: static/js/ui.js:29
 msgid "ج.م"
 msgstr "EGP"
 
-#: templates/students/detail.html:362
+#: templates/students/detail.html:378
 msgid "ج.م)"
 msgstr "EGP)"
 
@@ -2286,7 +2328,7 @@ msgstr "In progress"
 msgid "جارية الآن"
 msgstr "Running now"
 
-#: templates/students/detail.html:492
+#: templates/students/detail.html:509
 msgid "جارٍ التحميل…"
 msgstr "Loading…"
 
@@ -2324,20 +2366,20 @@ msgstr ""
 "A fingerprint device instead of a card. Not built yet — the key is reserved."
 
 #: templates/dashboard/home.html:27 apps/attendance/models.py:34
-#: apps/attendance/views.py:40 apps/lessons/views.py:31
-#: apps/reports/registry.py:112 apps/reports/registry.py:133
+#: apps/attendance/views.py:38 apps/lessons/views.py:29
+#: apps/reports/registry.py:111 apps/reports/registry.py:134
 msgid "حاضر"
 msgstr "Present"
 
-#: templates/cards/list.html:190
+#: templates/cards/list.html:197
 msgid "حالة البطاقة القديمة"
 msgstr "Status of the old card"
 
-#: apps/cards/services.py:185
+#: apps/cards/services.py:248
 msgid "حالة غير مسموح بها للبطاقة القديمة"
 msgstr "Not an allowed status for the old card"
 
-#: apps/cards/services.py:186 apps/students/services.py:98
+#: apps/cards/services.py:249 apps/students/services.py:98
 #: apps/students/services.py:99
 msgid "حالة غير معروفة"
 msgstr "Unknown status"
@@ -2346,7 +2388,7 @@ msgstr "Unknown status"
 msgid "حجم الصورة يجب ألا يتجاوز 2 ميجابايت"
 msgstr "The photo must not exceed 2 MB"
 
-#: apps/cards/api.py:231
+#: apps/cards/api.py:241
 msgid "حجم الملف أكبر من 2 ميجابايت"
 msgstr "The file is larger than 2 MB"
 
@@ -2374,13 +2416,21 @@ msgstr "User limit"
 msgid "حدث خطأ غير متوقع، برجاء المحاولة مرة أخرى"
 msgstr "Something went wrong — please try again"
 
-#: apps/attendance/models.py:282
+#: apps/attendance/models.py:286
 msgid "حدث مسح"
 msgstr "Scan event"
 
-#: templates/academics/group_detail.html:61
+#: templates/academics/group_detail.html:61 templates/cards/list.html:133
 msgid "حذف"
 msgstr "Delete"
+
+#: templates/cards/list.html:321
+msgid "حذف البطاقة"
+msgstr "Delete the card"
+
+#: apps/core/models.py:70
+msgid "حذف بطاقة"
+msgstr "Delete card"
 
 #: apps/tenancy/constants.py:90
 msgid "حذف بيانات عميل"
@@ -2390,7 +2440,11 @@ msgstr "Purge client data"
 msgid "حذف نطاق"
 msgstr "Remove domain"
 
-#: apps/payments/models.py:245
+#: templates/cards/list.html:329
+msgid "حذف نهائي"
+msgstr "Delete permanently"
+
+#: apps/payments/models.py:253
 msgid "حركة مالية"
 msgstr "Transaction"
 
@@ -2411,23 +2465,23 @@ msgstr "My account"
 msgid "حسب الباقة"
 msgstr "Follow the plan"
 
-#: templates/lessons/list.html:166 apps/lessons/models.py:99
+#: templates/lessons/list.html:170 apps/lessons/models.py:99
 msgid "حصة"
 msgstr "lesson"
 
-#: templates/lessons/list.html:162
+#: templates/lessons/list.html:166
 msgid "حصة (تخطي"
 msgstr "lessons (skipped"
 
-#: templates/lessons/list.html:13 templates/lessons/list.html:180
+#: templates/lessons/list.html:13 templates/lessons/list.html:184
 msgid "حصة جديدة"
 msgstr "New lesson"
 
-#: templates/lessons/list.html:119
+#: templates/lessons/list.html:123
 msgid "حصة — صفحة"
 msgstr "lessons — page"
 
-#: apps/reports/registry.py:171 apps/reports/registry.py:189
+#: apps/reports/registry.py:176 apps/reports/registry.py:196
 msgid "حصص"
 msgstr "Lessons"
 
@@ -2443,28 +2497,28 @@ msgstr "Today's lessons (not opened yet)"
 msgid "حصص مفتوحة الآن"
 msgstr "Lessons open now"
 
-#: apps/payments/models.py:229
+#: apps/payments/models.py:237
 msgid "حصّلها"
 msgstr "Collected by"
 
 #: templates/lessons/detail.html:58 templates/reports/report.html:16
-#: templates/students/detail.html:129 apps/attendance/models.py:172
+#: templates/students/detail.html:138 apps/attendance/models.py:172
 msgid "حضور"
 msgstr "Attendance"
 
-#: apps/reports/registry.py:122
+#: apps/reports/registry.py:123
 msgid "حضور الحصص"
 msgstr "Lesson attendance"
 
-#: apps/reports/registry.py:142
+#: apps/reports/registry.py:145
 msgid "حضور الطلاب"
 msgstr "Student attendance"
 
-#: apps/reports/registry.py:161
+#: apps/reports/registry.py:166
 msgid "حضور المجموعات"
 msgstr "Group attendance"
 
-#: apps/reports/registry.py:181
+#: apps/reports/registry.py:188
 msgid "حضور المواد"
 msgstr "Subject attendance"
 
@@ -2482,20 +2536,24 @@ msgstr "Partial attendance"
 
 #: templates/academics/group_detail.html:155
 #: templates/accounts/password_change.html:26 templates/accounts/users.html:76
-#: templates/accounts/users.html:108 templates/lessons/list.html:185
-#: templates/students/detail.html:368
+#: templates/accounts/users.html:108 templates/lessons/list.html:189
+#: templates/students/detail.html:384
 msgid "حفظ"
 msgstr "Save"
+
+#: templates/students/edit.html:32
+msgid "حفظ التعديلات"
+msgstr "Save changes"
 
 #: templates/core/settings.html:9
 msgid "حفظ التغييرات"
 msgstr "Save changes"
 
-#: templates/students/create.html:76
+#: templates/students/create.html:15
 msgid "حفظ ومتابعة"
 msgstr "Save and continue"
 
-#: apps/attendance/result_codes.py:52
+#: apps/attendance/result_codes.py:54
 msgid "خارج وقت التسجيل — تم التسجيل استثنائيًا"
 msgstr "Outside the window — recorded as exceptional"
 
@@ -2519,11 +2577,11 @@ msgstr "Plan features"
 msgid "خصائص العملاء"
 msgstr "Client features"
 
-#: apps/attendance/result_codes.py:93
+#: apps/attendance/result_codes.py:106
 msgid "خطأ غير متوقع"
 msgstr "Unexpected error"
 
-#: templates/students/detail.html:302
+#: templates/students/detail.html:318
 msgid "د"
 msgstr "min"
 
@@ -2549,7 +2607,7 @@ msgstr ""
 msgid "دفعة: %(batch)s"
 msgstr "Batch: %(batch)s"
 
-#: apps/attendance/models.py:118 apps/reports/registry.py:211
+#: apps/attendance/models.py:118 apps/reports/registry.py:220
 msgid "دقائق التأخير"
 msgstr "Minutes late"
 
@@ -2565,11 +2623,11 @@ msgstr "Unknown role"
 msgid "دورة الفوترة"
 msgstr "Billing cycle"
 
-#: templates/students/create.html:28 apps/students/models.py:40
+#: templates/students/_form.html:26 apps/students/models.py:40
 msgid "ذكر"
 msgstr "Male"
 
-#: templates/students/detail.html:496 templates/students/detail.html:509
+#: templates/students/detail.html:513 templates/students/detail.html:526
 msgid "ربط"
 msgstr "Link"
 
@@ -2581,11 +2639,11 @@ msgstr "Bind pre-printed cards to students and handle loss and replacement."
 msgid "ربط الحضور بالسداد"
 msgstr "Tie attendance to payment"
 
-#: templates/students/detail.html:197 apps/core/models.py:66
+#: templates/students/detail.html:210 apps/core/models.py:66
 msgid "ربط بطاقة"
 msgstr "Link a card"
 
-#: templates/students/detail.html:478
+#: templates/students/detail.html:495
 msgid "ربط بطاقة بالطالب"
 msgstr "Link a card to the student"
 
@@ -2597,7 +2655,7 @@ msgstr "charge"
 msgid "رسم جديد لعدد"
 msgstr "new charges for"
 
-#: apps/payments/models.py:131
+#: apps/payments/models.py:139
 msgid "رسوم شهرية"
 msgstr "Monthly charge"
 
@@ -2605,12 +2663,12 @@ msgstr "Monthly charge"
 msgid "رقم"
 msgstr "No."
 
-#: apps/payments/models.py:223
+#: apps/payments/models.py:231
 msgid "رقم الإيصال"
 msgstr "Receipt number"
 
-#: templates/cards/list.html:46 templates/cards/list.html:72
-#: templates/students/detail.html:204 apps/cards/models.py:45
+#: templates/cards/list.html:48 templates/cards/list.html:74
+#: templates/students/detail.html:217 apps/cards/models.py:45
 msgid "رقم البطاقة"
 msgstr "Card number"
 
@@ -2630,7 +2688,7 @@ msgstr "The lesson is required"
 msgid "رقم الهاتف"
 msgstr "Phone number"
 
-#: apps/cards/importer.py:66
+#: apps/cards/importer.py:65
 msgid "رقم بطاقة مكرر داخل الملف: %(n)s"
 msgstr "Duplicate card number inside the file: %(n)s"
 
@@ -2650,7 +2708,7 @@ msgstr "QR token"
 msgid "رمز البطاقة غير صالح"
 msgstr "Invalid card token"
 
-#: apps/cards/importer.py:69
+#: apps/cards/importer.py:67
 msgid "رمز مكرر داخل الملف"
 msgstr "Duplicate token inside the file"
 
@@ -2658,11 +2716,11 @@ msgstr "Duplicate token inside the file"
 msgid "زمردي"
 msgstr "Emerald"
 
-#: apps/payments/models.py:114
+#: apps/payments/models.py:116
 msgid "سبب الإعفاء"
 msgstr "Reason for waiving"
 
-#: apps/payments/services.py:345
+#: apps/payments/services.py:351
 msgid "سبب الإعفاء مطلوب"
 msgstr "A reason for waiving is required"
 
@@ -2670,12 +2728,12 @@ msgstr "A reason for waiving is required"
 msgid "سبب الإلغاء"
 msgstr "Reason for cancelling"
 
-#: apps/attendance/services.py:615 apps/lessons/services.py:197
-#: apps/payments/services.py:369
+#: apps/attendance/services.py:672 apps/lessons/services.py:198
+#: apps/payments/services.py:375
 msgid "سبب الإلغاء مطلوب"
 msgstr "A reason for cancelling is required"
 
-#: templates/students/detail.html:208 apps/cards/models.py:147
+#: templates/students/detail.html:221 apps/cards/models.py:147
 #: apps/students/models.py:202
 msgid "سبب الإنهاء"
 msgstr "Reason for ending"
@@ -2684,17 +2742,25 @@ msgstr "Reason for ending"
 msgid "سبب الإيقاف"
 msgstr "Suspension reason"
 
-#: apps/payments/services.py:290
+#: apps/payments/services.py:295
 msgid "سبب الاسترداد مطلوب"
 msgstr "A reason for the refund is required"
 
-#: apps/attendance/services.py:570
+#: apps/attendance/services.py:625
 msgid "سبب التسجيل اليدوي مطلوب"
 msgstr "A reason for the manual entry is required"
 
-#: apps/attendance/services.py:523
+#: templates/students/edit.html:23
+msgid "سبب التعديل"
+msgstr "Reason for the change"
+
+#: apps/attendance/services.py:578
 msgid "سبب التعديل مطلوب"
 msgstr "A reason for the change is required"
+
+#: apps/cards/services.py:179
+msgid "سبب الحذف مطلوب"
+msgstr "A reason for the deletion is required"
 
 #: apps/tenancy/models.py:109
 msgid "سبب الخصم"
@@ -2708,7 +2774,7 @@ msgstr "A reason for the transfer is required"
 msgid "سبب تغيير الحالة مطلوب"
 msgstr "A reason for the status change is required"
 
-#: templates/students/detail.html:91
+#: templates/students/detail.html:100
 msgid "سجل الاشتراكات"
 msgstr "Enrollment history"
 
@@ -2717,11 +2783,11 @@ msgstr "Enrollment history"
 msgid "سجل التدقيق"
 msgstr "Audit log"
 
-#: templates/lessons/detail.html:50 templates/students/detail.html:112
+#: templates/lessons/detail.html:50 templates/students/detail.html:121
 msgid "سجل الحضور"
 msgstr "Attendance history"
 
-#: apps/attendance/result_codes.py:90
+#: apps/attendance/result_codes.py:103
 msgid "سجل الحضور ملغي — يلزم إعادة تفعيله"
 msgstr "This attendance record is cancelled — reinstate it first"
 
@@ -2737,15 +2803,15 @@ msgstr "Platform log entry"
 msgid "سجل تخصيص البطاقات"
 msgstr "Card assignment history"
 
-#: apps/core/models.py:128
+#: apps/core/models.py:129
 msgid "سجل تدقيق"
 msgstr "Audit entry"
 
-#: apps/reports/registry.py:346
+#: apps/reports/registry.py:371
 msgid "سجل مدفوعات الطلاب"
 msgstr "Student payment ledger"
 
-#: apps/core/models.py:129
+#: apps/core/models.py:130
 msgid "سجلات التدقيق"
 msgstr "Audit log"
 
@@ -2777,7 +2843,7 @@ msgstr "Yearly"
 msgid "سيتم إصدار"
 msgstr "Will issue"
 
-#: templates/lessons/list.html:162
+#: templates/lessons/list.html:166
 msgid "سيتم إنشاء"
 msgstr "Will create"
 
@@ -2793,7 +2859,7 @@ msgstr "Scanner"
 msgid "شهر"
 msgstr "Month"
 
-#: apps/payments/models.py:94
+#: apps/payments/models.py:96
 msgid "شهر الفوترة"
 msgstr "Billing month"
 
@@ -2825,7 +2891,7 @@ msgstr "zero = unlimited"
 msgid "صلاحيات التقارير"
 msgstr "Report permissions"
 
-#: templates/students/create.html:48 apps/students/models.py:70
+#: templates/students/_form.html:49 apps/students/models.py:70
 msgid "صلة القرابة"
 msgstr "Relationship"
 
@@ -2833,7 +2899,7 @@ msgstr "Relationship"
 msgid "صيغة البيانات غير صحيحة"
 msgstr "Malformed request data"
 
-#: apps/reports/api.py:43
+#: apps/reports/api.py:54
 msgid "صيغة التاريخ YYYY-MM-DD"
 msgstr "Date format YYYY-MM-DD"
 
@@ -2841,7 +2907,7 @@ msgstr "Date format YYYY-MM-DD"
 msgid "صيغة الرمز غير صحيحة"
 msgstr "Invalid token format"
 
-#: apps/payments/services.py:48
+#: apps/payments/services.py:49
 msgid "صيغة الشهر غير صحيحة (YYYY-MM)"
 msgstr "Invalid month format (YYYY-MM)"
 
@@ -2879,13 +2945,13 @@ msgstr "Student from a different grade or subject"
 msgid "طالب — صفحة"
 msgstr "students — page"
 
-#: templates/students/detail.html:460
+#: templates/students/detail.html:477
 msgid "طباعة"
 msgstr "Print"
 
 #: templates/payments/workspace.html:120 templates/reports/report.html:124
-#: apps/payments/documents.py:39 apps/payments/models.py:219
-#: apps/reports/api.py:149
+#: apps/payments/documents.py:39 apps/payments/models.py:227
+#: apps/reports/api.py:167
 msgid "طريقة الدفع"
 msgstr "Payment method"
 
@@ -2897,40 +2963,40 @@ msgstr "Method not allowed"
 msgid "طلاب المجموعة"
 msgstr "Group roster"
 
-#: templates/students/detail.html:115 apps/attendance/models.py:42
+#: templates/students/detail.html:124 apps/attendance/models.py:42
 msgid "عادي"
 msgstr "Normal"
 
-#: templates/cards/list.html:218 apps/cards/documents.py:37
+#: templates/cards/list.html:226 apps/cards/documents.py:37
 msgid "عدد البطاقات"
 msgstr "Number of cards"
 
-#: apps/reports/registry.py:264 apps/reports/registry.py:337
+#: apps/reports/registry.py:279 apps/reports/registry.py:360
 msgid "عدد الحركات"
 msgstr "Transactions"
 
-#: apps/reports/registry.py:111
+#: apps/reports/registry.py:110
 msgid "عدد الحصص"
 msgstr "Lessons"
 
-#: apps/reports/registry.py:320
+#: apps/reports/registry.py:341
 msgid "عدد الرسوم"
 msgstr "Charges"
 
-#: apps/reports/api.py:182
+#: apps/reports/api.py:205
 msgid "عدد الصفوف: %(n)s"
 msgstr "Rows: %(n)s"
 
-#: templates/academics/group_detail.html:34 apps/reports/registry.py:170
-#: apps/reports/registry.py:302
+#: templates/academics/group_detail.html:34 apps/reports/registry.py:175
+#: apps/reports/registry.py:321
 msgid "عدد الطلاب"
 msgstr "Students"
 
-#: apps/attendance/result_codes.py:92
+#: apps/attendance/result_codes.py:105
 msgid "عدد عمليات كبير"
 msgstr "Too many requests"
 
-#: apps/cards/api.py:208 apps/cards/api.py:209 apps/cards/importer.py:126
+#: apps/cards/api.py:218 apps/cards/api.py:219 apps/cards/importer.py:120
 msgid "عدد غير صحيح"
 msgstr "Invalid number"
 
@@ -2942,7 +3008,7 @@ msgstr "Too many attempts from this device. Please try again in a minute."
 msgid "عدد محاولات كبير، برجاء المحاولة بعد قليل"
 msgstr "Too many attempts — please try again shortly"
 
-#: apps/core/models.py:158
+#: apps/core/models.py:159
 msgid "عدّاد"
 msgstr "Sequence"
 
@@ -2950,7 +3016,7 @@ msgstr "Sequence"
 msgid "عرض"
 msgstr "Run"
 
-#: apps/reports/api.py:100
+#: apps/reports/api.py:111
 msgid "عرض أول %(n)s صف فقط — ضيّق الفلاتر أو صدّر الملف"
 msgstr ""
 "Showing the first %(n)s rows only — narrow the filters or export the file"
@@ -2992,8 +3058,8 @@ msgid "عُدّل في"
 msgstr "Updated at"
 
 #: templates/dashboard/home.html:31 apps/attendance/models.py:27
-#: apps/attendance/models.py:36 apps/attendance/views.py:42
-#: apps/lessons/views.py:33 apps/reports/registry.py:114
+#: apps/attendance/models.py:36 apps/attendance/views.py:40
+#: apps/lessons/views.py:31 apps/reports/registry.py:113
 msgid "غائب"
 msgstr "Absent"
 
@@ -3009,7 +3075,7 @@ msgstr "You may not grant this role"
 msgid "غير موجود"
 msgstr "Not found"
 
-#: templates/students/detail.html:225 apps/students/models.py:33
+#: templates/students/detail.html:239 apps/students/models.py:33
 msgid "غير نشط"
 msgstr "Inactive"
 
@@ -3041,11 +3107,11 @@ msgstr "Open check-in before the lesson starts (minutes)"
 msgid "فتح الحصة"
 msgstr "Open the lesson"
 
-#: apps/core/models.py:74
+#: apps/core/models.py:75
 msgid "فتح حصة"
 msgstr "Lesson opened"
 
-#: templates/cards/list.html:124 apps/cards/models.py:28
+#: templates/cards/list.html:129 apps/cards/models.py:28
 msgid "فقدان"
 msgstr "Report lost"
 
@@ -3077,7 +3143,7 @@ msgstr "Read only"
 msgid "قراءة وتعديل"
 msgstr "Read and write"
 
-#: apps/payments/services.py:242
+#: apps/payments/services.py:243
 msgid "قيمة الاسترداد أكبر من المحصّل"
 msgstr "The refund exceeds the amount collected"
 
@@ -3105,7 +3171,7 @@ msgstr "Camera"
 msgid "كثافة العرض"
 msgstr "Density"
 
-#: templates/cards/list.html:21 templates/cards/list.html:286
+#: templates/cards/list.html:22 templates/cards/list.html:294
 msgid "كشف الطباعة"
 msgstr "Print sheet"
 
@@ -3113,11 +3179,11 @@ msgstr "Print sheet"
 msgid "كشف طباعة البطاقات"
 msgstr "Card print sheet"
 
-#: templates/students/detail.html:114
+#: templates/students/detail.html:123
 msgid "كل الأنواع"
 msgstr "All types"
 
-#: templates/cards/list.html:289
+#: templates/cards/list.html:297
 msgid "كل الدفعات"
 msgstr "All batches"
 
@@ -3150,6 +3216,13 @@ msgstr "Student code"
 msgid "كود الطالب مستخدم بالفعل"
 msgstr "That student code is taken"
 
+#: templates/students/edit.html:27
+msgid ""
+"كود الطالب وحالته لا يتغيّران من هنا — الحالة لها زرّها في صفحة الطالب."
+msgstr ""
+"The student code and status are not changed here — status has its own button"
+" on the student page."
+
 #: templates/partials/_theme_picker.html:18
 msgid "كود اللون"
 msgstr "Colour code"
@@ -3166,7 +3239,7 @@ msgstr "Code already in use"
 msgid "لا أحد — الجميع مسجّل"
 msgstr "Nobody — everyone is recorded"
 
-#: apps/cards/api.py:355
+#: apps/cards/api.py:364
 msgid "لا تملك صلاحية إنشاء بطاقات"
 msgstr "You may not create cards"
 
@@ -3174,16 +3247,16 @@ msgstr "You may not create cards"
 msgid "لا تملك صلاحية الاعتماد"
 msgstr "You may not approve"
 
-#: apps/cards/api.py:288
+#: apps/cards/api.py:298
 msgid "لا تملك صلاحية تصدير الرموز"
 msgstr "You may not export tokens"
 
 #: apps/academics/api.py:30 apps/accounts/api.py:80 apps/core/http.py:90
-#: apps/core/http.py:145 apps/lessons/api.py:99 apps/lessons/api.py:124
+#: apps/core/http.py:145 apps/lessons/api.py:99 apps/lessons/api.py:130
 msgid "لا تملك صلاحية هذا الإجراء"
 msgstr "You do not have permission for this action"
 
-#: apps/reports/api.py:62
+#: apps/reports/api.py:73
 msgid "لا تملك صلاحية هذا التقرير"
 msgstr "You do not have permission for this report"
 
@@ -3191,19 +3264,19 @@ msgstr "You do not have permission for this report"
 msgid "لا تملك صلاحية هذه الحصة"
 msgstr "You do not have permission for this lesson"
 
-#: templates/students/detail.html:340
+#: templates/students/detail.html:356
 msgid "لا توجد اشتراكات"
 msgstr "No enrollments"
 
-#: templates/cards/list.html:137 templates/students/detail.html:463
+#: templates/cards/list.html:144 templates/students/detail.html:480
 msgid "لا توجد بطاقات"
 msgstr "No cards"
 
-#: templates/students/detail.html:523
+#: templates/students/detail.html:540
 msgid "لا توجد بطاقات متاحة"
 msgstr "No cards available"
 
-#: apps/cards/api.py:350
+#: apps/cards/api.py:360
 msgid "لا توجد بطاقات متاحة — أنشئ دفعة جديدة أولًا"
 msgstr "No cards available — create a batch first"
 
@@ -3232,11 +3305,11 @@ msgid "لا توجد تقارير متاحة لدورك."
 msgstr "No reports are available for your role."
 
 #: templates/payments/workspace.html:240 templates/payments/workspace.html:315
-#: templates/students/detail.html:267
+#: templates/students/detail.html:282
 msgid "لا توجد حركات"
 msgstr "No transactions"
 
-#: templates/lessons/list.html:117
+#: templates/lessons/list.html:121
 msgid "لا توجد حصص"
 msgstr "No lessons"
 
@@ -3248,7 +3321,7 @@ msgstr "No lessons today"
 msgid "لا توجد حصص مفتوحة"
 msgstr "No open lessons"
 
-#: templates/students/detail.html:255
+#: templates/students/detail.html:270
 msgid "لا توجد رسوم"
 msgstr "No charges"
 
@@ -3277,31 +3350,31 @@ msgstr "No results"
 msgid "لا تُعاد طباعة هذه الرموز — كل رمز يخص بطاقة واحدة"
 msgstr "Do not reprint these tokens — each one belongs to a single card"
 
-#: apps/lessons/services.py:201
+#: apps/lessons/services.py:202
 msgid "لا يمكن إلغاء حصة منتهية"
 msgstr "A completed lesson cannot be cancelled"
 
-#: apps/payments/services.py:375
+#: apps/payments/services.py:381
 msgid "لا يمكن إلغاء رسوم بها مدفوعات — نفّذ استردادًا أولًا"
 msgstr "A charge with payments cannot be cancelled — refund first"
 
-#: apps/lessons/services.py:176
+#: apps/lessons/services.py:177
 msgid "لا يمكن إنهاء حصة %(state)s"
 msgstr "Cannot complete a %(state)s lesson"
 
-#: apps/cards/services.py:181
+#: apps/cards/services.py:244
 msgid "لا يمكن استبدال البطاقة بنفسها"
 msgstr "A card cannot replace itself"
 
-#: apps/payments/services.py:294
+#: apps/payments/services.py:299
 msgid "لا يمكن استرداد حركة استرداد"
 msgstr "A refund cannot be refunded"
 
-#: apps/payments/services.py:226
+#: apps/payments/services.py:227
 msgid "لا يمكن التحصيل على رسوم معفاة أو ملغاة"
 msgstr "Cannot collect against a waived or cancelled charge"
 
-#: apps/payments/models.py:276
+#: apps/payments/models.py:284
 msgid "لا يمكن تعديل حركة مالية — استخدم الاسترداد بدلًا من ذلك."
 msgstr "A transaction cannot be edited — post a refund instead."
 
@@ -3325,11 +3398,11 @@ msgstr "A client's identifier cannot be changed after creation."
 msgid "لا يمكن تنفيذ هذا الإجراء أثناء الدخول نيابةً عن العميل."
 msgstr "This action cannot be performed while acting on behalf of a client."
 
-#: apps/payments/models.py:281
+#: apps/payments/models.py:289
 msgid "لا يمكن حذف حركة مالية."
 msgstr "A transaction cannot be deleted."
 
-#: apps/lessons/services.py:149
+#: apps/lessons/services.py:152
 msgid "لا يمكن فتح حصة %(state)s"
 msgstr "Cannot open a %(state)s lesson"
 
@@ -3345,15 +3418,15 @@ msgstr "No connection — saved locally"
 msgid "لا يوجد اتصال — يتم حفظ عمليات المسح محليًا"
 msgstr "No connection — scans are being saved locally"
 
-#: apps/attendance/api.py:101
+#: apps/attendance/api.py:99
 msgid "لا يوجد حضور مفتوح"
 msgstr "No open check-in"
 
-#: templates/students/detail.html:348
+#: templates/students/detail.html:364
 msgid "لا يوجد سجل"
 msgstr "No history"
 
-#: templates/students/detail.html:307
+#: templates/students/detail.html:323
 msgid "لا يوجد سجل حضور"
 msgstr "No attendance history"
 
@@ -3369,11 +3442,19 @@ msgstr "No users"
 msgid "للاستفسار يُرجى التواصل مع مشغّل النظام."
 msgstr "For enquiries, please contact the system operator."
 
-#: apps/attendance/services.py:595
+#: templates/cards/list.html:323
+msgid ""
+"للبطاقات التي لم تُستخدم قط — دفعة مكررة أو رقم خاطئ. أي بطاقة لها سجل تخصيص"
+" أو مسح تُرفض، وتُعطَّل بدلًا من حذفها."
+msgstr ""
+"For cards never used — a duplicate batch or a wrong number. Any card with an"
+" assignment or scan history is refused and disabled instead."
+
+#: apps/attendance/services.py:652
 msgid "للطالب تسجيل بالفعل في هذه الحصة"
 msgstr "The student already has a record for this lesson"
 
-#: apps/attendance/result_codes.py:82
+#: apps/attendance/result_codes.py:96
 msgid "لم يتم تسجيل الحضور أولًا"
 msgstr "No check-in to close"
 
@@ -3422,9 +3503,9 @@ msgstr "Subject offering"
 msgid "مالي"
 msgstr "Financial"
 
-#: apps/attendance/models.py:35 apps/attendance/views.py:41
-#: apps/lessons/views.py:32 apps/reports/registry.py:113
-#: apps/reports/registry.py:134 apps/reports/registry.py:152
+#: apps/attendance/models.py:35 apps/attendance/views.py:39
+#: apps/lessons/views.py:30 apps/reports/registry.py:112
+#: apps/reports/registry.py:135 apps/reports/registry.py:155
 msgid "متأخر"
 msgstr "Late"
 
@@ -3432,7 +3513,7 @@ msgstr "Late"
 msgid "متأخر السداد"
 msgstr "Past due"
 
-#: templates/students/detail.html:525
+#: templates/students/detail.html:542
 msgid "متاح في المخزون:"
 msgstr "Available in stock:"
 
@@ -3449,16 +3530,16 @@ msgid "متبقي:"
 msgstr "Balance:"
 
 #: templates/academics/group_detail.html:132
-#: templates/students/detail.html:243
+#: templates/students/detail.html:258
 msgid "متبقٍ:"
 msgstr "Balance:"
 
-#: templates/students/detail.html:226 apps/students/models.py:36
+#: templates/students/detail.html:240 apps/students/models.py:36
 msgid "متخرج"
 msgstr "Graduated"
 
-#: templates/dashboard/home.html:23 apps/attendance/views.py:39
-#: apps/lessons/views.py:30 apps/reports/registry.py:132
+#: templates/dashboard/home.html:23 apps/attendance/views.py:37
+#: apps/lessons/views.py:28 apps/reports/registry.py:133
 msgid "متوقع"
 msgstr "Expected"
 
@@ -3479,16 +3560,16 @@ msgid "مجموعة"
 msgstr "Group"
 
 #: templates/dashboard/home.html:35 templates/reports/report.html:115
-#: templates/students/detail.html:116 apps/attendance/models.py:43
-#: apps/reports/registry.py:115
+#: templates/students/detail.html:125 apps/attendance/models.py:43
+#: apps/reports/registry.py:114
 msgid "مجموعة بديلة"
 msgstr "Alternative group"
 
-#: templates/lessons/detail.html:56 templates/students/detail.html:127
+#: templates/lessons/detail.html:56 templates/students/detail.html:136
 msgid "مجموعته"
 msgstr "Usual group"
 
-#: apps/attendance/models.py:93 apps/reports/registry.py:247
+#: apps/attendance/models.py:93 apps/reports/registry.py:260
 msgid "مجموعته المعتادة"
 msgstr "Usual group"
 
@@ -3496,7 +3577,7 @@ msgstr "Usual group"
 msgid "مجموعته:"
 msgstr "Usual group:"
 
-#: apps/reports/registry.py:265 apps/reports/registry.py:338
+#: apps/reports/registry.py:280 apps/reports/registry.py:361
 msgid "محصّل"
 msgstr "Collected"
 
@@ -3537,7 +3618,7 @@ msgstr "Scan input"
 msgid "مدرّس"
 msgstr "Instructor"
 
-#: templates/students/detail.html:242
+#: templates/students/detail.html:257
 msgid "مدفوع:"
 msgstr "Paid:"
 
@@ -3549,11 +3630,11 @@ msgstr "Center admin"
 msgid "مدير النظام"
 msgstr "Super admin"
 
-#: apps/reports/registry.py:250
+#: apps/reports/registry.py:263
 msgid "مرات هذا الشهر"
 msgstr "Times this month"
 
-#: apps/payments/documents.py:40 apps/payments/models.py:224
+#: apps/payments/documents.py:40 apps/payments/models.py:232
 msgid "مرجع"
 msgstr "Reference"
 
@@ -3565,11 +3646,11 @@ msgstr "Reference (optional)"
 msgid "مرحلة دراسية"
 msgstr "Educational stage"
 
-#: apps/payments/models.py:84
+#: apps/payments/models.py:86
 msgid "مرساة الفوترة — لا تتأثر بتغيير المجموعة"
 msgstr "The billing anchor — unaffected by a group change"
 
-#: apps/attendance/models.py:239
+#: apps/attendance/models.py:237
 msgid "مرفوض"
 msgstr "Denied"
 
@@ -3581,11 +3662,11 @@ msgstr "Comfortable"
 msgid "مساحة التخزين (ميجابايت)"
 msgstr "Storage (MB)"
 
-#: templates/cards/list.html:192 apps/cards/models.py:24
+#: templates/cards/list.html:199 apps/cards/models.py:24
 msgid "مستبدلة"
 msgstr "Replaced"
 
-#: templates/students/detail.html:242
+#: templates/students/detail.html:257
 msgid "مستحق:"
 msgstr "Due:"
 
@@ -3597,7 +3678,7 @@ msgstr "User"
 msgid "مستخدم جديد"
 msgstr "New user"
 
-#: apps/reports/registry.py:266 apps/reports/registry.py:339
+#: apps/reports/registry.py:281 apps/reports/registry.py:362
 msgid "مسترد"
 msgstr "Refunded"
 
@@ -3605,7 +3686,7 @@ msgstr "Refunded"
 msgid "مسترد:"
 msgstr "Refunded:"
 
-#: templates/dashboard/home.html:114 templates/lessons/list.html:105
+#: templates/dashboard/home.html:114 templates/lessons/list.html:106
 msgid "مسح"
 msgstr "Scan"
 
@@ -3615,7 +3696,7 @@ msgstr ""
 "Scanning a student card marks attendance instantly — and flags an "
 "alternative group on its own."
 
-#: apps/attendance/models.py:238
+#: apps/attendance/models.py:236
 msgid "مسح مكرر"
 msgstr "Duplicate scan"
 
@@ -3643,11 +3724,11 @@ msgstr "Recorded via"
 msgid "مضغوط"
 msgstr "Compact"
 
-#: apps/attendance/api.py:48 apps/lessons/api.py:108
+#: apps/attendance/api.py:48 apps/lessons/api.py:110
 msgid "مطلوب"
 msgstr "Required"
 
-#: templates/lessons/list.html:151
+#: templates/lessons/list.html:155
 msgid "معاينة"
 msgstr "Preview"
 
@@ -3655,7 +3736,7 @@ msgstr "Preview"
 msgid "معطّل"
 msgstr "Disabled"
 
-#: templates/cards/list.html:192 apps/cards/models.py:23
+#: templates/cards/list.html:199 apps/cards/models.py:23
 msgid "معطّلة"
 msgstr "Disabled"
 
@@ -3690,12 +3771,12 @@ msgstr "Active"
 msgid "مفعّلة"
 msgstr "Active"
 
-#: templates/cards/list.html:191 apps/cards/models.py:22
+#: templates/cards/list.html:198 apps/cards/models.py:22
 msgid "مفقودة"
 msgstr "Lost"
 
-#: templates/academics/groups.html:100 templates/students/create.html:71
-#: templates/students/detail.html:57 apps/academics/models.py:162
+#: templates/academics/groups.html:100 templates/students/_form.html:73
+#: templates/students/detail.html:66 apps/academics/models.py:162
 #: apps/academics/models.py:206 apps/attendance/models.py:166
 msgid "ملاحظات"
 msgstr "Notes"
@@ -3721,7 +3802,7 @@ msgstr "Cancelled"
 msgid "ملغي"
 msgstr "Cancelled"
 
-#: templates/cards/list.html:251
+#: templates/cards/list.html:259
 msgid ""
 "ملف CSV بعمودين: card_number و qr_token (وعمود batch اختياري). أي سطر خاطئ "
 "يلغي الاستيراد كله."
@@ -3729,18 +3810,18 @@ msgstr ""
 "A CSV with two columns: card_number and qr_token (batch optional). One bad "
 "row aborts the whole import."
 
-#: apps/cards/api.py:233
+#: apps/cards/api.py:243
 msgid "ملف كبير جدًا"
 msgstr "File too large"
 
-#: apps/attendance/result_codes.py:84
+#: apps/attendance/result_codes.py:97
 msgid "ممنوع الحضور لعدم السداد"
 msgstr "Blocked: payment due"
 
 #: templates/academics/group_detail.html:87
-#: templates/academics/group_detail.html:152 templates/cards/list.html:139
-#: templates/lessons/list.html:119 templates/lessons/list.html:148
-#: templates/lessons/list.html:183
+#: templates/academics/group_detail.html:152 templates/cards/list.html:146
+#: templates/lessons/list.html:123 templates/lessons/list.html:152
+#: templates/lessons/list.html:187
 msgid "من"
 msgstr "From"
 
@@ -3764,7 +3845,7 @@ msgstr "Completed"
 msgid "منع المسح المكرر خلال (ثواني)"
 msgstr "Ignore repeat scans within (seconds)"
 
-#: templates/students/detail.html:226 apps/students/models.py:35
+#: templates/students/detail.html:240 apps/students/models.py:35
 #: apps/students/models.py:154
 msgid "منقول"
 msgstr "Transferred"
@@ -3786,7 +3867,7 @@ msgstr "Already existing:"
 msgid "موعد أسبوعي"
 msgstr "Weekly slot"
 
-#: templates/students/detail.html:225 apps/students/models.py:34
+#: templates/students/detail.html:239 apps/students/models.py:34
 #: apps/tenancy/constants.py:54
 msgid "موقوف"
 msgstr "Suspended"
@@ -3799,12 +3880,12 @@ msgstr "Off"
 msgid "مُفعّل"
 msgstr "On"
 
-#: apps/reports/registry.py:306
+#: apps/reports/registry.py:325
 msgid "نسبة التحصيل %"
 msgstr "Collection rate %"
 
-#: apps/reports/registry.py:116 apps/reports/registry.py:155
-#: apps/reports/registry.py:175 apps/reports/registry.py:193
+#: apps/reports/registry.py:115 apps/reports/registry.py:158
+#: apps/reports/registry.py:180 apps/reports/registry.py:200
 msgid "نسبة الحضور %"
 msgstr "Attendance rate %"
 
@@ -3821,7 +3902,7 @@ msgid "نسي الكارت"
 msgstr "Forgot the card"
 
 #: templates/accounts/users.html:56 templates/accounts/users.html:106
-#: templates/students/detail.html:225 apps/students/models.py:32
+#: templates/students/detail.html:239 apps/students/models.py:32
 #: apps/students/models.py:152 apps/tenancy/constants.py:52
 msgid "نشط"
 msgstr "Active"
@@ -3834,7 +3915,7 @@ msgstr "Active"
 msgid "نطاق"
 msgstr "Domain"
 
-#: apps/lessons/services.py:93
+#: apps/lessons/services.py:95
 msgid "نطاق التواريخ غير صحيح"
 msgstr "Invalid date range"
 
@@ -3847,7 +3928,7 @@ msgstr "Custom domain"
 msgid "نظام إدارة السنتر"
 msgstr "Center Management System"
 
-#: templates/students/detail.html:41
+#: templates/students/detail.html:46
 msgid "نظرة عامة"
 msgstr "Overview"
 
@@ -3855,11 +3936,11 @@ msgstr "Overview"
 msgid "نقدًا"
 msgstr "Cash"
 
-#: templates/students/detail.html:336 templates/students/detail.html:426
+#: templates/students/detail.html:352 templates/students/detail.html:442
 msgid "نقل"
 msgstr "Transfer"
 
-#: templates/students/detail.html:422
+#: templates/students/detail.html:438
 msgid "نقل الطالب لمجموعة أخرى"
 msgstr "Transfer the student to another group"
 
@@ -3887,7 +3968,7 @@ msgstr "Indigo"
 msgid "هاتف السنتر"
 msgstr "Center phone"
 
-#: templates/students/create.html:34 templates/students/detail.html:54
+#: templates/students/_form.html:32 templates/students/detail.html:63
 #: apps/students/models.py:65
 msgid "هاتف الطالب"
 msgstr "Student phone"
@@ -3896,8 +3977,8 @@ msgstr "Student phone"
 msgid "هاتف المسؤول"
 msgstr "Owner phone"
 
-#: templates/students/create.html:43 templates/students/list.html:54
-#: apps/reports/registry.py:228 apps/reports/registry.py:281
+#: templates/students/_form.html:43 templates/students/list.html:54
+#: apps/reports/registry.py:239 apps/reports/registry.py:298
 #: apps/students/forms.py:66 apps/students/models.py:68
 msgid "هاتف ولي الأمر"
 msgstr "Guardian phone"
@@ -3914,19 +3995,24 @@ msgstr "This choice applies to you on this device only."
 msgid "هذا المعرّف محجوز للنظام: %(v)s"
 msgstr "This identifier is reserved by the system: %(v)s"
 
-#: apps/attendance/result_codes.py:74 apps/cards/services.py:25
+#: apps/cards/services.py:206
+msgid "هذه البطاقة بديلة عن بطاقة أخرى — عطّلها بدلًا من حذفها."
+msgstr ""
+"This card stood in for another one — disable it rather than deleting it."
+
+#: apps/attendance/result_codes.py:89 apps/cards/services.py:25
 msgid "هذه البطاقة تم استبدالها"
 msgstr "This card has been replaced"
 
-#: apps/attendance/result_codes.py:70 apps/cards/services.py:22
+#: apps/attendance/result_codes.py:85 apps/cards/services.py:22
 msgid "هذه البطاقة غير مرتبطة بطالب"
 msgstr "This card is not linked to a student"
 
-#: apps/attendance/result_codes.py:72 apps/cards/services.py:23
+#: apps/attendance/result_codes.py:87 apps/cards/services.py:23
 msgid "هذه البطاقة مبلّغ عن فقدها"
 msgstr "This card is reported lost"
 
-#: apps/attendance/result_codes.py:73 apps/cards/services.py:24
+#: apps/attendance/result_codes.py:88 apps/cards/services.py:24
 msgid "هذه البطاقة معطّلة"
 msgstr "This card is disabled"
 
@@ -3938,20 +4024,20 @@ msgstr "This feature is not enabled for this account"
 msgid "وقت الانتهاء يجب أن يكون بعد وقت البدء."
 msgstr "The end time must be after the start time."
 
-#: apps/reports/registry.py:210
+#: apps/reports/registry.py:219
 msgid "وقت الحضور"
 msgstr "Check-in time"
 
-#: templates/students/create.html:39 templates/students/detail.html:25
+#: templates/students/_form.html:38 templates/students/detail.html:25
 #: apps/students/models.py:67
 msgid "ولي الأمر"
 msgstr "Guardian"
 
-#: templates/students/detail.html:490
+#: templates/students/detail.html:507
 msgid "يأخذ بطاقة من المخزون ويطبع وجهها بالاسم ورمز"
 msgstr "Takes a card from stock and prints its face with the name and"
 
-#: apps/payments/services.py:218
+#: apps/payments/services.py:219
 msgid "يجب تحديد المُحصِّل"
 msgstr "The collecting cashier must be set"
 
@@ -3967,19 +4053,19 @@ msgstr "Password change required"
 msgid "يجب تغيير كلمة المرور قبل استخدام النظام."
 msgstr "You must change your password before using the system."
 
-#: apps/attendance/result_codes.py:62
+#: apps/attendance/result_codes.py:73
 msgid "يحتاج اعتماد المشرف — خارج الوقت"
 msgstr "Supervisor approval required — outside the window"
 
-#: apps/attendance/result_codes.py:59
+#: apps/attendance/result_codes.py:67
 msgid "يحتاج اعتماد المشرف — صف مختلف"
 msgstr "Supervisor approval required — different grade"
 
-#: apps/attendance/result_codes.py:56
+#: apps/attendance/result_codes.py:61
 msgid "يحتاج اعتماد المشرف — غير مقيد بالمادة"
 msgstr "Supervisor approval required — not enrolled"
 
-#: apps/attendance/result_codes.py:65
+#: apps/attendance/result_codes.py:79
 msgid "يحتاج اعتماد المشرف — مستحقات مالية"
 msgstr "Supervisor approval required — payment due"
 
@@ -3996,6 +4082,10 @@ msgstr "Manual"
 msgid "يظهر أعلى الشاشة وفي رأس كل مستند PDF"
 msgstr "Shown at the top of the screen and in every PDF header"
 
+#: templates/students/edit.html:25
+msgid "يظهر في سجل التدقيق بجوار ما تغيّر"
+msgstr "Shown in the audit log next to what changed"
+
 #: apps/accounts/models.py:53
 msgid "يفتح لوحة تحكم المنصة. ليس له أي معنى داخل سنتر."
 msgstr "Opens the platform console. Means nothing inside a center."
@@ -4004,7 +4094,7 @@ msgstr "Opens the platform console. Means nothing inside a center."
 msgid "يمكن لكل مجموعة تجاوز هذه القيمة"
 msgstr "Each group may override this value"
 
-#: apps/reports/registry.py:238
+#: apps/reports/registry.py:251
 msgid "يوضّح الطلاب الذين حضروا في غير مجموعتهم المعتادة — للكشف عن"
 msgstr "Shows students who attended outside their usual group — to reveal"
 
@@ -4016,7 +4106,7 @@ msgstr "Day of the month charges are issued automatically"
 msgid "يوم استحقاق الرسوم من الشهر"
 msgstr "Day of the month charges fall due"
 
-#: apps/reports/registry.py:329
+#: apps/reports/registry.py:352
 msgid "يومية أمناء الخزنة"
 msgstr "Cashier day book"
 
@@ -4032,7 +4122,7 @@ msgstr "Purge after"
 msgid "يُستخدم عند اختيار «مخصص» — ويظهر أيضًا في رأس مستندات PDF"
 msgstr "Used when “Custom” is selected — it also appears in PDF headers"
 
-#: apps/payments/models.py:237
+#: apps/payments/models.py:245
 msgid "يُلغي الدفعة"
 msgstr "Reverses payment"
 
@@ -4048,12 +4138,12 @@ msgstr "— check-out:"
 msgid "— تعديل"
 msgstr "— edit"
 
-#: templates/payments/workspace.html:206 templates/students/detail.html:309
+#: templates/payments/workspace.html:206 templates/students/detail.html:325
 #: static/js/ui.js:280
 msgid "— صفحة"
 msgstr "— page"
 
-#: templates/lessons/list.html:163
+#: templates/lessons/list.html:167
 msgid "— لا يوجد جدول أسبوعي لهذه المجموعة"
 msgstr "— this group has no weekly schedule"
 

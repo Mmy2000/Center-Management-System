@@ -39,6 +39,7 @@ AUDITED_CHARGE_FIELDS = ["amount_due", "discount_amount", "due_date", "status", 
 # Helpers
 # --------------------------------------------------------------------------- #
 
+
 def normalize_month(value) -> date:
     if isinstance(value, str):
         parts = value.split("-")
@@ -90,6 +91,7 @@ def ledger_total(charge: MonthlyCharge) -> Decimal:
 # --------------------------------------------------------------------------- #
 # Charge generation (TASK-062)
 # --------------------------------------------------------------------------- #
+
 
 def _due_date(billing_month: date) -> date:
     day = settings_registry.get("billing.due_day_of_month")
@@ -162,9 +164,7 @@ def generate_monthly_charges(
             created += 0 if already else 1
             continue
 
-        _charge, was_created = create_charge_for_assignment(
-            assignment, billing_month, actor=actor
-        )
+        _charge, was_created = create_charge_for_assignment(assignment, billing_month, actor=actor)
         created += 1 if was_created else 0
         existing += 0 if was_created else 1
 
@@ -191,6 +191,7 @@ def generate_monthly_charges(
 # --------------------------------------------------------------------------- #
 # Collection (TASK-064)
 # --------------------------------------------------------------------------- #
+
 
 @transaction.atomic
 def record_payment(
@@ -264,7 +265,11 @@ def record_payment(
     recalculate_status(charge)
 
     record(
-        AuditAction.PAYMENT_CREATED if kind == PaymentKind.PAYMENT else AuditAction.PAYMENT_REFUNDED,
+        (
+            AuditAction.PAYMENT_CREATED
+            if kind == PaymentKind.PAYMENT
+            else AuditAction.PAYMENT_REFUNDED
+        ),
         payment,
         changes={
             "amount": str(amount),
@@ -307,6 +312,7 @@ def refund_payment(payment: Payment, amount=None, *, actor, reason: str) -> Paym
 # --------------------------------------------------------------------------- #
 # Administrative changes (TASK-066)
 # --------------------------------------------------------------------------- #
+
 
 @transaction.atomic
 def update_charge(charge: MonthlyCharge, *, actor, reason: str = "", **fields) -> MonthlyCharge:
@@ -394,6 +400,7 @@ def cancel_charge(charge: MonthlyCharge, *, actor, reason: str) -> MonthlyCharge
 # --------------------------------------------------------------------------- #
 # Drift check (TASK-065)
 # --------------------------------------------------------------------------- #
+
 
 def recalculate_charges(billing_month=None, *, fix=True) -> dict:
     """Re-derive ``total_paid`` and ``status`` from the ledger.

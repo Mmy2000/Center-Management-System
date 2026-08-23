@@ -101,8 +101,12 @@ function load() {
     const data = result.data;
     document.getElementById("lessons-body").innerHTML = data.results.length
       ? data.results.map(function (l) {
+          {% if "attendance.qr" in FEATURES %}
           const scan = (CAN_OPEN && l.status !== "CANCELLED" && l.status !== "COMPLETED")
             ? '<a class="btn btn-sm btn-outline-primary" href="/scan/' + l.id + ('/">' + gettext("مسح") + '</a> ') : "";
+          {% else %}
+          const scan = "";   // no card scanning in this center
+          {% endif %}
           return "<tr>" +
             "<td>" + l.lesson_date + "</td>" +
             "<td>" + l.start + " – " + l.end + "</td>" +

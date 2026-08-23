@@ -8,8 +8,15 @@ class AttendanceAdmin(admin.ModelAdmin):
     """Read-only in the admin: corrections must go through the audited service."""
 
     list_display = (
-        "student", "lesson", "state", "status", "attendance_type",
-        "assigned_group", "attended_group", "check_in_at", "is_manual",
+        "student",
+        "lesson",
+        "state",
+        "status",
+        "attendance_type",
+        "assigned_group",
+        "attended_group",
+        "check_in_at",
+        "is_manual",
     )
     list_filter = ("state", "status", "attendance_type", "is_manual", "lesson__lesson_date")
     search_fields = ("student__full_name", "student__student_code")
@@ -27,7 +34,15 @@ class AttendanceAdmin(admin.ModelAdmin):
 
 @admin.register(AttendanceEvent)
 class AttendanceEventAdmin(admin.ModelAdmin):
-    list_display = ("created_at", "lesson", "student", "event_type", "result_code", "device_id", "latency_ms")
+    list_display = (
+        "created_at",
+        "lesson",
+        "student",
+        "event_type",
+        "result_code",
+        "device_id",
+        "latency_ms",
+    )
     list_filter = ("event_type", "result_code")
     search_fields = ("student__full_name", "device_id")
 

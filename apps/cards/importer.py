@@ -62,18 +62,14 @@ def validate_rows(rows: list[dict], *, default_batch: str = "") -> list[StudentC
         if len(token) > MAX_TOKEN_LENGTH or not TOKEN_PATTERN.match(token):
             raise ImportError_(_("صيغة الرمز غير صحيحة"), row=index)
         if number in seen_numbers:
-            raise ImportError_(
-                _("رقم بطاقة مكرر داخل الملف: %(n)s") % {"n": number}, row=index
-            )
+            raise ImportError_(_("رقم بطاقة مكرر داخل الملف: %(n)s") % {"n": number}, row=index)
         if token in seen_tokens:
             raise ImportError_(_("رمز مكرر داخل الملف"), row=index)
 
         seen_numbers.add(number)
         seen_tokens.add(token)
         cards.append(
-            StudentCard(
-                card_number=number, qr_token=token, batch=row.get("batch") or default_batch
-            )
+            StudentCard(card_number=number, qr_token=token, batch=row.get("batch") or default_batch)
         )
 
     clashing = set(
@@ -82,9 +78,7 @@ def validate_rows(rows: list[dict], *, default_batch: str = "") -> list[StudentC
         )
     )
     if clashing:
-        raise ImportError_(
-            _("أرقام موجودة بالفعل: %(n)s") % {"n": ", ".join(sorted(clashing)[:5])}
-        )
+        raise ImportError_(_("أرقام موجودة بالفعل: %(n)s") % {"n": ", ".join(sorted(clashing)[:5])})
     if StudentCard.objects.filter(qr_token__in=seen_tokens).exists():
         raise ImportError_(_("أحد الرموز مستخدم بالفعل في النظام"))
 

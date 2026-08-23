@@ -194,8 +194,7 @@ class Attendance(TenantOwnedModel):
             ),
             models.CheckConstraint(
                 condition=(
-                    ~models.Q(attendance_type="MAKEUP")
-                    | models.Q(makeup_for_lesson__isnull=False)
+                    ~models.Q(attendance_type="MAKEUP") | models.Q(makeup_for_lesson__isnull=False)
                 ),
                 name="ck_makeup_requires_source_lesson",
             ),
@@ -223,8 +222,7 @@ class Attendance(TenantOwnedModel):
     @property
     def is_alternative(self) -> bool:
         return (
-            self.assigned_group_id is not None
-            and self.assigned_group_id != self.attended_group_id
+            self.assigned_group_id is not None and self.assigned_group_id != self.attended_group_id
         )
 
     @property
@@ -253,7 +251,11 @@ class AttendanceEvent(TenantOwnedModel):
     )
     lesson = models.ForeignKey("lessons.Lesson", on_delete=models.PROTECT, related_name="events")
     student = models.ForeignKey(
-        "students.Student", on_delete=models.SET_NULL, null=True, blank=True, related_name="scan_events"
+        "students.Student",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="scan_events",
     )
     card = models.ForeignKey(
         "cards.StudentCard", on_delete=models.SET_NULL, null=True, blank=True, related_name="events"
@@ -264,7 +266,11 @@ class AttendanceEvent(TenantOwnedModel):
     message = models.CharField(max_length=200, blank=True)
     device_id = models.CharField(max_length=60, blank=True, db_index=True)
     operator = models.ForeignKey(
-        "accounts.User", on_delete=models.SET_NULL, null=True, blank=True, related_name="scan_events"
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="scan_events",
     )
     # Client-generated, so two centers will eventually pick the same value:
     # unique per tenant, never globally (docs/10 §N.5).
@@ -272,9 +278,7 @@ class AttendanceEvent(TenantOwnedModel):
     # ignore the events that carry no key: NULLs do not collide, empty
     # strings do. (Ruff's DJ001 waives this for unique=True fields; the
     # reasoning is identical now that uniqueness lives in a constraint.)
-    idempotency_key = models.CharField(  # noqa: DJ001
-        max_length=64, null=True, blank=True
-    )
+    idempotency_key = models.CharField(max_length=64, null=True, blank=True)  # noqa: DJ001
     latency_ms = models.PositiveIntegerField(null=True, blank=True)
     payload = models.JSONField(default=dict, blank=True)
 

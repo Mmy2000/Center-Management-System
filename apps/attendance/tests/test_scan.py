@@ -33,6 +33,7 @@ def scan(lesson, token, **kwargs):
 
 # --------------------------------------------------------------- 1, 2, 3, 4 #
 
+
 def test_1_normal_check_in(assigned_student, lesson_a):
     student, card = assigned_student
     result = scan(lesson_a, card.qr_token)
@@ -95,6 +96,7 @@ def test_4_makeup_links_the_missed_lesson(assigned_student, world, lesson_b):
 
 # ------------------------------------------------------------------ 5, 6, 14 #
 
+
 @pytest.mark.parametrize(
     "policy,expected",
     [
@@ -148,6 +150,7 @@ def test_14_outside_the_window(assigned_student, world):
 
 
 # ----------------------------------------------------------- 7, 8, 9, 10, 18 #
+
 
 def test_7_duplicate_scan_inside_the_window_writes_nothing(assigned_student, lesson_a):
     student, card = assigned_student
@@ -212,6 +215,7 @@ def test_10_scan_after_check_out_warns(assigned_student, lesson_a):
 
 # ------------------------------------------------------------- 11, 12, 13, 3 #
 
+
 @pytest.mark.parametrize(
     "status,expected",
     [
@@ -240,7 +244,9 @@ def test_unknown_token_is_rejected_without_a_row(lesson_a):
     assert Attendance.objects.count() == 0
 
 
-def test_12_replacement_keeps_history_and_swaps_which_token_works(assigned_student, world, lesson_a):
+def test_12_replacement_keeps_history_and_swaps_which_token_works(
+    assigned_student, world, lesson_a
+):
     student, old_card = assigned_student
     scan(lesson_a, old_card.qr_token)
     history_before = list(Attendance.objects.values("id", "student_id", "card_used_id"))
@@ -292,6 +298,7 @@ def test_suspended_student_is_refused(assigned_student, lesson_a):
 
 # --------------------------------------------------------------- 16, events #
 
+
 def test_16_replaying_an_idempotency_key_returns_the_first_answer(assigned_student, lesson_a):
     student, card = assigned_student
     first = scan(lesson_a, card.qr_token, idempotency_key="key-1")
@@ -331,6 +338,7 @@ def test_37_the_raw_token_never_reaches_the_event_log(assigned_student, lesson_a
 
 
 # ------------------------------------------------------------------- sweeps #
+
 
 def test_17_completion_auto_checks_out_and_materialises_absences(world, assigned_student):
     present, card = assigned_student
@@ -399,6 +407,7 @@ def test_students_assigned_after_the_lesson_are_not_retroactively_absent(world, 
 
 
 # ------------------------------------------------------------ query budget #
+
 
 def _data_queries(captured):
     """Only real statements — BEGIN/COMMIT/SAVEPOINT are transaction control."""

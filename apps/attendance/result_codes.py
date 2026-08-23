@@ -49,20 +49,35 @@ CODES: dict[str, dict] = {
     "WARN_PAYMENT_DUE": _row(WARN, 200, _("عليه مستحقات مالية"), "Payment outstanding"),
     "WARN_CAPACITY": _row(WARN, 200, _("المجموعة تجاوزت السعة"), "Group over capacity"),
     "WARN_OUTSIDE_WINDOW": _row(
-        WARN, 200, _("خارج وقت التسجيل — تم التسجيل استثنائيًا"), "Outside window — recorded as exceptional"
+        WARN,
+        200,
+        _("خارج وقت التسجيل — تم التسجيل استثنائيًا"),
+        "Outside window — recorded as exceptional",
     ),
     # ---------------------------- needs approval -------------------------- #
     "NEEDS_APPROVAL_NOT_ASSIGNED": _row(
-        NEEDS_APPROVAL, 200, _("يحتاج اعتماد المشرف — غير مقيد بالمادة"), "Supervisor approval required — not assigned"
+        NEEDS_APPROVAL,
+        200,
+        _("يحتاج اعتماد المشرف — غير مقيد بالمادة"),
+        "Supervisor approval required — not assigned",
     ),
     "NEEDS_APPROVAL_GRADE": _row(
-        NEEDS_APPROVAL, 200, _("يحتاج اعتماد المشرف — صف مختلف"), "Supervisor approval required — different grade"
+        NEEDS_APPROVAL,
+        200,
+        _("يحتاج اعتماد المشرف — صف مختلف"),
+        "Supervisor approval required — different grade",
     ),
     "NEEDS_APPROVAL_WINDOW": _row(
-        NEEDS_APPROVAL, 200, _("يحتاج اعتماد المشرف — خارج الوقت"), "Supervisor approval required — outside window"
+        NEEDS_APPROVAL,
+        200,
+        _("يحتاج اعتماد المشرف — خارج الوقت"),
+        "Supervisor approval required — outside window",
     ),
     "NEEDS_APPROVAL_PAYMENT": _row(
-        NEEDS_APPROVAL, 200, _("يحتاج اعتماد المشرف — مستحقات مالية"), "Supervisor approval required — unpaid"
+        NEEDS_APPROVAL,
+        200,
+        _("يحتاج اعتماد المشرف — مستحقات مالية"),
+        "Supervisor approval required — unpaid",
     ),
     # ------------------------------- errors ------------------------------- #
     "ERR_CARD_NOT_FOUND": _row(ERR, 404, _("بطاقة غير معروفة"), "Unknown card"),
@@ -78,9 +93,7 @@ CODES: dict[str, dict] = {
     "ERR_LESSON_NOT_OPEN": _row(ERR, 409, _("الحصة غير مفتوحة للتسجيل"), "Lesson is not open"),
     "ERR_LESSON_CANCELLED": _row(ERR, 409, _("الحصة ملغاة"), "Lesson cancelled"),
     "ERR_WINDOW_CLOSED": _row(ERR, 409, _("انتهى وقت تسجيل الحضور"), "Attendance window closed"),
-    "ERR_NOT_CHECKED_IN": _row(
-        ERR, 409, _("لم يتم تسجيل الحضور أولًا"), "No check-in to close"
-    ),
+    "ERR_NOT_CHECKED_IN": _row(ERR, 409, _("لم يتم تسجيل الحضور أولًا"), "No check-in to close"),
     "ERR_PAYMENT_BLOCKED": _row(ERR, 409, _("ممنوع الحضور لعدم السداد"), "Blocked: payment due"),
     "ERR_NOT_ASSIGNED_BLOCKED": _row(
         ERR, 409, _("الطالب غير مقيد بهذه المادة"), "Blocked: not assigned"

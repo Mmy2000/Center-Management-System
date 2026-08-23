@@ -308,3 +308,75 @@ def test_pages_render(admin_client_, grade):
     assert admin_client_.get(reverse("students:list")).status_code == 200
     assert admin_client_.get(reverse("students:create")).status_code == 200
     assert admin_client_.get(reverse("students:detail", args=[student.pk])).status_code == 200
+
+
+# --------------------------------------------------------------------------- #
+# Editing a student (the screen; the PATCH behind it was already tested)
+# --------------------------------------------------------------------------- #
+
+
+def test_the_edit_page_is_prefilled(admin_client_, grade):
+    student = make_student(grade, full_name="طالب أصلي", guardian_phone="01011112222")
+    html = admin_client_.get(reverse("students:edit", args=[student.pk])).content.decode("utf-8")
+
+    assert 'value="طالب أصلي"' in html
+    assert 'value="01011112222"' in html
+    # The grade must come back selected, or saving would silently move the
+    # student to whichever grade happened to be first in the list.
+    assert f'value="{grade.pk}" selected' in html
+
+
+def test_editing_saves_and_audits(admin_client_, grade):
+    from apps.core.models import AuditAction, AuditLog
+
+    student = make_student(grade, full_name="قبل")
+    response = admin_client_.patch(
+        reverse("students_api:student_detail", args=[student.pk]),
+        data={
+            "full_name": "بعد",
+            "grade": grade.pk,
+            "guardian_phone": student.guardian_phone,
+            "reason": "تصحيح الاسم",
+        },
+        content_type="application/json",
+    )
+    assert response.status_code == 200
+
+    student.refresh_from_db()
+    assert student.full_name == "بعد"
+    entry = AuditLog.objects.filter(action=AuditAction.STUDENT_UPDATED).first()
+    assert entry.reason == "تصحيح الاسم"
+
+
+def test_editing_cannot_change_the_student_code(admin_client_, grade):
+    """The code is on printed cards and in the parents' hands."""
+    student = make_student(grade)
+    original = student.student_code
+
+    admin_client_.patch(
+        reverse("students_api:student_detail", args=[student.pk]),
+        data={
+            "student_code": "S999999",
+            "full_name": student.full_name,
+            "grade": grade.pk,
+            "guardian_phone": student.guardian_phone,
+        },
+        content_type="application/json",
+    )
+    student.refresh_from_db()
+    assert student.student_code == original
+
+
+def test_the_edit_page_needs_the_change_permission(client, grade, user_factory):
+    from django.core.management import call_command
+
+    from apps.accounts.models import Role
+    from apps.accounts.services import sync_user_group
+
+    call_command("seed_roles", verbosity=0)
+    watcher = user_factory(username="watch", role=Role.SCAN_OPERATOR)
+    sync_user_group(watcher)
+    client.login(username="watch", password="TestPass!2026")
+
+    student = make_student(grade)
+    assert client.get(reverse("students:edit", args=[student.pk])).status_code == 403

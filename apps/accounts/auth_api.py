@@ -45,7 +45,8 @@ def login_ajax(request):
             _("بيانات دخول غير صحيحة"),
             status=401,
             field_errors={
-                field: [str(m) for m in messages] for field, messages in form.errors.items()
+                field: [str(m) for m in messages]
+                for field, messages in form.errors.items()
                 if field != "__all__"
             },
         )

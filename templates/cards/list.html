@@ -9,7 +9,7 @@
     <div class="page-subtitle">{% translate "البطاقات مخزون: تُنشأ دفعات، ثم تُربط بالطلاب عند التسجيل." %}</div>
   </div>
   <div class="btn-toolbar-tight">
-    {% if perms.cards.add_studentcard %}
+    {% if perms.cards.add_studentcard and "cards.bulk_import" in FEATURES %}
       <button class="btn btn-primary btn-icon" id="generate-cards">
         <svg class="icon"><use href="#i-plus"></use></svg>{% translate "بطاقات جديدة" %}
       </button>
@@ -17,9 +17,11 @@
         <svg class="icon"><use href="#i-cards"></use></svg>{% translate "استيراد CSV" %}
       </button>
     {% endif %}
-    <button class="btn btn-outline-secondary btn-icon" id="export-cards">
-      <svg class="icon"><use href="#i-download"></use></svg>{% translate "كشف الطباعة" %}
-    </button>
+    {% if "cards.bulk_import" in FEATURES %}
+      <button class="btn btn-outline-secondary btn-icon" id="export-cards">
+        <svg class="icon"><use href="#i-download"></use></svg>{% translate "كشف الطباعة" %}
+      </button>
+    {% endif %}
   </div>
 </div>
 
@@ -94,6 +96,9 @@
 {% block extra_js %}
 <script>
 const CAN_WRITE = {{ perms.cards.change_studentcard|yesno:"true,false" }};
+// Deleting stock is a separate permission from changing it: a mis-typed
+// batch is a tidy-up, and the server refuses any card that has been used.
+const CAN_DELETE = {{ perms.cards.delete_studentcard|yesno:"true,false" }};
 const STATUS_CLASS = {
   AVAILABLE: "success", ASSIGNED: "primary", LOST: "danger",
   DISABLED: "secondary", REPLACED: "dark"
@@ -124,7 +129,9 @@ function load() {
                 ? ('<button class="btn btn-sm btn-soft-danger js-lost">' + gettext("فقدان") + '</button> ') +
                   ('<button class="btn btn-sm btn-soft-secondary js-replace">' + gettext("استبدال") + '</button>')
                 : (c.status === "AVAILABLE"
-                    ? ('<button class="btn btn-sm btn-soft-secondary js-disable">' + gettext("تعطيل") + '</button>') : ""))
+                    ? ('<button class="btn btn-sm btn-soft-secondary js-disable">' + gettext("تعطيل") + '</button> ') +
+                      (CAN_DELETE ? ('<button class="btn btn-sm btn-soft-danger js-delete">' + gettext("حذف") + '</button>') : "")
+                    : ""))
             : "";
           return "<tr data-id='" + c.id + "' data-number='" + c.card_number + "'>" +
             "<td>" + c.card_number + "</td>" +
@@ -210,6 +217,7 @@ document.getElementById("cards-body").addEventListener("click", function (event)
   }
 });
 
+{% if "cards.bulk_import" in FEATURES %}
 /* ------------------------------------------------------- create stock -- */
 document.getElementById("generate-cards")?.addEventListener("click", function () {
   app.openModal(
@@ -300,6 +308,41 @@ document.getElementById("export-cards").addEventListener("click", function () {
     if (value()) { params.set("batch", value()); }
     app.download("{% url 'cards_api:export_batch' %}?" + params.toString());
     app.closeModal();
+  });
+});
+{% endif %}
+
+document.getElementById("cards-body").addEventListener("click", function (event) {
+  const button = event.target.closest(".js-delete");
+  if (!button) { return; }
+  const row = button.closest("tr");
+
+  app.openModal(
+    gettext("حذف البطاقة") + " " + row.dataset.number,
+    ('<p class="small text-muted">' +
+      gettext("للبطاقات التي لم تُستخدم قط — دفعة مكررة أو رقم خاطئ. أي بطاقة لها سجل تخصيص أو مسح تُرفض، وتُعطَّل بدلًا من حذفها.") +
+      "</p>") +
+    ('<label class="form-label">' + gettext("السبب") + "</label>") +
+    '<textarea class="form-control" id="delete-reason" rows="2"></textarea>' +
+    '<div class="text-danger small mt-1" id="delete-error"></div>',
+    ('<button class="btn btn-ghost" data-bs-dismiss="modal">' + gettext("إلغاء") + "</button>") +
+    ('<button class="btn btn-danger" id="confirm-delete">' + gettext("حذف نهائي") + "</button>")
+  );
+
+  document.getElementById("confirm-delete").addEventListener("click", function () {
+    ui.withBusy(this, async function () {
+      try {
+        await http.del("/api/cards/" + row.dataset.id + "/delete/", {
+          reason: document.getElementById("delete-reason").value
+        });
+        app.closeModal();
+        app.toast(gettext("تم حذف البطاقة"), "success");
+        load();
+      } catch (error) {
+        document.getElementById("delete-error").textContent =
+          error.message || gettext("تعذر الحذف");
+      }
+    });
   });
 });
 

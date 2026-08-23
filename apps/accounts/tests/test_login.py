@@ -29,6 +29,7 @@ def post(client, payload, **extra):
 
 # ------------------------------------------------------------------- page --
 
+
 def test_login_page_renders_with_its_own_stylesheet(client):
     response = client.get(reverse("accounts:login"))
     body = response.content.decode("utf-8")
@@ -47,6 +48,7 @@ def test_page_carries_the_next_parameter_into_the_form(client):
 
 
 # ------------------------------------------------------------------- ajax --
+
 
 def test_successful_sign_in_returns_a_redirect(client, account):
     response = post(client, {"username": "reception", "password": PASSWORD})
@@ -105,9 +107,7 @@ def test_a_user_who_must_change_password_is_sent_there(client, user_factory):
 
 
 def test_next_is_honoured_when_it_is_local(client, account):
-    response = post(
-        client, {"username": "reception", "password": PASSWORD, "next": "/students/"}
-    )
+    response = post(client, {"username": "reception", "password": PASSWORD, "next": "/students/"})
     assert response.json()["data"]["redirect"] == "/students/"
 
 

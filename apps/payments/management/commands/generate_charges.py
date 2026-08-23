@@ -27,6 +27,5 @@ class Command(BaseCommand):
             self.stdout.write(
                 f"{summary['billing_month']}: created={summary['created']} "
                 f"existing={summary['existing']} students={summary['students']} "
-                f"total={summary['total_amount']}"
-                + (" (dry run)" if summary["dry_run"] else "")
+                f"total={summary['total_amount']}" + (" (dry run)" if summary["dry_run"] else "")
             )

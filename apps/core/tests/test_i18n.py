@@ -25,6 +25,7 @@ def switch(client, language):
 
 # ------------------------------------------------------------------ catalog #
 
+
 @pytest.mark.parametrize(
     "arabic,english",
     [
@@ -40,7 +41,7 @@ def test_key_strings_are_translated(arabic, english):
     from django.utils.translation import gettext as _
 
     with translation.override("ar"):
-        assert _(arabic) == arabic          # Arabic is the msgid — no catalog needed
+        assert _(arabic) == arabic  # Arabic is the msgid — no catalog needed
     with translation.override("en"):
         assert _(arabic) == english
 
@@ -70,12 +71,13 @@ def test_extractor_finds_no_new_strings():
 
 # ------------------------------------------------------------------- switch #
 
+
 def test_switching_flips_language_and_direction(signed_in):
     switch(signed_in, "en")
     html = signed_in.get(reverse("dashboard:home")).content.decode("utf-8")
     assert 'lang="en"' in html
     assert 'dir="ltr"' in html
-    assert "bootstrap.min.css" in html      # LTR stylesheet
+    assert "bootstrap.min.css" in html  # LTR stylesheet
     assert "Dashboard" in html
 
     switch(signed_in, "ar")
@@ -94,9 +96,16 @@ def test_the_switch_is_available_before_signing_in(client):
 def test_every_screen_renders_in_english(signed_in):
     switch(signed_in, "en")
     for name in [
-        "dashboard:home", "students:list", "students:create", "cards:list",
-        "lessons:list", "payments:workspace", "reports:index",
-        "attendance:scanner_picker", "core:settings", "accounts:users",
+        "dashboard:home",
+        "students:list",
+        "students:create",
+        "cards:list",
+        "lessons:list",
+        "payments:workspace",
+        "reports:index",
+        "attendance:scanner_picker",
+        "core:settings",
+        "accounts:users",
     ]:
         response = signed_in.get(reverse(name))
         assert response.status_code == 200, name
@@ -107,6 +116,7 @@ def test_every_screen_renders_in_english(signed_in):
 
 # --------------------------------------------------------------- JS catalog #
 
+
 def test_javascript_catalog_serves_the_same_strings(signed_in):
     switch(signed_in, "en")
     body = signed_in.get(reverse("javascript-catalog")).content.decode("utf-8")
@@ -116,6 +126,7 @@ def test_javascript_catalog_serves_the_same_strings(signed_in):
 
 
 # ---------------------------------------------------------------- documents #
+
 
 def test_pdf_labels_follow_the_active_language(signed_in, user_factory):
     """Labels translate; stored data (names, subjects) keeps its own language."""
@@ -146,9 +157,7 @@ def test_pdf_labels_follow_the_active_language(signed_in, user_factory):
 
     switch(signed_in, "en")
     response = signed_in.get(reverse("payments_api:receipt", args=[payment.pk]))
-    text = PdfReader(io.BytesIO(response.content)).pages[0].extract_text(
-        extraction_mode="layout"
-    )
+    text = PdfReader(io.BytesIO(response.content)).pages[0].extract_text(extraction_mode="layout")
     assert "Payment receipt" in text
     assert "Student" in text
     assert payment.receipt_number in text

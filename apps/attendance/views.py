@@ -15,9 +15,9 @@ def scanner_picker(request):
     lessons = visible_lessons(request.user, Lesson.objects.with_related())
     open_lessons = list(lessons.filter(status=LessonStatus.OPEN).order_by("scheduled_start"))
     today = list(
-        lessons.filter(
-            status=LessonStatus.SCHEDULED, lesson_date=timezone.localdate()
-        ).order_by("scheduled_start")
+        lessons.filter(status=LessonStatus.SCHEDULED, lesson_date=timezone.localdate()).order_by(
+            "scheduled_start"
+        )
     )
     return render(
         request,
@@ -29,9 +29,7 @@ def scanner_picker(request):
 @require_perm("attendance.add_attendance")
 @require_feature("attendance.qr")
 def scanner_console(request, pk):
-    lesson = get_object_or_404(
-        visible_lessons(request.user, Lesson.objects.with_related()), pk=pk
-    )
+    lesson = get_object_or_404(visible_lessons(request.user, Lesson.objects.with_related()), pk=pk)
     if not can_touch_lesson(request.user, lesson):
         raise DomainError("ERR_FORBIDDEN", "forbidden", status=403)
 

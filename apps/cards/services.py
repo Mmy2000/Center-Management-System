@@ -158,6 +158,69 @@ def disable_card(card: StudentCard, *, actor=None, reason: str = "") -> StudentC
 
 
 @transaction.atomic
+def delete_card(card: StudentCard, *, actor=None, reason: str = "") -> dict:
+    """Remove a card from stock permanently.
+
+    Only ever for stock that was never used: a mis-typed batch, a duplicate
+    import, a test card. The moment a card has been held by a student or has
+    appeared in a scan it stops being stock and becomes history — and history
+    here is immutable (docs/README principle 5). Deleting such a card would
+    strand the assignment rows that point at it and blank the card column on
+    every scan event it produced, quietly rewriting what happened.
+
+    So this refuses, and says which of those it is. ``disable_card`` is the
+    operation for a card that *has* been used: it takes it out of service and
+    keeps every trace of it.
+    """
+    require_feature("cards")
+    if not reason:
+        raise DomainError(
+            "ERR_REASON_REQUIRED",
+            _("سبب الحذف مطلوب"),
+            field_errors={"reason": [_("السبب مطلوب")]},
+        )
+
+    card = StudentCard.objects.select_for_update().get(pk=card.pk)
+
+    if card.status == CardStatus.ASSIGNED or card.current_student_id:
+        raise DomainError(
+            "ERR_CARD_IN_USE",
+            _("البطاقة مرتبطة بطالب — فُك الارتباط أولًا."),
+            status=409,
+        )
+    if card.assignment_history.exists():
+        raise DomainError(
+            "ERR_CARD_HAS_HISTORY",
+            _("البطاقة لها سجل تخصيص سابق — عطّلها بدلًا من حذفها حتى لا يضيع السجل."),
+            status=409,
+        )
+    if card.events.exists():
+        raise DomainError(
+            "ERR_CARD_HAS_HISTORY",
+            _("البطاقة استُخدمت في المسح — عطّلها بدلًا من حذفها حتى لا يضيع السجل."),
+            status=409,
+        )
+    if card.replaces.exists():
+        raise DomainError(
+            "ERR_CARD_HAS_HISTORY",
+            _("هذه البطاقة بديلة عن بطاقة أخرى — عطّلها بدلًا من حذفها."),
+            status=409,
+        )
+
+    number = card.card_number
+    # Recorded before the row goes, or the audit entry points at nothing.
+    record(
+        AuditAction.CARD_DELETED,
+        card,
+        changes={"card_number": number, "status": card.status, "batch": card.batch},
+        reason=reason,
+        actor=actor,
+    )
+    card.delete()
+    return {"card_number": number}
+
+
+@transaction.atomic
 def replace_card(
     old_card: StudentCard,
     new_card: StudentCard,

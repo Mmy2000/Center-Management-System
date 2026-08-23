@@ -66,9 +66,7 @@ def test_it_really_is_standalone():
     Read the AST, not the text: the module docstring quotes the WSGI file, and
     that quote contains both `os.environ` and the word base.
     """
-    source = (pa.BASE_DIR / "cms" / "settings" / "pythonanywhere.py").read_text(
-        encoding="utf-8"
-    )
+    source = (pa.BASE_DIR / "cms" / "settings" / "pythonanywhere.py").read_text(encoding="utf-8")
     tree = ast.parse(source)
 
     imported = set()

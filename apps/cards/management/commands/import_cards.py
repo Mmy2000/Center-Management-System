@@ -27,9 +27,7 @@ class Command(BaseCommand):
 
         try:
             # utf-8-sig tolerates the BOM Excel writes.
-            result = import_batch(
-                path.read_text(encoding="utf-8-sig"), batch=options["batch"]
-            )
+            result = import_batch(path.read_text(encoding="utf-8-sig"), batch=options["batch"])
         except DomainError as exc:
             raise CommandError(exc.message) from exc
 

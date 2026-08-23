@@ -103,6 +103,7 @@ def run(slug, **filters):
 
 # ------------------------------------------------------------------ registry #
 
+
 def test_every_report_declares_columns_and_a_permission():
     reports = registry.all_reports()
     assert len(reports) >= 14
@@ -124,6 +125,7 @@ def test_unknown_report_raises():
 
 # ------------------------------------------------- attendance reconciliation #
 
+
 def test_daily_report_matches_the_attendance_rows(center):
     rows = run("attendance-daily")
     today = timezone.localdate().isoformat()
@@ -131,9 +133,12 @@ def test_daily_report_matches_the_attendance_rows(center):
 
     # "Present" counts PRESENT and PARTIAL: a student who left early still
     # attended (auto-checkout marks a short stay PARTIAL).
-    assert row["present"] == Attendance.objects.filter(
-        status__in=[AttendanceStatus.PRESENT, AttendanceStatus.PARTIAL]
-    ).count()
+    assert (
+        row["present"]
+        == Attendance.objects.filter(
+            status__in=[AttendanceStatus.PRESENT, AttendanceStatus.PARTIAL]
+        ).count()
+    )
     assert row["absent"] == Attendance.objects.filter(state=AttendanceState.ABSENT).count()
     assert row["alternative"] == 1
 
@@ -181,14 +186,13 @@ def test_late_report_is_empty_without_late_students(center):
 
 # ---------------------------------------------------- finance reconciliation #
 
+
 def test_collection_report_matches_the_ledger(center, money):
     rows = run("collection-daily")
     assert rows[0]["collected"] == "200.00"
     assert rows[0]["net"] == "200.00"
 
-    ledger = sum(
-        p.signed_amount for p in Payment.objects.filter(kind=PaymentKind.PAYMENT)
-    )
+    ledger = sum(p.signed_amount for p in Payment.objects.filter(kind=PaymentKind.PAYMENT))
     assert Decimal(rows[0]["collected"]) == ledger
 
 
@@ -197,9 +201,9 @@ def test_outstanding_report_lists_only_unsettled_charges(center, money):
     balances = {row["student"]: Decimal(row["balance"]) for row in rows}
 
     assert balances["طالب 0"] == Decimal("300.00")
-    assert sum(balances.values()) == MonthlyCharge.objects.outstanding().count() * Decimal("0") + sum(
-        c.balance for c in MonthlyCharge.objects.outstanding()
-    )
+    assert sum(balances.values()) == MonthlyCharge.objects.outstanding().count() * Decimal(
+        "0"
+    ) + sum(c.balance for c in MonthlyCharge.objects.outstanding())
 
 
 def test_finance_by_group_rate(center, money):
@@ -220,9 +224,7 @@ def test_waived_charges_are_excluded_from_finance_reports(center, money, user_fa
 
 
 def test_cashier_daybook_splits_by_method(center, money):
-    pay.record_payment(
-        money["charge"], "100.00", collected_by=money["cashier"], method="WALLET"
-    )
+    pay.record_payment(money["charge"], "100.00", collected_by=money["cashier"], method="WALLET")
     rows = run("cashier-daybook")
     methods = {row["method"]: row for row in rows}
     assert len(methods) == 2
@@ -241,16 +243,20 @@ def test_refunds_reduce_the_net_but_keep_the_gross(center, money):
 
 # ------------------------------------------------------------------ dashboard #
 
+
 def test_dashboard_numbers_reconcile(center, money, user_factory):
     boss = user_factory(username="boss2", role=Role.SUPER_ADMIN)
     data = dashboard_summary(boss)
 
-    assert data["today"]["present"] == Attendance.objects.filter(
-        status__in=[AttendanceStatus.PRESENT, AttendanceStatus.PARTIAL]
-    ).count()
-    assert data["today"]["absent"] == Attendance.objects.filter(
-        state=AttendanceState.ABSENT
-    ).count()
+    assert (
+        data["today"]["present"]
+        == Attendance.objects.filter(
+            status__in=[AttendanceStatus.PRESENT, AttendanceStatus.PARTIAL]
+        ).count()
+    )
+    assert (
+        data["today"]["absent"] == Attendance.objects.filter(state=AttendanceState.ABSENT).count()
+    )
     assert data["month"]["collected"] == "200.00"
     assert data["month"]["expected"] == "1500.00"
     assert data["month"]["outstanding"] == "1300.00"
@@ -265,6 +271,7 @@ def test_group_dashboard(center, money):
 
 
 # ------------------------------------------------------------------ endpoints #
+
 
 def test_report_endpoint_returns_columns_rows_and_totals(admin_client_, center):
     response = admin_client_.get(reverse("reports_api:report_data", args=["attendance-daily"]))
@@ -309,7 +316,9 @@ def test_instructor_cannot_open_financial_reports(client, user_factory, center):
     user_factory(username="teach", role=Role.INSTRUCTOR, password=PASSWORD)
     client.login(username="teach", password=PASSWORD)
 
-    assert client.get(reverse("reports_api:report_data", args=["attendance-daily"])).status_code == 200
+    assert (
+        client.get(reverse("reports_api:report_data", args=["attendance-daily"])).status_code == 200
+    )
     assert client.get(reverse("reports_api:report_data", args=["outstanding"])).status_code == 403
 
 
@@ -328,6 +337,7 @@ def test_pages_render(admin_client_, center):
 
 
 # ------------------------------------------------------------ PDF documents #
+
 
 def test_pdf_export_is_a_download(admin_client_, center):
     response = admin_client_.get(
@@ -361,7 +371,5 @@ def test_pdf_export_is_audited_like_the_others(admin_client_, center):
 def test_export_requires_the_export_permission(client, user_factory, center):
     user_factory(username="teach3", role=Role.INSTRUCTOR, password=PASSWORD)
     client.login(username="teach3", password=PASSWORD)
-    response = client.get(
-        reverse("reports_api:export", args=["attendance-daily"]) + "?format=pdf"
-    )
+    response = client.get(reverse("reports_api:export", args=["attendance-daily"]) + "?format=pdf")
     assert response.status_code == 403

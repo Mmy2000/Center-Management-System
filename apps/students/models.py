@@ -223,8 +223,7 @@ class StudentGroupAssignment(TenantOwnedModel):
             ),
             models.CheckConstraint(
                 condition=(
-                    models.Q(end_date__isnull=True)
-                    | models.Q(end_date__gte=models.F("start_date"))
+                    models.Q(end_date__isnull=True) | models.Q(end_date__gte=models.F("start_date"))
                 ),
                 name="ck_assignment_date_order",
             ),

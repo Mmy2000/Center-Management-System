@@ -146,7 +146,9 @@ def charge_detail(request, pk):
             "charge": charge_json(charge),
             "payments": [
                 payment_json(p)
-                for p in charge.payments.select_related("student", "collected_by").order_by("paid_at")
+                for p in charge.payments.select_related("student", "collected_by").order_by(
+                    "paid_at"
+                )
             ],
         }
 
@@ -161,9 +163,7 @@ def charge_detail(request, pk):
         amount_due=data.get("amount_due"),
         discount_amount=data.get("discount_amount"),
         due_date=(
-            datetime.strptime(data["due_date"], "%Y-%m-%d").date()
-            if data.get("due_date")
-            else None
+            datetime.strptime(data["due_date"], "%Y-%m-%d").date() if data.get("due_date") else None
         ),
     )
     return {"charge": charge_json(charge)}
@@ -188,14 +188,18 @@ def generate(request):
 @ajax(methods=["POST"], perm="payments.waive_charge", feature="payments.waivers")
 def waive(request, pk):
     charge = get_object_or_404(MonthlyCharge.objects.with_related(), pk=pk)
-    charge = services.waive_charge(charge, actor=request.user, reason=request.json.get("reason", ""))
+    charge = services.waive_charge(
+        charge, actor=request.user, reason=request.json.get("reason", "")
+    )
     return {"charge": charge_json(charge)}
 
 
 @ajax(methods=["POST"], perm="payments.change_monthlycharge", feature="payments")
 def cancel(request, pk):
     charge = get_object_or_404(MonthlyCharge.objects.with_related(), pk=pk)
-    charge = services.cancel_charge(charge, actor=request.user, reason=request.json.get("reason", ""))
+    charge = services.cancel_charge(
+        charge, actor=request.user, reason=request.json.get("reason", "")
+    )
     return {"charge": charge_json(charge)}
 
 
@@ -302,8 +306,10 @@ def student_financial_summary(request, pk):
         qs = qs.filter(billing_month=services.normalize_month(month))
 
     totals = qs.billable().aggregate(
-        due=Sum("amount_due"), discount=Sum("discount_amount"),
-        paid=Sum("total_paid"), balance=Sum("balance"),
+        due=Sum("amount_due"),
+        discount=Sum("discount_amount"),
+        paid=Sum("total_paid"),
+        balance=Sum("balance"),
     )
     return {
         "results": [charge_json(charge) for charge in qs],
@@ -317,7 +323,9 @@ def receipt(request, pk):
     """Downloadable PDF receipt — A5 by default, ``?size=thermal`` for a roll."""
     payment = get_object_or_404(
         Payment.objects.select_related(
-            "student", "collected_by", "monthly_charge__grade_subject__subject",
+            "student",
+            "collected_by",
+            "monthly_charge__grade_subject__subject",
             "monthly_charge__grade_subject__grade",
         ),
         pk=pk,

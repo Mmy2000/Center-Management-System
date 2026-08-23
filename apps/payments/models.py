@@ -66,7 +66,9 @@ class MonthlyChargeQuerySet(TenantQuerySet):
         return self.exclude(status__in=[ChargeStatus.CANCELLED, ChargeStatus.WAIVED])
 
     def with_related(self):
-        return self.select_related("student", "grade_subject__subject", "grade_subject__grade", "group")
+        return self.select_related(
+            "student", "grade_subject__subject", "grade_subject__grade", "group"
+        )
 
 
 class MonthlyCharge(TenantOwnedModel):
@@ -116,11 +118,17 @@ class MonthlyCharge(TenantOwnedModel):
         max_length=20, choices=GeneratedBy.choices, default=GeneratedBy.AUTO
     )
     created_by = models.ForeignKey(
-        "accounts.User", on_delete=models.SET_NULL, null=True, blank=True,
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name="charges_created",
     )
     updated_by = models.ForeignKey(
-        "accounts.User", on_delete=models.SET_NULL, null=True, blank=True,
+        "accounts.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
         related_name="charges_updated",
     )
 

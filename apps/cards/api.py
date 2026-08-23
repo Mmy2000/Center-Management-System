@@ -117,6 +117,16 @@ def disable(request, pk):
     return {"card": card_json(card)}
 
 
+@ajax(methods=["DELETE"], perm="cards.delete_studentcard", feature="cards")
+def delete_card(request, pk):
+    """Remove unused stock. A card with any history is refused, not deleted."""
+    card = get_object_or_404(StudentCard.objects.all(), pk=pk)
+    result = services.delete_card(
+        card, actor=request.user, reason=(request.json.get("reason") or "").strip()
+    )
+    return {**result, "code": "OK_CARD_DELETED"}
+
+
 @ajax(methods=["POST"], perm="cards.change_studentcard", feature="cards")
 def replace(request, pk):
     old_card = get_object_or_404(StudentCard, pk=pk)
@@ -303,6 +313,7 @@ def export_batch(request):
 # Issuing a card to one student (the second path on the student profile)
 # --------------------------------------------------------------------------- #
 
+
 @ajax(methods=["GET"], perm="cards.view_studentcard", feature="cards")
 def available(request):
     """Stock the front desk can hand out right now."""
@@ -320,8 +331,7 @@ def available(request):
     )
     return {
         "results": [
-            {"id": card.pk, "card_number": card.card_number, "batch": card.batch}
-            for card in rows
+            {"id": card.pk, "card_number": card.card_number, "batch": card.batch} for card in rows
         ],
         "count": qs.count(),
         "batches": batches,
@@ -351,9 +361,7 @@ def issue(request):
                     status=409,
                 )
             if not request.user.has_perm("cards.add_studentcard"):
-                raise DomainError(
-                    "ERR_FORBIDDEN", _("لا تملك صلاحية إنشاء بطاقات"), status=403
-                )
+                raise DomainError("ERR_FORBIDDEN", _("لا تملك صلاحية إنشاء بطاقات"), status=403)
             importer.generate_batch(1, batch=data.get("batch", ""), actor=request.user)
             card = StudentCard.objects.available().order_by("-id").first()
 
@@ -369,8 +377,6 @@ def issue(request):
 @require_feature("cards")
 def print_card(request, pk):
     """The card face, ready for a card printer."""
-    card = get_object_or_404(
-        StudentCard.objects.select_related("current_student__grade"), pk=pk
-    )
+    card = get_object_or_404(StudentCard.objects.select_related("current_student__grade"), pk=pk)
     document = documents.build_student_card(card, request=request)
     return document.response(documents.card_filename(card))

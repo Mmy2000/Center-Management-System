@@ -22,8 +22,19 @@ from .queries import dashboard_summary, group_dashboard
 
 MAX_ROWS = 5000
 FILTER_KEYS = (
-    "from", "to", "month", "stage", "grade", "subject", "group",
-    "instructor", "student", "method", "cashier", "type", "status",
+    "from",
+    "to",
+    "month",
+    "stage",
+    "grade",
+    "subject",
+    "group",
+    "instructor",
+    "student",
+    "method",
+    "cashier",
+    "type",
+    "status",
 )
 
 
@@ -144,14 +155,26 @@ def export(request, slug):
 def _filter_summary(request, report) -> list[tuple[str, str]]:
     """Human-readable echo of the filters, printed under the report title."""
     labels = {
-        "from": _("من"), "to": _("إلى"), "month": _("الشهر"), "stage": _("المرحلة"),
-        "grade": _("الصف"), "subject": _("المادة"), "group": _("المجموعة"),
-        "instructor": _("المدرّس"), "student": _("الطالب"), "method": _("طريقة الدفع"),
-        "cashier": _("المحصّل"), "type": _("النوع"), "status": _("الحالة"),
+        "from": _("من"),
+        "to": _("إلى"),
+        "month": _("الشهر"),
+        "stage": _("المرحلة"),
+        "grade": _("الصف"),
+        "subject": _("المادة"),
+        "group": _("المجموعة"),
+        "instructor": _("المدرّس"),
+        "student": _("الطالب"),
+        "method": _("طريقة الدفع"),
+        "cashier": _("المحصّل"),
+        "type": _("النوع"),
+        "status": _("الحالة"),
     }
     names = {
-        "stage": EducationalStage, "grade": Grade, "subject": Subject,
-        "group": Group, "instructor": Instructor,
+        "stage": EducationalStage,
+        "grade": Grade,
+        "subject": Subject,
+        "group": Group,
+        "instructor": Instructor,
     }
     summary = []
     for key in report.filters:
@@ -234,6 +257,7 @@ def _xlsx_response(report, rows, filename) -> HttpResponse:
 # --------------------------------------------------------------------------- #
 # Pages
 # --------------------------------------------------------------------------- #
+
 
 @require_perm("reports.view_reports", "reports.view_financial_reports", any_of=True)
 def reports_page(request, slug=None):

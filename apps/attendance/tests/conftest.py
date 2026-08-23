@@ -41,15 +41,21 @@ def world(db):
         "physics_sec3": physics_sec3,
         "chemistry_sec3": chemistry_sec3,
         "group_a": Group.objects.create(
-            grade_subject=physics_sec3, name="Group A", code="SEC3-PHY-A",
+            grade_subject=physics_sec3,
+            name="Group A",
+            code="SEC3-PHY-A",
             monthly_fee=Decimal("500.00"),
         ),
         "group_b": Group.objects.create(
-            grade_subject=physics_sec3, name="Group B", code="SEC3-PHY-B",
+            grade_subject=physics_sec3,
+            name="Group B",
+            code="SEC3-PHY-B",
             monthly_fee=Decimal("500.00"),
         ),
         "chem_a": Group.objects.create(
-            grade_subject=chemistry_sec3, name="Group A", code="SEC3-CHEM-A",
+            grade_subject=chemistry_sec3,
+            name="Group A",
+            code="SEC3-CHEM-A",
             monthly_fee=Decimal("450.00"),
         ),
         "sec2_group": Group.objects.create(
@@ -60,9 +66,7 @@ def world(db):
 
 @pytest.fixture
 def student(world):
-    return create_student(
-        full_name="أحمد محمد", grade=world["grade"], guardian_phone="01012345678"
-    )
+    return create_student(full_name="أحمد محمد", grade=world["grade"], guardian_phone="01012345678")
 
 
 @pytest.fixture

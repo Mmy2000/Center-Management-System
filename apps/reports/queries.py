@@ -21,7 +21,9 @@ ZERO = Decimal("0.00")
 MONEY = DecimalField(max_digits=12, decimal_places=2)
 
 PRESENT_STATES = [AttendanceState.CHECKED_IN, AttendanceState.CHECKED_OUT]
-IS_PRESENT = Q(state__in=PRESENT_STATES) & Q(status__in=[AttendanceStatus.PRESENT, AttendanceStatus.PARTIAL])
+IS_PRESENT = Q(state__in=PRESENT_STATES) & Q(
+    status__in=[AttendanceStatus.PRESENT, AttendanceStatus.PARTIAL]
+)
 IS_LATE = Q(status=AttendanceStatus.LATE)
 IS_ABSENT = Q(state=AttendanceState.ABSENT)
 IS_ALTERNATIVE = ~Q(attendance_type=AttendanceType.NORMAL) & ~Q(state=AttendanceState.ABSENT)
@@ -106,6 +108,7 @@ ATTENDANCE_AGGREGATES = {
 # --------------------------------------------------------------------------- #
 # Attendance
 # --------------------------------------------------------------------------- #
+
 
 def attendance_daily(filters):
     rows = (
@@ -255,7 +258,9 @@ def late_students(filters):
             "student": a.student.full_name,
             "subject": str(a.attended_group.grade_subject.subject),
             "group": a.attended_group.name,
-            "check_in": timezone.localtime(a.check_in_at).strftime("%H:%M") if a.check_in_at else "—",
+            "check_in": (
+                timezone.localtime(a.check_in_at).strftime("%H:%M") if a.check_in_at else "—"
+            ),
             "late_minutes": a.late_minutes,
         }
         for a in rows
@@ -288,7 +293,9 @@ def alternative_groups(filters):
         _attendance_qs(filters)
         .exclude(attendance_type=AttendanceType.NORMAL)
         .exclude(state=AttendanceState.ABSENT)
-        .select_related("student", "assigned_group", "attended_group__grade_subject__subject", "lesson")
+        .select_related(
+            "student", "assigned_group", "attended_group__grade_subject__subject", "lesson"
+        )
     )
     if filters.get("type"):
         qs = qs.filter(attendance_type=filters["type"])
@@ -319,6 +326,7 @@ def alternative_groups(filters):
 # Finance
 # --------------------------------------------------------------------------- #
 
+
 def _payment_qs(filters):
     start, end = _default_range(filters)
     qs = Payment.objects.filter(paid_at__date__gte=start, paid_at__date__lte=end)
@@ -331,8 +339,12 @@ def _payment_qs(filters):
     return qs
 
 
-COLLECTED = Coalesce(Sum("amount", filter=Q(kind=PaymentKind.PAYMENT)), Value(ZERO), output_field=MONEY)
-REFUNDED = Coalesce(Sum("amount", filter=Q(kind=PaymentKind.REFUND)), Value(ZERO), output_field=MONEY)
+COLLECTED = Coalesce(
+    Sum("amount", filter=Q(kind=PaymentKind.PAYMENT)), Value(ZERO), output_field=MONEY
+)
+REFUNDED = Coalesce(
+    Sum("amount", filter=Q(kind=PaymentKind.REFUND)), Value(ZERO), output_field=MONEY
+)
 
 
 def collection_daily(filters):
@@ -444,7 +456,9 @@ def finance_by_group(filters):
         .values("group_id", group_name=F("group__name"), subject=F("grade_subject__subject__name"))
         .annotate(
             students=Count("student", distinct=True),
-            expected=Coalesce(Sum(F("amount_due") - F("discount_amount")), Value(ZERO), output_field=MONEY),
+            expected=Coalesce(
+                Sum(F("amount_due") - F("discount_amount")), Value(ZERO), output_field=MONEY
+            ),
             collected=Coalesce(Sum("total_paid"), Value(ZERO), output_field=MONEY),
             outstanding_amount=Coalesce(Sum("balance"), Value(ZERO), output_field=MONEY),
         )
@@ -474,7 +488,9 @@ def finance_by_subject(filters):
         .values(subject=F("grade_subject__subject__name"), grade=F("grade_subject__grade__name"))
         .annotate(
             charges=Count("id"),
-            expected=Coalesce(Sum(F("amount_due") - F("discount_amount")), Value(ZERO), output_field=MONEY),
+            expected=Coalesce(
+                Sum(F("amount_due") - F("discount_amount")), Value(ZERO), output_field=MONEY
+            ),
             collected=Coalesce(Sum("total_paid"), Value(ZERO), output_field=MONEY),
             outstanding_amount=Coalesce(Sum("balance"), Value(ZERO), output_field=MONEY),
         )
@@ -497,6 +513,7 @@ def finance_by_subject(filters):
 # Dashboard (TASK-069)
 # --------------------------------------------------------------------------- #
 
+
 def dashboard_summary(user=None) -> dict:
     from apps.accounts.scoping import visible_lessons
 
@@ -516,13 +533,19 @@ def dashboard_summary(user=None) -> dict:
     attendance_today = Attendance.objects.filter(lesson__lesson_date=today).aggregate(
         **ATTENDANCE_AGGREGATES
     )
-    money = MonthlyCharge.objects.billable().filter(billing_month=month).aggregate(
-        expected=Coalesce(Sum(F("amount_due") - F("discount_amount")), Value(ZERO), output_field=MONEY),
-        collected=Coalesce(Sum("total_paid"), Value(ZERO), output_field=MONEY),
-        outstanding=Coalesce(Sum("balance"), Value(ZERO), output_field=MONEY),
-        paid=Count("id", filter=Q(status=ChargeStatus.PAID)),
-        partial=Count("id", filter=Q(status=ChargeStatus.PARTIALLY_PAID)),
-        unpaid=Count("id", filter=Q(status=ChargeStatus.UNPAID)),
+    money = (
+        MonthlyCharge.objects.billable()
+        .filter(billing_month=month)
+        .aggregate(
+            expected=Coalesce(
+                Sum(F("amount_due") - F("discount_amount")), Value(ZERO), output_field=MONEY
+            ),
+            collected=Coalesce(Sum("total_paid"), Value(ZERO), output_field=MONEY),
+            outstanding=Coalesce(Sum("balance"), Value(ZERO), output_field=MONEY),
+            paid=Count("id", filter=Q(status=ChargeStatus.PAID)),
+            partial=Count("id", filter=Q(status=ChargeStatus.PARTIALLY_PAID)),
+            unpaid=Count("id", filter=Q(status=ChargeStatus.UNPAID)),
+        )
     )
     collected_today = Payment.objects.filter(paid_at__date=today).aggregate(
         collected=COLLECTED, refunded=REFUNDED
@@ -578,13 +601,19 @@ def group_dashboard(group) -> dict:
     recent = Attendance.objects.filter(
         attended_group=group, lesson__lesson_date__gte=today - timedelta(days=30)
     ).aggregate(**ATTENDANCE_AGGREGATES)
-    money = MonthlyCharge.objects.billable().filter(group=group, billing_month=month).aggregate(
-        expected=Coalesce(Sum(F("amount_due") - F("discount_amount")), Value(ZERO), output_field=MONEY),
-        collected=Coalesce(Sum("total_paid"), Value(ZERO), output_field=MONEY),
-        outstanding=Coalesce(Sum("balance"), Value(ZERO), output_field=MONEY),
-        paid=Count("id", filter=Q(status=ChargeStatus.PAID)),
-        partial=Count("id", filter=Q(status=ChargeStatus.PARTIALLY_PAID)),
-        unpaid=Count("id", filter=Q(status=ChargeStatus.UNPAID)),
+    money = (
+        MonthlyCharge.objects.billable()
+        .filter(group=group, billing_month=month)
+        .aggregate(
+            expected=Coalesce(
+                Sum(F("amount_due") - F("discount_amount")), Value(ZERO), output_field=MONEY
+            ),
+            collected=Coalesce(Sum("total_paid"), Value(ZERO), output_field=MONEY),
+            outstanding=Coalesce(Sum("balance"), Value(ZERO), output_field=MONEY),
+            paid=Count("id", filter=Q(status=ChargeStatus.PAID)),
+            partial=Count("id", filter=Q(status=ChargeStatus.PARTIALLY_PAID)),
+            unpaid=Count("id", filter=Q(status=ChargeStatus.UNPAID)),
+        )
     )
     last_lesson = (
         Lesson.objects.filter(group=group, lesson_date__lte=today)

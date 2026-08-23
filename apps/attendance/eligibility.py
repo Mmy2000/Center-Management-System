@@ -80,7 +80,9 @@ def classify(
         is_makeup = makeup_for_lesson_id is not None
         return Eligibility(
             scenario=SCENARIO_ALTERNATIVE,
-            attendance_type=AttendanceType.MAKEUP if is_makeup else AttendanceType.ALTERNATIVE_GROUP,
+            attendance_type=(
+                AttendanceType.MAKEUP if is_makeup else AttendanceType.ALTERNATIVE_GROUP
+            ),
             decision=policy,
             assigned_group_id=assigned_group_id,
             code="OK_CHECK_IN_MAKEUP" if is_makeup else "OK_CHECK_IN_ALTERNATIVE",

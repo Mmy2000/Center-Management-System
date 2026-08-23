@@ -22,6 +22,7 @@ LESSON_CACHE_TTL = 300
 # Window resolution (TASK-041)
 # --------------------------------------------------------------------------- #
 
+
 def resolve_windows(group, scheduled_start, *, late_after_minutes=None):
     """Precedence: explicit value → group override → global setting.
 
@@ -56,6 +57,7 @@ def _localize(day, clock: time):
 # --------------------------------------------------------------------------- #
 # Creation (TASK-042)
 # --------------------------------------------------------------------------- #
+
 
 @transaction.atomic
 def create_lesson(group, scheduled_start, scheduled_end, *, actor=None, instructor=None, notes=""):
@@ -139,6 +141,7 @@ def generate_lessons(group, from_date, to_date, *, actor=None, holidays=(), dry_
 # Lifecycle (TASK-043)
 # --------------------------------------------------------------------------- #
 
+
 @transaction.atomic
 def open_lesson(lesson, *, actor=None):
     if lesson.status == LessonStatus.OPEN:
@@ -157,9 +160,7 @@ def open_lesson(lesson, *, actor=None):
     lesson.expected_students = StudentGroupAssignment.objects.filter(
         group=lesson.group, status=AssignmentStatus.ACTIVE
     ).count()
-    lesson.save(
-        update_fields=["status", "actual_start_at", "expected_students", "updated_at"]
-    )
+    lesson.save(update_fields=["status", "actual_start_at", "expected_students", "updated_at"])
     invalidate_lesson_cache(lesson.pk)
     record(AuditAction.LESSON_OPENED, lesson, actor=actor)
     return lesson
@@ -219,6 +220,7 @@ def cancel_lesson(lesson, *, actor=None, reason: str = ""):
 # --------------------------------------------------------------------------- #
 # Scan-path snapshot (TASK-045)
 # --------------------------------------------------------------------------- #
+
 
 def _cache_key(lesson_id: int) -> str:
     return f"lesson:{lesson_id}:snapshot"

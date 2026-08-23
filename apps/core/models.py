@@ -67,6 +67,7 @@ class AuditAction(models.TextChoices):
     CARD_RELEASED = "CARD_RELEASED", _("فك ربط بطاقة")
     CARD_MARKED_LOST = "CARD_MARKED_LOST", _("الإبلاغ عن فقد بطاقة")
     CARD_DISABLED = "CARD_DISABLED", _("تعطيل بطاقة")
+    CARD_DELETED = "CARD_DELETED", _("حذف بطاقة")
     CARD_REPLACED = "CARD_REPLACED", _("استبدال بطاقة")
     # lessons / attendance
     LESSON_CREATED = "LESSON_CREATED", _("إنشاء حصة")

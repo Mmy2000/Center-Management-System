@@ -31,7 +31,12 @@
         {{ student.get_status_display }}
       </span>
       {% if perms.students.change_student %}
-        <div><button class="btn btn-sm btn-outline-secondary" id="change-status">{% translate "تغيير الحالة" %}</button></div>
+        <div class="d-flex gap-2 justify-content-end">
+          <a class="btn btn-sm btn-primary" href="{% url 'students:edit' student.pk %}">
+            {% translate "تعديل البيانات" %}
+          </a>
+          <button class="btn btn-sm btn-outline-secondary" id="change-status">{% translate "تغيير الحالة" %}</button>
+        </div>
       {% endif %}
     </div>
   </div>
@@ -41,8 +46,12 @@
   <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-overview" type="button">{% translate "نظرة عامة" %}</button></li>
   <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-groups" type="button">{% translate "المجموعات" %}</button></li>
   <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-attendance" type="button">{% translate "الحضور" %}</button></li>
-  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-payments" type="button">{% translate "المدفوعات" %}</button></li>
-  <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-cards" type="button">{% translate "البطاقات" %}</button></li>
+  {% if "payments" in FEATURES %}
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-payments" type="button">{% translate "المدفوعات" %}</button></li>
+  {% endif %}
+  {% if "cards" in FEATURES %}
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-cards" type="button">{% translate "البطاقات" %}</button></li>
+  {% endif %}
 </ul>
 
 <div class="tab-content">
@@ -146,6 +155,7 @@
       </div>
     </div>
   </div>
+  {% if "payments" in FEATURES %}
   <div class="tab-pane fade" id="tab-payments">
     <div class="card mb-3">
       <div class="card-header d-flex justify-content-between align-items-center">
@@ -189,6 +199,9 @@
       </div>
     </div>
   </div>
+  {% endif %}
+
+  {% if "cards" in FEATURES %}
   <div class="tab-pane fade" id="tab-cards">
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
@@ -215,6 +228,7 @@
       </div>
     </div>
   </div>
+  {% endif %}
 </div>
 {% endblock %}
 
@@ -228,6 +242,7 @@ const STATUSES = [
 
 const STUDENT_GRADE_ID = {{ student.grade_id }};
 
+{% if "payments" in FEATURES %}
 /* ----------------------------------------------------------- financial tab */
 const CHARGE_STATUS_CLASS = {
   UNPAID: "danger", PARTIALLY_PAID: "warning", PAID: "success",
@@ -274,6 +289,7 @@ document.getElementById("ledger-body").addEventListener("click", function (event
   const button = event.target.closest(".js-receipt");
   if (button) { app.download("/api/payments/" + button.dataset.id + "/receipt/"); }
 });
+{% endif %}
 
 /* ---------------------------------------------------------- attendance tab */
 const ATT_TYPE_CLASS = {
@@ -442,6 +458,7 @@ document.getElementById("assignments-active").addEventListener("click", async fu
   }
 });
 
+{% if "cards" in FEATURES %}
 function loadCards() {
   return ui.table("cards-timeline", async function (body, columns) {
     const result = await http.get("/api/students/" + STUDENT_ID + "/cards/");
@@ -566,6 +583,7 @@ document.getElementById("assign-card")?.addEventListener("click", async function
     ui.withBusy(confirm, () => (mode === "issue" ? issueAndPrint() : scanAndLink()));
   });
 });
+{% endif %}
 
 document.getElementById("change-status")?.addEventListener("click", function () {
   const options = STATUSES.map(function (s) {

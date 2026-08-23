@@ -40,7 +40,7 @@ def test_it_follows_options_that_change_after_load():
 
 
 def test_modal_fields_are_enhanced_too():
-    assert "xselect.enhance(document.getElementById(\"app-modal-body\"))" in APP_JS
+    assert 'xselect.enhance(document.getElementById("app-modal-body"))' in APP_JS
     # And the modal focuses the visible control, not the hidden native one.
     assert "#app-modal-body .xselect-trigger" in APP_JS
 
@@ -63,12 +63,10 @@ def test_the_caret_icon_exists():
 
 def test_it_is_drawn_from_tokens_not_hard_coded_colours():
     """So it follows the centre's palette, dark mode and density like the rest."""
-    body = "\n".join(
-        line for line in SELECT_CSS.splitlines() if not line.strip().startswith("/*")
-    )
+    body = "\n".join(line for line in SELECT_CSS.splitlines() if not line.strip().startswith("/*"))
     for token in ("--surface", "--ink-200", "--brand-400", "--radius"):
         assert token in body
-    assert "[data-density=\"compact\"]" in SELECT_CSS
+    assert '[data-density="compact"]' in SELECT_CSS
 
 
 def test_the_panel_sits_above_a_modal():

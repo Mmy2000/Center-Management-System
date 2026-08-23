@@ -58,6 +58,7 @@ def aware(y, m, d, hh, mm=0):
 
 # --------------------------------------------------------------------- model #
 
+
 def test_lesson_date_follows_the_local_start(group):
     """Cairo is UTC+2/+3 — a 00:30 local start must not fall on the day before."""
     start = aware(2026, 8, 22, 0, 30)
@@ -98,6 +99,7 @@ def test_end_must_be_after_start(group):
 
 # ------------------------------------------------------------------- windows #
 
+
 def test_window_precedence_group_override_beats_the_global_setting(group):
     start = aware(2026, 8, 22, 16, 0)
     opens, closes, late_after = services.resolve_windows(group, start)
@@ -120,20 +122,29 @@ def test_changing_a_setting_never_rewrites_existing_lessons(group):
     lesson.refresh_from_db()
     assert lesson.late_after == original
 
-    later = services.create_lesson(group, start + timedelta(days=1), start + timedelta(days=1, hours=2))
+    later = services.create_lesson(
+        group, start + timedelta(days=1), start + timedelta(days=1, hours=2)
+    )
     assert later.late_after == later.scheduled_start + timedelta(minutes=45)
 
 
 def test_window_state_boundaries(group):
     start = aware(2026, 8, 22, 16, 0)
     lesson = services.create_lesson(group, start, start + timedelta(hours=2))
-    assert lesson.window_state(lesson.check_in_opens_at - timedelta(seconds=1)) == WindowState.BEFORE_OPEN
+    assert (
+        lesson.window_state(lesson.check_in_opens_at - timedelta(seconds=1))
+        == WindowState.BEFORE_OPEN
+    )
     assert lesson.window_state(lesson.check_in_opens_at) == WindowState.OPEN
     assert lesson.window_state(lesson.check_in_closes_at) == WindowState.OPEN
-    assert lesson.window_state(lesson.check_in_closes_at + timedelta(seconds=1)) == WindowState.AFTER_CLOSE
+    assert (
+        lesson.window_state(lesson.check_in_closes_at + timedelta(seconds=1))
+        == WindowState.AFTER_CLOSE
+    )
 
 
 # ---------------------------------------------------------------- generation #
+
 
 def test_generation_expands_the_weekly_schedule(group):
     GroupSchedule.objects.create(
@@ -183,6 +194,7 @@ def test_dry_run_writes_nothing(group):
 
 
 # ----------------------------------------------------------------- lifecycle #
+
 
 def test_transitions(group):
     start = timezone.now()
@@ -236,6 +248,7 @@ def test_open_snapshots_expected_students(group):
 
 # ------------------------------------------------------------------ snapshot #
 
+
 def test_snapshot_is_cached_and_invalidated_on_state_change(group):
     start = timezone.now()
     lesson = services.create_lesson(group, start, start + timedelta(hours=2))
@@ -255,6 +268,7 @@ def test_snapshot_of_a_missing_lesson_is_none():
 
 
 # ----------------------------------------------------------------------- API #
+
 
 def test_generate_endpoint_with_preview(admin_client_, group):
     GroupSchedule.objects.create(
@@ -281,8 +295,16 @@ def test_lifecycle_endpoints(admin_client_, group):
     start = timezone.now()
     lesson = services.create_lesson(group, start, start + timedelta(hours=2))
 
-    assert _post(admin_client_, reverse("lessons_api:open_lesson", args=[lesson.pk]), {}).status_code == 200
-    assert _post(admin_client_, reverse("lessons_api:complete_lesson", args=[lesson.pk]), {}).status_code == 200
+    assert (
+        _post(admin_client_, reverse("lessons_api:open_lesson", args=[lesson.pk]), {}).status_code
+        == 200
+    )
+    assert (
+        _post(
+            admin_client_, reverse("lessons_api:complete_lesson", args=[lesson.pk]), {}
+        ).status_code
+        == 200
+    )
 
     bad = _post(admin_client_, reverse("lessons_api:open_lesson", args=[lesson.pk]), {})
     assert bad.status_code == 409
@@ -291,7 +313,9 @@ def test_lifecycle_endpoints(admin_client_, group):
 
 def test_active_lessons_feeder(admin_client_, group):
     start = timezone.now()
-    open_one = services.open_lesson(services.create_lesson(group, start, start + timedelta(hours=2)))
+    open_one = services.open_lesson(
+        services.create_lesson(group, start, start + timedelta(hours=2))
+    )
     services.create_lesson(group, start + timedelta(hours=4), start + timedelta(hours=6))
 
     data = admin_client_.get(reverse("lessons_api:active_lessons")).json()["data"]
@@ -306,7 +330,9 @@ def test_scan_operator_can_open_but_not_create(client, user_factory, group):
     start = timezone.now()
     lesson = services.create_lesson(group, start, start + timedelta(hours=2))
 
-    assert _post(client, reverse("lessons_api:open_lesson", args=[lesson.pk]), {}).status_code == 200
+    assert (
+        _post(client, reverse("lessons_api:open_lesson", args=[lesson.pk]), {}).status_code == 200
+    )
     created = _post(
         client,
         reverse("lessons_api:lessons"),

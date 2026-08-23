@@ -375,10 +375,9 @@ def test_cards_page_renders(admin_client_):
 
 # ------------------------------------------------------ creating stock (UI) #
 
+
 def test_generate_endpoint_creates_available_stock(admin_client_):
-    response = _post(
-        admin_client_, reverse("cards_api:generate"), {"count": 25, "batch": "B9"}
-    )
+    response = _post(admin_client_, reverse("cards_api:generate"), {"count": 25, "batch": "B9"})
     assert response.status_code == 200
 
     data = response.json()["data"]
@@ -411,13 +410,9 @@ def test_generation_is_audited(admin_client_):
 def test_import_endpoint_accepts_a_csv_upload(admin_client_):
     from io import BytesIO
 
-    payload = BytesIO(
-        b"card_number,qr_token\nCARD-900,CMS1:tok900\nCARD-901,CMS1:tok901\n"
-    )
+    payload = BytesIO(b"card_number,qr_token\nCARD-900,CMS1:tok900\nCARD-901,CMS1:tok901\n")
     payload.name = "batch.csv"
-    response = admin_client_.post(
-        reverse("cards_api:import_csv"), {"file": payload, "batch": "V1"}
-    )
+    response = admin_client_.post(reverse("cards_api:import_csv"), {"file": payload, "batch": "V1"})
     assert response.status_code == 200
     assert response.json()["data"]["created"] == 2
     assert StudentCard.objects.filter(batch="V1").count() == 2
@@ -426,9 +421,7 @@ def test_import_endpoint_accepts_a_csv_upload(admin_client_):
 def test_import_endpoint_reports_the_offending_row(admin_client_):
     from io import BytesIO
 
-    payload = BytesIO(
-        b"card_number,qr_token\nCARD-902,CMS1:tok902\nCARD-902,CMS1:tok903\n"
-    )
+    payload = BytesIO(b"card_number,qr_token\nCARD-902,CMS1:tok902\nCARD-902,CMS1:tok903\n")
     payload.name = "batch.csv"
     response = admin_client_.post(reverse("cards_api:import_csv"), {"file": payload})
 
@@ -489,6 +482,7 @@ def test_the_command_and_the_button_share_one_implementation():
 
 # ------------------------------------------------ issuing a card to a student #
 
+
 def test_available_feeder_lists_only_free_stock(admin_client_, card, spare_card, student):
     services.assign_card(card, student)
 
@@ -502,7 +496,7 @@ def test_issue_takes_the_next_card_from_stock(admin_client_, card, spare_card, s
     assert response.status_code == 200
 
     data = response.json()["data"]
-    assert data["card"]["card_number"] == card.card_number   # lowest number first
+    assert data["card"]["card_number"] == card.card_number  # lowest number first
     assert data["print_url"] == f"/api/cards/{card.pk}/print/"
 
     card.refresh_from_db()
@@ -562,8 +556,8 @@ def test_printable_card_is_id1_sized_and_carries_the_qr(admin_client_, card, stu
     page = PdfReader(io.BytesIO(response.content)).pages[0]
     width_mm = round(float(page.mediabox.width) / 72 * 25.4, 1)
     height_mm = round(float(page.mediabox.height) / 72 * 25.4, 1)
-    assert (width_mm, height_mm) == (85.6, 54.0)   # ID-1
-    assert len(page.images) == 1                    # the QR
+    assert (width_mm, height_mm) == (85.6, 54.0)  # ID-1
+    assert len(page.images) == 1  # the QR
 
 
 def test_the_card_face_carries_no_contact_details(admin_client_, card, student):
@@ -581,7 +575,7 @@ def test_the_card_face_carries_no_contact_details(admin_client_, card, student):
 
     assert student.student_code in text
     assert "01099998888" not in text
-    assert card.qr_token not in text   # the token is in the QR, not printed as text
+    assert card.qr_token not in text  # the token is in the QR, not printed as text
 
 
 def test_only_card_managers_can_issue(client, user_factory, card, student):

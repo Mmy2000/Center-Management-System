@@ -55,6 +55,7 @@ class ScanRejected(DomainError):
 # Result assembly
 # --------------------------------------------------------------------------- #
 
+
 def _student_payload(student) -> dict:
     return {
         "id": student.pk,
@@ -70,12 +71,16 @@ def _attendance_payload(attendance: Attendance) -> dict:
         "state": attendance.state,
         "status": attendance.status,
         "type": attendance.attendance_type,
-        "check_in": timezone.localtime(attendance.check_in_at).strftime("%H:%M:%S")
-        if attendance.check_in_at
-        else None,
-        "check_out": timezone.localtime(attendance.check_out_at).strftime("%H:%M:%S")
-        if attendance.check_out_at
-        else None,
+        "check_in": (
+            timezone.localtime(attendance.check_in_at).strftime("%H:%M:%S")
+            if attendance.check_in_at
+            else None
+        ),
+        "check_out": (
+            timezone.localtime(attendance.check_out_at).strftime("%H:%M:%S")
+            if attendance.check_out_at
+            else None
+        ),
         "late_minutes": attendance.late_minutes,
         "duration_minutes": attendance.duration_minutes,
     }
@@ -84,6 +89,7 @@ def _attendance_payload(attendance: Attendance) -> dict:
 # --------------------------------------------------------------------------- #
 # Gate 7 — the one optional bridge to money (docs/04 §F.7)
 # --------------------------------------------------------------------------- #
+
 
 def _payment_gate(student, snapshot) -> tuple[str | None, dict | None]:
     """Returns ``(code_or_None, payment_payload_or_None)``.
@@ -137,6 +143,7 @@ def _payment_gate(student, snapshot) -> tuple[str | None, dict | None]:
 # The scan
 # --------------------------------------------------------------------------- #
 
+
 def scan(
     *,
     lesson_id: int,
@@ -164,14 +171,14 @@ def scan(
             payload["replayed"] = True
             return payload
 
-    snapshot = lesson_snapshot(lesson_id)                                     # [Q1 cached]
+    snapshot = lesson_snapshot(lesson_id)  # [Q1 cached]
     if snapshot is None:
         raise ScanRejected("ERR_LESSON_NOT_FOUND")
 
     card = None
     student = None
     try:
-        card = card_services.find_card(qr_token)                              # [Q2]
+        card = card_services.find_card(qr_token)  # [Q2]
         if card.status != CardStatus.ASSIGNED:
             raise ScanRejected(
                 card_services.STATUS_ERRORS[card.status][0],
@@ -216,7 +223,7 @@ def scan(
         if decision.decision == WARN:
             warnings.append("WARN_NOT_ASSIGNED")
 
-        payment_code, payment_payload = _payment_gate(student, snapshot)      # [Q4, usually skipped]
+        payment_code, payment_payload = _payment_gate(student, snapshot)  # [Q4, usually skipped]
         if payment_code == "ERR_PAYMENT_BLOCKED" and not approve:
             raise ScanRejected("ERR_PAYMENT_BLOCKED", data={"payment": payment_payload})
         if payment_code == "NEEDS_APPROVAL_PAYMENT" and not approve:
@@ -262,7 +269,11 @@ def scan(
         result.pop("_event_type", None)
         logger.info(
             "scan %s lesson=%s student=%s device=%s %sms",
-            result["code"], lesson_id, student.pk, device_id, result["latency_ms"],
+            result["code"],
+            lesson_id,
+            student.pk,
+            device_id,
+            result["latency_ms"],
         )
         return result
 
@@ -353,11 +364,13 @@ def _write_attendance(
                 .first()
             )
             if attendance is None or attendance.state == AttendanceState.ABSENT:
-                raise ScanRejected("ERR_NOT_CHECKED_IN", data={"student": _student_payload(student)})
+                raise ScanRejected(
+                    "ERR_NOT_CHECKED_IN", data={"student": _student_payload(student)}
+                )
             created = False
         else:
             try:
-                attendance, created = Attendance.objects.get_or_create(       # [Q5]
+                attendance, created = Attendance.objects.get_or_create(  # [Q5]
                     lesson_id=snapshot["id"], student=student, defaults=defaults
                 )
             except IntegrityError:
@@ -370,7 +383,13 @@ def _write_attendance(
             if attendance.status == AttendanceStatus.LATE and code == "OK_CHECK_IN":
                 code = "OK_CHECK_IN_LATE"
             return _result(
-                attendance, code, "CHECK_IN", student, snapshot, decision, warnings,
+                attendance,
+                code,
+                "CHECK_IN",
+                student,
+                snapshot,
+                decision,
+                warnings,
                 event_type=AttendanceEventType.CHECK_IN,
                 assigned_group_name=assigned_group_name,
             )
@@ -398,14 +417,26 @@ def _write_attendance(
             attendance.scan_source = scan_source
             attendance.save()
             return _result(
-                attendance, decision.code, "CHECK_IN", student, snapshot, decision, warnings,
+                attendance,
+                decision.code,
+                "CHECK_IN",
+                student,
+                snapshot,
+                decision,
+                warnings,
                 event_type=AttendanceEventType.CHECK_IN,
                 assigned_group_name=assigned_group_name,
             )
 
         if attendance.state == AttendanceState.CHECKED_OUT:
             return _result(
-                attendance, "WARN_ALREADY_CHECKED_OUT", "NONE", student, snapshot, decision, warnings,
+                attendance,
+                "WARN_ALREADY_CHECKED_OUT",
+                "NONE",
+                student,
+                snapshot,
+                decision,
+                warnings,
                 event_type=AttendanceEventType.DUPLICATE,
                 assigned_group_name=assigned_group_name,
             )
@@ -413,7 +444,13 @@ def _write_attendance(
         elapsed = now - attendance.check_in_at
         if elapsed < timedelta(seconds=duplicate_window) or elapsed < timedelta(minutes=min_gap):
             return _result(
-                attendance, "WARN_DUPLICATE", "NONE", student, snapshot, decision, warnings,
+                attendance,
+                "WARN_DUPLICATE",
+                "NONE",
+                student,
+                snapshot,
+                decision,
+                warnings,
                 event_type=AttendanceEventType.DUPLICATE,
                 assigned_group_name=assigned_group_name,
             )
@@ -426,8 +463,12 @@ def _write_attendance(
             attendance.status = AttendanceStatus.PARTIAL
         attendance.save(
             update_fields=[
-                "state", "check_out_at", "duration_minutes", "checked_out_by",
-                "status", "updated_at",
+                "state",
+                "check_out_at",
+                "duration_minutes",
+                "checked_out_by",
+                "status",
+                "updated_at",
             ]
         )
         code = (
@@ -436,15 +477,29 @@ def _write_attendance(
             else "OK_CHECK_OUT"
         )
         return _result(
-            attendance, code, "CHECK_OUT", student, snapshot, decision, warnings,
+            attendance,
+            code,
+            "CHECK_OUT",
+            student,
+            snapshot,
+            decision,
+            warnings,
             event_type=AttendanceEventType.CHECK_OUT,
             assigned_group_name=assigned_group_name,
         )
 
 
 def _result(
-    attendance, code, action, student, snapshot, decision, warnings, *,
-    event_type, assigned_group_name=None,
+    attendance,
+    code,
+    action,
+    student,
+    snapshot,
+    decision,
+    warnings,
+    *,
+    event_type,
+    assigned_group_name=None,
 ):
     info = result_codes.info(code)
     # Never dereference attendance.assigned_group here: that would cost the hot
@@ -484,7 +539,7 @@ def _log_event(
     if snapshot is None:
         return
     safe_payload = {k: v for k, v in payload.items() if not str(k).startswith("_")}
-    AttendanceEvent.objects.create(                                            # [Q6]
+    AttendanceEvent.objects.create(  # [Q6]
         attendance_id=attendance_id,
         lesson_id=snapshot["id"],
         student=student,
@@ -571,7 +626,9 @@ def manual_create(lesson, student, *, actor, reason: str, attendance_type=Attend
             field_errors={"reason": [_("السبب مطلوب")]},
         )
     now = timezone.now()
-    assigned_group_id, _name = elig.resolve_assigned_group(student.pk, lesson.group.grade_subject_id)
+    assigned_group_id, _name = elig.resolve_assigned_group(
+        student.pk, lesson.group.grade_subject_id
+    )
     attendance, created = Attendance.objects.get_or_create(
         lesson=lesson,
         student=student,
@@ -635,6 +692,7 @@ def cancel_attendance(attendance: Attendance, *, actor, reason: str) -> Attendan
 # Lesson completion sweep (TASK-055)
 # --------------------------------------------------------------------------- #
 
+
 @transaction.atomic
 def finalize_lesson(lesson, *, actor=None) -> dict:
     """Auto-close dangling check-ins and materialise absences.
@@ -657,17 +715,20 @@ def finalize_lesson(lesson, *, actor=None) -> dict:
             end = max(now, attendance.check_in_at)
             attendance.check_out_at = end
             attendance.state = AttendanceState.CHECKED_OUT
-            attendance.duration_minutes = int(
-                (end - attendance.check_in_at).total_seconds() // 60
-            )
+            attendance.duration_minutes = int((end - attendance.check_in_at).total_seconds() // 60)
             if attendance.duration_minutes < partial_minutes:
                 attendance.status = AttendanceStatus.PARTIAL
             attendance.scan_source = ScanSource.SYSTEM
             attendance.notes = f"{attendance.notes}\nauto-checkout".strip()
             attendance.save(
                 update_fields=[
-                    "check_out_at", "state", "duration_minutes", "status",
-                    "scan_source", "notes", "updated_at",
+                    "check_out_at",
+                    "state",
+                    "duration_minutes",
+                    "status",
+                    "scan_source",
+                    "notes",
+                    "updated_at",
                 ]
             )
             checked_out += 1
@@ -676,9 +737,7 @@ def finalize_lesson(lesson, *, actor=None) -> dict:
     if materialize:
         from apps.students.models import AssignmentStatus, StudentGroupAssignment
 
-        already = set(
-            Attendance.objects.filter(lesson=lesson).values_list("student_id", flat=True)
-        )
+        already = set(Attendance.objects.filter(lesson=lesson).values_list("student_id", flat=True))
         expected = StudentGroupAssignment.objects.filter(
             group=lesson.group,
             status=AssignmentStatus.ACTIVE,

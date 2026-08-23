@@ -23,9 +23,7 @@ def lessons_page(request):
 
 @require_perm("lessons.view_lesson")
 def lesson_detail_page(request, pk):
-    lesson = get_object_or_404(
-        visible_lessons(request.user, Lesson.objects.with_related()), pk=pk
-    )
+    lesson = get_object_or_404(visible_lessons(request.user, Lesson.objects.with_related()), pk=pk)
     counters_labels = [
         ("expected", _("متوقع")),
         ("present", _("حاضر")),

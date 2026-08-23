@@ -1,0 +1,75 @@
+{% load i18n %}
+{# The student's fields, shared by the create and edit screens so the two cannot drift — a field added to one but not the other is the classic way an edit form quietly starts losing data. `student` is unset when creating. #}
+<div class="col-md-6">
+  <label class="form-label" for="f-full_name">{% translate "الاسم الكامل" %} *</label>
+  <input class="form-control" id="f-full_name" name="full_name" required
+         value="{{ student.full_name|default:'' }}">
+  <div class="text-danger small" data-error-for="full_name"></div>
+</div>
+
+<div class="col-md-3">
+  <label class="form-label" for="f-grade">{% translate "الصف" %} *</label>
+  <select class="form-select" id="f-grade" name="grade">
+    {% for grade in grades %}
+      <option value="{{ grade.id }}" {% if student and student.grade_id == grade.id %}selected{% endif %}>
+        {{ grade.stage }} — {{ grade }}
+      </option>
+    {% endfor %}
+  </select>
+  <div class="text-danger small" data-error-for="grade"></div>
+</div>
+
+<div class="col-md-3">
+  <label class="form-label" for="f-gender">{% translate "النوع" %}</label>
+  <select class="form-select" id="f-gender" name="gender">
+    <option value="">—</option>
+    <option value="MALE" {% if student.gender == 'MALE' %}selected{% endif %}>{% translate "ذكر" %}</option>
+    <option value="FEMALE" {% if student.gender == 'FEMALE' %}selected{% endif %}>{% translate "أنثى" %}</option>
+  </select>
+</div>
+
+<div class="col-md-3">
+  <label class="form-label" for="f-phone">{% translate "هاتف الطالب" %}</label>
+  <input class="form-control" id="f-phone" name="phone" inputmode="numeric"
+         placeholder="01012345678" value="{{ student.phone|default:'' }}">
+  <div class="text-danger small" data-error-for="phone"></div>
+</div>
+<div class="col-md-3">
+  <label class="form-label" for="f-guardian_name">{% translate "ولي الأمر" %}</label>
+  <input class="form-control" id="f-guardian_name" name="guardian_name"
+         value="{{ student.guardian_name|default:'' }}">
+</div>
+<div class="col-md-3">
+  <label class="form-label" for="f-guardian_phone">{% translate "هاتف ولي الأمر" %} *</label>
+  <input class="form-control" id="f-guardian_phone" name="guardian_phone" inputmode="numeric"
+         placeholder="01012345678" value="{{ student.guardian_phone|default:'' }}">
+  <div class="text-danger small" data-error-for="guardian_phone"></div>
+</div>
+<div class="col-md-3">
+  <label class="form-label" for="f-guardian_relation">{% translate "صلة القرابة" %}</label>
+  <select class="form-select" id="f-guardian_relation" name="guardian_relation">
+    <option value="">—</option>
+    <option value="FATHER" {% if student.guardian_relation == 'FATHER' %}selected{% endif %}>{% translate "الأب" %}</option>
+    <option value="MOTHER" {% if student.guardian_relation == 'MOTHER' %}selected{% endif %}>{% translate "الأم" %}</option>
+    <option value="OTHER" {% if student.guardian_relation == 'OTHER' %}selected{% endif %}>{% translate "آخر" %}</option>
+  </select>
+</div>
+
+<div class="col-md-3">
+  <label class="form-label" for="f-date_of_birth">{% translate "تاريخ الميلاد" %}</label>
+  <input class="form-control" id="f-date_of_birth" type="date" name="date_of_birth"
+         value="{{ student.date_of_birth|date:'Y-m-d'|default:'' }}">
+</div>
+<div class="col-md-3">
+  <label class="form-label" for="f-school">{% translate "المدرسة" %}</label>
+  <input class="form-control" id="f-school" name="school" value="{{ student.school|default:'' }}">
+</div>
+<div class="col-md-6">
+  <label class="form-label" for="f-address">{% translate "العنوان" %}</label>
+  <input class="form-control" id="f-address" name="address" value="{{ student.address|default:'' }}">
+</div>
+
+<div class="col-12">
+  <label class="form-label" for="f-notes">{% translate "ملاحظات" %}</label>
+  <textarea class="form-control" id="f-notes" name="notes" rows="2">{{ student.notes|default:'' }}</textarea>
+</div>

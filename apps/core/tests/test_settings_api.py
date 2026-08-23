@@ -85,6 +85,7 @@ def test_settings_write_requires_permission(client, user_factory):
 
 # ------------------------------------------------------------- appearance #
 
+
 @pytest.mark.django_db
 def test_appearance_defaults_are_exposed_to_templates(admin_client_):
     from django.urls import reverse as url

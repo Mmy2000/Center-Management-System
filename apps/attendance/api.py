@@ -84,9 +84,7 @@ def scan(request):
         )
         if exc.info["severity"] == "NEEDS_APPROVAL":
             return ok(payload, code=exc.code, message=exc.message)
-        return fail(
-            exc.code, exc.message, status=exc.info["http_status"], data=payload
-        )
+        return fail(exc.code, exc.message, status=exc.info["http_status"], data=payload)
 
     if not request.user.has_perm("payments.view_monthlycharge"):
         result.pop("payment", None)
@@ -184,6 +182,7 @@ def approve(request, pk):
 # Reading
 # --------------------------------------------------------------------------- #
 
+
 def attendance_json(attendance: Attendance) -> dict:
     return {
         "id": attendance.pk,
@@ -198,12 +197,16 @@ def attendance_json(attendance: Attendance) -> dict:
         "type_display": attendance.get_attendance_type_display(),
         "assigned_group": attendance.assigned_group.name if attendance.assigned_group_id else None,
         "attended_group": attendance.attended_group.name,
-        "check_in": timezone.localtime(attendance.check_in_at).strftime("%H:%M")
-        if attendance.check_in_at
-        else None,
-        "check_out": timezone.localtime(attendance.check_out_at).strftime("%H:%M")
-        if attendance.check_out_at
-        else None,
+        "check_in": (
+            timezone.localtime(attendance.check_in_at).strftime("%H:%M")
+            if attendance.check_in_at
+            else None
+        ),
+        "check_out": (
+            timezone.localtime(attendance.check_out_at).strftime("%H:%M")
+            if attendance.check_out_at
+            else None
+        ),
         "late_minutes": attendance.late_minutes,
         "duration_minutes": attendance.duration_minutes,
         "is_manual": attendance.is_manual,
@@ -228,9 +231,7 @@ def _parse_datetime(value):
 @ajax(methods=["GET"], perm="attendance.view_attendance")
 def lesson_attendance(request, pk):
     """Roster + live counters for the lesson dashboard (§37)."""
-    lesson = get_object_or_404(
-        visible_lessons(request.user, Lesson.objects.with_related()), pk=pk
-    )
+    lesson = get_object_or_404(visible_lessons(request.user, Lesson.objects.with_related()), pk=pk)
     rows = Attendance.objects.with_related().filter(lesson=lesson)
 
     counters = rows.aggregate(
@@ -251,8 +252,11 @@ def lesson_attendance(request, pk):
 
     recorded_ids = set(rows.values_list("student_id", flat=True))
     not_arrived = [
-        {"student_id": a.student_id, "student": a.student.full_name,
-         "student_code": a.student.student_code}
+        {
+            "student_id": a.student_id,
+            "student": a.student.full_name,
+            "student_code": a.student.student_code,
+        }
         for a in StudentGroupAssignment.objects.select_related("student").filter(
             group=lesson.group, status=AssignmentStatus.ACTIVE
         )

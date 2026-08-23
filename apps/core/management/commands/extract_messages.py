@@ -97,7 +97,9 @@ class Command(BaseCommand):
                 polib.POEntry(
                     msgid=msgid,
                     msgstr=existing.get(msgid, ""),
-                    occurrences=[(ref.rsplit(":", 1)[0], ref.rsplit(":", 1)[1]) for ref in found[msgid][:6]],
+                    occurrences=[
+                        (ref.rsplit(":", 1)[0], ref.rsplit(":", 1)[1]) for ref in found[msgid][:6]
+                    ],
                 )
             )
         catalog.save(str(po_path))

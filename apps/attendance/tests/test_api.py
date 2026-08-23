@@ -30,6 +30,7 @@ def _patch(client, url, payload):
 
 # ---------------------------------------------------------- result codes (48) #
 
+
 def test_every_code_has_a_complete_presentation_mapping():
     for code in CODES:
         row = info(code)
@@ -46,6 +47,7 @@ def test_unknown_code_fails_loudly():
 
 
 # ------------------------------------------------------------- scan endpoint #
+
 
 def test_scan_contract_matches_the_documented_payload(admin_client_, assigned_student, lesson_a):
     student, card = assigned_student
@@ -133,7 +135,9 @@ def test_approval_needed_is_not_an_http_error(admin_client_, carded_student, wor
     assert Attendance.objects.get().attendance_type == AttendanceType.EXCEPTIONAL
 
 
-def test_operator_without_approval_permission_cannot_force(client, user_factory, carded_student, world):
+def test_operator_without_approval_permission_cannot_force(
+    client, user_factory, carded_student, world
+):
     call_command("seed_roles", verbosity=0)
     user_factory(username="op2", role=Role.SCAN_OPERATOR, password=PASSWORD)
     client.login(username="op2", password=PASSWORD)
@@ -148,7 +152,9 @@ def test_operator_without_approval_permission_cannot_force(client, user_factory,
     assert response.status_code == 403
 
 
-def test_instructor_cannot_scan_another_instructors_lesson(client, user_factory, world, assigned_student):
+def test_instructor_cannot_scan_another_instructors_lesson(
+    client, user_factory, world, assigned_student
+):
     call_command("seed_roles", verbosity=0)
     teacher = user_factory(username="teach", role=Role.INSTRUCTOR, password=PASSWORD)
     Instructor.objects.create(full_name="أ. محمد", user=teacher)
@@ -186,6 +192,7 @@ def test_payment_block_is_hidden_from_roles_without_the_permission(
 
 
 # ----------------------------------------------------- manual corrections (54) #
+
 
 def test_manual_attendance_requires_a_reason(admin_client_, assigned_student, lesson_a):
     student, card = assigned_student
@@ -289,6 +296,7 @@ def test_scan_operator_cannot_correct_attendance(client, user_factory, assigned_
 
 # ------------------------------------------------------------- dashboards (57) #
 
+
 def test_lesson_dashboard_counters_reconcile(admin_client_, world, assigned_student):
     from apps.students import assignment_services as assign_svc
     from apps.students.services import create_student
@@ -301,9 +309,9 @@ def test_lesson_dashboard_counters_reconcile(admin_client_, world, assigned_stud
     lesson = make_lesson(world["group_a"])
     services.scan(lesson_id=lesson.pk, qr_token=card.qr_token)
 
-    data = admin_client_.get(
-        reverse("attendance_api:lesson_attendance", args=[lesson.pk])
-    ).json()["data"]
+    data = admin_client_.get(reverse("attendance_api:lesson_attendance", args=[lesson.pk])).json()[
+        "data"
+    ]
 
     assert data["counters"]["present"] == 1
     assert data["counters"]["inside"] == 1
@@ -318,9 +326,9 @@ def test_feed_returns_only_new_events(admin_client_, assigned_student, lesson_a)
     student, card = assigned_student
     services.scan(lesson_id=lesson_a.pk, qr_token=card.qr_token)
 
-    first = admin_client_.get(
-        reverse("attendance_api:lesson_feed", args=[lesson_a.pk])
-    ).json()["data"]
+    first = admin_client_.get(reverse("attendance_api:lesson_feed", args=[lesson_a.pk])).json()[
+        "data"
+    ]
     assert len(first["results"]) == 1
 
     from urllib.parse import quote

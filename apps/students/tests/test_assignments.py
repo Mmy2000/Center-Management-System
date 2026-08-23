@@ -40,15 +40,22 @@ def world(db):
         "physics_sec3": physics_sec3,
         "maths_sec3": maths_sec3,
         "physics_a": Group.objects.create(
-            grade_subject=physics_sec3, name="Group A", code="SEC3-PHY-A",
-            monthly_fee=Decimal("500.00"), capacity=2,
+            grade_subject=physics_sec3,
+            name="Group A",
+            code="SEC3-PHY-A",
+            monthly_fee=Decimal("500.00"),
+            capacity=2,
         ),
         "physics_b": Group.objects.create(
-            grade_subject=physics_sec3, name="Group B", code="SEC3-PHY-B",
+            grade_subject=physics_sec3,
+            name="Group B",
+            code="SEC3-PHY-B",
             monthly_fee=Decimal("500.00"),
         ),
         "maths_c": Group.objects.create(
-            grade_subject=maths_sec3, name="Group C", code="SEC3-MATH-C",
+            grade_subject=maths_sec3,
+            name="Group C",
+            code="SEC3-MATH-C",
             monthly_fee=Decimal("400.00"),
         ),
         "physics_sec2_a": Group.objects.create(
@@ -59,9 +66,7 @@ def world(db):
 
 @pytest.fixture
 def student(world):
-    return create_student(
-        full_name="أحمد محمد", grade=world["grade"], guardian_phone="01012345678"
-    )
+    return create_student(full_name="أحمد محمد", grade=world["grade"], guardian_phone="01012345678")
 
 
 @pytest.fixture
@@ -83,6 +88,7 @@ def _delete(client, url, payload):
 # --------------------------------------------------------------------------- #
 # Constraints
 # --------------------------------------------------------------------------- #
+
 
 def test_a_student_can_study_several_subjects_at_once(world, student):
     svc.assign_student(student, world["physics_a"])
@@ -142,6 +148,7 @@ def test_capacity_warns_but_never_blocks(world, grade=None):
 # --------------------------------------------------------------------------- #
 # Lifecycle
 # --------------------------------------------------------------------------- #
+
 
 def test_ending_an_assignment_keeps_the_row(world, student):
     assignment, _ = svc.assign_student(student, world["physics_a"])
@@ -212,6 +219,7 @@ def test_active_assignment_lookup_is_a_single_row(world, student, django_assert_
 # API
 # --------------------------------------------------------------------------- #
 
+
 def test_group_roster_endpoint(admin_client_, world, student):
     svc.assign_student(student, world["physics_a"])
     response = admin_client_.get(
@@ -243,9 +251,7 @@ def test_delete_endpoint_is_soft(admin_client_, world, student):
     svc.assign_student(student, world["physics_a"])
     response = _delete(
         admin_client_,
-        reverse(
-            "students_api:group_student_detail", args=[world["physics_a"].pk, student.pk]
-        ),
+        reverse("students_api:group_student_detail", args=[world["physics_a"].pk, student.pk]),
         {"reason": "LEFT_CENTER"},
     )
     assert response.status_code == 200

@@ -72,8 +72,8 @@ ZEBRA = colors.HexColor("#f7fafb")
 SUCCESS = colors.HexColor("#12805c")
 DANGER = colors.HexColor("#c2374b")
 
-THERMAL = (80 * mm, 297 * mm)   # 80 mm roll, cut to content length
-CARD = (85.6 * mm, 54 * mm)     # ID-1, what a card printer expects
+THERMAL = (80 * mm, 297 * mm)  # 80 mm roll, cut to content length
+CARD = (85.6 * mm, 54 * mm)  # ID-1, what a card printer expects
 
 
 @lru_cache(maxsize=1)
@@ -113,6 +113,7 @@ def fmt_money(value) -> str:
 # Styles
 # --------------------------------------------------------------------------- #
 
+
 def _style(name, size, *, bold=False, align=TA_RIGHT, colour=INK, leading=None, space=0):
     return ParagraphStyle(
         name,
@@ -146,6 +147,7 @@ STYLES = {
 # --------------------------------------------------------------------------- #
 # Document
 # --------------------------------------------------------------------------- #
+
 
 def brand_colors() -> tuple:
     """(brand, dark, light) for the center's configured palette."""
@@ -218,7 +220,10 @@ class PdfDocument:
     def key_values(self, rows, *, widths=None):
         """Two-column label/value block (receipts, summaries)."""
         data = [
-            [Paragraph(ar(str(value)), STYLES["kv_val"]), Paragraph(ar(str(label)), STYLES["kv_key"])]
+            [
+                Paragraph(ar(str(value)), STYLES["kv_val"]),
+                Paragraph(ar(str(label)), STYLES["kv_key"]),
+            ]
             for label, value in rows
         ]
         available = self.content_width
@@ -417,7 +422,10 @@ class PdfDocument:
         canvas.drawRightString(
             width - self.margin,
             8 * mm,
-            ar(f"طُبع في {stamp}" + (f" — {self.meta.generated_by}" if self.meta.generated_by else "")),
+            ar(
+                f"طُبع في {stamp}"
+                + (f" — {self.meta.generated_by}" if self.meta.generated_by else "")
+            ),
         )
         canvas.drawString(self.margin, 8 * mm, ar(f"صفحة {doc.page}"))
         if self.meta.footer_note:
@@ -431,9 +439,7 @@ class PdfDocument:
         if self.chromeless:
             return []
 
-        title_style = ParagraphStyle(
-            "doc_title", parent=STYLES["title"], textColor=self.brand_dark
-        )
+        title_style = ParagraphStyle("doc_title", parent=STYLES["title"], textColor=self.brand_dark)
         block = [Paragraph(ar(self.meta.title), title_style)]
         if self.compact and self.meta.center_name:
             block.insert(0, Paragraph(ar(self.meta.center_name), title_style))
@@ -481,7 +487,9 @@ class PdfDocument:
         return response
 
 
-def document_meta(request=None, *, title, subtitle="", filters=None, footer_note="") -> DocumentMeta:
+def document_meta(
+    request=None, *, title, subtitle="", filters=None, footer_note=""
+) -> DocumentMeta:
     """Assemble the header/footer identity from the settings registry."""
     from .registry import settings_registry
 

@@ -50,11 +50,7 @@ def build_receipt(payment, *, request=None, size=A5):
     doc.key_values(
         [
             (_("إجمالي المستحق"), f"{charge.amount_due:,.2f}"),
-            *(
-                [(_("الخصم"), f"{charge.discount_amount:,.2f}")]
-                if charge.discount_amount
-                else []
-            ),
+            *([(_("الخصم"), f"{charge.discount_amount:,.2f}")] if charge.discount_amount else []),
             (_("إجمالي المسدد"), f"{charge.total_paid:,.2f}"),
             (_("المتبقي"), f"{charge.balance:,.2f}"),
             (_("الحالة"), charge.get_status_display()),

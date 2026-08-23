@@ -9,68 +9,7 @@
 <div class="card">
   <div class="card-body">
     <form id="student-form" class="row g-3" novalidate>
-      <div class="col-md-6">
-        <label class="form-label">{% translate "الاسم الكامل" %} *</label>
-        <input class="form-control" name="full_name" required>
-        <div class="text-danger small" data-error-for="full_name"></div>
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">{% translate "الصف" %} *</label>
-        <select class="form-select" name="grade">
-          {% for grade in grades %}<option value="{{ grade.id }}">{{ grade.stage }} — {{ grade }}</option>{% endfor %}
-        </select>
-        <div class="text-danger small" data-error-for="grade"></div>
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">{% translate "النوع" %}</label>
-        <select class="form-select" name="gender">
-          <option value="">—</option>
-          <option value="MALE">{% translate "ذكر" %}</option>
-          <option value="FEMALE">{% translate "أنثى" %}</option>
-        </select>
-      </div>
-
-      <div class="col-md-3">
-        <label class="form-label">{% translate "هاتف الطالب" %}</label>
-        <input class="form-control" name="phone" inputmode="numeric" placeholder="01012345678">
-        <div class="text-danger small" data-error-for="phone"></div>
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">{% translate "ولي الأمر" %}</label>
-        <input class="form-control" name="guardian_name">
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">{% translate "هاتف ولي الأمر" %} *</label>
-        <input class="form-control" name="guardian_phone" inputmode="numeric" placeholder="01012345678">
-        <div class="text-danger small" data-error-for="guardian_phone"></div>
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">{% translate "صلة القرابة" %}</label>
-        <select class="form-select" name="guardian_relation">
-          <option value="">—</option>
-          <option value="FATHER">{% translate "الأب" %}</option>
-          <option value="MOTHER">{% translate "الأم" %}</option>
-          <option value="OTHER">{% translate "آخر" %}</option>
-        </select>
-      </div>
-
-      <div class="col-md-3">
-        <label class="form-label">{% translate "تاريخ الميلاد" %}</label>
-        <input class="form-control" type="date" name="date_of_birth">
-      </div>
-      <div class="col-md-3">
-        <label class="form-label">{% translate "المدرسة" %}</label>
-        <input class="form-control" name="school">
-      </div>
-      <div class="col-md-6">
-        <label class="form-label">{% translate "العنوان" %}</label>
-        <input class="form-control" name="address">
-      </div>
-
-      <div class="col-12">
-        <label class="form-label">{% translate "ملاحظات" %}</label>
-        <textarea class="form-control" name="notes" rows="2"></textarea>
-      </div>
+      {% include "students/_form.html" %}
 
       <div class="col-12 d-flex gap-2">
         <button class="btn btn-primary" type="submit">{% translate "حفظ ومتابعة" %}</button>
