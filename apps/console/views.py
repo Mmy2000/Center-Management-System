@@ -575,6 +575,27 @@ def plan_edit(request, pk=None):
         messages.success(request, "تم حفظ الباقة.")
         return redirect(reverse("console:plan_list") + f"#plan-{saved.pk}")
 
+    from apps.tenancy.features import IMPLEMENTED_METHOD_KEYS
+
+    selected = set(form["features"].value() or [])
+    groups = [
+        {
+            "label": label,
+            "rows": [
+                {
+                    "spec": spec,
+                    "checked": spec.key in selected,
+                    # A method with no code behind it can be granted and priced,
+                    # but the resolver will never turn it on — so the checkbox
+                    # has to say so, or a tick reads as a promise.
+                    "unbuilt": spec.is_method and spec.key not in IMPLEMENTED_METHOD_KEYS,
+                }
+                for spec in specs
+            ],
+        }
+        for _group, label, specs in grouped_specs()
+    ]
+
     return render(
         request,
         "console/plan_edit.html",
@@ -583,7 +604,8 @@ def plan_edit(request, pk=None):
             "form": form,
             "plan": plan,
             "tenant_count": plan.tenants.count() if plan else 0,
-            "groups": grouped_specs(),
+            "groups": groups,
+            "feature_total": sum(len(g["rows"]) for g in groups),
         },
     )
 

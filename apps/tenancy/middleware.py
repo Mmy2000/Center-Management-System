@@ -81,10 +81,59 @@ class TenantResolutionMiddleware:
         request.is_console = False
         token = set_tenant(tenant)
         try:
-            with translation.override(tenant.language or translation.get_language()):
-                return self.get_response(request)
+            return self.get_response(request)
         finally:
             reset_tenant(token)
+
+
+class LanguageMiddleware:
+    """Decide the page's language, after ``LocaleMiddleware`` has had its say.
+
+    Placement is the whole point. ``LocaleMiddleware`` calls
+    ``translation.activate()`` inside its own ``__call__``, so anything decided
+    *before* it is silently overwritten — which is exactly what happened to the
+    first attempt at this, in both branches, without failing a single test.
+
+    Two rules, in order:
+
+    * **The console is pinned.** Its templates are Arabic literals rather than
+      translation calls, so a browser set to English produced Arabic headings
+      beside English form labels — a screen that looks broken because it is.
+    * **A center's own default applies only when the user has not chosen.**
+      The language switcher writes a cookie; overriding that would break the
+      bilingual UI the product ships. So ``tenant.language`` is a fallback, not
+      a command — which is what makes the field mean something at last.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        language = self._language_for(request)
+        if language is None:
+            return self.get_response(request)
+        with translation.override(language):
+            request.LANGUAGE_CODE = translation.get_language()
+            return self.get_response(request)
+
+    @staticmethod
+    def _language_for(request) -> str | None:
+        from django.conf import settings
+
+        if getattr(request, "is_console", False):
+            return getattr(settings, "CONSOLE_LANGUAGE", "ar") or None
+
+        tenant = getattr(request, "tenant", None)
+        if tenant is None or not tenant.language:
+            return None
+
+        # Whatever the user picked wins. Django 4.0 dropped session-stored
+        # languages, so the cookie the switcher writes is the only place to
+        # look — and `set_language` writes it on every switch.
+        if request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME):
+            return None
+
+        return tenant.language
 
 
 class TenantSessionGuardMiddleware:

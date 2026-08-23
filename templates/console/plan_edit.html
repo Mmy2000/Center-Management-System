@@ -176,16 +176,36 @@
           {% endif %}
 
           <div class="plan-features">
-            {% for checkbox in form.features %}
-              <label class="plan-feature">
-                {{ checkbox.tag }}
-                <span>{{ checkbox.choice_label }}</span>
-              </label>
+            {% for group in groups %}
+              <div class="plan-feature-group">{{ group.label }}</div>
+              {% for row in group.rows %}
+                <label class="plan-feature {% if row.unbuilt %}is-unbuilt{% endif %}">
+                  <input type="checkbox" name="features" value="{{ row.spec.key }}"
+                         class="form-check-input"
+                         {% if row.checked %}checked{% endif %}
+                         {% if row.unbuilt %}disabled{% endif %}>
+                  <span class="plan-feature-text">
+                    <span class="plan-feature-name">
+                      {{ row.spec.label }}
+                      {% if row.spec.is_core %}
+                        <span class="badge badge-soft badge-soft-secondary">أساسية</span>
+                      {% endif %}
+                      {% if row.spec.is_method and not row.unbuilt %}
+                        <span class="badge badge-soft badge-soft-info">طريقة حضور</span>
+                      {% endif %}
+                      {% if row.unbuilt %}
+                        <span class="badge badge-soft badge-soft-warning">غير مُنفّذة بعد</span>
+                      {% endif %}
+                    </span>
+                    <span class="plan-feature-key">{{ row.spec.key }}</span>
+                  </span>
+                </label>
+              {% endfor %}
             {% endfor %}
           </div>
           <div class="form-text mt-2">
             الخصائص الأساسية مُفعّلة دائمًا مهما كان الاختيار، ويجب اختيار طريقة
-            واحدة على الأقل لتسجيل الحضور.
+            واحدة على الأقل لتسجيل الحضور. الخصائص غير المُنفّذة معروضة للاطلاع فقط.
           </div>
         </div>
       </div>
@@ -248,7 +268,7 @@ function preview() {
 preview();
 
 /* A running count, so a plan built by clicking twenty boxes says how many. */
-const boxes = document.querySelectorAll('.plan-features input[type="checkbox"]');
+const boxes = document.querySelectorAll('.plan-features input[type="checkbox"]:not([disabled])');
 function countFeatures() {
   const on = Array.from(boxes).filter(function (box) { return box.checked; }).length;
   document.getElementById("feature-count").textContent = on + " / " + boxes.length;

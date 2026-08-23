@@ -302,3 +302,23 @@
 }
 .plan-feature:hover { background: var(--ink-050); }
 .plan-feature input { flex: none; }
+
+/* The grant list on the plan editor. Grouped and labelled, because a flat list
+   of 25 keys is a list nobody reads before ticking. */
+.plan-feature-group {
+  font-size: .7rem; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--ink-300); font-weight: 700;
+  padding: .7rem .45rem .2rem;
+}
+.plan-feature-group:first-child { padding-top: .2rem; }
+.plan-feature-text { display: grid; line-height: 1.3; }
+.plan-feature-name { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; }
+.plan-feature-key {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: .68rem; color: var(--ink-300);
+  direction: ltr; text-align: start;
+}
+/* Granted or not, an unbuilt method cannot be switched on — so it must not look
+   like a choice. */
+.plan-feature.is-unbuilt { opacity: .55; cursor: not-allowed; }
+.plan-feature.is-unbuilt:hover { background: transparent; }

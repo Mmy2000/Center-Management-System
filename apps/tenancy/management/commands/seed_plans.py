@@ -15,10 +15,16 @@ from decimal import Decimal
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from apps.tenancy.features import FEATURES
+from apps.tenancy.features import FEATURES, IMPLEMENTED_METHOD_KEYS
 from apps.tenancy.models import Plan, PlanFeature
 
-ALL_KEYS = tuple(spec.key for spec in FEATURES)
+#: Everything except the methods that have no implementation yet. Granting one
+#: would tick a box in the console that the resolver then refuses to honour.
+ALL_KEYS = tuple(
+    spec.key
+    for spec in FEATURES
+    if not (spec.is_method and spec.key not in IMPLEMENTED_METHOD_KEYS)
+)
 
 # Keys a plan below "full" does not include. Everything else is on.
 BASIC_EXCLUDES = {

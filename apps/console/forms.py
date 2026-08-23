@@ -6,8 +6,65 @@ from django.conf import settings
 from apps.tenancy.constants import BillingCycle, FeatureState
 from apps.tenancy.models import Plan, Tenant, validate_slug
 
+#: Widget class -> the Bootstrap class it needs. Django renders a bare
+#: ``<input>`` unless told otherwise, and a bare input in this design system
+#: reads as broken: no border radius, no focus ring, and — because it stays
+#: ``display: inline`` — its label ends up beside it instead of above it.
+WIDGET_CLASSES = [
+    (forms.CheckboxSelectMultiple, "form-check-input"),
+    (forms.RadioSelect, "form-check-input"),
+    (forms.CheckboxInput, "form-check-input"),
+    (forms.SelectMultiple, "form-select"),
+    (forms.Select, "form-select"),
+]
 
-class TenantCreateForm(forms.Form):
+
+class StyledForm(forms.Form):
+    """A form whose widgets arrive already dressed for this design system.
+
+    Doing it here rather than in each template is what stops the next form from
+    shipping unstyled: a template can forget a class, a base class cannot.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        style_widgets(self)
+
+
+class StyledModelForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        style_widgets(self)
+
+
+def style_widgets(form) -> None:
+    for field in form.fields.values():
+        widget = field.widget
+        css = "form-control"
+        for widget_type, class_name in WIDGET_CLASSES:
+            if isinstance(widget, widget_type):
+                css = class_name
+                break
+
+        existing = widget.attrs.get("class", "")
+        if css not in existing.split():
+            widget.attrs["class"] = f"{existing} {css}".strip()
+
+        # A date field deserves the browser's own picker; Django renders a text
+        # box unless the input type says otherwise.
+        if isinstance(field, forms.DateField) and not isinstance(widget, forms.DateInput):
+            continue
+        if isinstance(field, forms.DateField):
+            widget.input_type = "date"
+
+        # Django's Textarea ships rows=10, which swallows a whole column for a
+        # two-line description. Only that default is replaced — a form that
+        # asked for a specific height meant it.
+        if isinstance(widget, forms.Textarea) and str(widget.attrs.get("rows")) == "10":
+            widget.attrs["rows"] = 3
+
+
+class TenantCreateForm(StyledForm):
     """The provisioning wizard, as one form over ``services.provision_tenant``.
 
     One form rather than three steps with session state: creating a client is a
@@ -62,7 +119,7 @@ class TenantCreateForm(forms.Form):
         return data
 
 
-class PlanForm(forms.ModelForm):
+class PlanForm(StyledModelForm):
     """Create or edit a plan, including what it costs.
 
     The features a plan grants are edited on the same screen but stored in a
@@ -145,7 +202,7 @@ class PlanForm(forms.ModelForm):
         return data
 
 
-class ReasonForm(forms.Form):
+class ReasonForm(StyledForm):
     """Every lifecycle change is typed, so the audit row can answer "why"."""
 
     reason = forms.CharField(label="السبب", widget=forms.Textarea(attrs={"rows": 3}))
@@ -157,7 +214,7 @@ class ReasonForm(forms.Form):
         return reason
 
 
-class PlanChangeForm(forms.Form):
+class PlanChangeForm(StyledForm):
     plan = forms.ModelChoiceField(label="الباقة", queryset=Plan.objects.filter(is_active=True))
     reason = forms.CharField(label="السبب", required=False, max_length=200)
 
@@ -168,7 +225,7 @@ class FeatureToggleForm(forms.Form):
     note = forms.CharField(max_length=200, required=False)
 
 
-class ImpersonationForm(forms.Form):
+class ImpersonationForm(StyledForm):
     """Read-only unless the operator explicitly says otherwise, in writing."""
 
     mode = forms.ChoiceField(
@@ -186,7 +243,7 @@ class ImpersonationForm(forms.Form):
         return data
 
 
-class TenantDeleteForm(forms.Form):
+class TenantDeleteForm(StyledForm):
     """Typing the slug is the confirmation. Nothing about deleting a client
     should be possible by clicking twice quickly."""
 

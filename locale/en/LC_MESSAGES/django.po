@@ -2314,7 +2314,7 @@ msgstr "New"
 msgid "جزئي"
 msgstr "Partial"
 
-#: apps/tenancy/middleware.py:199
+#: apps/tenancy/middleware.py:248
 msgid "جلسة قراءة فقط — لا يمكن التعديل."
 msgstr "Read-only session — changes are not allowed."
 
@@ -3321,7 +3321,7 @@ msgstr "The offering cannot change once the group has lessons."
 msgid "لا يمكن تغيير معرّف العميل بعد إنشائه."
 msgstr "A client's identifier cannot be changed after creation."
 
-#: apps/tenancy/middleware.py:197
+#: apps/tenancy/middleware.py:246
 msgid "لا يمكن تنفيذ هذا الإجراء أثناء الدخول نيابةً عن العميل."
 msgstr "This action cannot be performed while acting on behalf of a client."
 

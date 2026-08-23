@@ -176,11 +176,22 @@ def test_seed_plans_is_idempotent():
     assert set(first) == {"basic", "standard", "full"}
 
 
-def test_seed_plans_full_has_every_feature():
+def test_seed_plans_full_has_every_built_feature():
+    """Everything that exists — not everything in the catalogue.
+
+    An attendance method with no implementation behind it is listed so it can be
+    seen and priced, but granting it would tick a box the resolver then refuses
+    to honour.
+    """
     from django.core.management import call_command
 
-    from apps.tenancy.features import FEATURE_KEYS
+    from apps.tenancy.features import FEATURE_KEYS, IMPLEMENTED_METHOD_KEYS, METHOD_KEYS
     from apps.tenancy.models import Plan
 
     call_command("seed_plans", verbosity=0)
-    assert Plan.objects.get(slug="full").feature_keys == FEATURE_KEYS
+    granted = Plan.objects.get(slug="full").feature_keys
+    unbuilt = METHOD_KEYS - IMPLEMENTED_METHOD_KEYS
+
+    assert granted == FEATURE_KEYS - unbuilt
+    assert unbuilt, "the catalogue should still describe what is coming"
+    assert "attendance.qr" in granted

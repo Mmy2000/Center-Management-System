@@ -102,6 +102,9 @@ MIDDLEWARE = [
     # request.user is lazy, so resolving here is early enough (docs/10 §N.3).
     "apps.tenancy.middleware.TenantResolutionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
+    # After LocaleMiddleware, which activates its own choice and would
+    # otherwise overwrite ours (docs/10 §N.3).
+    "apps.tenancy.middleware.LanguageMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -191,6 +194,10 @@ CSRF_COOKIE_SAMESITE = "Lax"
 # Multi-tenant production is the topology in docs/10 §N.11 — a real VPS.
 CONSOLE_HOST = ""
 CONSOLE_URLCONF = "cms.urls_console"
+
+# The console's own language. Its templates are Arabic literals, not translation
+# calls, so this is pinned rather than negotiated from the browser.
+CONSOLE_LANGUAGE = "ar"
 
 # The suffix every client's subdomain hangs off: <slug>.TENANT_BASE_DOMAIN is
 # the primary host the provisioning wizard creates (docs/10 §N.11).
