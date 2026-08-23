@@ -109,6 +109,19 @@
           <dt>الهاتف</dt><dd>{{ tenant.owner_phone|default:"—" }}</dd>
           <dt>نهاية التجربة</dt><dd>{{ tenant.trial_ends_at|date:"Y-m-d"|default:"—" }}</dd>
           <dt>نهاية الاشتراك</dt><dd>{{ tenant.expires_at|date:"Y-m-d"|default:"—" }}</dd>
+          <dt>دورة الفوترة</dt>
+          <dd>
+            {{ tenant.get_billing_cycle_display }}
+            {% if tenant.price %}
+              — <strong class="num">{{ tenant.price|floatformat:"2u" }}</strong>
+              <span class="text-muted small">{{ tenant.plan.currency }}</span>
+              {% if tenant.plan.discount_is_live %}
+                <span class="badge badge-soft badge-soft-success">
+                  خصم {{ tenant.plan.discount_percent|floatformat:"-2" }}%
+                </span>
+              {% endif %}
+            {% endif %}
+          </dd>
           <dt>أُنشئ في</dt><dd>{{ tenant.created_at|date:"Y-m-d" }}</dd>
         </dl>
       </div>

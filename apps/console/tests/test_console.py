@@ -221,6 +221,7 @@ def test_the_wizard_creates_a_working_client(console):
             "slug": "elnour",
             "plan": Plan.objects.get(slug="full").pk,
             "trial_days": 30,
+            "billing_cycle": "MONTHLY",
             "owner_username": "admin",
             "owner_name": "أحمد",
             "owner_email": "a@example.com",

@@ -99,6 +99,15 @@ def _resolve(tenant) -> frozenset[str]:
                 enabled.discard(key)
                 changed = True
 
+    # An attendance method with no code behind it can never resolve on, however
+    # a plan or an override was written. `attendance.fingerprint` is in the
+    # catalogue so an operator can see what is coming and price a plan for it;
+    # letting it switch on today would promise a screen that does not exist and,
+    # worse, would let QR be removed from a center left with no working method.
+    from .features import IMPLEMENTED_METHOD_KEYS, METHOD_KEYS
+
+    enabled -= METHOD_KEYS - IMPLEMENTED_METHOD_KEYS
+
     # Core last: nothing above may switch off what the product cannot run
     # without, and the console renders those toggles disabled rather than
     # hiding them so an operator can see the switch exists.
@@ -134,6 +143,24 @@ def has_feature(feature_key: str, tenant=None) -> bool:
     """
     spec_for(feature_key)  # typo protection
     return feature_key in enabled_features(tenant)
+
+
+def remaining_methods(tenant, *, without: str = "") -> frozenset[str]:
+    """Which *built* attendance methods a center would still have.
+
+    A center that can record attendance by no means at all is not a running
+    center — the scanner has nowhere to go and the lesson roll can never be
+    filled. So the console asks this before letting a method be switched off,
+    and refuses the toggle that would empty the set.
+
+    ``attendance.fingerprint`` is deliberately not counted: it is in the
+    catalogue so an operator can see what is coming and a plan can be priced for
+    it, but switching it on today would promise a screen that does not exist.
+    """
+    from .features import IMPLEMENTED_METHOD_KEYS
+
+    enabled = enabled_features(tenant)
+    return frozenset(key for key in IMPLEMENTED_METHOD_KEYS if key in enabled and key != without)
 
 
 def invalidate(tenant_id: int) -> None:

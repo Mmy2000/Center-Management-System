@@ -14,11 +14,19 @@ from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
 
-from apps.tenancy.constants import FeatureState, PlatformAction, TenantStatus
+from apps.tenancy.constants import BillingCycle, FeatureState, PlatformAction, TenantStatus
 from apps.tenancy.context import tenant_context
 from apps.tenancy.features import spec_for
-from apps.tenancy.models import Domain, Plan, Tenant, TenantFeature, TenantUsage
+from apps.tenancy.models import (
+    Domain,
+    Plan,
+    PlanFeature,
+    Tenant,
+    TenantFeature,
+    TenantUsage,
+)
 from apps.tenancy.platform_audit import record
+from apps.tenancy.resolver import invalidate_plan
 
 #: Unambiguous alphabet — no O/0, l/1/I. A one-time password gets read aloud
 #: down a phone line at least once.
@@ -45,6 +53,7 @@ def provision_tenant(
     owner_email: str = "",
     owner_phone: str = "",
     trial_days: int | None = 30,
+    billing_cycle: str = BillingCycle.MONTHLY,
     seed_academics: bool = False,
     demo: bool = False,
     actor=None,
@@ -68,6 +77,7 @@ def provision_tenant(
         owner_name=owner_name,
         owner_email=owner_email,
         owner_phone=owner_phone,
+        billing_cycle=billing_cycle,
     )
     if trial_days:
         tenant.trial_ends_at = timezone.now() + timezone.timedelta(days=trial_days)
@@ -120,16 +130,31 @@ def set_feature(tenant, feature_key: str, state: str, *, actor=None, note: str =
     "inherit" row would let the plan default and the stored state drift apart,
     and then nobody could tell which one was answering.
     """
+    from apps.core.http import DomainError
+
     spec = spec_for(feature_key)
     if spec.is_core:
-        from apps.core.http import DomainError
-
         raise DomainError(
             "ERR_CORE_FEATURE",
             "لا يمكن تعطيل خاصية أساسية.",
             status=409,
             data={"feature": feature_key},
         )
+
+    # A center must keep at least one way of taking attendance. Refusing here
+    # rather than warning: the alternative is a center whose scanner has nowhere
+    # to go and whose lesson roll can never be filled, discovered by a
+    # receptionist on a Saturday morning.
+    if spec.is_method and state == FeatureState.OFF:
+        from apps.tenancy.resolver import remaining_methods
+
+        if not remaining_methods(tenant, without=feature_key):
+            raise DomainError(
+                "ERR_LAST_METHOD",
+                "لا يمكن تعطيل آخر طريقة لتسجيل الحضور. فعّل طريقة أخرى أولًا.",
+                status=409,
+                data={"feature": feature_key},
+            )
 
     previous = (
         TenantFeature.objects.filter(tenant=tenant, feature_key=feature_key)
@@ -157,6 +182,84 @@ def set_feature(tenant, feature_key: str, state: str, *, actor=None, note: str =
             reason=note,
         )
     return state
+
+
+@transaction.atomic
+def save_plan(form, *, actor=None) -> Plan:
+    """Create or update a plan and its feature set, in one transaction.
+
+    The feature rows are replaced wholesale rather than diffed: a plan's grant
+    list is small, and "what it grants now" is easier to reason about than a
+    sequence of adds and removes.
+    """
+    creating = form.instance.pk is None
+    # Re-read from the database: `form.instance` already carries the submitted
+    # values by the time `is_valid()` has run, so snapshotting it here would
+    # compare the new values against themselves and record nothing.
+    before = {} if creating else _plan_snapshot(Plan.objects.get(pk=form.instance.pk))
+
+    plan = form.save()
+    wanted = set(form.cleaned_data["features"])
+    current = plan.feature_keys
+
+    PlanFeature.objects.filter(plan=plan, feature_key__in=current - wanted).delete()
+    PlanFeature.objects.bulk_create(
+        [PlanFeature(plan=plan, feature_key=key) for key in sorted(wanted - current)]
+    )
+
+    # Every tenant on this plan has to re-resolve: the grant list just moved.
+    invalidate_plan(plan.pk)
+
+    after = _plan_snapshot(plan)
+    record(
+        PlatformAction.PLAN_CREATED if creating else PlatformAction.PLAN_UPDATED,
+        tenant=None,
+        actor=actor,
+        object_repr=plan.name,
+        changes=(
+            after
+            if creating
+            else {key: [before[key], after[key]] for key in after if before.get(key) != after[key]}
+        ),
+    )
+    return plan
+
+
+def _plan_snapshot(plan: Plan) -> dict:
+    return {
+        "name": plan.name,
+        "is_active": plan.is_active,
+        "monthly_price": str(plan.monthly_price) if plan.monthly_price is not None else None,
+        "yearly_price": str(plan.yearly_price) if plan.yearly_price is not None else None,
+        "discount_percent": str(plan.discount_percent),
+        "max_students": plan.max_students,
+        "max_users": plan.max_users,
+        "max_groups": plan.max_groups,
+        "max_cards": plan.max_cards,
+        "features": sorted(plan.feature_keys),
+    }
+
+
+def set_plan_active(plan: Plan, active: bool, *, actor=None) -> Plan:
+    """Retire a plan without touching the clients already on it.
+
+    Deactivating hides it from the provisioning wizard and the plan picker; it
+    does not move, downgrade or warn a single existing client. Changing what
+    someone already pays for is a conversation, not a side effect of tidying up
+    a price list.
+    """
+    if plan.is_active == active:
+        return plan
+    plan.is_active = active
+    plan.save(update_fields=["is_active", "updated_at"])
+    record(
+        PlatformAction.PLAN_UPDATED,
+        tenant=None,
+        actor=actor,
+        object_repr=plan.name,
+        changes={"is_active": [not active, active]},
+    )
+    return plan
 
 
 def change_plan(tenant, plan: Plan, *, actor=None, reason: str = ""):

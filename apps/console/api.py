@@ -269,6 +269,56 @@ def tenant_feature(request, pk):
     return {"effective": sorted(enabled_features(tenant)), "feature_key": key, "state": state}
 
 
+def plan_json(plan) -> dict:
+    return {
+        "id": plan.pk,
+        "slug": plan.slug,
+        "name": plan.name,
+        "is_active": plan.is_active,
+        "currency": plan.currency,
+        "monthly_price": str(plan.monthly_price) if plan.monthly_price is not None else None,
+        "yearly_price": str(plan.yearly_price) if plan.yearly_price is not None else None,
+        "effective_monthly": (
+            str(plan.effective_monthly) if plan.effective_monthly is not None else None
+        ),
+        "effective_yearly": (
+            str(plan.effective_yearly) if plan.effective_yearly is not None else None
+        ),
+        "discount_percent": str(plan.discount_percent),
+        "discount_live": plan.discount_is_live,
+        "yearly_saving_percent": plan.yearly_saving_percent,
+        "features": len(plan.feature_keys),
+    }
+
+
+@console_ajax(methods=["POST"])
+def plan_active(request, pk):
+    """Retire or restore a plan without touching the clients already on it.
+
+    Deactivating hides a plan from the wizard and the plan picker; it does not
+    move, downgrade or warn a single existing client. Changing what someone
+    already pays for is a conversation, not a side effect of tidying a price
+    list.
+    """
+    plan = Plan.objects.filter(pk=pk).first()
+    if plan is None:
+        raise Http404("no such plan")
+
+    active = bool(request.json.get("is_active"))
+    if not active and not Plan.objects.filter(is_active=True).exclude(pk=plan.pk).exists():
+        return fail(
+            "ERR_LAST_PLAN",
+            "لا يمكن إيقاف آخر باقة متاحة — لن تتمكن من إنشاء عملاء جدد.",
+            status=409,
+        )
+
+    services.set_plan_active(plan, active, actor=request.user)
+    return {
+        "plan": plan_json(plan),
+        "message": "الباقة متاحة الآن." if active else "أُوقفت الباقة للعملاء الجدد.",
+    }
+
+
 @console_ajax(methods=["GET"])
 def slug_check(request):
     """Live availability while the operator types, so the wizard never fails on

@@ -61,6 +61,16 @@ class TenantStatus(models.TextChoices):
 OPERATIONAL_STATUSES = frozenset({TenantStatus.TRIAL, TenantStatus.ACTIVE, TenantStatus.PAST_DUE})
 
 
+class BillingCycle(models.TextChoices):
+    """How often a client pays. Recorded, never charged (docs/10 §N.14)."""
+
+    MONTHLY = "MONTHLY", _("شهري")
+    YEARLY = "YEARLY", _("سنوي")
+    #: Free, an internal center, or an arrangement that lives outside the
+    #: system entirely. A plan's prices simply do not apply.
+    NONE = "NONE", _("بدون")
+
+
 class FeatureState(models.TextChoices):
     """A per-tenant override of what the plan says (docs/10 §N.8)."""
 
@@ -80,6 +90,8 @@ class PlatformAction(models.TextChoices):
     TENANT_PURGED = "TENANT_PURGED", _("حذف بيانات عميل")
     TENANT_EXPORTED = "TENANT_EXPORTED", _("تصدير بيانات عميل")
     PLAN_CHANGED = "PLAN_CHANGED", _("تغيير الباقة")
+    PLAN_CREATED = "PLAN_CREATED", _("إنشاء باقة")
+    PLAN_UPDATED = "PLAN_UPDATED", _("تعديل باقة")
     FEATURE_CHANGED = "FEATURE_CHANGED", _("تغيير خاصية")
     LIMIT_CHANGED = "LIMIT_CHANGED", _("تغيير حد")
     DOMAIN_ADDED = "DOMAIN_ADDED", _("إضافة نطاق")

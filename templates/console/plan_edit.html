@@ -1,0 +1,259 @@
+{% extends "console/base.html" %}
+{% block title %}{% if plan %}تعديل {{ plan.name }}{% else %}باقة جديدة{% endif %}{% endblock %}
+
+{% block topbar %}
+  <div>
+    <div class="breadcrumb-mini"><a href="{% url 'console:plan_list' %}">الباقات</a> ›</div>
+    <h1 class="console-title">{% if plan %}{{ plan.name }}{% else %}باقة جديدة{% endif %}</h1>
+  </div>
+{% endblock %}
+
+{% block topbar_actions %}
+  {% if tenant_count %}
+    <a class="btn btn-sm btn-soft-secondary" href="{% url 'console:tenant_list' %}?plan={{ plan.slug }}">
+      {{ tenant_count }} عميل على هذه الباقة
+    </a>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+{% if tenant_count %}
+  <div class="alert alert-info d-flex gap-2 align-items-start">
+    <svg class="icon"><use href="#i-info"></use></svg>
+    <div class="small">
+      {{ tenant_count }} عميل على هذه الباقة الآن. تغيير الخصائص أو الحدود يسري عليهم
+      <strong>فورًا</strong>؛ تغيير السعر يُسجَّل فقط ولا يُغيّر ما يدفعونه اليوم.
+    </div>
+  </div>
+{% endif %}
+
+<form method="post" id="plan-form" novalidate>
+  {% csrf_token %}
+
+  {% if form.non_field_errors %}
+    <div class="alert alert-warning py-2">
+      {% for error in form.non_field_errors %}<div>{{ error }}</div>{% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="row g-3">
+    <div class="col-12 col-xl-7">
+      <div class="console-card mb-3">
+        <div class="console-card-head"><h2>الهوية</h2></div>
+        <div class="console-card-body">
+          <div class="row g-3">
+            <div class="col-12 col-md-7">
+              <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+              {{ form.name }}
+              {% for e in form.name.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-12 col-md-5">
+              <label class="form-label" for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
+              {{ form.slug }}
+              {% if plan %}<div class="form-text">لا يتغيّر — سكربتات التجهيز تعتمد عليه.</div>{% endif %}
+              {% for e in form.slug.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+              {{ form.description }}
+            </div>
+            <div class="col-6 col-md-4">
+              <label class="form-label" for="{{ form.sort_order.id_for_label }}">{{ form.sort_order.label }}</label>
+              {{ form.sort_order }}
+            </div>
+            <div class="col-12 col-md-8 d-flex align-items-end gap-3 pb-2">
+              <div class="form-check">
+                {{ form.is_active }}
+                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">{{ form.is_active.label }}</label>
+              </div>
+              <div class="form-check">
+                {{ form.is_public }}
+                <label class="form-check-label" for="{{ form.is_public.id_for_label }}">{{ form.is_public.label }}</label>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="form-text">{{ form.is_active.help_text }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="console-card mb-3">
+        <div class="console-card-head">
+          <h2>السعر</h2>
+          <span class="text-muted small">يُسجَّل فقط — النظام لا يُصدر فواتير</span>
+        </div>
+        <div class="console-card-body">
+          <div class="row g-3">
+            <div class="col-12 col-md-4">
+              <label class="form-label" for="{{ form.monthly_price.id_for_label }}">{{ form.monthly_price.label }}</label>
+              {{ form.monthly_price }}
+              {% for e in form.monthly_price.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label" for="{{ form.yearly_price.id_for_label }}">{{ form.yearly_price.label }}</label>
+              {{ form.yearly_price }}
+              {% for e in form.yearly_price.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label" for="{{ form.currency.id_for_label }}">{{ form.currency.label }}</label>
+              {{ form.currency }}
+            </div>
+          </div>
+
+          <hr class="my-3">
+
+          <div class="row g-3">
+            <div class="col-6 col-md-3">
+              <label class="form-label" for="{{ form.discount_percent.id_for_label }}">{{ form.discount_percent.label }}</label>
+              {{ form.discount_percent }}
+              {% for e in form.discount_percent.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-12 col-md-5">
+              <label class="form-label" for="{{ form.discount_label.id_for_label }}">{{ form.discount_label.label }}</label>
+              {{ form.discount_label }}
+              {% for e in form.discount_label.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+            </div>
+            <div class="col-6 col-md-4">
+              <label class="form-label" for="{{ form.discount_until.id_for_label }}">{{ form.discount_until.label }}</label>
+              {{ form.discount_until }}
+              <div class="form-text">{{ form.discount_until.help_text }}</div>
+            </div>
+          </div>
+
+          <div class="price-preview mt-3" id="preview">
+            <div class="price-preview-row">
+              <span>الشهري بعد الخصم</span>
+              <strong class="num" id="pv-monthly">—</strong>
+            </div>
+            <div class="price-preview-row">
+              <span>السنوي بعد الخصم</span>
+              <strong class="num" id="pv-yearly">—</strong>
+            </div>
+            <div class="price-preview-row" id="pv-saving-row" hidden>
+              <span>توفير الاشتراك السنوي</span>
+              <strong id="pv-saving">—</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="console-card">
+        <div class="console-card-head"><h2>الحدود</h2>
+          <span class="text-muted small">اتركه فارغًا = بلا حد</span>
+        </div>
+        <div class="console-card-body">
+          <div class="row g-3">
+            {% for field in form %}
+              {% if field.name == "max_students" or field.name == "max_users" or field.name == "max_groups" or field.name == "max_cards" or field.name == "storage_mb" or field.name == "retention_days" %}
+                <div class="col-6 col-md-4">
+                  <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                  {{ field }}
+                  {% for e in field.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+                </div>
+              {% endif %}
+            {% endfor %}
+            <div class="col-12">
+              <label class="form-label" for="{{ form.price_note.id_for_label }}">{{ form.price_note.label }}</label>
+              {{ form.price_note }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-xl-5">
+      <div class="console-card mb-3">
+        <div class="console-card-head">
+          <h2>الخصائص المشمولة</h2>
+          <span class="text-muted small" id="feature-count"></span>
+        </div>
+        <div class="console-card-body">
+          {% if form.features.errors %}
+            <div class="alert alert-danger py-2 small">
+              {% for e in form.features.errors %}<div>{{ e }}</div>{% endfor %}
+            </div>
+          {% endif %}
+
+          <div class="plan-features">
+            {% for checkbox in form.features %}
+              <label class="plan-feature">
+                {{ checkbox.tag }}
+                <span>{{ checkbox.choice_label }}</span>
+              </label>
+            {% endfor %}
+          </div>
+          <div class="form-text mt-2">
+            الخصائص الأساسية مُفعّلة دائمًا مهما كان الاختيار، ويجب اختيار طريقة
+            واحدة على الأقل لتسجيل الحضور.
+          </div>
+        </div>
+      </div>
+
+      <div class="d-grid gap-2">
+        <button class="btn btn-primary btn-lg" type="submit">
+          <svg class="icon"><use href="#i-check"></use></svg>حفظ الباقة
+        </button>
+        <a class="btn btn-ghost" href="{% url 'console:plan_list' %}">إلغاء</a>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* Live price preview. The server computes the real figures; this only shows the
+   operator what they are about to save, so a mistyped discount is caught while
+   the form is still open. */
+const monthly = document.getElementById("{{ form.monthly_price.id_for_label }}");
+const yearly = document.getElementById("{{ form.yearly_price.id_for_label }}");
+const percent = document.getElementById("{{ form.discount_percent.id_for_label }}");
+const currency = document.getElementById("{{ form.currency.id_for_label }}");
+
+function money(value) {
+  if (value === null) { return "—"; }
+  return value.toLocaleString("en-EG", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) +
+    " " + (currency.value || "");
+}
+
+function discounted(raw) {
+  const base = parseFloat(raw);
+  if (!isFinite(base)) { return null; }
+  const off = Math.min(100, Math.max(0, parseFloat(percent.value) || 0));
+  return base * (100 - off) / 100;
+}
+
+function preview() {
+  const m = discounted(monthly.value);
+  const y = discounted(yearly.value);
+  document.getElementById("pv-monthly").textContent = money(m);
+  document.getElementById("pv-yearly").textContent = money(y);
+
+  const base = parseFloat(monthly.value);
+  const year = parseFloat(yearly.value);
+  const row = document.getElementById("pv-saving-row");
+  if (isFinite(base) && isFinite(year) && base > 0) {
+    const saving = Math.round(((base * 12 - year) / (base * 12)) * 100);
+    document.getElementById("pv-saving").textContent = saving + "%";
+    row.hidden = false;
+  } else {
+    row.hidden = true;
+  }
+}
+
+[monthly, yearly, percent, currency].forEach(function (field) {
+  field.addEventListener("input", preview);
+});
+preview();
+
+/* A running count, so a plan built by clicking twenty boxes says how many. */
+const boxes = document.querySelectorAll('.plan-features input[type="checkbox"]');
+function countFeatures() {
+  const on = Array.from(boxes).filter(function (box) { return box.checked; }).length;
+  document.getElementById("feature-count").textContent = on + " / " + boxes.length;
+}
+boxes.forEach(function (box) { box.addEventListener("change", countFeatures); });
+countFeatures();
+</script>
+{% endblock %}

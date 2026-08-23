@@ -282,6 +282,7 @@ def tenant_new(request):
             owner_email=data["owner_email"],
             owner_phone=data["owner_phone"],
             trial_days=data["trial_days"] or None,
+            billing_cycle=data["billing_cycle"],
             seed_academics=data["seed_academics"],
             demo=data["demo"],
             actor=request.user,
@@ -551,8 +552,40 @@ def tenant_delete(request, pk):
 
 @platform_staff_required
 def plan_list(request):
-    plans = Plan.objects.prefetch_related("features").annotate(tenant_count=Count("tenants"))
-    return render(request, "console/plan_list.html", {"plans": plans})
+    plans = (
+        Plan.objects.prefetch_related("features")
+        .annotate(tenant_count=Count("tenants"))
+        .order_by("-is_active", "sort_order", "slug")
+    )
+    return render(request, "console/plan_list.html", {"nav": "plans", "plans": plans})
+
+
+@platform_staff_required
+def plan_edit(request, pk=None):
+    """One screen for creating and editing.
+
+    The fields are identical either way, and two screens would drift — the new
+    one would gain a field the edit one never got.
+    """
+    plan = get_object_or_404(Plan, pk=pk) if pk else None
+    form = forms.PlanForm(request.POST or None, instance=plan)
+
+    if request.method == "POST" and form.is_valid():
+        saved = services.save_plan(form, actor=request.user)
+        messages.success(request, "تم حفظ الباقة.")
+        return redirect(reverse("console:plan_list") + f"#plan-{saved.pk}")
+
+    return render(
+        request,
+        "console/plan_edit.html",
+        {
+            "nav": "plans",
+            "form": form,
+            "plan": plan,
+            "tenant_count": plan.tenants.count() if plan else 0,
+            "groups": grouped_specs(),
+        },
+    )
 
 
 @platform_staff_required

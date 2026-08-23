@@ -2,13 +2,14 @@ from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from apps.accounts.decorators import require_perm
+from apps.accounts.decorators import require_feature, require_perm
 from apps.accounts.scoping import can_touch_lesson, visible_lessons
 from apps.core.http import DomainError
 from apps.lessons.models import Lesson, LessonStatus
 
 
 @require_perm("attendance.add_attendance")
+@require_feature("attendance.qr")
 def scanner_picker(request):
     """Pick an open lesson; auto-enter when there is exactly one."""
     lessons = visible_lessons(request.user, Lesson.objects.with_related())
@@ -26,6 +27,7 @@ def scanner_picker(request):
 
 
 @require_perm("attendance.add_attendance")
+@require_feature("attendance.qr")
 def scanner_console(request, pk):
     lesson = get_object_or_404(
         visible_lessons(request.user, Lesson.objects.with_related()), pk=pk

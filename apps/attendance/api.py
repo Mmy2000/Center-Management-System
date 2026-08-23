@@ -34,7 +34,7 @@ def _lesson_for_scan(request, lesson_id):
     return lesson
 
 
-@ajax(methods=["POST"], perm="attendance.add_attendance")
+@ajax(methods=["POST"], perm="attendance.add_attendance", feature="attendance.qr")
 def scan(request):
     """★ The hot path. Validation happens before any database work."""
     data = request.json
@@ -148,7 +148,7 @@ def cancel(request, pk):
     return {"attendance": attendance_json(attendance)}
 
 
-@ajax(methods=["POST"], perm="attendance.add_attendance")
+@ajax(methods=["POST"], perm="attendance.add_attendance", feature="attendance.manual")
 def manual(request):
     data = request.json
     lesson = _lesson_for_scan(request, data.get("lesson_id"))

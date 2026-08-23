@@ -63,7 +63,7 @@
     <div class="card">
       <div class="card-header d-flex justify-content-between align-items-center">
         <span class="fw-semibold">{% translate "حصص مفتوحة الآن" %}</span>
-        {% if perms.attendance.add_attendance %}
+        {% if perms.attendance.add_attendance and "attendance.qr" in FEATURES %}
           <a class="btn btn-sm btn-primary" href="{% url 'attendance:scanner_picker' %}">{% translate "شاشة المسح" %}</a>
         {% endif %}
       </div>
@@ -105,6 +105,18 @@
 <script>
 /* quiet: the 30-second refresh must not blink skeletons over a dashboard
    someone is reading — only the first paint and a manual reload show them. */
+/* Whether this center takes attendance by card at all. Decided server-side and
+   baked in: the browser never decides what it may see, and the scanner URL is
+   a 404 without the feature anyway. */
+function scanButton(lessonId) {
+{% if "attendance.qr" in FEATURES %}
+  return "<a class='btn btn-sm btn-soft-primary' href='{% url 'attendance:scanner_picker' %}" +
+         lessonId + "/'>{% translate 'مسح' %}</a> ";
+{% else %}
+  return "";
+{% endif %}
+}
+
 function loadDashboard(options) {
   const quiet = Boolean(options && options.quiet);
   return ui.table("open-lessons", async function (body, columns) {
@@ -130,7 +142,7 @@ function loadDashboard(options) {
           return "<tr><td><b>" + lesson.subject + "</b> — " + lesson.group + "</td>" +
             "<td class='text-muted'>" + lesson.start + "</td>" +
             "<td>" + lesson.expected + " {% translate 'طالب' %}</td>" +
-            "<td class='text-end'><a class='btn btn-sm btn-soft-primary' href='/scan/" + lesson.id + "/'>{% translate 'مسح' %}</a> " +
+            "<td class='text-end'>" + scanButton(lesson.id) +
             "<a class='btn btn-sm btn-outline-secondary' href='/lessons/" + lesson.id + "/'>{% translate 'اللوحة' %}</a></td></tr>";
         }).join("")
       : ui.emptyRow(columns, gettext("لا توجد حصص مفتوحة"), "lessons");

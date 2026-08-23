@@ -5,9 +5,11 @@ read by middleware on every request (cached) and written only by the console.
 """
 
 import re
+from decimal import Decimal
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -19,6 +21,7 @@ from .constants import (
     OPERATIONAL_STATUSES,
     RESERVED_SLUGS,
     SLUG_PATTERN,
+    BillingCycle,
     FeatureState,
     PlatformAction,
     TenantStatus,
@@ -47,16 +50,25 @@ def validate_feature_key(value: str):
 
 
 class Plan(TimeStampedModel):
-    """A bundle of features and limits sold as one thing.
+    """A bundle of features and limits, at a price.
 
-    Limits are ``NULL`` for unlimited. ``price_note`` is free text because the
-    invoicing happens outside this system — the console records what was agreed,
-    it does not charge anyone.
+    Limits are ``NULL`` for unlimited.
+
+    The prices here are *what was agreed*, not a billing engine. The system
+    records them so the console can show what a client is worth and what a plan
+    change costs them; it still issues no invoice and charges no card
+    (docs/10 §N.14). That boundary has not moved — only the shape of the record
+    has, from one free-text note into figures you can compare and total.
     """
 
     slug = models.SlugField(_("المعرّف"), max_length=40, unique=True)
     name = models.CharField(_("الاسم"), max_length=100)
     description = models.TextField(_("الوصف"), blank=True)
+    is_active = models.BooleanField(
+        _("متاحة"),
+        default=True,
+        help_text=_("إيقافها يمنع تعيينها لعملاء جدد. العملاء الحاليون عليها لا يتأثرون."),
+    )
     is_public = models.BooleanField(_("متاح للعرض"), default=True)
     sort_order = models.PositiveSmallIntegerField(_("الترتيب"), default=0)
 
@@ -67,12 +79,53 @@ class Plan(TimeStampedModel):
     storage_mb = models.PositiveIntegerField(_("مساحة التخزين (ميجابايت)"), null=True, blank=True)
     retention_days = models.PositiveIntegerField(_("مدة الاحتفاظ بعد الأرشفة (يوم)"), default=90)
 
+    # Money: Decimal, never float — the same rule the student ledger follows
+    # (docs/README conventions). Null means "not sold on this cycle".
+    monthly_price = models.DecimalField(
+        _("السعر الشهري"),
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+    )
+    yearly_price = models.DecimalField(
+        _("السعر السنوي"),
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+    )
+    currency = models.CharField(_("العملة"), max_length=8, default="EGP")
+
+    discount_percent = models.DecimalField(
+        _("نسبة الخصم %"),
+        max_digits=5,
+        decimal_places=2,
+        default=Decimal("0.00"),
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+    )
+    discount_label = models.CharField(_("سبب الخصم"), max_length=100, blank=True)
+    discount_until = models.DateField(
+        _("الخصم حتى"),
+        null=True,
+        blank=True,
+        help_text=_("فارغ = خصم دائم حتى تغيّره."),
+    )
+
     price_note = models.CharField(_("ملاحظة السعر"), max_length=200, blank=True)
 
     class Meta:
         verbose_name = _("باقة")
         verbose_name_plural = _("الباقات")
         ordering = ["sort_order", "slug"]
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(discount_percent__gte=0) & models.Q(discount_percent__lte=100),
+                name="ck_plan_discount_range",
+            ),
+        ]
 
     def __str__(self):
         return self.name
@@ -84,6 +137,54 @@ class Plan(TimeStampedModel):
     def limit(self, resource: str):
         """``max_<resource>`` or ``None`` for unlimited."""
         return getattr(self, f"max_{resource}", None)
+
+    # ------------------------------------------------------------- pricing --
+    @property
+    def discount_is_live(self) -> bool:
+        """A discount with a past end date is history, not a price."""
+        if self.discount_percent <= 0:
+            return False
+        if self.discount_until is None:
+            return True
+        return self.discount_until >= timezone.localdate()
+
+    def _after_discount(self, amount):
+        if amount is None:
+            return None
+        if not self.discount_is_live:
+            return amount
+        factor = (Decimal("100") - self.discount_percent) / Decimal("100")
+        return (amount * factor).quantize(Decimal("0.01"))
+
+    @property
+    def effective_monthly(self):
+        return self._after_discount(self.monthly_price)
+
+    @property
+    def effective_yearly(self):
+        return self._after_discount(self.yearly_price)
+
+    @property
+    def yearly_saving_percent(self) -> int | None:
+        """How much cheaper a year is than twelve months, before any discount.
+
+        Computed rather than typed: two prices and a third number that is
+        supposed to agree with them is a number that will eventually disagree.
+        """
+        if not self.monthly_price or not self.yearly_price:
+            return None
+        twelve = self.monthly_price * 12
+        if twelve <= 0:
+            return None
+        return int(((twelve - self.yearly_price) / twelve * 100).quantize(Decimal("1")))
+
+    def price_for(self, cycle: str):
+        """The effective price for a billing cycle, or ``None`` if not sold."""
+        if cycle == BillingCycle.YEARLY:
+            return self.effective_yearly
+        if cycle == BillingCycle.MONTHLY:
+            return self.effective_monthly
+        return None
 
 
 class PlanFeature(models.Model):
@@ -127,6 +228,14 @@ class Tenant(TimeStampedModel):
     )
     plan = models.ForeignKey(
         Plan, on_delete=models.PROTECT, related_name="tenants", verbose_name=_("الباقة")
+    )
+
+    billing_cycle = models.CharField(
+        _("دورة الفوترة"),
+        max_length=10,
+        choices=BillingCycle.choices,
+        default=BillingCycle.MONTHLY,
+        help_text=_("أي سعر من أسعار الباقة ينطبق على هذا العميل."),
     )
 
     trial_ends_at = models.DateTimeField(_("نهاية التجربة"), null=True, blank=True)
@@ -198,6 +307,11 @@ class Tenant(TimeStampedModel):
     def primary_host(self) -> str:
         domain = self.primary_domain
         return domain.host if domain else ""
+
+    @property
+    def price(self):
+        """What this client pays per cycle, after any live discount."""
+        return self.plan.price_for(self.billing_cycle)
 
     def days_until_expiry(self) -> int | None:
         deadline = self.expires_at or self.trial_ends_at

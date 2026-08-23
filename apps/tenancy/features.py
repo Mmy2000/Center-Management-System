@@ -51,6 +51,12 @@ class FeatureSpec:
     #: renders it disabled rather than hiding it, so an operator can see that
     #: the switch exists and why it cannot move.
     is_core: bool = False
+    #: A *way of recording attendance* — QR today, fingerprint next. These are
+    #: switchable individually, but a center must keep at least one: a center
+    #: that can take no attendance at all is not a running center, and the
+    #: console refuses the toggle that would leave it there (see
+    #: ``resolver.remaining_methods``).
+    is_method: bool = False
 
 
 def _f(*args, **kwargs) -> FeatureSpec:
@@ -80,16 +86,44 @@ FEATURES: tuple[FeatureSpec, ...] = (
         _("تسجيل الحضور"),
         G_CORE,
         True,
-        help_text=_("مسح البطاقات وتسجيل الحضور — لا يمكن تعطيلها."),
+        help_text=_("تسجيل حضور الطلاب — لا يمكن تعطيله. الطريقة نفسها قابلة للاختيار."),
         is_core=True,
     ),
-    # ----------------------------- attendance ----------------------------- #
+    # ------------------------ attendance: methods ------------------------- #
+    # How attendance is taken. Each is switchable on its own, but the console
+    # will not let the last one be switched off.
+    _f(
+        "attendance.qr",
+        _("الحضور بالبطاقة (QR)"),
+        G_ATTENDANCE,
+        True,
+        help_text=_("الطريقة الافتراضية: مسح بطاقة الطالب بقارئ باركود أو بالكاميرا."),
+        is_method=True,
+    ),
+    _f(
+        "attendance.fingerprint",
+        _("الحضور ببصمة الإصبع"),
+        G_ATTENDANCE,
+        False,
+        help_text=_("جهاز بصمة بدلًا من البطاقة. غير مُنفّذ بعد — الحقل محجوز."),
+        is_method=True,
+    ),
+    _f(
+        "attendance.manual",
+        _("التسجيل اليدوي"),
+        G_ATTENDANCE,
+        True,
+        help_text=_("تسجيل الحضور من كشف الحصة دون أي جهاز."),
+        is_method=True,
+    ),
+    # ------------------------ attendance: options ------------------------- #
     _f(
         "attendance.camera_scanner",
         _("المسح بكاميرا الهاتف"),
         G_ATTENDANCE,
         True,
         help_text=_("البديل عن قارئ الباركود عبر كاميرا الجهاز."),
+        depends_on=("attendance.qr",),
     ),
     _f(
         "attendance.exceptional",
@@ -104,6 +138,7 @@ FEATURES: tuple[FeatureSpec, ...] = (
         G_ATTENDANCE,
         False,
         help_text=_("تخزين عمليات المسح محليًا عند انقطاع الإنترنت ورفعها لاحقًا."),
+        depends_on=("attendance.qr",),
     ),
     # -------------------------------- cards ------------------------------- #
     _f(
@@ -189,6 +224,15 @@ FEATURE_KEYS: frozenset[str] = frozenset(_BY_KEY)
 
 #: Always-on keys, precomputed — the resolver consults this on every request.
 CORE_KEYS: frozenset[str] = frozenset(s.key for s in FEATURES if s.is_core)
+
+#: The ways attendance can be recorded. A center must keep at least one.
+METHOD_KEYS: frozenset[str] = frozenset(s.key for s in FEATURES if s.is_method)
+
+#: Methods that are actually built. ``attendance.fingerprint`` is in the
+#: catalogue so the console can show what is coming and a plan can already be
+#: priced for it, but switching it on today would promise a screen that does
+#: not exist — so it does not count towards "at least one method".
+IMPLEMENTED_METHOD_KEYS: frozenset[str] = frozenset({"attendance.qr", "attendance.manual"})
 
 #: Keys that are on unless something says otherwise.
 DEFAULT_ON_KEYS: frozenset[str] = frozenset(s.key for s in FEATURES if s.default)

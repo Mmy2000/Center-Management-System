@@ -15,7 +15,7 @@
       <svg class="icon"><use href="#i-dashboard"></use></svg>{% translate "لوحة التحكم" %}
     </a>
 
-    {% if perms.attendance.add_attendance %}
+    {% if perms.attendance.add_attendance and "attendance.qr" in FEATURES %}
       <a class="nav-link {% if request.resolver_match.namespace == 'attendance' %}active{% endif %}"
          href="{% url 'attendance:scanner_picker' %}" id="shortcut-scan">
         <svg class="icon"><use href="#i-scan"></use></svg>{% translate "المسح" %}

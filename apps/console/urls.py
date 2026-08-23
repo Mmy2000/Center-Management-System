@@ -29,6 +29,8 @@ urlpatterns = [
     path("tenants/<int:pk>/delete/", views.tenant_delete, name="tenant_delete"),
     path("leave/", views.tenant_leave, name="tenant_leave"),
     path("plans/", views.plan_list, name="plan_list"),
+    path("plans/new/", views.plan_edit, name="plan_new"),
+    path("plans/<int:pk>/", views.plan_edit, name="plan_edit"),
     # JSON, through the same envelope and the same http.js wrapper the product
     # uses — so the loading bar, the toasts and the error handling are the ones
     # already built (docs/05 §G.2).
@@ -39,6 +41,7 @@ urlpatterns = [
     path("api/tenants/<int:pk>/usage/", api.tenant_usage, name="api_tenant_usage"),
     path("api/tenants/<int:pk>/plan/", api.tenant_plan, name="api_tenant_plan"),
     path("api/tenants/<int:pk>/feature/", api.tenant_feature, name="api_tenant_feature"),
+    path("api/plans/<int:pk>/active/", api.plan_active, name="api_plan_active"),
     path("audit/", views.audit, name="audit"),
     path("health/", views.health, name="health"),
 ]

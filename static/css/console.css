@@ -247,3 +247,58 @@
 }
 .console-auth .auth-sub, .console-auth .auth-point { color: #b3c4d4; }
 .console-auth .auth-foot { color: #6f8598; }
+
+/* ------------------------------------------------------------- plan cards -- */
+/* A retired plan stays visible and readable — it still has clients on it — but
+   should not read as something you can hand to a new one. */
+.plan-retired { opacity: .72; }
+.plan-retired .console-card-head h2 { color: var(--ink-500); }
+
+.console-card-foot {
+  display: flex; gap: .5rem; padding: .7rem 1rem;
+  border-top: 1px solid var(--ink-100);
+  margin-top: auto;
+}
+.console-card { display: flex; flex-direction: column; }
+
+.price-block { background: var(--ink-050); border-radius: var(--radius); padding: .7rem .85rem; }
+.price-row { display: flex; align-items: baseline; gap: .5rem; padding: .15rem 0; }
+.price-cycle { font-size: .78rem; color: var(--ink-500); min-width: 3rem; }
+.price-now { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.price-was {
+  text-decoration: line-through;
+  color: var(--ink-300);
+  font-size: .85rem;
+  font-variant-numeric: tabular-nums;
+}
+.price-cur { font-size: .75rem; color: var(--ink-500); }
+.price-discount {
+  display: flex; align-items: center; gap: .35rem;
+  margin-top: .5rem; padding-top: .5rem;
+  border-top: 1px dashed var(--ink-200);
+  font-size: .78rem; font-weight: 600; color: var(--success-500);
+}
+.price-discount .icon { width: 1em; height: 1em; }
+.price-discount.expired { color: var(--ink-300); font-weight: 500; text-decoration: line-through; }
+
+.price-preview {
+  background: var(--brand-50);
+  border: 1px solid var(--brand-100);
+  border-radius: var(--radius);
+  padding: .6rem .85rem;
+}
+.price-preview-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-size: .85rem; padding: .15rem 0;
+}
+
+/* The feature grant list: dense enough to scan, tall enough to click. */
+.plan-features { display: grid; gap: .1rem; max-height: 26rem; overflow-y: auto; }
+.plan-feature {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .32rem .45rem; border-radius: var(--radius-sm);
+  font-size: .84rem; cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+.plan-feature:hover { background: var(--ink-050); }
+.plan-feature input { flex: none; }

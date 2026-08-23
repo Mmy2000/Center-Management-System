@@ -25,6 +25,7 @@ from apps.core.registry import settings_registry
 from apps.lessons.models import LessonStatus, WindowState
 from apps.lessons.services import lesson_snapshot, window_state
 from apps.students.models import StudentStatus
+from apps.tenancy.guards import require_feature
 
 from . import eligibility as elig
 from . import result_codes
@@ -148,6 +149,11 @@ def scan(
     makeup_for_lesson_id: int | None = None,
     approve: bool = False,
 ) -> dict:
+    # Layer 4 (docs/10 §N.8): the offline queue replays scans from a worker and
+    # a future device bridge will call this directly — neither touches a view,
+    # so the endpoint's gate would never see them.
+    require_feature("attendance.qr")
+
     started = time_module.monotonic()
 
     # Replay of a completed request returns the original answer verbatim.

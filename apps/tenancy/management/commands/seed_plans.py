@@ -1,9 +1,16 @@
-"""Create the three plans the product is sold as (TASK-090).
+"""Create the three plans the product starts with (TASK-090).
 
-Idempotent: safe to run on every deploy. It updates limits and feature sets in
-place, so raising a plan's student cap is a code change plus a re-run rather
-than a manual UPDATE on production.
+These are a *starting point*, not the truth: plans are editable from the console
+(name, prices, discount, limits, feature grants, availability), and this command
+only fills in what a fresh install needs to have something to sell.
+
+Idempotent, and deliberately conservative about it: a re-run refreshes the
+feature grants and the limits, but never overwrites a price or a discount an
+operator has since set by hand. A deploy that silently reset every client's
+agreed price would be a very bad afternoon.
 """
+
+from decimal import Decimal
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -30,6 +37,9 @@ STANDARD_EXCLUDES = {
     "payments.enforce_on_attendance",
 }
 
+#: Opening prices, in EGP. The yearly figure is ten months' worth, so a year
+#: costs about 17% less than paying monthly — a discount an operator can then
+#: change per plan without touching this file again.
 PLANS = [
     {
         "slug": "basic",
@@ -41,6 +51,8 @@ PLANS = [
         "max_groups": 30,
         "max_cards": 500,
         "storage_mb": 512,
+        "monthly_price": Decimal("500.00"),
+        "yearly_price": Decimal("5000.00"),
         "excludes": BASIC_EXCLUDES,
     },
     {
@@ -53,6 +65,8 @@ PLANS = [
         "max_groups": 150,
         "max_cards": 2500,
         "storage_mb": 4096,
+        "monthly_price": Decimal("1200.00"),
+        "yearly_price": Decimal("12000.00"),
         "excludes": STANDARD_EXCLUDES,
     },
     {
@@ -65,9 +79,25 @@ PLANS = [
         "max_groups": None,
         "max_cards": None,
         "storage_mb": None,
+        "monthly_price": Decimal("2500.00"),
+        "yearly_price": Decimal("25000.00"),
         "excludes": set(),
     },
 ]
+
+#: Fields a re-run always refreshes. Prices and discounts are absent on purpose:
+#: they belong to the operator, not the repository. A price that is still NULL
+#: is filled in once (see below) — an absence is not a decision.
+REFRESHED_FIELDS = {
+    "name",
+    "description",
+    "sort_order",
+    "max_students",
+    "max_users",
+    "max_groups",
+    "max_cards",
+    "storage_mb",
+}
 
 
 class Command(BaseCommand):
@@ -82,7 +112,24 @@ class Command(BaseCommand):
             fields = dict(spec)
             excludes = fields.pop("excludes")
             slug = fields.pop("slug")
-            plan, created = Plan.objects.update_or_create(slug=slug, defaults=fields)
+
+            plan = Plan.objects.filter(slug=slug).first()
+            created = plan is None
+            if created:
+                plan = Plan.objects.create(slug=slug, **fields)
+            else:
+                # Refresh only what the repository owns. A price an operator
+                # negotiated is not ours to reset on the next deploy.
+                for name in REFRESHED_FIELDS:
+                    if name in fields:
+                        setattr(plan, name, fields[name])
+                # A *missing* price is different from a chosen one: a plan that
+                # predates pricing has no figure to protect, so fill it in once.
+                # After that the operator owns it.
+                for name in ("monthly_price", "yearly_price"):
+                    if getattr(plan, name) is None and fields.get(name) is not None:
+                        setattr(plan, name, fields[name])
+                plan.save()
 
             wanted = {key for key in ALL_KEYS if key not in excludes}
             current = set(plan.features.values_list("feature_key", flat=True))
