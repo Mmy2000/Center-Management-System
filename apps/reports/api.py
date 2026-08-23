@@ -54,6 +54,10 @@ def _get_report(request, slug):
         report = registry.get(slug)
     except KeyError as exc:
         raise DomainError("ERR_NOT_FOUND", _("تقرير غير معروف"), status=404) from exc
+    if not registry.is_available(report):
+        # 404, not 403: a center that did not buy the finance reports should not
+        # learn that this slug exists and is being withheld.
+        raise DomainError("ERR_NOT_FOUND", _("تقرير غير معروف"), status=404)
     if not request.user.has_perm(report.permission):
         raise DomainError("ERR_FORBIDDEN", _("لا تملك صلاحية هذا التقرير"), status=403)
     return report

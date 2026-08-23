@@ -65,7 +65,28 @@ isolation checks and the AST-based `all_tenants` guard are in
 automatically. Still outstanding for TASK-119: the **URL sweep** (every detail
 URL, another center's pk → 404).
 
-**Not started:** Phase 15 (features), 16 (console), 17 (hardening).
+**Phase 15 — done** (TASK-107 → 110). Feature resolution, four enforcement
+layers, plan limits, subscription lifecycle.
+
+Two bugs the tests caught, both worth recording:
+
+1. **The quota read a cached count.** `TenantUsage` has a 60-second freshness
+   window, so right after creating a student the cached number was one behind —
+   long enough to walk straight past a limit of one. Limit decisions now always
+   `COUNT(*)`; the cache is for the console list only. Creating a student is not
+   the hot path, and the hot path never asks about quotas.
+
+2. **The dashboard linked past its own gates.** The sidebar hid the payments
+   entry correctly, but `templates/dashboard/home.html` still rendered "تحصيل
+   دفعة" and the outstanding-balances report as quick actions — buttons that
+   led to a 404. Gating the nav is not the same as gating the page.
+
+Also settled while building: `client.login()` calls `authenticate()` directly
+and never passes through the middleware, so tests that use it must supply the
+tenant themselves; and `cms/settings/test.py` now allows `.testserver`, which
+mirrors production's `.yourapp.com` so multi-host tests are possible at all.
+
+**Not started:** Phase 16 (console), 17 (hardening).
 
 ---
 

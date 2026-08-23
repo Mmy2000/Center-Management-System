@@ -25,6 +25,15 @@ class Column:
     align: str = "start"
 
 
+#: Which feature each report group needs. A center that did not buy payments
+#: must not see the finance reports at all — not the tab, not the slug, not the
+#: export (docs/10 §N.8).
+GROUP_FEATURES = {
+    ATTENDANCE: "reports.operational",
+    FINANCE: "reports.financial",
+}
+
+
 @dataclass(frozen=True)
 class Report:
     slug: str
@@ -59,8 +68,27 @@ def all_reports() -> list[Report]:
     return list(_REGISTRY.values())
 
 
+def feature_for(report: Report) -> str:
+    """The feature key this report belongs to."""
+    return GROUP_FEATURES.get(report.group, "reports.operational")
+
+
+def is_available(report: Report) -> bool:
+    """Whether the current center bought the feature this report belongs to."""
+    from apps.tenancy.resolver import has_feature
+
+    return has_feature(feature_for(report))
+
+
 def for_user(user) -> list[Report]:
-    return [r for r in _REGISTRY.values() if user.has_perm(r.permission)]
+    """Reports this user may see, in this center.
+
+    Permission and feature are both required and mean different things: one is
+    about the person, the other about what the center bought.
+    """
+    return [
+        r for r in _REGISTRY.values() if user.has_perm(r.permission) and is_available(r)
+    ]
 
 
 def build():

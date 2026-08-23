@@ -13,8 +13,8 @@
     <div class="dropdown-menu w-100 mt-1 shadow" id="search-results"></div>
   </form>
 
-  {% include "partials/_language.html" %}
-  {% include "partials/_theme_picker.html" %}
+  {% if "i18n.english" in FEATURES %}{% include "partials/_language.html" %}{% endif %}
+  {% if "ui.theme_picker" in FEATURES %}{% include "partials/_theme_picker.html" %}{% endif %}
 
   <div class="dropdown">
     <button class="btn btn-sm btn-outline-secondary dropdown-toggle btn-icon" data-bs-toggle="dropdown" type="button">

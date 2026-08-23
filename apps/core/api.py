@@ -11,7 +11,7 @@ from .policies import spec_for
 from .registry import settings_registry
 
 
-@ajax(methods=["GET"], perm="core.view_setting")
+@ajax(methods=["GET"], perm="core.view_setting", feature="settings.editor")
 def settings_list(request):
     from .policies import GROUP_LABELS, GROUPS
 
@@ -38,7 +38,7 @@ def settings_list(request):
     return {"groups": groups}
 
 
-@ajax(methods=["POST"], perm="core.change_setting")
+@ajax(methods=["POST"], perm="core.change_setting", feature="settings.editor")
 def settings_update(request):
     """Body: ``{"values": {"<key>": <value>, ...}, "reason": "..."}``."""
     values = request.json.get("values") or {}

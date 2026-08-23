@@ -10,7 +10,7 @@ from apps.core import ratelimit
 from apps.core.audit import client_ip
 
 from .auth_api import LOGIN_LIMIT, LOGIN_WINDOW  # one throttle for both paths
-from .decorators import require_perm
+from .decorators import require_feature, require_perm
 from .forms import BootstrapPasswordChangeForm, CenterAuthenticationForm
 from .models import Role
 
@@ -53,6 +53,7 @@ def profile(request):
 
 
 @require_perm("accounts.view_user")
+@require_feature("users.management")
 def users_page(request):
     """Staff account management (TASK-010)."""
     roles = [[value, str(label)] for value, label in Role.choices]

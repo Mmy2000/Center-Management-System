@@ -1,0 +1,13 @@
+{% load i18n %}
+{# Trial countdown and lapsed-subscription warning (docs/10 §N.10) — not a modal and not dismissible, because the center should see it daily, but never blocking, because a late invoice must not stop attendance. #}
+{% if subscription_notice %}
+  <div class="alert alert-{{ subscription_notice.level }} d-flex align-items-center gap-2 mb-3"
+       role="status">
+    {% if subscription_notice.level == "warning" %}
+      <svg class="icon flex-shrink-0"><use href="#i-warn"></use></svg>
+    {% else %}
+      <svg class="icon flex-shrink-0"><use href="#i-info"></use></svg>
+    {% endif %}
+    <div>{{ subscription_notice.message }}</div>
+  </div>
+{% endif %}

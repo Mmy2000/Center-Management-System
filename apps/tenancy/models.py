@@ -196,6 +196,68 @@ class Tenant(TimeStampedModel):
             return None
         return (deadline - timezone.now()).days
 
+    # ----------------------------------------------------------- lifecycle --
+    def transition_to(self, status, *, actor=None, reason: str = "", automatic: bool = False):
+        """The **only** writer of ``status`` (docs/10 §N.2, TASK-110).
+
+        Funnelling every change through one method is what makes "who suspended
+        this client, and why" answerable: the audit row is written here, not by
+        each caller remembering to.
+
+        Nothing is deleted at any point. Suspension is a door, not a shredder —
+        resuming restores the center byte for byte.
+        """
+        from .constants import PlatformAction, TenantStatus
+        from .platform_audit import record as record_platform
+
+        previous = self.status
+        if previous == status:
+            return self
+
+        now = timezone.now()
+        self.status = status
+        changed = ["status"]
+
+        if status == TenantStatus.ACTIVE and self.activated_at is None:
+            self.activated_at = now
+            changed.append("activated_at")
+        if status == TenantStatus.SUSPENDED:
+            self.suspended_at = now
+            self.suspended_reason = reason
+            changed += ["suspended_at", "suspended_reason"]
+        if status == TenantStatus.ARCHIVED:
+            self.archived_at = now
+            self.purge_after = now + timezone.timedelta(days=self.plan.retention_days)
+            changed += ["archived_at", "purge_after"]
+        if previous in (TenantStatus.SUSPENDED, TenantStatus.ARCHIVED) and status in (
+            TenantStatus.ACTIVE,
+            TenantStatus.TRIAL,
+            TenantStatus.PAST_DUE,
+        ):
+            self.suspended_at = None
+            self.suspended_reason = ""
+            self.archived_at = None
+            self.purge_after = None
+            changed += ["suspended_at", "suspended_reason", "archived_at", "purge_after"]
+
+        self.save(update_fields=[*dict.fromkeys(changed), "updated_at"])
+
+        record_platform(
+            (
+                {
+                    TenantStatus.SUSPENDED: PlatformAction.TENANT_SUSPENDED,
+                    TenantStatus.ARCHIVED: PlatformAction.TENANT_ARCHIVED,
+                }.get(status, PlatformAction.TENANT_RESUMED)
+                if not automatic
+                else PlatformAction.SUBSCRIPTION_TRANSITION
+            ),
+            tenant=self,
+            actor=actor,
+            reason=reason,
+            changes={"status": [previous, status], "automatic": automatic},
+        )
+        return self
+
 
 class Domain(models.Model):
     """A hostname that resolves to a tenant (docs/10 §N.3).

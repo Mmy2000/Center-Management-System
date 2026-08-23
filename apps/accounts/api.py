@@ -16,6 +16,7 @@ from django.utils.translation import gettext as _
 from apps.core.audit import diff, record, snapshot
 from apps.core.http import DomainError, ajax
 from apps.core.models import AuditAction
+from apps.tenancy import quota
 
 from .models import Role, User
 
@@ -63,7 +64,7 @@ def _guard_deactivation(actor, target, new_is_active):
             )
 
 
-@ajax(methods=["GET", "POST"], perm="accounts.view_user")
+@ajax(methods=["GET", "POST"], perm="accounts.view_user", feature="users.management")
 def users(request):
     if request.method == "GET":
         qs = User.objects.order_by("username")
@@ -77,6 +78,8 @@ def users(request):
 
     if not request.user.has_perm("accounts.add_user"):
         raise DomainError("ERR_FORBIDDEN", _("لا تملك صلاحية هذا الإجراء"), status=403)
+
+    quota.check("users")
 
     data = request.json
     username = (data.get("username") or "").strip()
@@ -122,7 +125,7 @@ def users(request):
     return {"user": _serialize(user)}
 
 
-@ajax(methods=["PATCH"], perm="accounts.change_user")
+@ajax(methods=["PATCH"], perm="accounts.change_user", feature="users.management")
 def user_detail(request, pk):
     target = get_object_or_404(User, pk=pk)
     data = request.json

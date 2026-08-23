@@ -159,7 +159,7 @@ def manual(request):
     return {"attendance": attendance_json(attendance)}
 
 
-@ajax(methods=["POST"], perm="attendance.approve_exceptional")
+@ajax(methods=["POST"], perm="attendance.approve_exceptional", feature="attendance.exceptional")
 def approve(request, pk):
     attendance = get_object_or_404(Attendance.objects.select_related("lesson"), pk=pk)
     _lesson_for_scan(request, attendance.lesson_id)

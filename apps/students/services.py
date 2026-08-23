@@ -12,6 +12,7 @@ from apps.core.http import DomainError
 from apps.core.models import AuditAction
 from apps.core.sequences import format_code, next_number
 from apps.core.text import normalize_arabic
+from apps.tenancy import quota
 
 from .models import Student, StudentStatus
 
@@ -42,6 +43,7 @@ def next_student_code() -> str:
 @transaction.atomic
 def create_student(*, actor=None, reason: str = "", **fields) -> Student:
     """Create a student, allocating a unique code with a bounded retry."""
+    quota.check("students")
     for attempt in range(5):
         code = fields.get("student_code") or next_student_code()
         try:

@@ -54,10 +54,18 @@ def _validation_field_errors(exc: ValidationError) -> dict:
     return {"__all__": [str(m) for m in exc.messages]}
 
 
-def ajax(methods=("GET",), *, perm=None, login_required=True):
+def ajax(methods=("GET",), *, perm=None, feature=None, login_required=True):
     """Wrap a view into the JSON contract.
 
     ``request.json`` holds the parsed body for JSON requests (``{}`` otherwise).
+
+    ``perm`` and ``feature`` are orthogonal and **both** must pass: one asks
+    what this *user* may do, the other what this *center* bought. Never conflate
+    them by editing the permission matrix per tenant — the matrix is identical
+    everywhere, and the feature check is what differs.
+
+    A disabled feature answers 404, not 403: a center that did not buy payments
+    should not learn that the payments endpoint exists.
     """
 
     allowed = {m.upper() for m in methods}
@@ -80,6 +88,16 @@ def ajax(methods=("GET",), *, perm=None, login_required=True):
 
             if perm and not (user and user.has_perm(perm)):
                 return fail("ERR_FORBIDDEN", _("لا تملك صلاحية هذا الإجراء"), status=403)
+
+            if feature:
+                from apps.tenancy.resolver import has_feature
+
+                if not has_feature(feature):
+                    return fail(
+                        "ERR_FEATURE_DISABLED",
+                        _("هذه الخاصية غير مُفعّلة في هذا الحساب"),
+                        status=404,
+                    )
 
             request.json = {}
             content_type = (request.content_type or "").lower()

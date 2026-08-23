@@ -48,7 +48,7 @@ msgstr "Last lesson:"
 msgid "آخر دخول"
 msgstr "Last login"
 
-#: apps/cards/importer.py:88
+#: apps/cards/importer.py:89
 msgid "أحد الرموز مستخدم بالفعل في النظام"
 msgstr "One of the tokens is already in the system"
 
@@ -66,7 +66,7 @@ msgstr "Other"
 msgid "أرشفة عميل"
 msgstr "Archive client"
 
-#: apps/cards/importer.py:85
+#: apps/cards/importer.py:86
 msgid "أرقام موجودة بالفعل: %(n)s"
 msgstr "Already in the database: %(n)s"
 
@@ -82,11 +82,11 @@ msgstr "Minimum duration for full attendance (minutes)"
 msgid "أقل مدة قبل اعتبار المسح انصرافًا (دقائق)"
 msgstr "Minimum gap before a scan counts as check-out (minutes)"
 
-#: apps/payments/services.py:239
+#: apps/payments/services.py:244
 msgid "أكبر من المبلغ المحصّل"
 msgstr "Exceeds the amount collected"
 
-#: apps/payments/services.py:319
+#: apps/payments/services.py:325
 msgid "أكبر من المستحق"
 msgstr "Exceeds the amount due"
 
@@ -157,7 +157,7 @@ msgstr "Issue charges"
 msgid "إصدار رسوم الشهر"
 msgstr "Issue this month's charges"
 
-#: apps/cards/api.py:359
+#: apps/cards/api.py:360
 msgid "إصدار من المخزون"
 msgstr "Issued from stock"
 
@@ -213,7 +213,7 @@ msgstr "Waive charges"
 msgid "إعفاء من رسوم"
 msgstr "Charge waived"
 
-#: templates/base.html:43 templates/partials/_modal.html:8
+#: templates/base.html:44 templates/partials/_modal.html:8
 msgid "إغلاق"
 msgstr "Close"
 
@@ -364,11 +364,11 @@ msgstr "Card replaced"
 msgid "استثنائي"
 msgstr "Exceptional"
 
-#: apps/tenancy/models.py:300
+#: apps/tenancy/models.py:362
 msgid "استخدام العملاء"
 msgstr "Client usage"
 
-#: apps/tenancy/models.py:299
+#: apps/tenancy/models.py:361
 msgid "استخدام عميل"
 msgstr "Client usage"
 
@@ -402,7 +402,7 @@ msgstr "Import pre-printed cards"
 msgid "استيراد دفعات البطاقات"
 msgstr "Bulk card import"
 
-#: apps/cards/importer.py:101
+#: apps/cards/importer.py:106
 msgid "استيراد دفعة بطاقات"
 msgstr "Card batch imported"
 
@@ -428,11 +428,11 @@ msgstr "Owner name"
 msgid "اسم المستخدم"
 msgstr "Username"
 
-#: apps/accounts/api.py:90
+#: apps/accounts/api.py:93
 msgid "اسم المستخدم مستخدم بالفعل"
 msgstr "That username is taken"
 
-#: apps/accounts/api.py:88
+#: apps/accounts/api.py:91
 msgid "اسم المستخدم مطلوب"
 msgstr "Username is required"
 
@@ -517,7 +517,7 @@ msgid "الإبلاغ عن فقد بطاقة"
 msgstr "Card reported lost"
 
 #: templates/core/audit_log.html:15 apps/core/models.py:116
-#: apps/tenancy/models.py:335
+#: apps/tenancy/models.py:397
 msgid "الإجراء"
 msgstr "Action"
 
@@ -551,7 +551,7 @@ msgid "الإنهاء الفعلي"
 msgstr "Actually completed at"
 
 #: templates/payments/workspace.html:138 templates/payments/workspace.html:314
-#: templates/students/detail.html:179 apps/reports/registry.py:324
+#: templates/students/detail.html:179 apps/reports/registry.py:352
 msgid "الإيصال"
 msgstr "Receipt"
 
@@ -642,11 +642,11 @@ msgstr "Card"
 msgid "البطاقة البديلة"
 msgstr "Replacement card"
 
-#: apps/cards/services.py:202
+#: apps/cards/services.py:206
 msgid "البطاقة الجديدة غير متاحة"
 msgstr "The new card is not available"
 
-#: apps/cards/services.py:196
+#: apps/cards/services.py:200
 msgid "البطاقة القديمة غير مرتبطة بطالب"
 msgstr "The old card is not linked to a student"
 
@@ -654,11 +654,11 @@ msgstr "The old card is not linked to a student"
 msgid "البطاقة المستخدمة"
 msgstr "Card used"
 
-#: apps/cards/api.py:86 apps/cards/services.py:54
+#: apps/cards/api.py:86 apps/cards/services.py:56
 msgid "البطاقة مخصصة لطالب آخر"
 msgstr "This card belongs to another student"
 
-#: apps/cards/services.py:110
+#: apps/cards/services.py:113
 msgid "البطاقة مسجلة كمفقودة بالفعل"
 msgstr "This card is already marked lost"
 
@@ -686,7 +686,7 @@ msgstr "Next"
 msgid "التالية في المخزون"
 msgstr "Next in stock"
 
-#: apps/reports/registry.py:229
+#: apps/reports/registry.py:257
 msgid "التحصيل اليومي"
 msgstr "Daily collection"
 
@@ -709,7 +709,7 @@ msgid "التسجيل مفتوح"
 msgstr "Check-in open"
 
 #: templates/core/audit_log.html:17 apps/core/models.py:121
-#: apps/tenancy/models.py:337
+#: apps/tenancy/models.py:399
 msgid "التغييرات"
 msgstr "Changes"
 
@@ -785,11 +785,11 @@ msgstr "Attendance"
 msgid "الحضور الاستثنائي"
 msgstr "Exceptional attendance"
 
-#: apps/reports/registry.py:76
+#: apps/reports/registry.py:104
 msgid "الحضور اليومي"
 msgstr "Daily attendance"
 
-#: apps/reports/registry.py:205
+#: apps/reports/registry.py:233
 msgid "الحضور في مجموعات بديلة"
 msgstr "Alternative-group attendance"
 
@@ -801,7 +801,7 @@ msgstr "Attendance in an alternative group"
 msgid "الحضور:"
 msgstr "Check-in:"
 
-#: apps/tenancy/models.py:93 apps/tenancy/models.py:253
+#: apps/tenancy/models.py:93 apps/tenancy/models.py:315
 msgid "الخاصية"
 msgstr "Feature"
 
@@ -814,7 +814,7 @@ msgstr "Service temporarily suspended"
 msgid "الخصم"
 msgstr "Discount"
 
-#: apps/payments/services.py:318
+#: apps/payments/services.py:324
 msgid "الخصم أكبر من المستحق"
 msgstr "The discount exceeds the amount due"
 
@@ -877,7 +877,7 @@ msgstr "Previous"
 
 #: templates/core/audit_log.html:18 templates/students/detail.html:101
 #: templates/students/detail.html:398 apps/core/models.py:122
-#: apps/tenancy/models.py:338
+#: apps/tenancy/models.py:400
 msgid "السبب"
 msgstr "Reason"
 
@@ -888,8 +888,8 @@ msgid "السبب (مطلوب)"
 msgstr "Reason (required)"
 
 #: apps/attendance/services.py:518 apps/attendance/services.py:565
-#: apps/attendance/services.py:610 apps/cards/services.py:105
-#: apps/cards/services.py:106 apps/cards/services.py:133
+#: apps/attendance/services.py:610 apps/cards/services.py:108
+#: apps/cards/services.py:109 apps/cards/services.py:137
 msgid "السبب مطلوب"
 msgstr "A reason is required"
 
@@ -923,8 +923,8 @@ msgid "السماح بحضور غير المسدد"
 msgstr "Allow attendance for unpaid students"
 
 #: templates/reports/report.html:59 templates/students/detail.html:159
-#: apps/payments/documents.py:38 apps/reports/api.py:143
-#: apps/reports/registry.py:256
+#: apps/payments/documents.py:38 apps/reports/api.py:147
+#: apps/reports/registry.py:284
 msgid "الشهر"
 msgstr "Month"
 
@@ -932,7 +932,7 @@ msgstr "Month"
 msgid "الشهر الحالي"
 msgstr "This month"
 
-#: apps/reports/registry.py:239 apps/reports/registry.py:312
+#: apps/reports/registry.py:267 apps/reports/registry.py:340
 msgid "الصافي"
 msgstr "Net"
 
@@ -984,7 +984,7 @@ msgstr "The student is not enrolled in this subject"
 msgid "الطالب غير نشط"
 msgstr "The student is not active"
 
-#: apps/cards/services.py:63
+#: apps/cards/services.py:65
 msgid "الطالب لديه بطاقة نشطة بالفعل — استخدم الاستبدال"
 msgstr "The student already holds an active card — use Replace"
 
@@ -1004,7 +1004,7 @@ msgstr "The student is suspended"
 
 #: templates/payments/workspace.html:143 templates/payments/workspace.html:257
 #: templates/payments/workspace.html:314 templates/students/detail.html:183
-#: apps/reports/registry.py:308 apps/reports/registry.py:331
+#: apps/reports/registry.py:336 apps/reports/registry.py:359
 msgid "الطريقة"
 msgstr "Method"
 
@@ -1014,11 +1014,11 @@ msgstr "Method"
 msgid "الطلاب"
 msgstr "Students"
 
-#: apps/reports/registry.py:189
+#: apps/reports/registry.py:217
 msgid "الطلاب الغائبون"
 msgstr "Absent students"
 
-#: apps/reports/registry.py:171
+#: apps/reports/registry.py:199
 msgid "الطلاب المتأخرون"
 msgstr "Late students"
 
@@ -1030,7 +1030,7 @@ msgstr "Academic year"
 msgid "العدد المتوقع"
 msgstr "Expected count"
 
-#: apps/cards/importer.py:119
+#: apps/cards/importer.py:125
 msgid "العدد يجب أن يكون بين 1 و %(max)s"
 msgstr "The count must be between 1 and %(max)s"
 
@@ -1047,7 +1047,7 @@ msgid "العملاء والاشتراكات"
 msgstr "Clients and subscriptions"
 
 #: apps/accounts/models.py:47 apps/core/models.py:106
-#: apps/tenancy/models.py:208 apps/tenancy/models.py:333
+#: apps/tenancy/models.py:270 apps/tenancy/models.py:395
 msgid "العميل"
 msgstr "Client"
 
@@ -1067,6 +1067,10 @@ msgstr "Back to the center's settings"
 #: apps/lessons/models.py:81
 msgid "الفتح الفعلي"
 msgstr "Actually opened at"
+
+#: apps/core/context_processors.py:52
+msgid "الفترة التجريبية تنتهي اليوم."
+msgstr "The trial period ends today."
 
 #: apps/core/policies.py:347
 msgid "الفوترة"
@@ -1158,7 +1162,7 @@ msgstr "The offering must match the student's group."
 
 #: templates/payments/workspace.html:142 templates/payments/workspace.html:253
 #: templates/payments/workspace.html:314 templates/students/detail.html:182
-#: apps/payments/models.py:216 apps/reports/registry.py:330
+#: apps/payments/models.py:216 apps/reports/registry.py:358
 msgid "المبلغ"
 msgstr "Amount"
 
@@ -1166,11 +1170,11 @@ msgstr "Amount"
 msgid "المبلغ (اتركه فارغًا لاسترداد كامل)"
 msgstr "Amount (leave empty for a full refund)"
 
-#: apps/payments/services.py:231
+#: apps/payments/services.py:236
 msgid "المبلغ أكبر من المتبقي"
 msgstr "The amount exceeds the balance"
 
-#: apps/payments/services.py:229
+#: apps/payments/services.py:234
 msgid "المبلغ أكبر من المتبقي (%(rem)s)"
 msgstr "The amount exceeds the balance (%(rem)s)"
 
@@ -1182,11 +1186,11 @@ msgstr "Amount paid"
 msgid "المبلغ المسترد"
 msgstr "Amount refunded"
 
-#: apps/payments/services.py:209 apps/payments/services.py:210
+#: apps/payments/services.py:214 apps/payments/services.py:215
 msgid "المبلغ يجب أن يكون أكبر من صفر"
 msgstr "The amount must be greater than zero"
 
-#: templates/dashboard/home.html:96 apps/reports/registry.py:245
+#: templates/dashboard/home.html:96 apps/reports/registry.py:273
 msgid "المتأخرات"
 msgstr "Outstanding"
 
@@ -1204,7 +1208,7 @@ msgstr "Balance"
 msgid "المتبقي:"
 msgstr "Balance:"
 
-#: apps/reports/registry.py:275 apps/reports/registry.py:293
+#: apps/reports/registry.py:303 apps/reports/registry.py:321
 msgid "المتوقع"
 msgstr "Expected"
 
@@ -1232,7 +1236,7 @@ msgstr "Primary group"
 msgid "المجموعة الجديدة"
 msgstr "New group"
 
-#: templates/students/detail.html:128 apps/reports/registry.py:220
+#: templates/students/detail.html:128 apps/reports/registry.py:248
 msgid "المجموعة الحاضرة"
 msgstr "Attended group"
 
@@ -1254,7 +1258,7 @@ msgstr "Group:"
 
 #: templates/dashboard/home.html:48 templates/payments/workspace.html:27
 #: templates/payments/workspace.html:144 apps/payments/documents.py:69
-#: apps/reports/api.py:146 apps/reports/registry.py:276
+#: apps/reports/api.py:150 apps/reports/registry.py:304
 msgid "المحصّل"
 msgstr "Collected"
 
@@ -1282,7 +1286,7 @@ msgid "المدرّسون"
 msgstr "Instructors"
 
 #: templates/payments/workspace.html:87 templates/students/detail.html:162
-#: apps/payments/models.py:98 apps/reports/registry.py:258
+#: apps/payments/models.py:98 apps/reports/registry.py:286
 msgid "المدفوع"
 msgstr "Paid"
 
@@ -1311,12 +1315,12 @@ msgid "المرحلة"
 msgstr "Stage"
 
 #: templates/payments/workspace.html:85 templates/students/detail.html:161
-#: apps/payments/models.py:96 apps/reports/registry.py:257
+#: apps/payments/models.py:96 apps/reports/registry.py:285
 msgid "المستحق"
 msgstr "Due"
 
 #: templates/core/audit_log.html:14 apps/core/models.py:114
-#: apps/tenancy/models.py:325
+#: apps/tenancy/models.py:387
 msgid "المستخدم"
 msgstr "User"
 
@@ -1363,15 +1367,15 @@ msgstr ""
 msgid "المفتاح"
 msgstr "Key"
 
-#: apps/reports/registry.py:266
+#: apps/reports/registry.py:294
 msgid "الملخص المالي للمجموعات"
 msgstr "Group financial summary"
 
-#: apps/reports/registry.py:284
+#: apps/reports/registry.py:312
 msgid "الملخص المالي للمواد"
 msgstr "Subject financial summary"
 
-#: apps/cards/importer.py:43
+#: apps/cards/importer.py:44
 msgid "الملف فارغ"
 msgstr "The file is empty"
 
@@ -1383,7 +1387,7 @@ msgstr "The file is not UTF-8 — save it from Excel as CSV UTF-8"
 msgid "الملف مطلوب"
 msgstr "A file is required"
 
-#: apps/cards/importer.py:46
+#: apps/cards/importer.py:47
 msgid "الملف يجب أن يحتوي على عمودي card_number و qr_token"
 msgstr "The file must contain the columns card_number and qr_token"
 
@@ -1400,7 +1404,7 @@ msgstr "Subjects"
 msgid "المواعيد الأسبوعية"
 msgstr "Weekly schedule"
 
-#: apps/tenancy/models.py:210
+#: apps/tenancy/models.py:272
 msgid "النطاق"
 msgstr "Domain"
 
@@ -1408,11 +1412,11 @@ msgstr "Domain"
 msgid "النطاق أطول من سنة"
 msgstr "The range is longer than a year"
 
-#: apps/tenancy/models.py:211
+#: apps/tenancy/models.py:273
 msgid "النطاق الأساسي"
 msgstr "Primary domain"
 
-#: apps/tenancy/models.py:218
+#: apps/tenancy/models.py:280
 msgid "النطاقات"
 msgstr "Domains"
 
@@ -1466,7 +1470,7 @@ msgid "الواجهة الإنجليزية"
 msgstr "English interface"
 
 #: apps/core/models.py:120 apps/tenancy/models.py:59
-#: apps/tenancy/models.py:336
+#: apps/tenancy/models.py:398
 msgid "الوصف"
 msgstr "Description"
 
@@ -1512,6 +1516,12 @@ msgstr "Scan a card to find it"
 #: templates/attendance/scanner.html:47 templates/attendance/scanner.html:160
 msgid "امسح كارت الطالب"
 msgstr "Scan the student's card"
+
+#: apps/core/context_processors.py:44
+msgid "انتهى الاشتراك. الخدمة مستمرة مؤقتًا — برجاء التواصل مع مشغّل النظام."
+msgstr ""
+"The subscription has ended. Service continues for now — please contact the "
+"system operator."
 
 #: apps/attendance/result_codes.py:80
 msgid "انتهى وقت تسجيل الحضور"
@@ -1569,7 +1579,7 @@ msgid "بدون صورة"
 msgstr "No photo"
 
 #: apps/attendance/views.py:41 apps/lessons/views.py:34
-#: apps/reports/registry.py:108 apps/reports/registry.py:126
+#: apps/reports/registry.py:136 apps/reports/registry.py:154
 msgid "بديل"
 msgstr "Alternative"
 
@@ -1599,7 +1609,7 @@ msgstr "New cards"
 
 #: templates/cards/list.html:237 templates/cards/list.html:269
 #: templates/cards/list.html:315 templates/reports/report.html:129
-#: apps/payments/models.py:48
+#: apps/payments/models.py:48 apps/tenancy/quota.py:100
 msgid "بطاقة"
 msgstr "card"
 
@@ -1611,7 +1621,7 @@ msgstr "Student card"
 msgid "بطاقة غير مخصصة"
 msgstr "Unassigned card"
 
-#: apps/attendance/result_codes.py:68 apps/cards/services.py:37
+#: apps/attendance/result_codes.py:68 apps/cards/services.py:38
 msgid "بطاقة غير معروفة"
 msgstr "Unknown card"
 
@@ -1641,8 +1651,8 @@ msgstr "Center details"
 msgid "بيانات دخول غير صحيحة"
 msgstr "Incorrect username or password"
 
-#: apps/accounts/api.py:94 apps/core/crud.py:24 apps/core/crud.py:46
-#: apps/core/http.py:122 apps/students/api.py:86 apps/students/api.py:117
+#: apps/accounts/api.py:97 apps/core/crud.py:24 apps/core/crud.py:46
+#: apps/core/http.py:140 apps/students/api.py:86 apps/students/api.py:117
 msgid "بيانات غير صحيحة"
 msgstr "Invalid data"
 
@@ -1693,7 +1703,7 @@ msgstr "Enrolled on"
 msgid "تاريخ البدء"
 msgstr "Start date"
 
-#: apps/tenancy/models.py:213
+#: apps/tenancy/models.py:275
 msgid "تاريخ التحقق"
 msgstr "Verified on"
 
@@ -1721,6 +1731,10 @@ msgstr "Invalid date"
 #: apps/attendance/api.py:222
 msgid "تاريخ/وقت غير صحيح"
 msgstr "Invalid date/time"
+
+#: apps/core/context_processors.py:54
+msgid "تبقّى يوم واحد على انتهاء الفترة التجريبية."
+msgstr "One day left in the trial period."
 
 #: apps/tenancy/constants.py:51
 msgid "تجريبي"
@@ -1836,7 +1850,7 @@ msgstr "Correct attendance manually"
 msgid "تصدير Excel"
 msgstr "Excel export"
 
-#: apps/reports/api.py:205
+#: apps/reports/api.py:209
 msgid "تصدير Excel غير متاح على هذا الخادم — استخدم CSV"
 msgstr "Excel export is unavailable on this server — use CSV"
 
@@ -1856,7 +1870,7 @@ msgstr "Export client data"
 msgid "تصدير تقرير"
 msgstr "Report exported"
 
-#: apps/cards/api.py:279
+#: apps/cards/api.py:280
 msgid "تصدير كشف بطاقات"
 msgstr "Card sheet exported"
 
@@ -2009,7 +2023,7 @@ msgstr "Attendance and arrears reports, ready to export as PDF or Excel."
 msgid "تقرير المجموعات البديلة"
 msgstr "Alternative-groups report"
 
-#: apps/reports/api.py:56
+#: apps/reports/api.py:56 apps/reports/api.py:60
 msgid "تقرير غير معروف"
 msgstr "Unknown report"
 
@@ -2106,6 +2120,14 @@ msgstr "Saved"
 msgid "تم النقل"
 msgstr "Transferred"
 
+#: apps/tenancy/quota.py:126
+msgid ""
+"تم بلوغ الحد الأقصى (%(cap)s %(label)s) في باقة %(plan)s. برجاء التواصل مع "
+"مشغّل النظام."
+msgstr ""
+"The plan limit has been reached (%(cap)s %(label)s) on the %(plan)s plan. "
+"Please contact the system operator."
+
 #: templates/lessons/detail.html:162 apps/attendance/result_codes.py:37
 msgid "تم تسجيل الانصراف"
 msgstr "Check-out recorded"
@@ -2178,7 +2200,7 @@ msgstr "Generate lessons"
 msgid "توليد حصص من الجدول الأسبوعي"
 msgstr "Generate lessons from the weekly schedule"
 
-#: apps/cards/importer.py:140
+#: apps/cards/importer.py:146
 msgid "توليد دفعة بطاقات"
 msgstr "Card batch generated"
 
@@ -2231,7 +2253,7 @@ msgstr "Partial"
 
 #: templates/dashboard/home.html:27 apps/attendance/models.py:34
 #: apps/attendance/views.py:38 apps/lessons/views.py:31
-#: apps/reports/registry.py:84 apps/reports/registry.py:105
+#: apps/reports/registry.py:112 apps/reports/registry.py:133
 msgid "حاضر"
 msgstr "Present"
 
@@ -2239,12 +2261,12 @@ msgstr "Present"
 msgid "حالة البطاقة القديمة"
 msgstr "Status of the old card"
 
-#: apps/cards/services.py:181
+#: apps/cards/services.py:185
 msgid "حالة غير مسموح بها للبطاقة القديمة"
 msgstr "Not an allowed status for the old card"
 
-#: apps/cards/services.py:182 apps/students/services.py:96
-#: apps/students/services.py:97
+#: apps/cards/services.py:186 apps/students/services.py:98
+#: apps/students/services.py:99
 msgid "حالة غير معروفة"
 msgstr "Unknown status"
 
@@ -2333,7 +2355,7 @@ msgstr "New lesson"
 msgid "حصة — صفحة"
 msgstr "lessons — page"
 
-#: apps/reports/registry.py:143 apps/reports/registry.py:161
+#: apps/reports/registry.py:171 apps/reports/registry.py:189
 msgid "حصص"
 msgstr "Lessons"
 
@@ -2358,19 +2380,19 @@ msgstr "Collected by"
 msgid "حضور"
 msgstr "Attendance"
 
-#: apps/reports/registry.py:94
+#: apps/reports/registry.py:122
 msgid "حضور الحصص"
 msgstr "Lesson attendance"
 
-#: apps/reports/registry.py:114
+#: apps/reports/registry.py:142
 msgid "حضور الطلاب"
 msgstr "Student attendance"
 
-#: apps/reports/registry.py:133
+#: apps/reports/registry.py:161
 msgid "حضور المجموعات"
 msgstr "Group attendance"
 
-#: apps/reports/registry.py:153
+#: apps/reports/registry.py:181
 msgid "حضور المواد"
 msgstr "Subject attendance"
 
@@ -2409,7 +2431,7 @@ msgstr "Outside the window — recorded as exceptional"
 msgid "خاصية باقة"
 msgstr "Plan feature"
 
-#: apps/tenancy/models.py:268
+#: apps/tenancy/models.py:330
 msgid "خاصية عميل"
 msgstr "Client feature"
 
@@ -2421,7 +2443,7 @@ msgstr "Unknown feature: %(v)s"
 msgid "خصائص الباقات"
 msgstr "Plan features"
 
-#: apps/tenancy/models.py:269
+#: apps/tenancy/models.py:331
 msgid "خصائص العملاء"
 msgstr "Client features"
 
@@ -2451,7 +2473,7 @@ msgstr ""
 msgid "دفعة: %(batch)s"
 msgstr "Batch: %(batch)s"
 
-#: apps/attendance/models.py:118 apps/reports/registry.py:183
+#: apps/attendance/models.py:118 apps/reports/registry.py:211
 msgid "دقائق التأخير"
 msgstr "Minutes late"
 
@@ -2459,7 +2481,7 @@ msgstr "Minutes late"
 msgid "دقيقة"
 msgstr "minutes"
 
-#: apps/accounts/api.py:92 apps/accounts/api.py:135 apps/accounts/api.py:136
+#: apps/accounts/api.py:95 apps/accounts/api.py:138 apps/accounts/api.py:139
 msgid "دور غير معروف"
 msgstr "Unknown role"
 
@@ -2512,7 +2534,7 @@ msgstr "Receipt number"
 msgid "رقم البطاقة"
 msgstr "Card number"
 
-#: apps/cards/importer.py:60
+#: apps/cards/importer.py:61
 msgid "رقم البطاقة والرمز مطلوبان"
 msgstr "card_number and qr_token are both required"
 
@@ -2528,7 +2550,7 @@ msgstr "The lesson is required"
 msgid "رقم الهاتف"
 msgstr "Phone number"
 
-#: apps/cards/importer.py:65
+#: apps/cards/importer.py:66
 msgid "رقم بطاقة مكرر داخل الملف: %(n)s"
 msgstr "Duplicate card number inside the file: %(n)s"
 
@@ -2548,7 +2570,7 @@ msgstr "QR token"
 msgid "رمز البطاقة غير صالح"
 msgstr "Invalid card token"
 
-#: apps/cards/importer.py:68
+#: apps/cards/importer.py:69
 msgid "رمز مكرر داخل الملف"
 msgstr "Duplicate token inside the file"
 
@@ -2560,7 +2582,7 @@ msgstr "Emerald"
 msgid "سبب الإعفاء"
 msgstr "Reason for waiving"
 
-#: apps/payments/services.py:338
+#: apps/payments/services.py:345
 msgid "سبب الإعفاء مطلوب"
 msgstr "A reason for waiving is required"
 
@@ -2569,7 +2591,7 @@ msgid "سبب الإلغاء"
 msgstr "Reason for cancelling"
 
 #: apps/attendance/services.py:609 apps/lessons/services.py:197
-#: apps/payments/services.py:362
+#: apps/payments/services.py:369
 msgid "سبب الإلغاء مطلوب"
 msgstr "A reason for cancelling is required"
 
@@ -2582,7 +2604,7 @@ msgstr "Reason for ending"
 msgid "سبب الإيقاف"
 msgstr "Suspension reason"
 
-#: apps/payments/services.py:284
+#: apps/payments/services.py:290
 msgid "سبب الاسترداد مطلوب"
 msgstr "A reason for the refund is required"
 
@@ -2598,7 +2620,7 @@ msgstr "A reason for the change is required"
 msgid "سبب النقل مطلوب"
 msgstr "A reason for the transfer is required"
 
-#: apps/students/services.py:102
+#: apps/students/services.py:104
 msgid "سبب تغيير الحالة مطلوب"
 msgstr "A reason for the status change is required"
 
@@ -2623,7 +2645,7 @@ msgstr "This attendance record is cancelled — reinstate it first"
 msgid "سجل الرسوم —"
 msgstr "Charge ledger —"
 
-#: apps/tenancy/models.py:344
+#: apps/tenancy/models.py:406
 msgid "سجل المنصة"
 msgstr "Platform log entry"
 
@@ -2635,7 +2657,7 @@ msgstr "Card assignment history"
 msgid "سجل تدقيق"
 msgstr "Audit entry"
 
-#: apps/reports/registry.py:318
+#: apps/reports/registry.py:346
 msgid "سجل مدفوعات الطلاب"
 msgstr "Student payment ledger"
 
@@ -2647,7 +2669,7 @@ msgstr "Audit log"
 msgid "سجلات الحضور"
 msgstr "Attendance records"
 
-#: apps/tenancy/models.py:345
+#: apps/tenancy/models.py:407
 msgid "سجلات المنصة"
 msgstr "Platform logs"
 
@@ -2655,7 +2677,7 @@ msgstr "Platform logs"
 msgid "سداد زائد"
 msgstr "Overpaid"
 
-#: apps/cards/importer.py:36
+#: apps/cards/importer.py:37
 msgid "سطر %(row)s: %(msg)s"
 msgstr "Row %(row)s: %(msg)s"
 
@@ -2715,7 +2737,7 @@ msgstr "Report permissions"
 msgid "صلة القرابة"
 msgstr "Relationship"
 
-#: apps/core/http.py:99 apps/core/http.py:103
+#: apps/core/http.py:117 apps/core/http.py:121
 msgid "صيغة البيانات غير صحيحة"
 msgstr "Malformed request data"
 
@@ -2723,11 +2745,11 @@ msgstr "Malformed request data"
 msgid "صيغة التاريخ YYYY-MM-DD"
 msgstr "Date format YYYY-MM-DD"
 
-#: apps/cards/importer.py:62
+#: apps/cards/importer.py:63
 msgid "صيغة الرمز غير صحيحة"
 msgstr "Invalid token format"
 
-#: apps/payments/services.py:47
+#: apps/payments/services.py:48
 msgid "صيغة الشهر غير صحيحة (YYYY-MM)"
 msgstr "Invalid month format (YYYY-MM)"
 
@@ -2740,6 +2762,7 @@ msgid "طابور المسح دون اتصال"
 msgstr "Offline scan queue"
 
 #: templates/dashboard/home.html:132 apps/students/models.py:110
+#: apps/tenancy/quota.py:97
 msgid "طالب"
 msgstr "students"
 
@@ -2770,11 +2793,11 @@ msgstr "Print"
 
 #: templates/payments/workspace.html:120 templates/reports/report.html:124
 #: apps/payments/documents.py:39 apps/payments/models.py:219
-#: apps/reports/api.py:145
+#: apps/reports/api.py:149
 msgid "طريقة الدفع"
 msgstr "Payment method"
 
-#: apps/core/http.py:73
+#: apps/core/http.py:81
 msgid "طريقة الطلب غير مسموح بها"
 msgstr "Method not allowed"
 
@@ -2790,24 +2813,24 @@ msgstr "Normal"
 msgid "عدد البطاقات"
 msgstr "Number of cards"
 
-#: apps/reports/registry.py:236 apps/reports/registry.py:309
+#: apps/reports/registry.py:264 apps/reports/registry.py:337
 msgid "عدد الحركات"
 msgstr "Transactions"
 
-#: apps/reports/registry.py:83
+#: apps/reports/registry.py:111
 msgid "عدد الحصص"
 msgstr "Lessons"
 
-#: apps/reports/registry.py:292
+#: apps/reports/registry.py:320
 msgid "عدد الرسوم"
 msgstr "Charges"
 
-#: apps/reports/api.py:178
+#: apps/reports/api.py:182
 msgid "عدد الصفوف: %(n)s"
 msgstr "Rows: %(n)s"
 
-#: templates/academics/group_detail.html:34 apps/reports/registry.py:142
-#: apps/reports/registry.py:274
+#: templates/academics/group_detail.html:34 apps/reports/registry.py:170
+#: apps/reports/registry.py:302
 msgid "عدد الطلاب"
 msgstr "Students"
 
@@ -2815,7 +2838,7 @@ msgstr "Students"
 msgid "عدد عمليات كبير"
 msgstr "Too many requests"
 
-#: apps/cards/api.py:208 apps/cards/api.py:209 apps/cards/importer.py:120
+#: apps/cards/api.py:208 apps/cards/api.py:209 apps/cards/importer.py:126
 msgid "عدد غير صحيح"
 msgstr "Invalid number"
 
@@ -2835,7 +2858,7 @@ msgstr "Sequence"
 msgid "عرض"
 msgstr "Run"
 
-#: apps/reports/api.py:96
+#: apps/reports/api.py:100
 msgid "عرض أول %(n)s صف فقط — ضيّق الفلاتر أو صدّر الملف"
 msgstr ""
 "Showing the first %(n)s rows only — narrow the filters or export the file"
@@ -2878,7 +2901,7 @@ msgstr "Updated at"
 
 #: templates/dashboard/home.html:31 apps/attendance/models.py:27
 #: apps/attendance/models.py:36 apps/attendance/views.py:40
-#: apps/lessons/views.py:33 apps/reports/registry.py:86
+#: apps/lessons/views.py:33 apps/reports/registry.py:114
 msgid "غائب"
 msgstr "Absent"
 
@@ -2886,11 +2909,11 @@ msgstr "Absent"
 msgid "غير مسدد"
 msgstr "Unpaid"
 
-#: apps/accounts/api.py:45
+#: apps/accounts/api.py:46
 msgid "غير مسموح بمنح هذا الدور"
 msgstr "You may not grant this role"
 
-#: apps/core/http.py:129
+#: apps/core/http.py:147
 msgid "غير موجود"
 msgstr "Not found"
 
@@ -2950,7 +2973,7 @@ msgstr "Before check-in opens"
 msgid "قبول بطاقات بدون بادئة (بطاقات مطبوعة مسبقًا)"
 msgstr "Accept tokens without a prefix (pre-printed cards)"
 
-#: apps/payments/services.py:237
+#: apps/payments/services.py:242
 msgid "قيمة الاسترداد أكبر من المحصّل"
 msgstr "The refund exceeds the amount collected"
 
@@ -3003,7 +3026,7 @@ msgstr "Password"
 msgid "كلمة مرور جديدة (اختياري)"
 msgstr "New password (optional)"
 
-#: apps/accounts/api.py:103 apps/accounts/api.py:155
+#: apps/accounts/api.py:106 apps/accounts/api.py:158
 msgid "كلمة مرور ضعيفة"
 msgstr "Weak password"
 
@@ -3019,7 +3042,7 @@ msgstr "Code, name or guardian phone"
 msgid "كود الطالب"
 msgstr "Student code"
 
-#: apps/students/services.py:57
+#: apps/students/services.py:59
 msgid "كود الطالب مستخدم بالفعل"
 msgstr "That student code is taken"
 
@@ -3031,7 +3054,7 @@ msgstr "Colour code"
 msgid "كود لون غير صحيح"
 msgstr "Invalid colour code"
 
-#: apps/students/services.py:59
+#: apps/students/services.py:61
 msgid "كود مستخدم بالفعل"
 msgstr "Code already in use"
 
@@ -3039,7 +3062,7 @@ msgstr "Code already in use"
 msgid "لا أحد — الجميع مسجّل"
 msgstr "Nobody — everyone is recorded"
 
-#: apps/cards/api.py:354
+#: apps/cards/api.py:355
 msgid "لا تملك صلاحية إنشاء بطاقات"
 msgstr "You may not create cards"
 
@@ -3047,16 +3070,16 @@ msgstr "You may not create cards"
 msgid "لا تملك صلاحية الاعتماد"
 msgstr "You may not approve"
 
-#: apps/cards/api.py:287
+#: apps/cards/api.py:288
 msgid "لا تملك صلاحية تصدير الرموز"
 msgstr "You may not export tokens"
 
-#: apps/academics/api.py:29 apps/accounts/api.py:79 apps/core/http.py:82
-#: apps/core/http.py:127 apps/lessons/api.py:99 apps/lessons/api.py:124
+#: apps/academics/api.py:30 apps/accounts/api.py:80 apps/core/http.py:90
+#: apps/core/http.py:145 apps/lessons/api.py:99 apps/lessons/api.py:124
 msgid "لا تملك صلاحية هذا الإجراء"
 msgstr "You do not have permission for this action"
 
-#: apps/reports/api.py:58
+#: apps/reports/api.py:62
 msgid "لا تملك صلاحية هذا التقرير"
 msgstr "You do not have permission for this report"
 
@@ -3076,7 +3099,7 @@ msgstr "No cards"
 msgid "لا توجد بطاقات متاحة"
 msgstr "No cards available"
 
-#: apps/cards/api.py:349
+#: apps/cards/api.py:350
 msgid "لا توجد بطاقات متاحة — أنشئ دفعة جديدة أولًا"
 msgstr "No cards available — create a batch first"
 
@@ -3154,7 +3177,7 @@ msgstr "Do not reprint these tokens — each one belongs to a single card"
 msgid "لا يمكن إلغاء حصة منتهية"
 msgstr "A completed lesson cannot be cancelled"
 
-#: apps/payments/services.py:368
+#: apps/payments/services.py:375
 msgid "لا يمكن إلغاء رسوم بها مدفوعات — نفّذ استردادًا أولًا"
 msgstr "A charge with payments cannot be cancelled — refund first"
 
@@ -3162,15 +3185,15 @@ msgstr "A charge with payments cannot be cancelled — refund first"
 msgid "لا يمكن إنهاء حصة %(state)s"
 msgstr "Cannot complete a %(state)s lesson"
 
-#: apps/cards/services.py:177
+#: apps/cards/services.py:181
 msgid "لا يمكن استبدال البطاقة بنفسها"
 msgstr "A card cannot replace itself"
 
-#: apps/payments/services.py:288
+#: apps/payments/services.py:294
 msgid "لا يمكن استرداد حركة استرداد"
 msgstr "A refund cannot be refunded"
 
-#: apps/payments/services.py:221
+#: apps/payments/services.py:226
 msgid "لا يمكن التحصيل على رسوم معفاة أو ملغاة"
 msgstr "Cannot collect against a waived or cancelled charge"
 
@@ -3178,11 +3201,11 @@ msgstr "Cannot collect against a waived or cancelled charge"
 msgid "لا يمكن تعديل حركة مالية — استخدم الاسترداد بدلًا من ذلك."
 msgstr "A transaction cannot be edited — post a refund instead."
 
-#: apps/accounts/api.py:61
+#: apps/accounts/api.py:62
 msgid "لا يمكن تعطيل آخر مدير نظام."
 msgstr "The last super admin cannot be deactivated."
 
-#: apps/accounts/api.py:53
+#: apps/accounts/api.py:54
 msgid "لا يمكن تعطيل حسابك الشخصي."
 msgstr "You cannot deactivate your own account."
 
@@ -3202,7 +3225,7 @@ msgstr "A transaction cannot be deleted."
 msgid "لا يمكن فتح حصة %(state)s"
 msgstr "Cannot open a %(state)s lesson"
 
-#: apps/accounts/api.py:43
+#: apps/accounts/api.py:44
 msgid "لا يمكن منح دور مدير النظام."
 msgstr "The super admin role cannot be granted."
 
@@ -3292,8 +3315,8 @@ msgid "مالي"
 msgstr "Financial"
 
 #: apps/attendance/models.py:35 apps/attendance/views.py:39
-#: apps/lessons/views.py:32 apps/reports/registry.py:85
-#: apps/reports/registry.py:106 apps/reports/registry.py:124
+#: apps/lessons/views.py:32 apps/reports/registry.py:113
+#: apps/reports/registry.py:134 apps/reports/registry.py:152
 msgid "متأخر"
 msgstr "Late"
 
@@ -3327,7 +3350,7 @@ msgid "متخرج"
 msgstr "Graduated"
 
 #: templates/dashboard/home.html:23 apps/attendance/views.py:37
-#: apps/lessons/views.py:30 apps/reports/registry.py:104
+#: apps/lessons/views.py:30 apps/reports/registry.py:132
 msgid "متوقع"
 msgstr "Expected"
 
@@ -3343,13 +3366,13 @@ msgstr "Paused"
 msgid "مجدولة"
 msgstr "Scheduled"
 
-#: apps/academics/models.py:209
+#: apps/academics/models.py:209 apps/tenancy/quota.py:99
 msgid "مجموعة"
 msgstr "Group"
 
 #: templates/dashboard/home.html:35 templates/reports/report.html:115
 #: templates/students/detail.html:116 apps/attendance/models.py:43
-#: apps/reports/registry.py:87
+#: apps/reports/registry.py:115
 msgid "مجموعة بديلة"
 msgstr "Alternative group"
 
@@ -3357,7 +3380,7 @@ msgstr "Alternative group"
 msgid "مجموعته"
 msgstr "Usual group"
 
-#: apps/attendance/models.py:93 apps/reports/registry.py:219
+#: apps/attendance/models.py:93 apps/reports/registry.py:247
 msgid "مجموعته المعتادة"
 msgstr "Usual group"
 
@@ -3365,7 +3388,7 @@ msgstr "Usual group"
 msgid "مجموعته:"
 msgstr "Usual group:"
 
-#: apps/reports/registry.py:237 apps/reports/registry.py:310
+#: apps/reports/registry.py:265 apps/reports/registry.py:338
 msgid "محصّل"
 msgstr "Collected"
 
@@ -3418,7 +3441,7 @@ msgstr "Center admin"
 msgid "مدير النظام"
 msgstr "Super admin"
 
-#: apps/reports/registry.py:222
+#: apps/reports/registry.py:250
 msgid "مرات هذا الشهر"
 msgstr "Times this month"
 
@@ -3458,7 +3481,7 @@ msgstr "Replaced"
 msgid "مستحق:"
 msgstr "Due:"
 
-#: apps/accounts/models.py:67
+#: apps/accounts/models.py:67 apps/tenancy/quota.py:98
 msgid "مستخدم"
 msgstr "User"
 
@@ -3466,7 +3489,7 @@ msgstr "User"
 msgid "مستخدم جديد"
 msgstr "New user"
 
-#: apps/reports/registry.py:238 apps/reports/registry.py:311
+#: apps/reports/registry.py:266 apps/reports/registry.py:339
 msgid "مسترد"
 msgstr "Refunded"
 
@@ -3577,7 +3600,7 @@ msgstr "Notes"
 msgid "ملاحظات داخلية"
 msgstr "Internal notes"
 
-#: apps/tenancy/models.py:257
+#: apps/tenancy/models.py:319
 msgid "ملاحظة"
 msgstr "Note"
 
@@ -3672,12 +3695,12 @@ msgstr "Off"
 msgid "مُفعّل"
 msgstr "On"
 
-#: apps/reports/registry.py:278
+#: apps/reports/registry.py:306
 msgid "نسبة التحصيل %"
 msgstr "Collection rate %"
 
-#: apps/reports/registry.py:88 apps/reports/registry.py:127
-#: apps/reports/registry.py:147 apps/reports/registry.py:165
+#: apps/reports/registry.py:116 apps/reports/registry.py:155
+#: apps/reports/registry.py:175 apps/reports/registry.py:193
 msgid "نسبة الحضور %"
 msgstr "Attendance rate %"
 
@@ -3699,7 +3722,7 @@ msgstr "Active"
 msgid "نشطة"
 msgstr "Active"
 
-#: apps/tenancy/models.py:217
+#: apps/tenancy/models.py:279
 msgid "نطاق"
 msgstr "Domain"
 
@@ -3707,7 +3730,7 @@ msgstr "Domain"
 msgid "نطاق التواريخ غير صحيح"
 msgstr "Invalid date range"
 
-#: apps/tenancy/models.py:212
+#: apps/tenancy/models.py:274
 msgid "نطاق خاص بالعميل"
 msgstr "Custom domain"
 
@@ -3766,7 +3789,7 @@ msgid "هاتف المسؤول"
 msgstr "Owner phone"
 
 #: templates/students/create.html:43 templates/students/list.html:54
-#: apps/reports/registry.py:200 apps/reports/registry.py:253
+#: apps/reports/registry.py:228 apps/reports/registry.py:281
 #: apps/students/forms.py:66 apps/students/models.py:68
 msgid "هاتف ولي الأمر"
 msgstr "Guardian phone"
@@ -3783,27 +3806,31 @@ msgstr "This choice applies to you on this device only."
 msgid "هذا المعرّف محجوز للنظام: %(v)s"
 msgstr "This identifier is reserved by the system: %(v)s"
 
-#: apps/attendance/result_codes.py:74 apps/cards/services.py:24
+#: apps/attendance/result_codes.py:74 apps/cards/services.py:25
 msgid "هذه البطاقة تم استبدالها"
 msgstr "This card has been replaced"
 
-#: apps/attendance/result_codes.py:70 apps/cards/services.py:21
+#: apps/attendance/result_codes.py:70 apps/cards/services.py:22
 msgid "هذه البطاقة غير مرتبطة بطالب"
 msgstr "This card is not linked to a student"
 
-#: apps/attendance/result_codes.py:72 apps/cards/services.py:22
+#: apps/attendance/result_codes.py:72 apps/cards/services.py:23
 msgid "هذه البطاقة مبلّغ عن فقدها"
 msgstr "This card is reported lost"
 
-#: apps/attendance/result_codes.py:73 apps/cards/services.py:23
+#: apps/attendance/result_codes.py:73 apps/cards/services.py:24
 msgid "هذه البطاقة معطّلة"
 msgstr "This card is disabled"
+
+#: apps/core/http.py:98 apps/tenancy/guards.py:24
+msgid "هذه الخاصية غير مُفعّلة في هذا الحساب"
+msgstr "This feature is not enabled for this account"
 
 #: apps/academics/forms.py:88
 msgid "وقت الانتهاء يجب أن يكون بعد وقت البدء."
 msgstr "The end time must be after the start time."
 
-#: apps/reports/registry.py:182
+#: apps/reports/registry.py:210
 msgid "وقت الحضور"
 msgstr "Check-in time"
 
@@ -3816,11 +3843,11 @@ msgstr "Guardian"
 msgid "يأخذ بطاقة من المخزون ويطبع وجهها بالاسم ورمز"
 msgstr "Takes a card from stock and prints its face with the name and"
 
-#: apps/payments/services.py:213
+#: apps/payments/services.py:218
 msgid "يجب تحديد المُحصِّل"
 msgstr "The collecting cashier must be set"
 
-#: apps/core/http.py:79
+#: apps/core/http.py:87
 msgid "يجب تسجيل الدخول"
 msgstr "You must sign in"
 
@@ -3869,7 +3896,7 @@ msgstr "Opens the platform console. Means nothing inside a center."
 msgid "يمكن لكل مجموعة تجاوز هذه القيمة"
 msgstr "Each group may override this value"
 
-#: apps/reports/registry.py:210
+#: apps/reports/registry.py:238
 msgid "يوضّح الطلاب الذين حضروا في غير مجموعتهم المعتادة — للكشف عن"
 msgstr "Shows students who attended outside their usual group — to reveal"
 
@@ -3881,7 +3908,7 @@ msgstr "Day of the month charges are issued automatically"
 msgid "يوم استحقاق الرسوم من الشهر"
 msgstr "Day of the month charges fall due"
 
-#: apps/reports/registry.py:301
+#: apps/reports/registry.py:329
 msgid "يومية أمناء الخزنة"
 msgstr "Cashier day book"
 

@@ -24,6 +24,7 @@ from apps.core.http import DomainError
 from apps.core.models import AuditAction
 from apps.core.registry import settings_registry
 from apps.core.sequences import format_code, next_number
+from apps.tenancy.guards import require_feature
 
 from .models import ChargeStatus, GeneratedBy, MonthlyCharge, Payment, PaymentKind
 
@@ -129,6 +130,9 @@ def generate_monthly_charges(
     billing_month, *, actor=None, group=None, dry_run=False, verbosity=1
 ) -> dict:
     """Bill every active assignment overlapping the month. Idempotent."""
+    # Layer 4 (docs/10 §N.8): beat runs this monthly with no request in
+    # sight, so the view-level gate would never see it.
+    require_feature("payments")
     from apps.students.models import AssignmentStatus, StudentGroupAssignment
 
     billing_month = normalize_month(billing_month)
@@ -202,6 +206,7 @@ def record_payment(
     reverses=None,
 ) -> Payment:
     """Post one ledger line and refresh the charge, under a row lock."""
+    require_feature("payments")
     amount = Decimal(str(amount)).quantize(Decimal("0.01"))
     if amount <= ZERO:
         raise DomainError(
@@ -278,6 +283,7 @@ def record_payment(
 @transaction.atomic
 def refund_payment(payment: Payment, amount=None, *, actor, reason: str) -> Payment:
     """Correct a mistake without mutating history."""
+    require_feature("payments.refunds")
     if not reason:
         raise DomainError(
             "ERR_REASON_REQUIRED",
@@ -332,6 +338,7 @@ def update_charge(charge: MonthlyCharge, *, actor, reason: str = "", **fields) -
 
 @transaction.atomic
 def waive_charge(charge: MonthlyCharge, *, actor, reason: str) -> MonthlyCharge:
+    require_feature("payments.waivers")
     if not reason:
         raise DomainError(
             "ERR_REASON_REQUIRED",

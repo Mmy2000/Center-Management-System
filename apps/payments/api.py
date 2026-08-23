@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from apps.academics.models import Group
-from apps.accounts.decorators import require_perm
+from apps.accounts.decorators import require_feature, require_perm
 from apps.core.http import DomainError, ajax
 from apps.students.models import Student
 
@@ -104,7 +104,7 @@ def charge_queryset(request):
     return qs
 
 
-@ajax(methods=["GET"], perm="payments.view_monthlycharge")
+@ajax(methods=["GET"], perm="payments.view_monthlycharge", feature="payments")
 def charges(request):
     qs = charge_queryset(request)
     paginator = Paginator(qs, PAGE_SIZE)
@@ -138,7 +138,7 @@ def charges(request):
     }
 
 
-@ajax(methods=["GET", "PATCH"], perm="payments.view_monthlycharge")
+@ajax(methods=["GET", "PATCH"], perm="payments.view_monthlycharge", feature="payments")
 def charge_detail(request, pk):
     charge = get_object_or_404(MonthlyCharge.objects.with_related(), pk=pk)
     if request.method == "GET":
@@ -169,7 +169,7 @@ def charge_detail(request, pk):
     return {"charge": charge_json(charge)}
 
 
-@ajax(methods=["POST"], perm="payments.generate_charges")
+@ajax(methods=["POST"], perm="payments.generate_charges", feature="payments")
 def generate(request):
     data = request.json
     group = None
@@ -185,21 +185,21 @@ def generate(request):
     return summary
 
 
-@ajax(methods=["POST"], perm="payments.waive_charge")
+@ajax(methods=["POST"], perm="payments.waive_charge", feature="payments.waivers")
 def waive(request, pk):
     charge = get_object_or_404(MonthlyCharge.objects.with_related(), pk=pk)
     charge = services.waive_charge(charge, actor=request.user, reason=request.json.get("reason", ""))
     return {"charge": charge_json(charge)}
 
 
-@ajax(methods=["POST"], perm="payments.change_monthlycharge")
+@ajax(methods=["POST"], perm="payments.change_monthlycharge", feature="payments")
 def cancel(request, pk):
     charge = get_object_or_404(MonthlyCharge.objects.with_related(), pk=pk)
     charge = services.cancel_charge(charge, actor=request.user, reason=request.json.get("reason", ""))
     return {"charge": charge_json(charge)}
 
 
-@ajax(methods=["GET", "POST"], perm="payments.view_payment")
+@ajax(methods=["GET", "POST"], perm="payments.view_payment", feature="payments")
 def payments(request):
     if request.method == "GET":
         qs = Payment.objects.select_related("student", "collected_by", "monthly_charge")
@@ -271,7 +271,7 @@ def payments(request):
     return {"payment": payment_json(payment), "charge": charge_json(charge)}
 
 
-@ajax(methods=["POST"], perm="payments.refund_payment")
+@ajax(methods=["POST"], perm="payments.refund_payment", feature="payments.refunds")
 def refund(request, pk):
     payment = get_object_or_404(Payment.objects.select_related("monthly_charge"), pk=pk)
     data = request.json
@@ -285,14 +285,14 @@ def refund(request, pk):
     return {"payment": payment_json(refund_row), "charge": charge_json(charge)}
 
 
-@ajax(methods=["GET"], perm="payments.view_payment")
+@ajax(methods=["GET"], perm="payments.view_payment", feature="payments")
 def student_payments(request, pk):
     student = get_object_or_404(Student, pk=pk)
     rows = student.payments.select_related("collected_by", "monthly_charge__grade_subject__subject")
     return {"results": [payment_json(p) for p in rows]}
 
 
-@ajax(methods=["GET"], perm="payments.view_monthlycharge")
+@ajax(methods=["GET"], perm="payments.view_monthlycharge", feature="payments")
 def student_financial_summary(request, pk):
     """Per-month, per-subject picture for the student profile (§33)."""
     student = get_object_or_404(Student, pk=pk)
@@ -312,6 +312,7 @@ def student_financial_summary(request, pk):
 
 
 @require_perm("payments.view_payment")
+@require_feature("payments.receipt_pdf")
 def receipt(request, pk):
     """Downloadable PDF receipt — A5 by default, ``?size=thermal`` for a roll."""
     payment = get_object_or_404(

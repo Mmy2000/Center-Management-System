@@ -3,7 +3,7 @@ from django.db import connection
 from django.http import JsonResponse
 from django.shortcuts import render
 
-from apps.accounts.decorators import require_perm
+from apps.accounts.decorators import require_feature, require_perm
 
 from .models import AuditLog
 from .registry import settings_registry
@@ -41,6 +41,7 @@ def readyz(request):
 
 
 @require_perm("core.view_setting")
+@require_feature("settings.editor")
 def settings_page(request):
     """Policy editor (TASK-011)."""
     from .policies import GROUP_LABELS, GROUPS
@@ -61,6 +62,7 @@ def settings_page(request):
 
 
 @require_perm("core.view_auditlog")
+@require_feature("audit.viewer")
 def audit_log_page(request):
     entries = AuditLog.objects.select_related("actor", "content_type")[:200]
     return render(request, "core/audit_log.html", {"entries": entries})

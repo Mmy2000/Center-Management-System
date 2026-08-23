@@ -4,7 +4,17 @@ from .base import *  # noqa: F403
 
 DEBUG = False
 SECRET_KEY = "test-only-key"  # noqa: S105
-ALLOWED_HOSTS = ["testserver", "localhost", "127.0.0.1"]
+# `.testserver` mirrors production's `.yourapp.com`: multi-tenant tests need
+# several hosts resolving to one app, and the tenancy middleware — not this
+# list — is what decides which of them is a real center (docs/10 §N.11).
+# `.example.com` stands in for a client's own custom domain.
+ALLOWED_HOSTS = [
+    "testserver",
+    ".testserver",
+    "localhost",
+    "127.0.0.1",
+    ".example.com",
+]
 
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 

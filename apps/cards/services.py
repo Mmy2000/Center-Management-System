@@ -12,6 +12,7 @@ from django.utils.translation import gettext as _
 from apps.core.audit import record
 from apps.core.http import DomainError
 from apps.core.models import AuditAction
+from apps.tenancy.guards import require_feature
 
 from .models import CardAssignment, CardStatus, ReleaseReason, StudentCard
 from .tokens import normalize_token
@@ -48,6 +49,7 @@ def assert_usable(card: StudentCard) -> StudentCard:
 
 @transaction.atomic
 def assign_card(card: StudentCard, student, *, actor=None, notes: str = "") -> StudentCard:
+    require_feature("cards")
     card = StudentCard.objects.select_for_update().get(pk=card.pk)
     if card.status != CardStatus.AVAILABLE:
         code, message = (
@@ -99,6 +101,7 @@ def _release(card: StudentCard, *, reason: str, actor=None) -> None:
 
 @transaction.atomic
 def mark_lost(card: StudentCard, *, actor=None, reason: str = "") -> StudentCard:
+    require_feature("cards")
     if not reason:
         raise DomainError(
             "ERR_REASON_REQUIRED",
@@ -127,6 +130,7 @@ def mark_lost(card: StudentCard, *, actor=None, reason: str = "") -> StudentCard
 
 @transaction.atomic
 def disable_card(card: StudentCard, *, actor=None, reason: str = "") -> StudentCard:
+    require_feature("cards")
     if not reason:
         raise DomainError(
             "ERR_REASON_REQUIRED",

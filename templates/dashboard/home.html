@@ -36,7 +36,7 @@
   </div>
 </div>
 
-{% if perms.payments.view_monthlycharge %}
+{% if perms.payments.view_monthlycharge and "payments" in FEATURES %}
   <h2 class="h6 text-muted mb-2">{% translate "الشهر الحالي" %}</h2>
   <div class="row g-3 mb-4">
     <div class="col-6 col-lg-3">
@@ -83,16 +83,16 @@
         {% if perms.students.add_student %}
           <a class="btn btn-outline-primary btn-sm" href="{% url 'students:create' %}">{% translate "طالب جديد" %}</a>
         {% endif %}
-        {% if perms.payments.add_payment %}
+        {% if perms.payments.add_payment and "payments" in FEATURES %}
           <a class="btn btn-outline-primary btn-sm" href="{% url 'payments:workspace' %}">{% translate "تحصيل دفعة" %}</a>
         {% endif %}
         {% if perms.lessons.view_lesson %}
           <a class="btn btn-outline-primary btn-sm" href="{% url 'lessons:list' %}">{% translate "الحصص" %}</a>
         {% endif %}
-        {% if perms.reports.view_reports %}
+        {% if perms.reports.view_reports and "reports.operational" in FEATURES %}
           <a class="btn btn-outline-primary btn-sm" href="{% url 'reports:report' 'alternative-groups' %}">{% translate "تقرير المجموعات البديلة" %}</a>
         {% endif %}
-        {% if perms.reports.view_financial_reports %}
+        {% if perms.reports.view_financial_reports and "reports.financial" in FEATURES %}
           <a class="btn btn-outline-primary btn-sm" href="{% url 'reports:report' 'outstanding' %}">{% translate "المتأخرات" %}</a>
         {% endif %}
       </div>

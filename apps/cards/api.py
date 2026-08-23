@@ -9,7 +9,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
-from apps.accounts.decorators import require_perm
+from apps.accounts.decorators import require_feature, require_perm
 from apps.core import ratelimit
 from apps.core.http import DomainError, ajax
 from apps.students.models import Student
@@ -42,7 +42,7 @@ def card_json(card: StudentCard, *, can_see_students=False) -> dict:
     return data
 
 
-@ajax(methods=["GET"], perm="cards.view_studentcard")
+@ajax(methods=["GET"], perm="cards.view_studentcard", feature="cards")
 def cards(request):
     qs = StudentCard.objects.select_related("current_student__grade")
     params = request.GET
@@ -70,7 +70,7 @@ def cards(request):
     }
 
 
-@ajax(methods=["POST"], perm="cards.view_studentcard")
+@ajax(methods=["POST"], perm="cards.view_studentcard", feature="cards")
 def lookup(request):
     """Enrollment scan: resolve a scanned token to a card and its state."""
     ratelimit.check("card_lookup", str(request.user.pk), limit=30, window=60)
@@ -90,7 +90,7 @@ def lookup(request):
     raise DomainError(code, message, status=409, data={"card": payload})
 
 
-@ajax(methods=["POST"], perm="cards.change_studentcard")
+@ajax(methods=["POST"], perm="cards.change_studentcard", feature="cards")
 def assign(request):
     data = request.json
     if data.get("qr_token"):
@@ -103,21 +103,21 @@ def assign(request):
     return {"card": card_json(card, can_see_students=True), "code": "OK_CARD_ASSIGNED"}
 
 
-@ajax(methods=["POST"], perm="cards.change_studentcard")
+@ajax(methods=["POST"], perm="cards.change_studentcard", feature="cards")
 def mark_lost(request, pk):
     card = get_object_or_404(StudentCard, pk=pk)
     card = services.mark_lost(card, actor=request.user, reason=request.json.get("reason", ""))
     return {"card": card_json(card)}
 
 
-@ajax(methods=["POST"], perm="cards.change_studentcard")
+@ajax(methods=["POST"], perm="cards.change_studentcard", feature="cards")
 def disable(request, pk):
     card = get_object_or_404(StudentCard, pk=pk)
     card = services.disable_card(card, actor=request.user, reason=request.json.get("reason", ""))
     return {"card": card_json(card)}
 
 
-@ajax(methods=["POST"], perm="cards.change_studentcard")
+@ajax(methods=["POST"], perm="cards.change_studentcard", feature="cards")
 def replace(request, pk):
     old_card = get_object_or_404(StudentCard, pk=pk)
     data = request.json
@@ -140,7 +140,7 @@ def replace(request, pk):
     }
 
 
-@ajax(methods=["GET"], perm="cards.view_cardassignment")
+@ajax(methods=["GET"], perm="cards.view_cardassignment", feature="cards")
 def card_history(request, pk):
     card = get_object_or_404(StudentCard, pk=pk)
     return {
@@ -148,7 +148,7 @@ def card_history(request, pk):
     }
 
 
-@ajax(methods=["GET"], perm="cards.view_cardassignment")
+@ajax(methods=["GET"], perm="cards.view_cardassignment", feature="cards")
 def student_cards(request, pk):
     """Card timeline on the student profile (§18)."""
     student = get_object_or_404(Student, pk=pk)
@@ -196,7 +196,7 @@ def _history_json(row, *, with_card=False) -> dict:
 MAX_UPLOAD_BYTES = 2 * 1024 * 1024
 
 
-@ajax(methods=["POST"], perm="cards.add_studentcard")
+@ajax(methods=["POST"], perm="cards.add_studentcard", feature="cards.bulk_import")
 def generate(request):
     """Mint new blank cards, then export the sheet for the print shop."""
     data = request.json
@@ -215,7 +215,7 @@ def generate(request):
     return {**result, "code": "OK_CARDS_GENERATED"}
 
 
-@ajax(methods=["POST"], perm="cards.add_studentcard")
+@ajax(methods=["POST"], perm="cards.add_studentcard", feature="cards.bulk_import")
 def import_csv(request):
     """Upload a vendor's CSV. All-or-nothing: one bad row aborts the batch."""
     upload = request.FILES.get("file")
@@ -250,6 +250,7 @@ def import_csv(request):
 
 
 @require_perm("cards.view_studentcard")
+@require_feature("cards.bulk_import")
 def export_batch(request):
     """The print shop's copy: a QR sheet (PDF) or the raw token list (CSV).
 
@@ -302,7 +303,7 @@ def export_batch(request):
 # Issuing a card to one student (the second path on the student profile)
 # --------------------------------------------------------------------------- #
 
-@ajax(methods=["GET"], perm="cards.view_studentcard")
+@ajax(methods=["GET"], perm="cards.view_studentcard", feature="cards")
 def available(request):
     """Stock the front desk can hand out right now."""
     qs = StudentCard.objects.available()
@@ -327,7 +328,7 @@ def available(request):
     }
 
 
-@ajax(methods=["POST"], perm="cards.change_studentcard")
+@ajax(methods=["POST"], perm="cards.change_studentcard", feature="cards")
 def issue(request):
     """Give this student a card without scanning anything.
 
@@ -365,6 +366,7 @@ def issue(request):
 
 
 @require_perm("cards.view_studentcard")
+@require_feature("cards")
 def print_card(request, pk):
     """The card face, ready for a card printer."""
     card = get_object_or_404(

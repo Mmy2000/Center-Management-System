@@ -19,6 +19,7 @@ from apps.core.audit import record
 from apps.core.http import DomainError
 from apps.core.models import AuditAction
 from apps.core.sequences import format_code, next_number
+from apps.tenancy import quota
 
 from .models import StudentCard
 from .tokens import MAX_TOKEN_LENGTH, TOKEN_PATTERN, generate_token
@@ -93,6 +94,10 @@ def validate_rows(rows: list[dict], *, default_batch: str = "") -> list[StudentC
 @transaction.atomic
 def import_batch(text: str, *, batch: str = "", actor=None) -> dict:
     cards = validate_rows(read_rows(text), default_batch=batch)
+    # Before the insert, and for the *whole* batch: a partial import would leave
+    # the print shop's sheet and the database disagreeing about which numbers
+    # exist, which is far worse than a refusal (docs/10 §N.9).
+    quota.check("cards", len(cards))
     StudentCard.objects.bulk_create(cards, batch_size=500)
 
     record(
@@ -113,6 +118,7 @@ def import_batch(text: str, *, batch: str = "", actor=None) -> dict:
 @transaction.atomic
 def generate_batch(count: int, *, batch: str = "", actor=None) -> dict:
     """Mint `count` AVAILABLE cards with fresh, non-guessable tokens."""
+    quota.check("cards", count if isinstance(count, int) and count > 0 else 1)
     if not isinstance(count, int) or count < 1 or count > MAX_BATCH:
         raise DomainError(
             "ERR_VALIDATION",

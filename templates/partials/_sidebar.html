@@ -43,21 +43,21 @@
       </a>
     {% endif %}
 
-    {% if perms.payments.view_monthlycharge %}
+    {% if perms.payments.view_monthlycharge and "payments" in FEATURES %}
       <a class="nav-link {% if request.resolver_match.namespace == 'payments' %}active{% endif %}"
          href="{% url 'payments:workspace' %}">
         <svg class="icon"><use href="#i-payments"></use></svg>{% translate "المدفوعات" %}
       </a>
     {% endif %}
 
-    {% if perms.reports.view_reports or perms.reports.view_financial_reports %}
+    {% if perms.reports.view_reports and "reports.operational" in FEATURES or perms.reports.view_financial_reports and "reports.financial" in FEATURES %}
       <a class="nav-link {% if request.resolver_match.namespace == 'reports' %}active{% endif %}"
          href="{% url 'reports:index' %}">
         <svg class="icon"><use href="#i-reports"></use></svg>{% translate "التقارير" %}
       </a>
     {% endif %}
 
-    {% if perms.academics.view_educationalstage or perms.cards.view_studentcard %}
+    {% if perms.academics.view_educationalstage or perms.cards.view_studentcard and "cards" in FEATURES %}
       <div class="nav-section">{% translate "الإدارة" %}</div>
     {% endif %}
 
@@ -68,30 +68,30 @@
       </a>
     {% endif %}
 
-    {% if perms.cards.view_studentcard %}
+    {% if perms.cards.view_studentcard and "cards" in FEATURES %}
       <a class="nav-link {% if request.resolver_match.namespace == 'cards' %}active{% endif %}"
          href="{% url 'cards:list' %}">
         <svg class="icon"><use href="#i-cards"></use></svg>{% translate "البطاقات" %}
       </a>
     {% endif %}
 
-    {% if perms.core.view_setting or perms.accounts.view_user or perms.core.view_auditlog %}
+    {% if perms.core.view_setting and "settings.editor" in FEATURES or perms.accounts.view_user and "users.management" in FEATURES or perms.core.view_auditlog and "audit.viewer" in FEATURES %}
       <div class="nav-section">{% translate "النظام" %}</div>
     {% endif %}
 
-    {% if perms.core.view_setting %}
+    {% if perms.core.view_setting and "settings.editor" in FEATURES %}
       <a class="nav-link {% if request.resolver_match.url_name == 'settings' %}active{% endif %}"
          href="{% url 'core:settings' %}">
         <svg class="icon"><use href="#i-settings"></use></svg>{% translate "الإعدادات" %}
       </a>
     {% endif %}
-    {% if perms.accounts.view_user %}
+    {% if perms.accounts.view_user and "users.management" in FEATURES %}
       <a class="nav-link {% if request.resolver_match.url_name == 'users' %}active{% endif %}"
          href="{% url 'accounts:users' %}">
         <svg class="icon"><use href="#i-users"></use></svg>{% translate "المستخدمون" %}
       </a>
     {% endif %}
-    {% if perms.core.view_auditlog %}
+    {% if perms.core.view_auditlog and "audit.viewer" in FEATURES %}
       <a class="nav-link {% if request.resolver_match.url_name == 'audit_log' %}active{% endif %}"
          href="{% url 'core:audit_log' %}">
         <svg class="icon"><use href="#i-audit"></use></svg>{% translate "سجل التدقيق" %}

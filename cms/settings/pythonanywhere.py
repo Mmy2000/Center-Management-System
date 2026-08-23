@@ -124,6 +124,8 @@ TEMPLATES = [
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.i18n",
                 "apps.core.context_processors.branding",
+                "apps.core.context_processors.features",
+                "apps.core.context_processors.subscription_notice",
             ],
         },
     },

@@ -10,6 +10,7 @@ from django.utils.translation import gettext as _
 
 from apps.core.crud import create_object, list_response, update_object
 from apps.core.http import DomainError, ajax
+from apps.tenancy import quota
 
 from . import forms, serializers
 from .models import (
@@ -189,6 +190,7 @@ def groups(request):
     if request.method == "GET":
         return list_response(_group_queryset(request), serializers.group_json)
     _require(request, "academics.add_group")
+    quota.check("groups")
     return create_object(request, forms.GroupForm, serializers.group_json, key="group")
 
 
