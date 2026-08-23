@@ -1,6 +1,6 @@
 {% extends "console/base.html" %}
-{% load static %}
-{% block title %}تسجيل الدخول{% endblock %}
+{% load static i18n %}
+{% block title %}{% translate "تسجيل الدخول" %}{% endblock %}
 
 {% block anonymous_content %}
 <div class="auth-shell console-auth">
@@ -8,45 +8,53 @@
   <aside class="auth-brand d-none d-lg-flex">
     <div class="auth-logo">
       <span class="auth-logo-mark">PLT</span>
-      <span>لوحة المنصة</span>
+      <span>{% translate "لوحة المنصة" %}</span>
     </div>
 
     <div>
-      <h1 class="auth-headline">كل السناتر من مكان واحد</h1>
+      <h1 class="auth-headline">{% translate "كل السناتر من مكان واحد" %}</h1>
       <p class="auth-sub">
-        إنشاء العملاء، تفعيل وإيقاف الخدمة، والتحكم في كل خاصية على حدة —
-        دون نسخة منفصلة أو نشر جديد لكل عميل.
+        {% translate "إنشاء العملاء، تفعيل وإيقاف الخدمة، والتحكم في كل خاصية على حدة — دون نسخة منفصلة أو نشر جديد لكل عميل." %}
       </p>
 
       <ul class="auth-points">
         <li class="auth-point">
           <svg class="icon"><use href="#i-groups"></use></svg>
-          <span>عميل جديد بنطاق خاص وحساب مدير جاهز في أقل من دقيقة.</span>
+          <span>{% translate "عميل جديد بنطاق خاص وحساب مدير جاهز في أقل من دقيقة." %}</span>
         </li>
         <li class="auth-point">
           <svg class="icon"><use href="#i-settings"></use></svg>
-          <span>تفعيل أو تعطيل أي خاصية لأي عميل — دون حذف أي بيانات.</span>
+          <span>{% translate "تفعيل أو تعطيل أي خاصية لأي عميل — دون حذف أي بيانات." %}</span>
         </li>
         <li class="auth-point">
           <svg class="icon"><use href="#i-audit"></use></svg>
-          <span>كل إجراء مسجّل: مَن فعله، ومتى، ولماذا.</span>
+          <span>{% translate "كل إجراء مسجّل: مَن فعله، ومتى، ولماذا." %}</span>
         </li>
       </ul>
     </div>
 
-    <div class="auth-foot">دخول المشغّلين فقط · موظفو السناتر يدخلون من نطاق سنترهم</div>
+    <div class="auth-foot">{% translate "دخول المشغّلين فقط · موظفو السناتر يدخلون من نطاق سنترهم" %}</div>
   </aside>
 
   <main class="auth-form-side">
     <div class="auth-form" id="auth-form-wrap">
 
-      <div class="d-lg-none auth-logo mb-3" style="color: var(--brand-600);">
-        <span class="auth-logo-mark">PLT</span>
-        <span>لوحة المنصة</span>
+      {# As the product's own sign-in screen does it: an operator on an English browser should not have to authenticate before being able to read the page. #}
+      <div class="auth-tools">
+        {% include "partials/_language.html" %}
+        <button class="btn btn-sm btn-ghost btn-icon-only" id="auth-mode" type="button"
+                title="{% translate 'الوضع' %}" aria-label="{% translate 'الوضع' %}">
+          <svg class="icon"><use href="#i-palette"></use></svg>
+        </button>
       </div>
 
-      <h2 class="auth-title">تسجيل الدخول</h2>
-      <p class="auth-hint">هذه لوحة المنصة، وليست لوحة سنتر.</p>
+      <div class="d-lg-none auth-logo mb-3" style="color: var(--brand-600);">
+        <span class="auth-logo-mark">PLT</span>
+        <span>{% translate "لوحة المنصة" %}</span>
+      </div>
+
+      <h2 class="auth-title">{% translate "تسجيل الدخول" %}</h2>
+      <p class="auth-hint">{% translate "هذه لوحة المنصة، وليست لوحة سنتر." %}</p>
 
       <div class="auth-alert" id="auth-alert" role="alert">
         <svg class="icon"><use href="#i-error"></use></svg>
@@ -59,33 +67,33 @@
 
         <div class="auth-field">
           <input type="text" name="username" id="id_username" class="form-control"
-                 placeholder="اسم المستخدم" autocomplete="username" autofocus required
-                 aria-label="اسم المستخدم">
+                 placeholder="{% translate 'اسم المستخدم' %}" autocomplete="username" autofocus required
+                 aria-label="{% translate 'اسم المستخدم' %}">
           <svg class="icon field-icon"><use href="#i-users"></use></svg>
         </div>
 
         <div class="auth-field">
           <input type="password" name="password" id="id_password" class="form-control"
-                 placeholder="كلمة المرور" autocomplete="current-password" required
-                 aria-label="كلمة المرور">
+                 placeholder="{% translate 'كلمة المرور' %}" autocomplete="current-password" required
+                 aria-label="{% translate 'كلمة المرور' %}">
           <svg class="icon field-icon"><use href="#i-lock"></use></svg>
           <button class="btn btn-sm btn-ghost btn-icon-only field-action" type="button"
-                  id="toggle-password" aria-label="إظهار كلمة المرور">
+                  id="toggle-password" aria-label="{% translate 'إظهار كلمة المرور' %}">
             <svg class="icon"><use href="#i-eye"></use></svg>
           </button>
           <div class="caps-hint" id="caps-hint">
             <svg class="icon"><use href="#i-warn"></use></svg>
-            مفتاح Caps Lock مفعّل
+            {% translate "مفتاح Caps Lock مفعّل" %}
           </div>
         </div>
 
         <button class="btn btn-primary btn-block auth-submit" type="submit" id="login-submit">
-          دخول
+          {% translate "دخول" %}
         </button>
       </form>
 
       {% if error %}{{ error|json_script:"login-error-text" }}{% endif %}
-      <div class="auth-meta">نظام إدارة السناتر · لوحة المنصة</div>
+      <div class="auth-meta">{% translate "نظام إدارة السناتر · لوحة المنصة" %}</div>
     </div>
   </main>
 </div>
@@ -119,6 +127,12 @@ document.addEventListener("DOMContentLoaded", function () {
     password.focus();
   });
 
+  /* Light / dark straight from the sign-in screen. */
+  document.getElementById("auth-mode").addEventListener("click", function () {
+    var current = theme.effective().mode;
+    theme.set({ mode: current === "dark" ? "light" : "dark" });
+  });
+
   password.addEventListener("keyup", function (event) {
     var on = event.getModifierState && event.getModifierState("CapsLock");
     caps.classList.toggle("show", Boolean(on));
@@ -140,7 +154,7 @@ document.addEventListener("DOMContentLoaded", function () {
         window.location.assign(payload.data.next || "/");
       } catch (error) {
         wrap.classList.remove("busy");
-        showError((error && error.message) || "تعذر تسجيل الدخول.");
+        showError((error && error.message) || gettext("تعذر تسجيل الدخول."));
         password.value = "";
         password.focus();
       }

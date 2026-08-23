@@ -1,24 +1,25 @@
 {% extends "console/base.html" %}
-{% block title %}سجل المنصة{% endblock %}
-{% block heading %}سجل المنصة{% endblock %}
-{% block subheading %}<div class="console-sub">مَن فعل ماذا، بأي عميل، ولماذا</div>{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "سجل المنصة" %}{% endblock %}
+{% block heading %}{% translate "سجل المنصة" %}{% endblock %}
+{% block subheading %}<div class="console-sub">{% translate "مَن فعل ماذا، بأي عميل، ولماذا" %}</div>{% endblock %}
 
 {% block content %}
 <form class="filter-bar mb-3" method="get">
   <div class="row g-2 align-items-end">
     <div class="col-12 col-lg-4">
-      <label class="form-label" for="f-tenant">العميل</label>
+      <label class="form-label" for="f-tenant">{% translate "العميل" %}</label>
       <select class="form-select" id="f-tenant" name="tenant">
-        <option value="">الكل</option>
+        <option value="">{% translate "الكل" %}</option>
         {% for tenant in tenants %}
           <option value="{{ tenant.pk }}" {% if filters.tenant == tenant.pk|stringformat:"s" %}selected{% endif %}>{{ tenant.name }}</option>
         {% endfor %}
       </select>
     </div>
     <div class="col-12 col-lg-4">
-      <label class="form-label" for="f-action">الإجراء</label>
+      <label class="form-label" for="f-action">{% translate "الإجراء" %}</label>
       <select class="form-select" id="f-action" name="action">
-        <option value="">الكل</option>
+        <option value="">{% translate "الكل" %}</option>
         {% for value, label in actions %}
           <option value="{{ value }}" {% if filters.action == value %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
@@ -26,11 +27,11 @@
     </div>
     <div class="col-6 col-lg-2">
       <button class="btn btn-primary w-100" type="submit">
-        <svg class="icon"><use href="#i-search"></use></svg>تصفية
+        <svg class="icon"><use href="#i-search"></use></svg>{% translate "تصفية" %}
       </button>
     </div>
     <div class="col-6 col-lg-2">
-      <a class="btn btn-ghost w-100" href="{% url 'console:audit' %}">مسح</a>
+      <a class="btn btn-ghost w-100" href="{% url 'console:audit' %}">{% translate "مسح" %}</a>
     </div>
   </div>
 </form>
@@ -39,7 +40,7 @@
   <div class="table-responsive">
     <table class="table table-sticky mb-0">
       <thead>
-        <tr><th>الوقت</th><th>الإجراء</th><th>العميل</th><th>المشغّل</th><th>السبب</th><th>التغييرات</th></tr>
+        <tr><th>{% translate "الوقت" %}</th><th>{% translate "الإجراء" %}</th><th>{% translate "العميل" %}</th><th>{% translate "المشغّل" %}</th><th>{% translate "السبب" %}</th><th>{% translate "التغييرات" %}</th></tr>
       </thead>
       <tbody>
         {% for entry in page %}
@@ -51,7 +52,7 @@
                 <a href="{% url 'console:tenant_detail' entry.tenant.pk %}">{{ entry.tenant.name }}</a>
               {% else %}<span class="text-muted">—</span>{% endif %}
             </td>
-            <td class="small">{{ entry.actor.display_name|default:"النظام" }}</td>
+            <td class="small">{{ entry.actor.display_name|default:_("النظام") }}</td>
             <td class="small text-muted">{{ entry.reason|default:"—" }}</td>
             <td class="small text-muted mono" dir="ltr" style="max-width:22rem">
               {% if entry.changes %}{{ entry.changes }}{% else %}—{% endif %}
@@ -61,7 +62,7 @@
           <tr><td colspan="6">
             <div class="empty-state">
               <svg class="icon icon-xl"><use href="#i-empty"></use></svg>
-              <div class="empty-state-title">لا توجد سجلات مطابقة</div>
+              <div class="empty-state-title">{% translate "لا توجد سجلات مطابقة" %}</div>
             </div>
           </td></tr>
         {% endfor %}
@@ -75,13 +76,13 @@
     <ul class="pagination pagination-sm mb-0">
       {% if page.has_previous %}
         <li class="page-item">
-          <a class="page-link" href="?page={{ page.previous_page_number }}&tenant={{ filters.tenant|default:'' }}&action={{ filters.action|default:'' }}">السابق</a>
+          <a class="page-link" href="?page={{ page.previous_page_number }}&tenant={{ filters.tenant|default:'' }}&action={{ filters.action|default:'' }}">{% translate "السابق" %}</a>
         </li>
       {% endif %}
       <li class="page-item disabled"><span class="page-link num">{{ page.number }} / {{ page.paginator.num_pages }}</span></li>
       {% if page.has_next %}
         <li class="page-item">
-          <a class="page-link" href="?page={{ page.next_page_number }}&tenant={{ filters.tenant|default:'' }}&action={{ filters.action|default:'' }}">التالي</a>
+          <a class="page-link" href="?page={{ page.next_page_number }}&tenant={{ filters.tenant|default:'' }}&action={{ filters.action|default:'' }}">{% translate "التالي" %}</a>
         </li>
       {% endif %}
     </ul>

@@ -3,6 +3,11 @@
 from django import forms
 from django.conf import settings
 
+# Lazy, not eager: most of the strings below are field labels in a class
+# body, evaluated once at import — long before any request has said which
+# language the operator wants. `gettext` would freeze them at that moment.
+from django.utils.translation import gettext_lazy as _
+
 from apps.tenancy.constants import BillingCycle, FeatureState
 from apps.tenancy.models import Plan, Tenant, validate_slug
 
@@ -72,50 +77,50 @@ class TenantCreateForm(StyledForm):
     exactly the half-built tenant the service refuses to leave behind.
     """
 
-    name = forms.CharField(label="اسم السنتر", max_length=150)
+    name = forms.CharField(label=_("اسم السنتر"), max_length=150)
     slug = forms.CharField(
-        label="المعرّف (النطاق الفرعي)",
+        label=_("المعرّف (النطاق الفرعي)"),
         max_length=32,
         validators=[validate_slug],
-        help_text="حروف إنجليزية صغيرة وأرقام وشرطات. لا يمكن تغييره بعد الإنشاء.",
+        help_text=_("حروف إنجليزية صغيرة وأرقام وشرطات. لا يمكن تغييره بعد الإنشاء."),
     )
     # Only plans that are still on offer. A retired plan keeps its existing
     # clients but must not be handed to a new one.
-    plan = forms.ModelChoiceField(label="الباقة", queryset=Plan.objects.filter(is_active=True))
+    plan = forms.ModelChoiceField(label=_("الباقة"), queryset=Plan.objects.filter(is_active=True))
     billing_cycle = forms.ChoiceField(
-        label="دورة الفوترة", choices=BillingCycle.choices, initial=BillingCycle.MONTHLY
+        label=_("دورة الفوترة"), choices=BillingCycle.choices, initial=BillingCycle.MONTHLY
     )
     trial_days = forms.IntegerField(
-        label="أيام التجربة", min_value=0, max_value=365, initial=30, required=False
+        label=_("أيام التجربة"), min_value=0, max_value=365, initial=30, required=False
     )
 
-    owner_username = forms.CharField(label="اسم مستخدم المسؤول", max_length=150, initial="admin")
-    owner_name = forms.CharField(label="اسم المسؤول", max_length=150, required=False)
-    owner_email = forms.EmailField(label="بريد المسؤول", required=False)
-    owner_phone = forms.CharField(label="هاتف المسؤول", max_length=20, required=False)
+    owner_username = forms.CharField(label=_("اسم مستخدم المسؤول"), max_length=150, initial="admin")
+    owner_name = forms.CharField(label=_("اسم المسؤول"), max_length=150, required=False)
+    owner_email = forms.EmailField(label=_("بريد المسؤول"), required=False)
+    owner_phone = forms.CharField(label=_("هاتف المسؤول"), max_length=20, required=False)
 
     seed_academics = forms.BooleanField(
-        label="تجهيز المراحل والصفوف الافتراضية", required=False, initial=True
+        label=_("تجهيز المراحل والصفوف الافتراضية"), required=False, initial=True
     )
-    demo = forms.BooleanField(label="بيانات تجريبية (للعرض فقط)", required=False)
+    demo = forms.BooleanField(label=_("بيانات تجريبية (للعرض فقط)"), required=False)
 
     def clean_slug(self):
         slug = (self.cleaned_data["slug"] or "").strip().lower()
         if Tenant.objects.filter(slug=slug).exists():
-            raise forms.ValidationError("هذا المعرّف مستخدم بالفعل.")
+            raise forms.ValidationError(_("هذا المعرّف مستخدم بالفعل."))
         from apps.tenancy.models import Domain
 
         from .services import host_for
 
         host = host_for(slug, settings.TENANT_BASE_DOMAIN)
         if Domain.objects.filter(host=host).exists():
-            raise forms.ValidationError(f"النطاق الناتج مستخدم بالفعل: {host}")
+            raise forms.ValidationError(_("النطاق الناتج مستخدم بالفعل: %(host)s") % {"host": host})
         return slug
 
     def clean(self):
         data = super().clean()
         if data.get("demo") and not data.get("seed_academics"):
-            self.add_error("demo", "البيانات التجريبية تحتاج تجهيز المراحل والصفوف.")
+            self.add_error("demo", _("البيانات التجريبية تحتاج تجهيز المراحل والصفوف."))
         return data
 
 
@@ -127,7 +132,7 @@ class PlanForm(StyledModelForm):
     """
 
     features = forms.MultipleChoiceField(
-        label="الخصائص المشمولة",
+        label=_("الخصائص المشمولة"),
         required=False,
         widget=forms.CheckboxSelectMultiple,
     )
@@ -181,10 +186,10 @@ class PlanForm(StyledModelForm):
         if monthly is None and yearly is None and data.get("is_active"):
             # Not an error — a free or internal plan is legitimate — but say so
             # once rather than leaving an operator wondering later.
-            self.add_error(None, "الباقة بلا سعر شهري ولا سنوي: ستظهر كباقة مجانية.")
+            self.add_error(None, _("الباقة بلا سعر شهري ولا سنوي: ستظهر كباقة مجانية."))
 
         if data.get("discount_percent") and not data.get("discount_label"):
-            self.add_error("discount_label", "اكتب سبب الخصم حتى يُفهم لاحقًا.")
+            self.add_error("discount_label", _("اكتب سبب الخصم حتى يُفهم لاحقًا."))
 
         selected = set(data.get("features") or [])
         from apps.tenancy.features import CORE_KEYS, IMPLEMENTED_METHOD_KEYS
@@ -193,7 +198,7 @@ class PlanForm(StyledModelForm):
         # that cannot record anything the moment it is assigned.
         if not (selected & IMPLEMENTED_METHOD_KEYS):
             self.add_error(
-                "features", "اختر طريقة واحدة على الأقل لتسجيل الحضور (البطاقة أو اليدوي)."
+                "features", _("اختر طريقة واحدة على الأقل لتسجيل الحضور (البطاقة أو اليدوي).")
             )
 
         # Core keys are always on regardless; adding them silently keeps the
@@ -205,18 +210,18 @@ class PlanForm(StyledModelForm):
 class ReasonForm(StyledForm):
     """Every lifecycle change is typed, so the audit row can answer "why"."""
 
-    reason = forms.CharField(label="السبب", widget=forms.Textarea(attrs={"rows": 3}))
+    reason = forms.CharField(label=_("السبب"), widget=forms.Textarea(attrs={"rows": 3}))
 
     def clean_reason(self):
         reason = (self.cleaned_data["reason"] or "").strip()
         if len(reason) < 4:
-            raise forms.ValidationError("اكتب سببًا واضحًا.")
+            raise forms.ValidationError(_("اكتب سببًا واضحًا."))
         return reason
 
 
 class PlanChangeForm(StyledForm):
-    plan = forms.ModelChoiceField(label="الباقة", queryset=Plan.objects.filter(is_active=True))
-    reason = forms.CharField(label="السبب", required=False, max_length=200)
+    plan = forms.ModelChoiceField(label=_("الباقة"), queryset=Plan.objects.filter(is_active=True))
+    reason = forms.CharField(label=_("السبب"), required=False, max_length=200)
 
 
 class FeatureToggleForm(forms.Form):
@@ -229,17 +234,17 @@ class ImpersonationForm(StyledForm):
     """Read-only unless the operator explicitly says otherwise, in writing."""
 
     mode = forms.ChoiceField(
-        label="الوضع",
-        choices=[("read", "قراءة فقط"), ("write", "قراءة وتعديل")],
+        label=_("الوضع"),
+        choices=[("read", _("قراءة فقط")), ("write", _("قراءة وتعديل"))],
         initial="read",
     )
-    reason = forms.CharField(label="السبب", widget=forms.Textarea(attrs={"rows": 2}))
+    reason = forms.CharField(label=_("السبب"), widget=forms.Textarea(attrs={"rows": 2}))
 
     def clean(self):
         data = super().clean()
         reason = (data.get("reason") or "").strip()
         if data.get("mode") == "write" and len(reason) < 8:
-            self.add_error("reason", "وضع التعديل يحتاج سببًا مفصّلًا.")
+            self.add_error("reason", _("وضع التعديل يحتاج سببًا مفصّلًا."))
         return data
 
 
@@ -247,8 +252,8 @@ class TenantDeleteForm(StyledForm):
     """Typing the slug is the confirmation. Nothing about deleting a client
     should be possible by clicking twice quickly."""
 
-    confirm_slug = forms.CharField(label="اكتب معرّف العميل للتأكيد", max_length=32)
-    reason = forms.CharField(label="السبب", widget=forms.Textarea(attrs={"rows": 2}))
+    confirm_slug = forms.CharField(label=_("اكتب معرّف العميل للتأكيد"), max_length=32)
+    reason = forms.CharField(label=_("السبب"), widget=forms.Textarea(attrs={"rows": 2}))
 
     def __init__(self, *args, tenant=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -257,5 +262,5 @@ class TenantDeleteForm(StyledForm):
     def clean_confirm_slug(self):
         value = (self.cleaned_data["confirm_slug"] or "").strip().lower()
         if self.tenant and value != self.tenant.slug:
-            raise forms.ValidationError("المعرّف لا يطابق.")
+            raise forms.ValidationError(_("المعرّف لا يطابق."))
         return value

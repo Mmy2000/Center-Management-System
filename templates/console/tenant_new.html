@@ -1,10 +1,11 @@
 {% extends "console/base.html" %}
-{% block title %}عميل جديد{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "عميل جديد" %}{% endblock %}
 
 {% block topbar %}
   <div>
-    <div class="breadcrumb-mini"><a href="{% url 'console:tenant_list' %}">العملاء</a> ›</div>
-    <h1 class="console-title">عميل جديد</h1>
+    <div class="breadcrumb-mini"><a href="{% url 'console:tenant_list' %}">{% translate "العملاء" %}</a> ›</div>
+    <h1 class="console-title">{% translate "عميل جديد" %}</h1>
   </div>
 {% endblock %}
 
@@ -19,7 +20,7 @@
   <div class="row g-3">
     <div class="col-12 col-xl-7">
       <div class="console-card mb-3">
-        <div class="console-card-head"><h2>السنتر</h2></div>
+        <div class="console-card-head"><h2>{% translate "السنتر" %}</h2></div>
         <div class="console-card-body">
           <div class="mb-3">
             <label class="form-label" for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
@@ -45,7 +46,7 @@
       </div>
 
       <div class="console-card">
-        <div class="console-card-head"><h2>حساب المسؤول</h2></div>
+        <div class="console-card-head"><h2>{% translate "حساب المسؤول" %}</h2></div>
         <div class="console-card-body">
           <div class="row g-3">
             <div class="col-12 col-md-6">
@@ -71,8 +72,7 @@
             </div>
           </div>
           <div class="form-text mt-3">
-            كلمة مرور لمرة واحدة تُعرض بعد الإنشاء ولا تُحفظ في أي مكان،
-            ويُطلب من المسؤول تغييرها عند أول دخول.
+            {% translate "كلمة مرور لمرة واحدة تُعرض بعد الإنشاء ولا تُحفظ في أي مكان، ويُطلب من المسؤول تغييرها عند أول دخول." %}
           </div>
         </div>
       </div>
@@ -80,7 +80,7 @@
 
     <div class="col-12 col-xl-5">
       <div class="console-card mb-3">
-        <div class="console-card-head"><h2>الاشتراك</h2></div>
+        <div class="console-card-head"><h2>{% translate "الاشتراك" %}</h2></div>
         <div class="console-card-body">
           <div class="mb-3">
             <label class="form-label" for="{{ form.plan.id_for_label }}">{{ form.plan.label }}</label>
@@ -99,13 +99,13 @@
             <input class="form-control" type="number" min="0" max="365"
                    name="{{ form.trial_days.html_name }}" id="{{ form.trial_days.id_for_label }}"
                    value="{{ form.trial_days.value|default:30 }}">
-            <div class="form-text">صفر = تفعيل فوري بلا فترة تجربة.</div>
+            <div class="form-text">{% translate "صفر = تفعيل فوري بلا فترة تجربة." %}</div>
           </div>
         </div>
       </div>
 
       <div class="console-card mb-3">
-        <div class="console-card-head"><h2>التجهيز الأولي</h2></div>
+        <div class="console-card-head"><h2>{% translate "التجهيز الأولي" %}</h2></div>
         <div class="console-card-body d-grid gap-2">
           <div class="form-check">
             <input class="form-check-input" type="checkbox" name="{{ form.seed_academics.html_name }}"
@@ -125,12 +125,12 @@
 
       <div class="d-grid gap-2">
         <button class="btn btn-primary btn-lg" type="submit" id="submit">
-          <svg class="icon"><use href="#i-plus"></use></svg>إنشاء العميل
+          <svg class="icon"><use href="#i-plus"></use></svg>{% translate "إنشاء العميل" %}
         </button>
-        <a class="btn btn-ghost" href="{% url 'console:tenant_list' %}">إلغاء</a>
+        <a class="btn btn-ghost" href="{% url 'console:tenant_list' %}">{% translate "إلغاء" %}</a>
       </div>
       <div class="form-text mt-2 text-center">
-        كل شيء يتم في معاملة واحدة — فشل أي خطوة لا يترك عميلًا نصف مُنشأ.
+        {% translate "كل شيء يتم في معاملة واحدة — فشل أي خطوة لا يترك عميلًا نصف مُنشأ." %}
       </div>
     </div>
   </div>
@@ -169,10 +169,10 @@ const check = app.debounce(async function () {
     const payload = await http.get(CHECK + "?slug=" + encodeURIComponent(slug), { quiet: true });
     if (payload.data.available) {
       preview.classList.add("ok");
-      note.textContent = "متاح";
+      note.textContent = gettext("متاح");
     } else {
       preview.classList.add("bad");
-      note.textContent = payload.data.reason || "غير متاح";
+      note.textContent = payload.data.reason || gettext("غير متاح");
     }
   } catch (error) { /* the form still validates server-side */ }
 }, 300);
@@ -189,7 +189,7 @@ document.getElementById("provision-form").addEventListener("submit", function ()
   // same slug twice.
   const button = document.getElementById("submit");
   button.disabled = true;
-  button.innerHTML = '<span class="spinner"></span> جارٍ الإنشاء…';
+  button.innerHTML = '<span class="spinner"></span> ' + gettext("جارٍ الإنشاء…");
 });
 </script>
 {% endblock %}

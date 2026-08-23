@@ -114,6 +114,48 @@ unrelated test runs next. They live in `apps/tenancy/tests/models.py` with a
 session fixture in the **root** conftest, so `pytest apps/console` alone still
 finds them.
 
+**Console appearance and language — done** (no task number; asked for after
+Phase 16 shipped). The console had been pinned to Arabic and to the light theme
+on purpose, and the reasoning behind both turned out to be wrong.
+
+- *Theme.* The rule "a console must not wear a client's colours" was about a
+  **tenant's** palette. The console has no tenant, so there was nothing to
+  borrow and nothing to confuse; the dark rail and the `PLT` mark carry the
+  "this is the platform" signal on their own. `console.css` therefore no longer
+  fixes the `--brand-*` ramp, and the topbar carries the product's own theme
+  picker.
+
+- *Language.* `CONSOLE_LANGUAGE` is now a **default**, not a lock: a cookie set
+  by the switcher wins. That required the console URLconf to mount
+  `django.conf.urls.i18n` — without it `{% url 'set_language' %}` raised
+  `NoReverseMatch` on every console page.
+
+- *The part that made the switcher honest.* A switcher over untranslated
+  templates is worse than no switcher: it produces English chrome around Arabic
+  content. 244 literals across the console's 11 templates and 4 Python modules
+  were wrapped and translated — `gettext_lazy` in `console/forms.py`, because a
+  field label in a class body is evaluated at import, long before a request has
+  said which language to use.
+
+Three extraction bugs surfaced while doing it, each of which had been silently
+writing catalogue entries that no lookup could ever match:
+
+1. **`{% blocktranslate %}` was never extracted.** Django renders its variables
+   into the msgid as `%(name)s` before looking it up, so `extract_messages` now
+   does the same. `templates/tenancy/gate.html` had been rendering Arabic under
+   English since Phase 13 because of this.
+2. **Implicitly concatenated Python literals were half-captured.** A message
+   split across two lines to fit the line length is one msgid at runtime; the
+   extractor took only the first half. One report description in
+   `apps/reports/registry.py` was affected.
+3. **Two msgids had trailing spaces**, which the extractor strips — so the entry
+   written and the string looked up differed by one character.
+
+`apps/console/tests/test_console_english.py` is the guard: it walks every
+console screen in English and fails on any Arabic left in the HTML, and checks
+each inline `gettext()` argument against the catalogue separately (those stay
+Arabic in the source by design — they are translated in the browser).
+
 **Not started:** Phase 17 (hardening: the URL leak sweep, RLS, wildcard TLS,
 per-tenant backups, runbook).
 

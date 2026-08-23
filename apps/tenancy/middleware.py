@@ -140,20 +140,21 @@ class LanguageMiddleware:
     def _language_for(request) -> str | None:
         from django.conf import settings
 
+        # Whatever the user picked wins, on the console as much as in a center.
+        # The switcher writes this cookie; overriding it would make the control
+        # visible but inert, which is worse than not offering it.
+        chosen = request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME)
+
         if getattr(request, "is_console", False):
+            if chosen:
+                return None
             return getattr(settings, "CONSOLE_LANGUAGE", "ar") or None
 
         tenant = getattr(request, "tenant", None)
         if tenant is None or not tenant.language:
             return None
 
-        # Whatever the user picked wins. Django 4.0 dropped session-stored
-        # languages, so the cookie the switcher writes is the only place to
-        # look — and `set_language` writes it on every switch.
-        if request.COOKIES.get(settings.LANGUAGE_COOKIE_NAME):
-            return None
-
-        return tenant.language
+        return None if chosen else tenant.language
 
 
 class TenantSessionGuardMiddleware:

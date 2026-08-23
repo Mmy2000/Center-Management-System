@@ -1,14 +1,15 @@
 {% extends "console/base.html" %}
-{% block title %}نظرة عامة{% endblock %}
-{% block heading %}نظرة عامة{% endblock %}
-{% block subheading %}<div class="console-sub">كل العملاء في لمحة</div>{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "نظرة عامة" %}{% endblock %}
+{% block heading %}{% translate "نظرة عامة" %}{% endblock %}
+{% block subheading %}<div class="console-sub">{% translate "كل العملاء في لمحة" %}</div>{% endblock %}
 
 {% block topbar_actions %}
   <button class="btn btn-sm btn-soft-secondary" type="button" id="refresh">
-    <svg class="icon"><use href="#i-clock"></use></svg>تحديث
+    <svg class="icon"><use href="#i-clock"></use></svg>{% translate "تحديث" %}
   </button>
   <a class="btn btn-sm btn-primary" href="{% url 'console:tenant_new' %}">
-    <svg class="icon"><use href="#i-plus"></use></svg>عميل جديد
+    <svg class="icon"><use href="#i-plus"></use></svg>{% translate "عميل جديد" %}
   </a>
 {% endblock %}
 
@@ -17,25 +18,25 @@
   <div class="col-6 col-lg-3">
     <div class="stat-tile">
       <div class="stat-value num" id="s-total">—</div>
-      <div class="stat-label">عميل</div>
+      <div class="stat-label">{% translate "عميل" %}</div>
     </div>
   </div>
   <div class="col-6 col-lg-3">
     <div class="stat-tile tone-success">
       <div class="stat-value num" id="s-students">—</div>
-      <div class="stat-label">طالب في كل العملاء</div>
+      <div class="stat-label">{% translate "طالب في كل العملاء" %}</div>
     </div>
   </div>
   <div class="col-6 col-lg-3">
     <div class="stat-tile tone-muted">
       <div class="stat-value num" id="s-scans">—</div>
-      <div class="stat-label">عملية مسح (30 يومًا)</div>
+      <div class="stat-label">{% translate "عملية مسح (30 يومًا)" %}</div>
     </div>
   </div>
   <div class="col-6 col-lg-3">
     <div class="stat-tile tone-warning">
       <div class="stat-value num" id="s-new">—</div>
-      <div class="stat-label">عميل جديد هذا الشهر</div>
+      <div class="stat-label">{% translate "عميل جديد هذا الشهر" %}</div>
     </div>
   </div>
 </div>
@@ -43,7 +44,7 @@
 <div class="row g-3">
   <div class="col-12 col-xl-4">
     <div class="console-card h-100">
-      <div class="console-card-head"><h2>حسب الحالة</h2></div>
+      <div class="console-card-head"><h2>{% translate "حسب الحالة" %}</h2></div>
       <div class="console-card-body" id="statuses">
         <div class="skeleton mb-2" style="width:80%"></div>
         <div class="skeleton mb-2" style="width:60%"></div>
@@ -55,12 +56,12 @@
   <div class="col-12 col-xl-4">
     <div class="console-card h-100">
       <div class="console-card-head">
-        <h2>ينتهي خلال 30 يومًا</h2>
-        <a class="btn btn-sm btn-ghost" href="{% url 'console:tenant_list' %}?expiring=1">الكل</a>
+        <h2>{% translate "ينتهي خلال 30 يومًا" %}</h2>
+        <a class="btn btn-sm btn-ghost" href="{% url 'console:tenant_list' %}?expiring=1">{% translate "الكل" %}</a>
       </div>
       <div class="console-card-body p-0">
         <table class="table table-compact mb-0">
-          <thead class="visually-hidden"><tr><th>العميل</th><th>التاريخ</th></tr></thead>
+          <thead class="visually-hidden"><tr><th>{% translate "العميل" %}</th><th>{% translate "التاريخ" %}</th></tr></thead>
           <tbody id="expiring-body"></tbody>
         </table>
       </div>
@@ -70,12 +71,12 @@
   <div class="col-12 col-xl-4">
     <div class="console-card h-100">
       <div class="console-card-head">
-        <h2>قارب على حد الباقة</h2>
-        <a class="btn btn-sm btn-ghost" href="{% url 'console:tenant_list' %}?over_quota=1">الكل</a>
+        <h2>{% translate "قارب على حد الباقة" %}</h2>
+        <a class="btn btn-sm btn-ghost" href="{% url 'console:tenant_list' %}?over_quota=1">{% translate "الكل" %}</a>
       </div>
       <div class="console-card-body p-0">
         <table class="table table-compact mb-0">
-          <thead class="visually-hidden"><tr><th>العميل</th><th>الاستهلاك</th></tr></thead>
+          <thead class="visually-hidden"><tr><th>{% translate "العميل" %}</th><th>{% translate "الاستهلاك" %}</th></tr></thead>
           <tbody id="pressure-body"></tbody>
         </table>
       </div>
@@ -85,12 +86,12 @@
 
 <div class="console-card mt-3">
   <div class="console-card-head">
-    <h2>آخر ما جرى على المنصة</h2>
-    <a class="btn btn-sm btn-ghost" href="{% url 'console:audit' %}">السجل الكامل</a>
+    <h2>{% translate "آخر ما جرى على المنصة" %}</h2>
+    <a class="btn btn-sm btn-ghost" href="{% url 'console:audit' %}">{% translate "السجل الكامل" %}</a>
   </div>
   <div class="console-card-body p-0">
     <table class="table table-compact mb-0">
-      <thead><tr><th>الوقت</th><th>الإجراء</th><th>العميل</th><th>المشغّل</th><th>السبب</th></tr></thead>
+      <thead><tr><th>{% translate "الوقت" %}</th><th>{% translate "الإجراء" %}</th><th>{% translate "العميل" %}</th><th>{% translate "المشغّل" %}</th><th>{% translate "السبب" %}</th></tr></thead>
       <tbody id="audit-body"></tbody>
     </table>
   </div>
@@ -152,7 +153,7 @@ async function load(quiet) {
           }
         }
       ],
-      { emptyMessage: "لا شيء ينتهي قريبًا" }
+      { emptyMessage: gettext("لا شيء ينتهي قريبًا") }
     );
 
     ui.renderRows(
@@ -162,7 +163,7 @@ async function load(quiet) {
         { render: tenantLink },
         { className: "text-end", render: function (row) { return meter(row.pressure); } }
       ],
-      { emptyMessage: "كل العملاء لديهم متسع" }
+      { emptyMessage: gettext("كل العملاء لديهم متسع") }
     );
 
     ui.renderRows(
@@ -180,7 +181,7 @@ async function load(quiet) {
         { key: "actor", className: "small text-muted" },
         { key: "reason", className: "small text-muted" }
       ],
-      { emptyMessage: "لم يحدث شيء بعد" }
+      { emptyMessage: gettext("لم يحدث شيء بعد") }
     );
   });
 }

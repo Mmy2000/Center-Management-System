@@ -1,11 +1,12 @@
 {% extends "console/base.html" %}
-{% block title %}العملاء{% endblock %}
-{% block heading %}العملاء{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "العملاء" %}{% endblock %}
+{% block heading %}{% translate "العملاء" %}{% endblock %}
 {% block subheading %}<div class="console-sub" id="count-line">&nbsp;</div>{% endblock %}
 
 {% block topbar_actions %}
   <a class="btn btn-sm btn-primary" href="{% url 'console:tenant_new' %}">
-    <svg class="icon"><use href="#i-plus"></use></svg>عميل جديد
+    <svg class="icon"><use href="#i-plus"></use></svg>{% translate "عميل جديد" %}
   </a>
 {% endblock %}
 
@@ -13,26 +14,26 @@
 <div class="filter-bar mb-3">
   <div class="row g-2 align-items-end">
     <div class="col-12 col-lg-4">
-      <label class="form-label" for="f-q">بحث</label>
+      <label class="form-label" for="f-q">{% translate "بحث" %}</label>
       <div class="app-search">
         <input class="form-control" id="f-q" type="search"
-               placeholder="اسم، معرّف، نطاق أو بريد المسؤول"
+               placeholder="{% translate 'اسم، معرّف، نطاق أو بريد المسؤول' %}"
                value="{{ request.GET.q|default:'' }}">
       </div>
     </div>
     <div class="col-6 col-lg-2">
-      <label class="form-label" for="f-status">الحالة</label>
+      <label class="form-label" for="f-status">{% translate "الحالة" %}</label>
       <select class="form-select" id="f-status">
-        <option value="">الكل</option>
+        <option value="">{% translate "الكل" %}</option>
         {% for value, label in status_choices %}
           <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
         {% endfor %}
       </select>
     </div>
     <div class="col-6 col-lg-2">
-      <label class="form-label" for="f-plan">الباقة</label>
+      <label class="form-label" for="f-plan">{% translate "الباقة" %}</label>
       <select class="form-select" id="f-plan">
-        <option value="">الكل</option>
+        <option value="">{% translate "الكل" %}</option>
         {% for plan in plans %}
           <option value="{{ plan.slug }}" {% if request.GET.plan == plan.slug %}selected{% endif %}>{{ plan.name }}</option>
         {% endfor %}
@@ -42,14 +43,14 @@
       <div class="form-check">
         <input class="form-check-input" type="checkbox" id="f-expiring"
                {% if request.GET.expiring %}checked{% endif %}>
-        <label class="form-check-label small" for="f-expiring">ينتهي قريبًا</label>
+        <label class="form-check-label small" for="f-expiring">{% translate "ينتهي قريبًا" %}</label>
       </div>
       <div class="form-check">
         <input class="form-check-input" type="checkbox" id="f-quota"
                {% if request.GET.over_quota %}checked{% endif %}>
-        <label class="form-check-label small" for="f-quota">قارب على الحد</label>
+        <label class="form-check-label small" for="f-quota">{% translate "قارب على الحد" %}</label>
       </div>
-      <button class="btn btn-sm btn-ghost ms-auto" type="button" id="clear">مسح</button>
+      <button class="btn btn-sm btn-ghost ms-auto" type="button" id="clear">{% translate "مسح" %}</button>
     </div>
   </div>
 </div>
@@ -59,13 +60,13 @@
     <table class="table table-sticky mb-0">
       <thead>
         <tr>
-          <th>العميل</th>
-          <th>الحالة</th>
-          <th>الباقة</th>
-          <th class="text-end">الطلاب</th>
-          <th class="text-end">المستخدمون</th>
-          <th>الاستهلاك</th>
-          <th>التجديد</th>
+          <th>{% translate "العميل" %}</th>
+          <th>{% translate "الحالة" %}</th>
+          <th>{% translate "الباقة" %}</th>
+          <th class="text-end">{% translate "الطلاب" %}</th>
+          <th class="text-end">{% translate "المستخدمون" %}</th>
+          <th>{% translate "الاستهلاك" %}</th>
+          <th>{% translate "التجديد" %}</th>
         </tr>
       </thead>
       <tbody id="tenants-body"></tbody>
@@ -145,11 +146,13 @@ async function load() {
   await ui.table("tenants-body", async function (tbody) {
     const payload = await http.get(LIST + "?" + query);
     ui.renderRows(tbody, payload.data.results, COLUMNS, {
-      emptyMessage: "لا يوجد عميل مطابق",
+      emptyMessage: gettext("لا يوجد عميل مطابق"),
       emptyIcon: "groups"
     });
     document.getElementById("count-line").textContent =
-      payload.data.count + (payload.data.count === 1 ? " عميل" : " عميل");
+      payload.data.count === 1
+        ? gettext("عميل واحد")
+        : payload.data.count + " " + gettext("عميلًا");
   });
 }
 

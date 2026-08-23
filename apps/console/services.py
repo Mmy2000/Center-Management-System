@@ -13,6 +13,7 @@ import string
 from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from apps.tenancy.constants import BillingCycle, FeatureState, PlatformAction, TenantStatus
 from apps.tenancy.context import tenant_context
@@ -136,7 +137,7 @@ def set_feature(tenant, feature_key: str, state: str, *, actor=None, note: str =
     if spec.is_core:
         raise DomainError(
             "ERR_CORE_FEATURE",
-            "لا يمكن تعطيل خاصية أساسية.",
+            _("لا يمكن تعطيل خاصية أساسية."),
             status=409,
             data={"feature": feature_key},
         )
@@ -151,7 +152,7 @@ def set_feature(tenant, feature_key: str, state: str, *, actor=None, note: str =
         if not remaining_methods(tenant, without=feature_key):
             raise DomainError(
                 "ERR_LAST_METHOD",
-                "لا يمكن تعطيل آخر طريقة لتسجيل الحضور. فعّل طريقة أخرى أولًا.",
+                _("لا يمكن تعطيل آخر طريقة لتسجيل الحضور. فعّل طريقة أخرى أولًا."),
                 status=409,
                 data={"feature": feature_key},
             )
@@ -294,7 +295,7 @@ def plan_change_warnings(tenant, plan: Plan) -> list[str]:
     for key in losing:
         spec = spec_for(key)
         if not spec.is_core:
-            warnings.append(f"ستفقد: {spec.label}")
+            warnings.append(_("ستفقد: %(feature)s") % {"feature": spec.label})
 
     for resource in ("students", "users", "groups", "cards"):
         cap = getattr(plan, f"max_{resource}", None)
@@ -303,7 +304,8 @@ def plan_change_warnings(tenant, plan: Plan) -> list[str]:
         used = quota.usage(tenant, resource, live=True)
         if used > cap:
             warnings.append(
-                f"العميل لديه {used} {quota.LABELS[resource]} والحد في هذه الباقة {cap}."
+                _("العميل لديه %(used)s %(resource)s والحد في هذه الباقة %(cap)s.")
+                % {"used": used, "resource": quota.LABELS[resource], "cap": cap}
             )
     return warnings
 

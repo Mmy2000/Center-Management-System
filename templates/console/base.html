@@ -1,19 +1,29 @@
-{% load static %}<!doctype html>
+{% load static i18n %}<!doctype html>
 {# Same asset stack as the product — app.css, buttons.css, select.css, http.js, ui.js, app.js — so tables, toasts, skeletons, the top progress bar and the custom select behave identically here. Only the chrome differs; console.css explains why. #}
-<html lang="ar" dir="rtl" data-bs-theme="light" data-density="{{ UI_DENSITY|default:'comfortable' }}">
+<html lang="{{ LANGUAGE_CODE|default:'ar' }}" dir="{% if LANGUAGE_BIDI %}rtl{% else %}ltr{% endif %}"
+      data-theme="slate" data-bs-theme="light" data-density="comfortable"
+      data-default-theme="slate" data-default-accent="#3d5a7d"
+      data-default-mode="light" data-default-density="comfortable">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>{% block title %}لوحة المنصة{% endblock %} · Platform</title>
+  <title>{% block title %}{% translate "لوحة المنصة" %}{% endblock %} · Platform</title>
 
   <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
-  <link rel="stylesheet" href="{% static 'vendor/bootstrap.rtl.min.css' %}">
+  {% if LANGUAGE_BIDI %}
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap.rtl.min.css' %}">
+  {% else %}
+    <link rel="stylesheet" href="{% static 'vendor/bootstrap.min.css' %}">
+  {% endif %}
   <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  <link rel="stylesheet" href="{% static 'css/themes.css' %}">
   <link rel="stylesheet" href="{% static 'css/buttons.css' %}">
   <link rel="stylesheet" href="{% static 'css/select.css' %}">
   <link rel="stylesheet" href="{% static 'css/auth.css' %}">
   <link rel="stylesheet" href="{% static 'css/console.css' %}">
+  {# Runs before first paint, so an operator's palette never flashes the default one. #}
+  <script src="{% static 'js/theme.js' %}"></script>
   {% block extra_css %}{% endblock %}
 </head>
 <body class="console">
@@ -25,29 +35,29 @@
     <a class="console-brand" href="{% url 'console:dashboard' %}">
       <span class="console-mark">PLT</span>
       <span>
-        <span class="console-brand-text d-block">لوحة المنصة</span>
+        <span class="console-brand-text d-block">{% translate "لوحة المنصة" %}</span>
         <span class="console-brand-sub">platform console</span>
       </span>
     </a>
 
     <nav class="console-nav">
       <a class="console-link {% if nav == 'dashboard' %}active{% endif %}" href="{% url 'console:dashboard' %}">
-        <svg class="icon"><use href="#i-dashboard"></use></svg>نظرة عامة
+        <svg class="icon"><use href="#i-dashboard"></use></svg>{% translate "نظرة عامة" %}
       </a>
       <a class="console-link {% if nav == 'tenants' %}active{% endif %}" href="{% url 'console:tenant_list' %}">
-        <svg class="icon"><use href="#i-groups"></use></svg>العملاء
+        <svg class="icon"><use href="#i-groups"></use></svg>{% translate "العملاء" %}
         {% if tenant_count %}<span class="count">{{ tenant_count }}</span>{% endif %}
       </a>
       <a class="console-link {% if nav == 'plans' %}active{% endif %}" href="{% url 'console:plan_list' %}">
-        <svg class="icon"><use href="#i-settings"></use></svg>الباقات
+        <svg class="icon"><use href="#i-settings"></use></svg>{% translate "الباقات" %}
       </a>
       <a class="console-link {% if nav == 'audit' %}active{% endif %}" href="{% url 'console:audit' %}">
-        <svg class="icon"><use href="#i-audit"></use></svg>سجل المنصة
+        <svg class="icon"><use href="#i-audit"></use></svg>{% translate "سجل المنصة" %}
       </a>
 
-      <div class="console-nav-section">إجراءات</div>
+      <div class="console-nav-section">{% translate "إجراءات" %}</div>
       <a class="console-link" href="{% url 'console:tenant_new' %}">
-        <svg class="icon"><use href="#i-plus"></use></svg>عميل جديد
+        <svg class="icon"><use href="#i-plus"></use></svg>{% translate "عميل جديد" %}
       </a>
     </nav>
 
@@ -56,11 +66,11 @@
         <span class="avatar">{{ user.display_name|slice:":1"|upper }}</span>
         <span>
           <span class="console-who-name d-block">{{ user.display_name }}</span>
-          <span class="console-who-role">مشغّل المنصة</span>
+          <span class="console-who-role">{% translate "مشغّل المنصة" %}</span>
         </span>
       </div>
       <a class="console-link" href="{% url 'console:logout' %}">
-        <svg class="icon"><use href="#i-logout"></use></svg>تسجيل الخروج
+        <svg class="icon"><use href="#i-logout"></use></svg>{% translate "تسجيل الخروج" %}
       </a>
     </div>
   </aside>
@@ -70,7 +80,7 @@
   <div class="console-main">
     <header class="console-topbar">
       <button class="btn btn-ghost btn-icon-only d-lg-none" type="button" data-nav-toggle
-              aria-label="القائمة">
+              aria-label="{% translate 'القائمة' %}">
         <svg class="icon"><use href="#i-menu"></use></svg>
       </button>
       {% block topbar %}
@@ -79,7 +89,12 @@
           {% block subheading %}{% endblock %}
         </div>
       {% endblock %}
-      <div class="ms-auto d-flex align-items-center gap-2">{% block topbar_actions %}{% endblock %}</div>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        {% block topbar_actions %}{% endblock %}
+        <span class="console-topbar-divider"></span>
+        {% include "partials/_language.html" %}
+        {% include "partials/_theme_picker.html" %}
+      </div>
     </header>
 
     <main class="console-content">
@@ -87,7 +102,7 @@
         {% for message in messages %}
           <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
             {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="إغلاق"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{% translate 'إغلاق' %}"></button>
           </div>
         {% endfor %}
       </div>

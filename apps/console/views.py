@@ -15,6 +15,7 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 
@@ -67,7 +68,7 @@ def console_login(request):
         # One message for every failure — unknown user, wrong password, a
         # center's account. Distinguishing them would tell an attacker which
         # usernames exist on the platform.
-        error = "بيانات الدخول غير صحيحة."
+        error = _("بيانات الدخول غير صحيحة.")
         if wants_json:
             return fail("ERR_AUTH_FAILED", error, status=401)
 
@@ -256,7 +257,7 @@ def tenant_detail(request, pk):
 def tenant_usage_refresh(request, pk):
     tenant = get_object_or_404(Tenant, pk=pk)
     services.refresh_usage(tenant)
-    messages.success(request, "تم تحديث الأرقام.")
+    messages.success(request, _("تم تحديث الأرقام."))
     return redirect(reverse("console:tenant_detail", args=[tenant.pk]))
 
 
@@ -319,19 +320,19 @@ def tenant_status(request, pk):
 
     if action == "resume":
         services.resume(tenant, reason=request.POST.get("reason", ""), actor=request.user)
-        messages.success(request, "تم إعادة تفعيل العميل.")
+        messages.success(request, _("تم إعادة تفعيل العميل."))
     elif form.is_valid():
         reason = form.cleaned_data["reason"]
         if action == "suspend":
             services.suspend(tenant, reason=reason, actor=request.user)
-            messages.warning(request, "تم إيقاف العميل. البيانات كما هي.")
+            messages.warning(request, _("تم إيقاف العميل. البيانات كما هي."))
         elif action == "archive":
             services.archive(tenant, reason=reason, actor=request.user)
-            messages.warning(request, "تمت أرشفة العميل.")
+            messages.warning(request, _("تمت أرشفة العميل."))
         else:
-            messages.error(request, "إجراء غير معروف.")
+            messages.error(request, _("إجراء غير معروف."))
     else:
-        messages.error(request, "السبب مطلوب.")
+        messages.error(request, _("السبب مطلوب."))
 
     return redirect(reverse("console:tenant_detail", args=[tenant.pk]))
 
@@ -347,9 +348,9 @@ def tenant_plan(request, pk):
             messages.warning(request, warning)
         services.change_plan(tenant, plan, actor=request.user, reason=form.cleaned_data["reason"])
         quota.invalidate(tenant)
-        messages.success(request, "تم تغيير الباقة.")
+        messages.success(request, _("تم تغيير الباقة."))
     else:
-        messages.error(request, "باقة غير صحيحة.")
+        messages.error(request, _("باقة غير صحيحة."))
     return redirect(reverse("console:tenant_detail", args=[tenant.pk]))
 
 
@@ -403,7 +404,7 @@ def tenant_feature_set(request, pk):
     tenant = get_object_or_404(Tenant.objects.select_related("plan"), pk=pk)
     form = forms.FeatureToggleForm(request.POST)
     if not form.is_valid():
-        return fail("ERR_VALIDATION", "بيانات غير صحيحة", status=400)
+        return fail("ERR_VALIDATION", _("بيانات غير صحيحة"), status=400)
 
     try:
         services.set_feature(
@@ -414,7 +415,7 @@ def tenant_feature_set(request, pk):
             note=form.cleaned_data["note"],
         )
     except KeyError:
-        return fail("ERR_NOT_FOUND", "خاصية غير معروفة", status=404)
+        return fail("ERR_NOT_FOUND", _("خاصية غير معروفة"), status=404)
     except DomainError as exc:
         return fail(exc.code, exc.message, status=exc.status, data=exc.data)
 
@@ -442,11 +443,11 @@ def tenant_enter(request, pk):
     tenant = get_object_or_404(Tenant.objects.select_related("plan"), pk=pk)
     form = forms.ImpersonationForm(request.POST)
     if not form.is_valid():
-        messages.error(request, "السبب مطلوب للدخول نيابةً عن العميل.")
+        messages.error(request, _("السبب مطلوب للدخول نيابةً عن العميل."))
         return redirect(reverse("console:tenant_detail", args=[tenant.pk]))
 
     if not tenant.is_operational:
-        messages.error(request, "لا يمكن الدخول إلى حساب موقوف.")
+        messages.error(request, _("لا يمكن الدخول إلى حساب موقوف."))
         return redirect(reverse("console:tenant_detail", args=[tenant.pk]))
 
     expires = timezone.now() + timezone.timedelta(minutes=IMPERSONATION_MINUTES)
@@ -481,7 +482,7 @@ def tenant_enter(request, pk):
 def tenant_leave(request):
     """End an impersonation session from the console side."""
     record_impersonation_end(request)
-    messages.success(request, "تم إنهاء الدخول نيابةً.")
+    messages.success(request, _("تم إنهاء الدخول نيابةً."))
     return redirect(reverse("console:tenant_list"))
 
 
@@ -539,8 +540,14 @@ def tenant_delete(request, pk):
     services.archive(tenant, reason=form.cleaned_data["reason"], actor=request.user)
     messages.warning(
         request,
-        f"تمت أرشفة العميل. تُحذف البيانات نهائيًا بعد {tenant.plan.retention_days} يومًا "
-        f"({tenant.purge_after:%Y-%m-%d}) عبر أمر purge_tenants.",
+        _(
+            "تمت أرشفة العميل. تُحذف البيانات نهائيًا بعد %(days)s يومًا "
+            "(%(date)s) عبر أمر purge_tenants."
+        )
+        % {
+            "days": tenant.plan.retention_days,
+            "date": f"{tenant.purge_after:%Y-%m-%d}",
+        },
     )
     return redirect(reverse("console:tenant_detail", args=[tenant.pk]))
 
@@ -572,7 +579,7 @@ def plan_edit(request, pk=None):
 
     if request.method == "POST" and form.is_valid():
         saved = services.save_plan(form, actor=request.user)
-        messages.success(request, "تم حفظ الباقة.")
+        messages.success(request, _("تم حفظ الباقة."))
         return redirect(reverse("console:plan_list") + f"#plan-{saved.pk}")
 
     from apps.tenancy.features import IMPLEMENTED_METHOD_KEYS

@@ -1,28 +1,27 @@
 {% extends "console/base.html" %}
-{% block title %}{{ tenant.name }} · الخصائص{% endblock %}
+{% load i18n %}
+{% block title %}{{ tenant.name }} {% translate "· الخصائص" %}{% endblock %}
 
 {% block topbar %}
   <div>
     <div class="breadcrumb-mini">
-      <a href="{% url 'console:tenant_list' %}">العملاء</a> ›
+      <a href="{% url 'console:tenant_list' %}">{% translate "العملاء" %}</a> ›
       <a href="{% url 'console:tenant_detail' tenant.pk %}">{{ tenant.name }}</a> ›
     </div>
-    <h1 class="console-title">الخصائص</h1>
+    <h1 class="console-title">{% translate "الخصائص" %}</h1>
   </div>
 {% endblock %}
 
 {% block topbar_actions %}
-  <span class="badge badge-soft badge-soft-primary">باقة {{ tenant.plan.name }}</span>
+  <span class="badge badge-soft badge-soft-primary">{% blocktranslate with name=tenant.plan.name %}باقة {{ name }}{% endblocktranslate %}</span>
 {% endblock %}
 
 {% block content %}
 <div class="alert alert-info d-flex gap-2 align-items-start">
   <svg class="icon"><use href="#i-info"></use></svg>
   <div class="small">
-    <strong>الباقة</strong> هي ما تمنحه الباقة. <strong>التخصيص</strong> هو ما تضبطه أنت لهذا
-    العميل. <strong>الفعلي</strong> هو ما يحصل عليه بالفعل — تُطبَّق التبعيات، فإيقاف
-    المدفوعات يأخذ معه الاستردادات والإيصالات والتقارير المالية.
-    <br>تعطيل أي خاصية <strong>لا يحذف أي بيانات</strong>: إعادة تفعيلها تُرجع كل شيء كما كان.
+    {% blocktranslate %}<strong>الباقة</strong> هي ما تمنحه الباقة. <strong>التخصيص</strong> هو ما تضبطه أنت لهذا العميل. <strong>الفعلي</strong> هو ما يحصل عليه بالفعل — تُطبَّق التبعيات، فإيقاف المدفوعات يأخذ معه الاستردادات والإيصالات والتقارير المالية.{% endblocktranslate %}
+    <br>{% blocktranslate %}تعطيل أي خاصية <strong>لا يحذف أي بيانات</strong>: إعادة تفعيلها تُرجع كل شيء كما كان.{% endblocktranslate %}
   </div>
 </div>
 
@@ -31,9 +30,9 @@
     <div class="console-card-head">
       <h2>{{ group.label }}</h2>
       <div class="d-none d-lg-flex text-muted small gap-4">
-        <span style="width:5.5rem;text-align:center">الباقة</span>
-        <span style="width:11rem;text-align:center">التخصيص</span>
-        <span style="width:4.5rem;text-align:center">الفعلي</span>
+        <span style="width:5.5rem;text-align:center">{% translate "الباقة" %}</span>
+        <span style="width:11rem;text-align:center">{% translate "التخصيص" %}</span>
+        <span style="width:4.5rem;text-align:center">{% translate "الفعلي" %}</span>
       </div>
     </div>
     <div class="console-card-body py-1">
@@ -43,7 +42,7 @@
             <div class="feature-name">
               {{ row.spec.label }}
               {% if row.spec.is_core %}
-                <span class="badge badge-soft badge-soft-secondary">أساسية</span>
+                <span class="badge badge-soft badge-soft-secondary">{% translate "أساسية" %}</span>
               {% endif %}
             </div>
             <div class="feature-key">{{ row.spec.key }}</div>
@@ -52,16 +51,16 @@
 
           <div class="feature-plan" data-plan>
             {% if row.plan_default %}
-              <span class="badge badge-soft badge-soft-success">مُتاح</span>
+              <span class="badge badge-soft badge-soft-success">{% translate "مُتاح" %}</span>
             {% else %}
-              <span class="badge badge-soft badge-soft-secondary">غير مُتاح</span>
+              <span class="badge badge-soft badge-soft-secondary">{% translate "غير مُتاح" %}</span>
             {% endif %}
           </div>
 
           <div>
             <select class="form-select form-select-sm feature-state"
                     aria-label="{{ row.spec.label }}"
-                    {% if row.spec.is_core %}disabled title="خاصية أساسية — لا يمكن تعطيلها."{% endif %}>
+                    {% if row.spec.is_core %}disabled title="{% translate 'خاصية أساسية — لا يمكن تعطيلها.' %}"{% endif %}>
               {% for value, label in states %}
                 <option value="{{ value }}" {% if row.state == value %}selected{% endif %}>{{ label }}</option>
               {% endfor %}
@@ -69,7 +68,7 @@
           </div>
 
           <div class="feature-effective {% if row.effective %}on{% else %}off{% endif %}" data-effective>
-            {% if row.effective %}مُفعّل{% else %}مُعطّل{% endif %}
+            {% if row.effective %}{% translate "مُفعّل" %}{% else %}{% translate "مُعطّل" %}{% endif %}
           </div>
         </div>
       {% endfor %}
@@ -90,7 +89,7 @@ function repaint(effective) {
     const badge = row.querySelector("[data-effective]");
     const on = enabled.has(row.dataset.key);
     const changed = badge.classList.contains("on") !== on;
-    badge.textContent = on ? "مُفعّل" : "مُعطّل";
+    badge.textContent = on ? gettext("مُفعّل") : gettext("مُعطّل");
     badge.classList.toggle("on", on);
     badge.classList.toggle("off", !on);
     if (changed) {
@@ -114,7 +113,7 @@ document.querySelectorAll(".feature-state").forEach(function (select) {
       });
       repaint(payload.data.effective);
       previous = select.value;
-      app.toast("تم الحفظ", "success");
+      app.toast(gettext("تم الحفظ"), "success");
     } catch (error) {
       // Put the control back where it was: a select showing a value the server
       // refused is worse than no feedback at all.

@@ -13,29 +13,28 @@
    ========================================================================== */
 
 .console {
-  /* A fixed identity ramp: the console does not follow a client's theme,
-     because "which client's colours am I seeing?" is exactly the confusion
-     this page has to prevent. */
-  --brand-50:  #eef2f7;
-  --brand-100: #dbe3ec;
-  --brand-200: #b6c5d6;
-  --brand-300: #8aa0b9;
-  --brand-400: #5d7a99;
-  --brand-500: #3d5a7d;
-  --brand-600: #2f4763;
-  --brand-700: #24374d;
-  --brand-800: #1a2839;
-  --brand-900: #111c28;
-
+  /* The palette is the operator's own — themes.css and theme.js drive it here
+     exactly as they do inside a center, defaulting to slate.
+     *
+     * The earlier note here said the console must not follow a theme at all.
+     * That reasoning was about a *client's* theme: the console has no tenant,
+     * so what it follows is the operator's own choice on their own machine,
+     * which cannot make them wonder whose data they are looking at. The signal
+     * that answers that question is the dark rail and the PLATFORM mark below,
+     * and those stay fixed through every palette and both modes. */
   --rail-w: 232px;
   --rail-bg: linear-gradient(180deg, #1b2735 0%, #111a24 100%);
 
-  --bs-primary: var(--brand-500);
-  --bs-link-color: var(--brand-600);
-  --bs-link-hover-color: var(--brand-700);
-
   background: var(--canvas);
   min-height: 100vh;
+}
+
+/* The rail keeps its own colours in dark mode too — it is an identity, not a
+   surface. */
+[data-bs-theme="dark"] .console { --rail-bg: linear-gradient(180deg, #141d27 0%, #0c131a 100%); }
+
+.console-topbar-divider {
+  width: 1px; height: 1.4rem; background: var(--ink-100); margin-inline: .25rem;
 }
 
 /* --------------------------------------------------------------- layout -- */
@@ -141,11 +140,14 @@
   white-space: nowrap;
 }
 .status-pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-.status-TRIAL     { background: var(--info-050);    color: var(--info-500);    border-color: #c3dbf0; }
-.status-ACTIVE    { background: var(--success-050); color: var(--success-500); border-color: #bfe3d5; }
-.status-PAST_DUE  { background: var(--warning-050); color: var(--warning-500); border-color: #f0dcb4; }
-.status-SUSPENDED { background: var(--danger-050);  color: var(--danger-500);  border-color: #f2c4cc; }
-.status-ARCHIVED  { background: var(--ink-050);     color: var(--ink-500);     border-color: var(--ink-200); }
+/* Borders derived from the text colour rather than fixed hexes, so a chip that
+   goes dark takes its outline with it. */
+.status-TRIAL     { background: var(--info-050);    color: var(--info-500); }
+.status-ACTIVE    { background: var(--success-050); color: var(--success-500); }
+.status-PAST_DUE  { background: var(--warning-050); color: var(--warning-500); }
+.status-SUSPENDED { background: var(--danger-050);  color: var(--danger-500); }
+.status-ARCHIVED  { background: var(--ink-050);     color: var(--ink-500); }
+.status-pill { border-color: color-mix(in srgb, currentColor 28%, transparent); }
 
 /* Usage against a plan limit. Colour is the *warning*, the number is the fact. */
 .meter { display: grid; gap: .2rem; min-width: 6.5rem; }
@@ -197,7 +199,9 @@
 .one-time-secret {
   font-family: ui-monospace, Consolas, monospace;
   font-size: 1.15rem; letter-spacing: .06em;
-  background: var(--ink-900); color: #6ee7a8;
+  /* Fixed, not tokenised: --ink-900 is near-white in dark mode, and green on
+     white is unreadable. This block is meant to look like a terminal in both. */
+  background: #101a24; color: #6ee7a8;
   padding: .8rem 1rem; border-radius: var(--radius);
   display: flex; align-items: center; justify-content: space-between; gap: .75rem;
 }
@@ -262,6 +266,7 @@
 .console-card { display: flex; flex-direction: column; }
 
 .price-block { background: var(--ink-050); border-radius: var(--radius); padding: .7rem .85rem; }
+.plan-retired .price-block { background: transparent; }
 .price-row { display: flex; align-items: baseline; gap: .5rem; padding: .15rem 0; }
 .price-cycle { font-size: .78rem; color: var(--ink-500); min-width: 3rem; }
 .price-now { font-size: 1.05rem; font-weight: 700; font-variant-numeric: tabular-nums; }

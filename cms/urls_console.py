@@ -47,6 +47,9 @@ console_patterns = [
         JavaScriptCatalog.as_view(domain="django"),
         name="javascript-catalog",
     ),
+    # The language switch posts here. The console has its own default, but an
+    # operator's choice is theirs — see tenancy.middleware.LanguageMiddleware.
+    path("i18n/", include("django.conf.urls.i18n")),
     path("", include("apps.console.urls")),
 ]
 

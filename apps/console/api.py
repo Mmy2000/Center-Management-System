@@ -16,6 +16,7 @@ from functools import wraps
 from django.db.models import Count, Q, Sum
 from django.http import Http404
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from apps.core.http import ajax, fail
 from apps.tenancy import quota
@@ -34,7 +35,7 @@ def console_ajax(methods=("GET",)):
             if not getattr(request, "is_console", False):
                 raise Http404("not the console host")
             if not request.user.is_platform_staff:
-                return fail("ERR_FORBIDDEN", "غير مسموح", status=404)
+                return fail("ERR_FORBIDDEN", _("غير مسموح"), status=404)
             return view(request, *args, **kwargs)
 
         return wrapper
@@ -193,22 +194,22 @@ def tenant_status(request, pk):
     if action != "resume" and len(reason) < 4:
         return fail(
             "ERR_VALIDATION",
-            "اكتب سببًا واضحًا.",
+            _("اكتب سببًا واضحًا."),
             status=400,
-            field_errors={"reason": ["السبب مطلوب"]},
+            field_errors={"reason": [_("السبب مطلوب")]},
         )
 
     if action == "suspend":
         services.suspend(tenant, reason=reason, actor=request.user)
-        message = "تم إيقاف العميل. البيانات كما هي."
+        message = _("تم إيقاف العميل. البيانات كما هي.")
     elif action == "resume":
         services.resume(tenant, reason=reason, actor=request.user)
-        message = "تم إعادة تفعيل العميل."
+        message = _("تم إعادة تفعيل العميل.")
     elif action == "archive":
         services.archive(tenant, reason=reason, actor=request.user)
-        message = "تمت أرشفة العميل."
+        message = _("تمت أرشفة العميل.")
     else:
-        return fail("ERR_VALIDATION", "إجراء غير معروف", status=400)
+        return fail("ERR_VALIDATION", _("إجراء غير معروف"), status=400)
 
     tenant.refresh_from_db()
     return {"tenant": tenant_json(tenant), "message": message}
@@ -229,7 +230,7 @@ def tenant_plan(request, pk):
     tenant = _get_tenant(pk)
     plan = Plan.objects.filter(pk=request.json.get("plan")).first()
     if plan is None:
-        return fail("ERR_VALIDATION", "باقة غير معروفة", status=400)
+        return fail("ERR_VALIDATION", _("باقة غير معروفة"), status=400)
 
     warnings = services.plan_change_warnings(tenant, plan)
     if request.json.get("preview"):
@@ -240,7 +241,7 @@ def tenant_plan(request, pk):
     )
     quota.invalidate(tenant)
     tenant.refresh_from_db()
-    return {"tenant": tenant_json(tenant), "warnings": warnings, "message": "تم تغيير الباقة."}
+    return {"tenant": tenant_json(tenant), "warnings": warnings, "message": _("تم تغيير الباقة.")}
 
 
 @console_ajax(methods=["POST"])
@@ -257,12 +258,12 @@ def tenant_feature(request, pk):
     key = request.json.get("feature_key") or ""
     state = request.json.get("state")
     if state not in FeatureState.values:
-        return fail("ERR_VALIDATION", "حالة غير معروفة", status=400)
+        return fail("ERR_VALIDATION", _("حالة غير معروفة"), status=400)
 
     try:
         services.set_feature(tenant, key, state, actor=request.user, note="")
     except KeyError:
-        return fail("ERR_NOT_FOUND", "خاصية غير معروفة", status=404)
+        return fail("ERR_NOT_FOUND", _("خاصية غير معروفة"), status=404)
     except DomainError as exc:
         return fail(exc.code, exc.message, status=exc.status, data=exc.data)
 
@@ -308,14 +309,14 @@ def plan_active(request, pk):
     if not active and not Plan.objects.filter(is_active=True).exclude(pk=plan.pk).exists():
         return fail(
             "ERR_LAST_PLAN",
-            "لا يمكن إيقاف آخر باقة متاحة — لن تتمكن من إنشاء عملاء جدد.",
+            _("لا يمكن إيقاف آخر باقة متاحة — لن تتمكن من إنشاء عملاء جدد."),
             status=409,
         )
 
     services.set_plan_active(plan, active, actor=request.user)
     return {
         "plan": plan_json(plan),
-        "message": "الباقة متاحة الآن." if active else "أُوقفت الباقة للعملاء الجدد.",
+        "message": _("الباقة متاحة الآن.") if active else _("أُوقفت الباقة للعملاء الجدد."),
     }
 
 
@@ -337,11 +338,12 @@ def slug_check(request):
         return {"available": False, "reason": getattr(exc, "messages", [str(exc)])[0]}
 
     if Tenant.objects.filter(slug=slug).exists():
-        return {"available": False, "reason": "هذا المعرّف مستخدم بالفعل."}
+        return {"available": False, "reason": _("هذا المعرّف مستخدم بالفعل.")}
 
     host = services.host_for(slug, settings.TENANT_BASE_DOMAIN)
     if Domain.objects.filter(host=host).exists():
-        return {"available": False, "reason": f"النطاق {host} مستخدم بالفعل."}
+        reason = _("النطاق %(host)s مستخدم بالفعل.") % {"host": host}
+        return {"available": False, "reason": reason}
 
     return {"available": True, "host": host}
 

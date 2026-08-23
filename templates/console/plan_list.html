@@ -1,11 +1,12 @@
 {% extends "console/base.html" %}
-{% block title %}الباقات{% endblock %}
-{% block heading %}الباقات{% endblock %}
-{% block subheading %}<div class="console-sub">ما تمنحه كل باقة، وبكم، وكم عميلًا عليها</div>{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "الباقات" %}{% endblock %}
+{% block heading %}{% translate "الباقات" %}{% endblock %}
+{% block subheading %}<div class="console-sub">{% translate "ما تمنحه كل باقة، وبكم، وكم عميلًا عليها" %}</div>{% endblock %}
 
 {% block topbar_actions %}
   <a class="btn btn-sm btn-primary" href="{% url 'console:plan_new' %}">
-    <svg class="icon"><use href="#i-plus"></use></svg>باقة جديدة
+    <svg class="icon"><use href="#i-plus"></use></svg>{% translate "باقة جديدة" %}
   </a>
 {% endblock %}
 
@@ -22,9 +23,9 @@
           </div>
           <div class="d-flex align-items-center gap-2">
             {% if plan.is_active %}
-              <span class="badge badge-soft badge-soft-success" data-state>متاحة</span>
+              <span class="badge badge-soft badge-soft-success" data-state>{% translate "متاحة" %}</span>
             {% else %}
-              <span class="badge badge-soft badge-soft-secondary" data-state>موقوفة</span>
+              <span class="badge badge-soft badge-soft-secondary" data-state>{% translate "موقوفة" %}</span>
             {% endif %}
           </div>
         </div>
@@ -34,7 +35,7 @@
 
           <div class="price-block mb-3">
             <div class="price-row">
-              <span class="price-cycle">شهري</span>
+              <span class="price-cycle">{% translate "شهري" %}</span>
               {% if plan.monthly_price is not None %}
                 {% if plan.discount_is_live %}
                   <span class="price-was">{{ plan.monthly_price|floatformat:"2u" }}</span>
@@ -44,12 +45,12 @@
                 {% endif %}
                 <span class="price-cur">{{ plan.currency }}</span>
               {% else %}
-                <span class="text-muted small">غير مُتاح</span>
+                <span class="text-muted small">{% translate "غير مُتاح" %}</span>
               {% endif %}
             </div>
 
             <div class="price-row">
-              <span class="price-cycle">سنوي</span>
+              <span class="price-cycle">{% translate "سنوي" %}</span>
               {% if plan.yearly_price is not None %}
                 {% if plan.discount_is_live %}
                   <span class="price-was">{{ plan.yearly_price|floatformat:"2u" }}</span>
@@ -60,42 +61,42 @@
                 <span class="price-cur">{{ plan.currency }}</span>
                 {% if plan.yearly_saving_percent > 0 %}
                   <span class="badge badge-soft badge-soft-success">
-                    توفير {{ plan.yearly_saving_percent }}%
+                    {% blocktranslate with percent=plan.yearly_saving_percent %}توفير {{ percent }}%{% endblocktranslate %}
                   </span>
                 {% endif %}
               {% else %}
-                <span class="text-muted small">غير مُتاح</span>
+                <span class="text-muted small">{% translate "غير مُتاح" %}</span>
               {% endif %}
             </div>
 
             {% if plan.discount_is_live %}
               <div class="price-discount">
                 <svg class="icon"><use href="#i-money"></use></svg>
-                خصم {{ plan.discount_percent|floatformat:"-2" }}%
+                {% blocktranslate with percent=plan.discount_percent|floatformat:"-2" %}خصم {{ percent }}%{% endblocktranslate %}
                 {% if plan.discount_label %}— {{ plan.discount_label }}{% endif %}
-                {% if plan.discount_until %}<span class="text-muted">حتى {{ plan.discount_until|date:"Y-m-d" }}</span>{% endif %}
+                {% if plan.discount_until %}<span class="text-muted">{% blocktranslate with until=plan.discount_until|date:"Y-m-d" %}حتى {{ until }}{% endblocktranslate %}</span>{% endif %}
               </div>
             {% elif plan.discount_percent > 0 %}
               <div class="price-discount expired">
-                خصم {{ plan.discount_percent|floatformat:"-2" }}% انتهى في {{ plan.discount_until|date:"Y-m-d" }}
+                {% blocktranslate with percent=plan.discount_percent|floatformat:"-2" until=plan.discount_until|date:"Y-m-d" %}خصم {{ percent }}% انتهى في {{ until }}{% endblocktranslate %}
               </div>
             {% endif %}
           </div>
 
           <table class="table table-compact mb-3">
             <tbody>
-              <tr><td>الطلاب</td><td class="text-end num">{{ plan.max_students|default:"بلا حد" }}</td></tr>
-              <tr><td>المستخدمون</td><td class="text-end num">{{ plan.max_users|default:"بلا حد" }}</td></tr>
-              <tr><td>المجموعات</td><td class="text-end num">{{ plan.max_groups|default:"بلا حد" }}</td></tr>
-              <tr><td>البطاقات</td><td class="text-end num">{{ plan.max_cards|default:"بلا حد" }}</td></tr>
+              <tr><td>{% translate "الطلاب" %}</td><td class="text-end num">{{ plan.max_students|default:_("بلا حد") }}</td></tr>
+              <tr><td>{% translate "المستخدمون" %}</td><td class="text-end num">{{ plan.max_users|default:_("بلا حد") }}</td></tr>
+              <tr><td>{% translate "المجموعات" %}</td><td class="text-end num">{{ plan.max_groups|default:_("بلا حد") }}</td></tr>
+              <tr><td>{% translate "البطاقات" %}</td><td class="text-end num">{{ plan.max_cards|default:_("بلا حد") }}</td></tr>
             </tbody>
           </table>
 
           <div class="d-flex align-items-center gap-2 flex-wrap">
-            <span class="badge badge-soft badge-soft-secondary">{{ plan.features.count }} خاصية</span>
+            <span class="badge badge-soft badge-soft-secondary">{{ plan.features.count }} {% translate "خاصية" %}</span>
             <a class="badge badge-soft badge-soft-primary text-decoration-none"
                href="{% url 'console:tenant_list' %}?plan={{ plan.slug }}">
-              {{ plan.tenant_count }} عميل
+              {{ plan.tenant_count }} {% translate "عميل" %}
             </a>
             {% if plan.price_note %}<span class="small text-muted">{{ plan.price_note }}</span>{% endif %}
           </div>
@@ -103,11 +104,11 @@
 
         <div class="console-card-foot">
           <a class="btn btn-sm btn-soft-secondary" href="{% url 'console:plan_edit' plan.pk %}">
-            <svg class="icon"><use href="#i-settings"></use></svg>تعديل
+            <svg class="icon"><use href="#i-settings"></use></svg>{% translate "تعديل" %}
           </a>
           <button class="btn btn-sm {% if plan.is_active %}btn-ghost{% else %}btn-soft-success{% endif %}"
                   type="button" data-toggle-active data-active="{{ plan.is_active|yesno:'1,0' }}">
-            {% if plan.is_active %}إيقاف{% else %}إتاحة{% endif %}
+            {% if plan.is_active %}{% translate "إيقاف" %}{% else %}{% translate "إتاحة" %}{% endif %}
           </button>
         </div>
       </div>
@@ -117,9 +118,9 @@
       <div class="console-card">
         <div class="empty-state">
           <svg class="icon icon-xl"><use href="#i-empty"></use></svg>
-          <div class="empty-state-title">لا توجد باقات بعد</div>
-          <div class="small mb-3">أنشئ باقة، أو شغّل <code>manage.py seed_plans</code> للثلاث الافتراضية.</div>
-          <a class="btn btn-primary btn-sm" href="{% url 'console:plan_new' %}">باقة جديدة</a>
+          <div class="empty-state-title">{% translate "لا توجد باقات بعد" %}</div>
+          <div class="small mb-3">{% blocktranslate %}أنشئ باقة، أو شغّل <code>manage.py seed_plans</code> للثلاث الافتراضية.{% endblocktranslate %}</div>
+          <a class="btn btn-primary btn-sm" href="{% url 'console:plan_new' %}">{% translate "باقة جديدة" %}</a>
         </div>
       </div>
     </div>
@@ -148,9 +149,9 @@ document.querySelectorAll("[data-toggle-active]").forEach(function (button) {
         const plan = payload.data.plan;
         card.classList.toggle("plan-retired", !plan.is_active);
         const state = card.querySelector("[data-state]");
-        state.textContent = plan.is_active ? "متاحة" : "موقوفة";
+        state.textContent = plan.is_active ? gettext("متاحة") : gettext("موقوفة");
         state.className = "badge badge-soft badge-soft-" + (plan.is_active ? "success" : "secondary");
-        button.textContent = plan.is_active ? "إيقاف" : "إتاحة";
+        button.textContent = plan.is_active ? gettext("إيقاف") : gettext("إتاحة");
         button.dataset.active = plan.is_active ? "1" : "0";
         button.className = "btn btn-sm " + (plan.is_active ? "btn-ghost" : "btn-soft-success");
       } catch (error) { app.handleError(error); }

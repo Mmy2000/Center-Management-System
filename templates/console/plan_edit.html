@@ -1,17 +1,18 @@
 {% extends "console/base.html" %}
-{% block title %}{% if plan %}تعديل {{ plan.name }}{% else %}باقة جديدة{% endif %}{% endblock %}
+{% load i18n %}
+{% block title %}{% if plan %}{% translate "تعديل" %} {{ plan.name }}{% else %}{% translate "باقة جديدة" %}{% endif %}{% endblock %}
 
 {% block topbar %}
   <div>
-    <div class="breadcrumb-mini"><a href="{% url 'console:plan_list' %}">الباقات</a> ›</div>
-    <h1 class="console-title">{% if plan %}{{ plan.name }}{% else %}باقة جديدة{% endif %}</h1>
+    <div class="breadcrumb-mini"><a href="{% url 'console:plan_list' %}">{% translate "الباقات" %}</a> ›</div>
+    <h1 class="console-title">{% if plan %}{{ plan.name }}{% else %}{% translate "باقة جديدة" %}{% endif %}</h1>
   </div>
 {% endblock %}
 
 {% block topbar_actions %}
   {% if tenant_count %}
     <a class="btn btn-sm btn-soft-secondary" href="{% url 'console:tenant_list' %}?plan={{ plan.slug }}">
-      {{ tenant_count }} عميل على هذه الباقة
+      {% blocktranslate with count=tenant_count %}{{ count }} عميل على هذه الباقة{% endblocktranslate %}
     </a>
   {% endif %}
 {% endblock %}
@@ -21,8 +22,7 @@
   <div class="alert alert-info d-flex gap-2 align-items-start">
     <svg class="icon"><use href="#i-info"></use></svg>
     <div class="small">
-      {{ tenant_count }} عميل على هذه الباقة الآن. تغيير الخصائص أو الحدود يسري عليهم
-      <strong>فورًا</strong>؛ تغيير السعر يُسجَّل فقط ولا يُغيّر ما يدفعونه اليوم.
+      {% blocktranslate with count=tenant_count %}{{ count }} عميل على هذه الباقة الآن. تغيير الخصائص أو الحدود يسري عليهم <strong>فورًا</strong>؛ تغيير السعر يُسجَّل فقط ولا يُغيّر ما يدفعونه اليوم.{% endblocktranslate %}
     </div>
   </div>
 {% endif %}
@@ -39,7 +39,7 @@
   <div class="row g-3">
     <div class="col-12 col-xl-7">
       <div class="console-card mb-3">
-        <div class="console-card-head"><h2>الهوية</h2></div>
+        <div class="console-card-head"><h2>{% translate "الهوية" %}</h2></div>
         <div class="console-card-body">
           <div class="row g-3">
             <div class="col-12 col-md-7">
@@ -50,7 +50,7 @@
             <div class="col-12 col-md-5">
               <label class="form-label" for="{{ form.slug.id_for_label }}">{{ form.slug.label }}</label>
               {{ form.slug }}
-              {% if plan %}<div class="form-text">لا يتغيّر — سكربتات التجهيز تعتمد عليه.</div>{% endif %}
+              {% if plan %}<div class="form-text">{% translate "لا يتغيّر — سكربتات التجهيز تعتمد عليه." %}</div>{% endif %}
               {% for e in form.slug.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
             </div>
             <div class="col-12">
@@ -80,8 +80,8 @@
 
       <div class="console-card mb-3">
         <div class="console-card-head">
-          <h2>السعر</h2>
-          <span class="text-muted small">يُسجَّل فقط — النظام لا يُصدر فواتير</span>
+          <h2>{% translate "السعر" %}</h2>
+          <span class="text-muted small">{% translate "يُسجَّل فقط — النظام لا يُصدر فواتير" %}</span>
         </div>
         <div class="console-card-body">
           <div class="row g-3">
@@ -123,15 +123,15 @@
 
           <div class="price-preview mt-3" id="preview">
             <div class="price-preview-row">
-              <span>الشهري بعد الخصم</span>
+              <span>{% translate "الشهري بعد الخصم" %}</span>
               <strong class="num" id="pv-monthly">—</strong>
             </div>
             <div class="price-preview-row">
-              <span>السنوي بعد الخصم</span>
+              <span>{% translate "السنوي بعد الخصم" %}</span>
               <strong class="num" id="pv-yearly">—</strong>
             </div>
             <div class="price-preview-row" id="pv-saving-row" hidden>
-              <span>توفير الاشتراك السنوي</span>
+              <span>{% translate "توفير الاشتراك السنوي" %}</span>
               <strong id="pv-saving">—</strong>
             </div>
           </div>
@@ -139,8 +139,8 @@
       </div>
 
       <div class="console-card">
-        <div class="console-card-head"><h2>الحدود</h2>
-          <span class="text-muted small">اتركه فارغًا = بلا حد</span>
+        <div class="console-card-head"><h2>{% translate "الحدود" %}</h2>
+          <span class="text-muted small">{% translate "اتركه فارغًا = بلا حد" %}</span>
         </div>
         <div class="console-card-body">
           <div class="row g-3">
@@ -165,7 +165,7 @@
     <div class="col-12 col-xl-5">
       <div class="console-card mb-3">
         <div class="console-card-head">
-          <h2>الخصائص المشمولة</h2>
+          <h2>{% translate "الخصائص المشمولة" %}</h2>
           <span class="text-muted small" id="feature-count"></span>
         </div>
         <div class="console-card-body">
@@ -188,13 +188,13 @@
                     <span class="plan-feature-name">
                       {{ row.spec.label }}
                       {% if row.spec.is_core %}
-                        <span class="badge badge-soft badge-soft-secondary">أساسية</span>
+                        <span class="badge badge-soft badge-soft-secondary">{% translate "أساسية" %}</span>
                       {% endif %}
                       {% if row.spec.is_method and not row.unbuilt %}
-                        <span class="badge badge-soft badge-soft-info">طريقة حضور</span>
+                        <span class="badge badge-soft badge-soft-info">{% translate "طريقة حضور" %}</span>
                       {% endif %}
                       {% if row.unbuilt %}
-                        <span class="badge badge-soft badge-soft-warning">غير مُنفّذة بعد</span>
+                        <span class="badge badge-soft badge-soft-warning">{% translate "غير مُنفّذة بعد" %}</span>
                       {% endif %}
                     </span>
                     <span class="plan-feature-key">{{ row.spec.key }}</span>
@@ -204,17 +204,16 @@
             {% endfor %}
           </div>
           <div class="form-text mt-2">
-            الخصائص الأساسية مُفعّلة دائمًا مهما كان الاختيار، ويجب اختيار طريقة
-            واحدة على الأقل لتسجيل الحضور. الخصائص غير المُنفّذة معروضة للاطلاع فقط.
+            {% translate "الخصائص الأساسية مُفعّلة دائمًا مهما كان الاختيار، ويجب اختيار طريقة واحدة على الأقل لتسجيل الحضور. الخصائص غير المُنفّذة معروضة للاطلاع فقط." %}
           </div>
         </div>
       </div>
 
       <div class="d-grid gap-2">
         <button class="btn btn-primary btn-lg" type="submit">
-          <svg class="icon"><use href="#i-check"></use></svg>حفظ الباقة
+          <svg class="icon"><use href="#i-check"></use></svg>{% translate "حفظ الباقة" %}
         </button>
-        <a class="btn btn-ghost" href="{% url 'console:plan_list' %}">إلغاء</a>
+        <a class="btn btn-ghost" href="{% url 'console:plan_list' %}">{% translate "إلغاء" %}</a>
       </div>
     </div>
   </div>

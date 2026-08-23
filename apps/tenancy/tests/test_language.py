@@ -67,32 +67,48 @@ def center(language="ar", slug="alpha"):
 # --------------------------------------------------------------------------- #
 
 
-@pytest.mark.parametrize("cookie", ["en", "ar", None])
-def test_the_console_is_arabic_whatever_the_browser_says(cookie, console, settings):
-    """Its templates are Arabic literals, so a browser set to English produced
-    Arabic headings beside English form labels — a screen that looks broken
-    because it is."""
-    if cookie:
-        console.cookies[settings.LANGUAGE_COOKIE_NAME] = cookie
+def test_the_console_defaults_to_arabic(console, settings):
+    """No cookie, no negotiation with the browser: CONSOLE_LANGUAGE decides.
 
-    from apps.tenancy.models import Plan
-
+    Without this the browser's Accept-Language chose, and an operator on an
+    English browser met Arabic headings beside English model labels.
+    """
     plan = make_plan("gold")
     html = console.get(
         reverse("console:plan_edit", args=[plan.pk], urlconf="cms.urls_console")
     ).content.decode("utf-8")
 
-    # A model-derived label — the half that used to come back in English.
     assert "الاسم" in html
     assert "Monthly price" not in html
-    assert Plan.objects.filter(pk=plan.pk).exists()
 
 
-def test_the_console_login_is_arabic_too(settings):
+def test_an_operator_can_switch_the_console_to_english(console, settings):
+    """The default is a default, not a lock — the switcher has to actually
+    switch, or offering the control is worse than not offering it."""
+    plan = make_plan("gold")
+    url = reverse("console:plan_edit", args=[plan.pk], urlconf="cms.urls_console")
+
+    console.cookies[settings.LANGUAGE_COOKIE_NAME] = "en"
+    html = console.get(url).content.decode("utf-8")
+
+    assert 'lang="en"' in html
+    assert 'dir="ltr"' in html
+
+
+def test_switching_back_to_arabic_restores_rtl(console, settings):
+    plan = make_plan("gold")
+    url = reverse("console:plan_edit", args=[plan.pk], urlconf="cms.urls_console")
+
+    console.cookies[settings.LANGUAGE_COOKIE_NAME] = "ar"
+    html = console.get(url).content.decode("utf-8")
+    assert 'lang="ar"' in html
+    assert 'dir="rtl"' in html
+
+
+def test_the_console_login_defaults_to_arabic(settings):
     """Signed out is where a wrong language is most visible."""
     client = Client()
     client.defaults["HTTP_HOST"] = CONSOLE_HOST
-    client.cookies[settings.LANGUAGE_COOKIE_NAME] = "en"
     html = client.get(reverse("console:login", urlconf="cms.urls_console")).content.decode("utf-8")
     assert "تسجيل الدخول" in html
 

@@ -1,43 +1,43 @@
 {% extends "console/base.html" %}
-{% block title %}تم إنشاء العميل{% endblock %}
-{% block heading %}تم الإنشاء{% endblock %}
+{% load i18n %}
+{% block title %}{% translate "تم إنشاء العميل" %}{% endblock %}
+{% block heading %}{% translate "تم الإنشاء" %}{% endblock %}
 
 {% block content %}
 <div class="console-card mx-auto" style="max-width: 40rem">
   <div class="console-card-head">
-    <h2>{{ tenant.name }} جاهز للعمل</h2>
+    <h2>{{ tenant.name }} {% translate "جاهز للعمل" %}</h2>
     <span class="status-pill status-{{ tenant.status }}">{{ tenant.get_status_display }}</span>
   </div>
 
   <div class="console-card-body">
     <dl class="kv mb-3">
-      <dt>الموقع</dt>
+      <dt>{% translate "الموقع" %}</dt>
       <dd><a href="http://{{ tenant.primary_host }}/" target="_blank" rel="noopener"><code>{{ tenant.primary_host }}</code></a></dd>
-      <dt>الباقة</dt><dd>{{ tenant.plan.name }}</dd>
-      <dt>اسم المستخدم</dt><dd><code>{{ owner.username }}</code></dd>
+      <dt>{% translate "الباقة" %}</dt><dd>{{ tenant.plan.name }}</dd>
+      <dt>{% translate "اسم المستخدم" %}</dt><dd><code>{{ owner.username }}</code></dd>
       {% if tenant.trial_ends_at %}
-        <dt>نهاية التجربة</dt><dd>{{ tenant.trial_ends_at|date:"Y-m-d" }}</dd>
+        <dt>{% translate "نهاية التجربة" %}</dt><dd>{{ tenant.trial_ends_at|date:"Y-m-d" }}</dd>
       {% endif %}
     </dl>
 
     <div class="alert alert-warning d-flex gap-2 py-2">
       <svg class="icon"><use href="#i-warn"></use></svg>
       <div class="small">
-        كلمة المرور معروضة <strong>مرة واحدة</strong> ولا تُحفظ في أي مكان.
-        انسخها الآن — يُطلب من المسؤول تغييرها عند أول دخول.
+        {% blocktranslate %}كلمة المرور معروضة <strong>مرة واحدة</strong> ولا تُحفظ في أي مكان. انسخها الآن — يُطلب من المسؤول تغييرها عند أول دخول.{% endblocktranslate %}
       </div>
     </div>
 
     <div class="one-time-secret mb-3">
       <code id="secret" dir="ltr">{{ password }}</code>
       <button class="btn btn-sm btn-soft-secondary" type="button" id="copy">
-        <svg class="icon"><use href="#i-check"></use></svg>نسخ
+        <svg class="icon"><use href="#i-check"></use></svg>{% translate "نسخ" %}
       </button>
     </div>
 
     <div class="d-flex gap-2">
-      <a class="btn btn-primary" href="{% url 'console:tenant_detail' tenant.pk %}">فتح صفحة العميل</a>
-      <a class="btn btn-soft-secondary" href="{% url 'console:tenant_new' %}">إنشاء عميل آخر</a>
+      <a class="btn btn-primary" href="{% url 'console:tenant_detail' tenant.pk %}">{% translate "فتح صفحة العميل" %}</a>
+      <a class="btn btn-soft-secondary" href="{% url 'console:tenant_new' %}">{% translate "إنشاء عميل آخر" %}</a>
     </div>
   </div>
 </div>
@@ -48,14 +48,14 @@
 document.getElementById("copy").addEventListener("click", async function () {
   try {
     await navigator.clipboard.writeText(document.getElementById("secret").textContent.trim());
-    app.toast("تم نسخ كلمة المرور", "success");
+    app.toast(gettext("تم نسخ كلمة المرور"), "success");
   } catch (error) {
     // Clipboard access needs a secure context; selecting it is the fallback.
     const range = document.createRange();
     range.selectNodeContents(document.getElementById("secret"));
     window.getSelection().removeAllRanges();
     window.getSelection().addRange(range);
-    app.toast("حدّد النص وانسخه", "info");
+    app.toast(gettext("حدّد النص وانسخه"), "info");
   }
 });
 </script>

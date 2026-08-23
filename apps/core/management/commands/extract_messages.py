@@ -21,15 +21,33 @@ from django.core.management.base import BaseCommand, CommandError
 TEMPLATE_TAG = re.compile(
     r"""\{%\s*(?:translate|trans)\s+(?P<q>["'])(?P<text>(?:\\.|(?!(?P=q)).)*)(?P=q)"""
 )
+#: One or more *adjacent* literals, because Python joins them before gettext
+#: ever sees them: a message split over two lines to fit the line length is a
+#: single msgid at runtime. Capturing only the first half writes a catalogue
+#: entry no lookup will match, and the message silently stays Arabic.
 PY_CALL = re.compile(
-    r"""(?<![\w.])(?:_|gettext|gettext_lazy|ngettext)\(\s*(?P<q>["'])(?P<text>(?:\\.|(?!(?P=q))[^\\\r\n])*)(?P=q)"""
+    r"""(?<![\w.])(?:_|gettext|gettext_lazy|ngettext)\(\s*"""
+    r"""(?P<text>(?:(["'])(?:\\.|(?!\2)[^\\\r\n])*\2\s*)+)"""
 )
+PY_PIECE = re.compile(r"""(["'])((?:\\.|(?!\1)[^\\\r\n])*)\1""")
 JS_CALL = re.compile(
     r"""(?<![\w.])gettext\(\s*(?P<q>["'])(?P<text>(?:\\.|(?!(?P=q))[^\\\r\n])*)(?P=q)"""
 )
 
+
+#: ``{% blocktranslate with x=y %}… {{ x }} …{% endblocktranslate %}``. Django
+#: renders the placeholders into the msgid as ``%(x)s`` before looking it up, so
+#: the catalogue has to store them that way too — otherwise the entry is written
+#: in a form no lookup will ever match and the block silently stays Arabic.
+#: (Which is exactly what had happened to templates/tenancy/gate.html.)
+BLOCK_TAG = re.compile(
+    r"\{%\s*blocktrans(?:late)?\b[^%]*%\}(?P<text>.*?)\{%\s*endblocktrans(?:late)?\s*%\}",
+    re.S,
+)
+BLOCK_VAR = re.compile(r"\{\{\s*(\w+)\s*\}\}")
+
 SOURCES = (
-    ("templates", "*.html", (TEMPLATE_TAG, JS_CALL)),
+    ("templates", "*.html", (TEMPLATE_TAG, BLOCK_TAG, JS_CALL)),
     ("apps", "*.py", (PY_CALL,)),
     ("static/js", "*.js", (JS_CALL,)),
 )
@@ -66,7 +84,12 @@ class Command(BaseCommand):
                 text = path.read_text(encoding="utf-8")
                 for pattern in patterns:
                     for match in pattern.finditer(text):
-                        msgid = unescape(match.group("text")).strip()
+                        raw = match.group("text")
+                        if pattern is PY_CALL:
+                            raw = "".join(p.group(2) for p in PY_PIECE.finditer(raw))
+                        msgid = unescape(raw).strip()
+                        if pattern is BLOCK_TAG:
+                            msgid = BLOCK_VAR.sub(r"%(\1)s", msgid)
                         if not msgid:
                             continue
                         line = text.count("\n", 0, match.start()) + 1

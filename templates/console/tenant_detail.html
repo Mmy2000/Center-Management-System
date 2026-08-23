@@ -1,9 +1,10 @@
 {% extends "console/base.html" %}
+{% load i18n %}
 {% block title %}{{ tenant.name }}{% endblock %}
 
 {% block topbar %}
   <div>
-    <div class="breadcrumb-mini"><a href="{% url 'console:tenant_list' %}">العملاء</a> ›</div>
+    <div class="breadcrumb-mini"><a href="{% url 'console:tenant_list' %}">{% translate "العملاء" %}</a> ›</div>
     <h1 class="console-title">{{ tenant.name }}</h1>
   </div>
 {% endblock %}
@@ -11,10 +12,10 @@
 {% block topbar_actions %}
   <span class="status-pill status-{{ tenant.status }}" id="status-pill">{{ tenant.get_status_display }}</span>
   <a class="btn btn-sm btn-soft-secondary" href="{% url 'console:tenant_features' tenant.pk %}">
-    <svg class="icon"><use href="#i-settings"></use></svg>الخصائص
+    <svg class="icon"><use href="#i-settings"></use></svg>{% translate "الخصائص" %}
   </a>
   <a class="btn btn-sm btn-soft-secondary" href="{% url 'console:tenant_export' tenant.pk %}">
-    <svg class="icon"><use href="#i-download"></use></svg>تصدير
+    <svg class="icon"><use href="#i-download"></use></svg>{% translate "تصدير" %}
   </a>
 {% endblock %}
 
@@ -23,9 +24,9 @@
   <div class="alert alert-danger d-flex align-items-center gap-2">
     <svg class="icon"><use href="#i-warn"></use></svg>
     <div>
-      <strong>الخدمة موقوفة.</strong>
+      <strong>{% translate "الخدمة موقوفة." %}</strong>
       {% if tenant.suspended_reason %}{{ tenant.suspended_reason }} — {% endif %}
-      البيانات كما هي، وإعادة التفعيل تُرجع كل شيء كما كان.
+      {% translate "البيانات كما هي، وإعادة التفعيل تُرجع كل شيء كما كان." %}
     </div>
   </div>
 {% endif %}
@@ -34,14 +35,14 @@
   <div class="col-12 col-xl-7">
     <div class="console-card mb-3">
       <div class="console-card-head">
-        <h2>الاستهلاك مقابل حدود الباقة</h2>
+        <h2>{% translate "الاستهلاك مقابل حدود الباقة" %}</h2>
         <button class="btn btn-sm btn-ghost" type="button" id="refresh-usage">
-          <svg class="icon"><use href="#i-clock"></use></svg>إعادة الحساب
+          <svg class="icon"><use href="#i-clock"></use></svg>{% translate "إعادة الحساب" %}
         </button>
       </div>
       <div class="console-card-body p-0" id="usage-region">
         <table class="table table-compact mb-0">
-          <thead class="visually-hidden"><tr><th>المورد</th><th>العدد</th><th>الاستهلاك</th></tr></thead>
+          <thead class="visually-hidden"><tr><th>{% translate "المورد" %}</th><th>{% translate "العدد" %}</th><th>{% translate "الاستهلاك" %}</th></tr></thead>
           <tbody id="usage-body"></tbody>
         </table>
         <div class="px-3 py-2 text-muted small" id="usage-stamp"></div>
@@ -49,17 +50,17 @@
     </div>
 
     <div class="console-card mb-3">
-      <div class="console-card-head"><h2>النطاقات</h2></div>
+      <div class="console-card-head"><h2>{% translate "النطاقات" %}</h2></div>
       <div class="console-card-body">
         <ul class="list-unstyled mb-0 d-grid gap-2">
           {% for domain in tenant.domains.all %}
             <li class="d-flex align-items-center gap-2">
               <code>{{ domain.host }}</code>
-              {% if domain.is_primary %}<span class="badge badge-soft badge-soft-primary">أساسي</span>{% endif %}
+              {% if domain.is_primary %}<span class="badge badge-soft badge-soft-primary">{% translate "أساسي" %}</span>{% endif %}
               {% if domain.is_custom %}
-                <span class="badge badge-soft badge-soft-secondary">نطاق خاص</span>
+                <span class="badge badge-soft badge-soft-secondary">{% translate "نطاق خاص" %}</span>
                 {% if not domain.is_verified %}
-                  <span class="badge badge-soft badge-soft-warning">لم يتم التحقق</span>
+                  <span class="badge badge-soft badge-soft-warning">{% translate "لم يتم التحقق" %}</span>
                 {% endif %}
               {% endif %}
             </li>
@@ -70,12 +71,12 @@
 
     <div class="console-card">
       <div class="console-card-head">
-        <h2>ما جرى على هذا العميل</h2>
-        <a class="btn btn-sm btn-ghost" href="{% url 'console:audit' %}?tenant={{ tenant.pk }}">الكل</a>
+        <h2>{% translate "ما جرى على هذا العميل" %}</h2>
+        <a class="btn btn-sm btn-ghost" href="{% url 'console:audit' %}?tenant={{ tenant.pk }}">{% translate "الكل" %}</a>
       </div>
       <div class="console-card-body p-0">
         <table class="table table-compact mb-0">
-          <thead><tr><th>الوقت</th><th>الإجراء</th><th>المشغّل</th></tr></thead>
+          <thead><tr><th>{% translate "الوقت" %}</th><th>{% translate "الإجراء" %}</th><th>{% translate "المشغّل" %}</th></tr></thead>
           <tbody>
             {% for entry in timeline %}
               <tr>
@@ -89,7 +90,7 @@
             {% empty %}
               <tr><td colspan="3">
                 <div class="empty-state"><svg class="icon icon-xl"><use href="#i-empty"></use></svg>
-                  <div class="empty-state-title">لم يحدث شيء بعد</div></div>
+                  <div class="empty-state-title">{% translate "لم يحدث شيء بعد" %}</div></div>
               </td></tr>
             {% endfor %}
           </tbody>
@@ -100,16 +101,16 @@
 
   <div class="col-12 col-xl-5">
     <div class="console-card mb-3">
-      <div class="console-card-head"><h2>بيانات العميل</h2></div>
+      <div class="console-card-head"><h2>{% translate "بيانات العميل" %}</h2></div>
       <div class="console-card-body">
         <dl class="kv mb-0">
-          <dt>المعرّف</dt><dd><code>{{ tenant.slug }}</code></dd>
-          <dt>المسؤول</dt><dd>{{ tenant.owner_name|default:"—" }}</dd>
-          <dt>البريد</dt><dd>{{ tenant.owner_email|default:"—" }}</dd>
-          <dt>الهاتف</dt><dd>{{ tenant.owner_phone|default:"—" }}</dd>
-          <dt>نهاية التجربة</dt><dd>{{ tenant.trial_ends_at|date:"Y-m-d"|default:"—" }}</dd>
-          <dt>نهاية الاشتراك</dt><dd>{{ tenant.expires_at|date:"Y-m-d"|default:"—" }}</dd>
-          <dt>دورة الفوترة</dt>
+          <dt>{% translate "المعرّف" %}</dt><dd><code>{{ tenant.slug }}</code></dd>
+          <dt>{% translate "المسؤول" %}</dt><dd>{{ tenant.owner_name|default:"—" }}</dd>
+          <dt>{% translate "البريد" %}</dt><dd>{{ tenant.owner_email|default:"—" }}</dd>
+          <dt>{% translate "الهاتف" %}</dt><dd>{{ tenant.owner_phone|default:"—" }}</dd>
+          <dt>{% translate "نهاية التجربة" %}</dt><dd>{{ tenant.trial_ends_at|date:"Y-m-d"|default:"—" }}</dd>
+          <dt>{% translate "نهاية الاشتراك" %}</dt><dd>{{ tenant.expires_at|date:"Y-m-d"|default:"—" }}</dd>
+          <dt>{% translate "دورة الفوترة" %}</dt>
           <dd>
             {{ tenant.get_billing_cycle_display }}
             {% if tenant.price %}
@@ -117,83 +118,82 @@
               <span class="text-muted small">{{ tenant.plan.currency }}</span>
               {% if tenant.plan.discount_is_live %}
                 <span class="badge badge-soft badge-soft-success">
-                  خصم {{ tenant.plan.discount_percent|floatformat:"-2" }}%
+                  {% blocktranslate with percent=tenant.plan.discount_percent|floatformat:"-2" %}خصم {{ percent }}%{% endblocktranslate %}
                 </span>
               {% endif %}
             {% endif %}
           </dd>
-          <dt>أُنشئ في</dt><dd>{{ tenant.created_at|date:"Y-m-d" }}</dd>
+          <dt>{% translate "أُنشئ في" %}</dt><dd>{{ tenant.created_at|date:"Y-m-d" }}</dd>
         </dl>
       </div>
     </div>
 
     <div class="console-card mb-3">
-      <div class="console-card-head"><h2>الباقة</h2></div>
+      <div class="console-card-head"><h2>{% translate "الباقة" %}</h2></div>
       <div class="console-card-body">
         <div class="d-flex gap-2">
-          <select class="form-select" id="plan-select" aria-label="الباقة">
+          <select class="form-select" id="plan-select" aria-label="{% translate 'الباقة' %}">
             {% for plan in plans %}
               <option value="{{ plan.pk }}" {% if plan.pk == tenant.plan_id %}selected{% endif %}>{{ plan.name }}</option>
             {% endfor %}
           </select>
-          <button class="btn btn-primary" type="button" id="change-plan">تغيير</button>
+          <button class="btn btn-primary" type="button" id="change-plan">{% translate "تغيير" %}</button>
         </div>
         <div class="form-text mt-2">
-          تغيير الباقة يعرض أولًا ما سيفقده العميل وأي حد تجاوزه بالفعل.
+          {% translate "تغيير الباقة يعرض أولًا ما سيفقده العميل وأي حد تجاوزه بالفعل." %}
         </div>
       </div>
     </div>
 
     <div class="console-card mb-3">
-      <div class="console-card-head"><h2>الدخول نيابةً عن العميل</h2></div>
+      <div class="console-card-head"><h2>{% translate "الدخول نيابةً عن العميل" %}</h2></div>
       <div class="console-card-body">
         <p class="form-text mb-2">
-          قراءة فقط ما لم تختر غير ذلك. تحصيل المدفوعات والاستردادات وتغيير
-          الحسابات مرفوضة في الوضعين، وسجل العميل نفسه يسجّل أنك تصرفت نيابةً عنه.
+          {% translate "قراءة فقط ما لم تختر غير ذلك. تحصيل المدفوعات والاستردادات وتغيير الحسابات مرفوضة في الوضعين، وسجل العميل نفسه يسجّل أنك تصرفت نيابةً عنه." %}
         </p>
         <form method="post" action="{% url 'console:tenant_enter' tenant.pk %}">
           {% csrf_token %}
-          <select class="form-select mb-2" name="mode" aria-label="الوضع">
-            <option value="read">قراءة فقط</option>
-            <option value="write">قراءة وتعديل</option>
+          <select class="form-select mb-2" name="mode" aria-label="{% translate 'الوضع' %}">
+            <option value="read">{% translate "قراءة فقط" %}</option>
+            <option value="write">{% translate "قراءة وتعديل" %}</option>
           </select>
           <textarea class="form-control mb-2" name="reason" rows="2"
-                    placeholder="لماذا تدخل إلى هذا الحساب؟"></textarea>
+                    placeholder="{% translate 'لماذا تدخل إلى هذا الحساب؟' %}"></textarea>
           <button class="btn btn-soft-secondary w-100" type="submit"
                   {% if not tenant.is_operational %}disabled{% endif %}>
-            <svg class="icon"><use href="#i-eye"></use></svg>دخول
+            <svg class="icon"><use href="#i-eye"></use></svg>{% translate "دخول" %}
           </button>
         </form>
       </div>
     </div>
 
     <div class="console-card">
-      <div class="console-card-head"><h2>حالة الخدمة</h2></div>
+      <div class="console-card-head"><h2>{% translate "حالة الخدمة" %}</h2></div>
       <div class="console-card-body d-grid gap-2" id="lifecycle">
         {% if tenant.is_operational %}
           <button class="btn btn-warning" type="button" data-action="suspend">
-            <svg class="icon"><use href="#i-lock"></use></svg>إيقاف الخدمة
+            <svg class="icon"><use href="#i-lock"></use></svg>{% translate "إيقاف الخدمة" %}
           </button>
         {% else %}
           <button class="btn btn-success" type="button" data-action="resume">
-            <svg class="icon"><use href="#i-check"></use></svg>إعادة التفعيل
+            <svg class="icon"><use href="#i-check"></use></svg>{% translate "إعادة التفعيل" %}
           </button>
         {% endif %}
-        <button class="btn btn-outline-danger" type="button" data-action="archive">أرشفة</button>
+        <button class="btn btn-outline-danger" type="button" data-action="archive">{% translate "أرشفة" %}</button>
 
         <hr class="my-2">
-        <div class="text-danger fw-bold small">حذف نهائي</div>
+        <div class="text-danger fw-bold small">{% translate "حذف نهائي" %}</div>
         <p class="form-text mb-2">
-          الأرشفة الآن، والحذف النهائي بعد {{ tenant.plan.retention_days }} يومًا.
-          صدّر البيانات أولًا — هذه هي النسخة الوحيدة التي سيحصل عليها العميل.
+          {% blocktranslate with days=tenant.plan.retention_days %}الأرشفة الآن، والحذف النهائي بعد {{ days }} يومًا. صدّر البيانات أولًا — هذه هي النسخة الوحيدة التي سيحصل عليها العميل.{% endblocktranslate %}
         </p>
         <form method="post" action="{% url 'console:tenant_delete' tenant.pk %}" id="delete-form">
           {% csrf_token %}
+          {% blocktranslate with slug=tenant.slug asvar confirm_hint %}اكتب "{{ slug }}" للتأكيد{% endblocktranslate %}
           <input class="form-control form-control-sm mb-2" name="confirm_slug"
-                 placeholder='اكتب "{{ tenant.slug }}" للتأكيد' autocomplete="off">
+                 placeholder="{{ confirm_hint }}" autocomplete="off">
           <textarea class="form-control form-control-sm mb-2" name="reason" rows="2"
-                    placeholder="السبب"></textarea>
-          <button class="btn btn-outline-danger w-100 btn-sm" type="submit">أرشفة وجدولة الحذف</button>
+                    placeholder="{% translate 'السبب' %}"></textarea>
+          <button class="btn btn-outline-danger w-100 btn-sm" type="submit">{% translate "أرشفة وجدولة الحذف" %}</button>
         </form>
       </div>
     </div>
@@ -210,7 +210,7 @@ const PLAN_URL = "{% url 'console:api_tenant_plan' tenant.pk %}";
 
 /* ------------------------------------------------------------------ usage */
 function meter(used, limit) {
-  if (!limit) { return '<span class="text-muted small">بلا حد</span>'; }
+  if (!limit) { return '<span class="text-muted small">' + gettext("بلا حد") + "</span>"; }
   const pressure = Math.round((used * 100) / limit);
   const tone = pressure >= 100 ? " full" : pressure >= 90 ? " warn" : "";
   return (
@@ -229,11 +229,11 @@ function paintUsage(usage) {
       { className: "text-end num fw-semibold", render: function (row) { return String(row.used); } },
       { className: "text-end", render: function (row) { return meter(row.used, row.limit); } }
     ],
-    { emptyMessage: "لا شيء لقياسه" }
+    { emptyMessage: gettext("لا شيء لقياسه") }
   );
   document.getElementById("usage-stamp").textContent = usage.computed_at
-    ? "آخر حساب: " + usage.computed_at
-    : "لم يُحسب بعد — اضغط إعادة الحساب.";
+    ? gettext("آخر حساب:") + " " + usage.computed_at
+    : gettext("لم يُحسب بعد — اضغط إعادة الحساب.");
 }
 
 paintUsage({{ usage_json|safe }});
@@ -244,19 +244,19 @@ document.getElementById("refresh-usage").addEventListener("click", function () {
     try {
       const payload = await http.post(USAGE_URL, {});
       paintUsage(payload.data.usage);
-      app.toast("تم تحديث الأرقام", "success");
+      app.toast(gettext("تم تحديث الأرقام"), "success");
     } catch (error) { app.handleError(error); }
   });
 });
 
 /* -------------------------------------------------------------- lifecycle */
 const ACTIONS = {
-  suspend: { title: "إيقاف الخدمة", verb: "إيقاف", tone: "warning",
-             note: "لن يُحذف أي شيء. إعادة التفعيل تُرجع الحساب كما كان تمامًا." },
-  archive: { title: "أرشفة العميل", verb: "أرشفة", tone: "danger",
-             note: "يمنع الدخول ويجدول الحذف النهائي بعد انتهاء مدة الاحتفاظ." },
-  resume:  { title: "إعادة التفعيل", verb: "تفعيل", tone: "success",
-             note: "يعود الحساب للعمل فورًا." }
+  suspend: { title: gettext("إيقاف الخدمة"), verb: gettext("إيقاف"), tone: "warning",
+             note: gettext("لن يُحذف أي شيء. إعادة التفعيل تُرجع الحساب كما كان تمامًا.") },
+  archive: { title: gettext("أرشفة العميل"), verb: gettext("أرشفة"), tone: "danger",
+             note: gettext("يمنع الدخول ويجدول الحذف النهائي بعد انتهاء مدة الاحتفاظ.") },
+  resume:  { title: gettext("إعادة التفعيل"), verb: gettext("تفعيل"), tone: "success",
+             note: gettext("يعود الحساب للعمل فورًا.") }
 };
 
 document.getElementById("lifecycle").addEventListener("click", function (event) {
@@ -268,11 +268,11 @@ document.getElementById("lifecycle").addEventListener("click", function (event) 
   app.openModal(
     spec.title,
     '<p class="text-muted small">' + spec.note + "</p>" +
-    '<label class="form-label" for="reason">السبب</label>' +
+    '<label class="form-label" for="reason">' + gettext("السبب") + "</label>" +
     '<textarea class="form-control" id="reason" rows="3" ' +
     (action === "resume" ? "" : "required") + "></textarea>" +
     '<div class="text-danger small mt-1" id="reason-error"></div>',
-    '<button class="btn btn-ghost" data-bs-dismiss="modal">إلغاء</button>' +
+    '<button class="btn btn-ghost" data-bs-dismiss="modal">' + gettext("إلغاء") + "</button>" +
     '<button class="btn btn-' + spec.tone + '" id="confirm">' + spec.verb + "</button>"
   );
 
@@ -287,7 +287,7 @@ document.getElementById("lifecycle").addEventListener("click", function (event) 
       } catch (error) {
         const field = error.field_errors && error.field_errors.reason;
         document.getElementById("reason-error").textContent =
-          field ? field[0] : (error.message || "تعذر التنفيذ");
+          field ? field[0] : (error.message || gettext("تعذر التنفيذ"));
       }
     });
   });
@@ -310,17 +310,17 @@ document.getElementById("change-plan").addEventListener("click", function () {
     } catch (error) { app.handleError(error); return; }
 
     const body = warnings.length
-      ? '<div class="alert alert-warning py-2 small mb-2"><strong>ما سيتغيّر:</strong></div>' +
+      ? '<div class="alert alert-warning py-2 small mb-2"><strong>' + gettext("ما سيتغيّر:") + "</strong></div>" +
         '<ul class="small">' + warnings.map(function (w) { return "<li>" + ui.esc(w) + "</li>"; }).join("") + "</ul>"
-      : '<p class="text-muted small">لا يفقد العميل أي خاصية بهذا التغيير.</p>';
+      : '<p class="text-muted small">' + gettext("لا يفقد العميل أي خاصية بهذا التغيير.") + "</p>";
 
     app.openModal(
-      "نقل العميل إلى " + ui.esc(name),
+      gettext("نقل العميل إلى") + " " + ui.esc(name),
       body +
-      '<label class="form-label" for="plan-reason">السبب (اختياري)</label>' +
+      '<label class="form-label" for="plan-reason">' + gettext("السبب (اختياري)") + "</label>" +
       '<input class="form-control" id="plan-reason">',
-      '<button class="btn btn-ghost" data-bs-dismiss="modal">إلغاء</button>' +
-      '<button class="btn btn-primary" id="confirm-plan">تأكيد</button>'
+      '<button class="btn btn-ghost" data-bs-dismiss="modal">' + gettext("إلغاء") + "</button>" +
+      '<button class="btn btn-primary" id="confirm-plan">' + gettext("تأكيد") + "</button>"
     );
 
     document.getElementById("confirm-plan").addEventListener("click", function () {
