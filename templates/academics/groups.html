@@ -42,7 +42,12 @@
 const CAN_WRITE = {{ perms.academics.add_group|yesno:"true,false" }};
 
 (async function () {
-  const offeringOptions = await crud.options("{% url 'academics_api:offerings' %}");
+  // Kept as rows, not just options: the offering carries the fee the group
+  // inherits, and the modal fills it in the moment an offering is picked.
+  const offerings = await crud.rows("{% url 'academics_api:offerings' %}");
+  const offeringOptions = offerings.map((o) => [o.id, o.label]);
+  const offeringFees = {};
+  offerings.forEach(function (o) { offeringFees[o.id] = o.default_monthly_fee; });
   const instructorOptions = [["", "—"]].concat(await crud.options("{% url 'academics_api:instructors' %}"));
   const stageOptions = await crud.options("{% url 'academics_api:stages' %}");
   const gradeOptions = await crud.options("{% url 'academics_api:grades' %}");
@@ -93,12 +98,29 @@ const CAN_WRITE = {{ perms.academics.add_group|yesno:"true,false" }};
         { name: "code", label: gettext("الكود") },
         { name: "instructor", label: gettext("المدرّس"), type: "select", options: instructorOptions },
         { name: "capacity", label: (gettext("السعة (0") + " " + "= " + gettext("بلا حد)")), type: "number", default: 0 },
-        { name: "monthly_fee", label: gettext("الرسوم الشهرية"), type: "number" },
+        { name: "monthly_fee", label: gettext("الرسوم الشهرية"), type: "number",
+          help: gettext("تُملأ تلقائيًا من رسوم المادة/الصف، ويمكن تعديلها لهذه المجموعة.") },
         { name: "academic_year", label: gettext("العام الدراسي") },
         { name: "status", label: gettext("الحالة"), type: "select", options: [["ACTIVE", gettext("نشطة")], ["PAUSED", gettext("متوقفة")], ["CLOSED", gettext("مغلقة")]] },
         { name: "default_late_after_minutes", label: gettext("حد التأخير (دقائق)"), type: "number" },
         { name: "notes", label: gettext("ملاحظات") }
-      ]
+      ],
+      /* The fee lives on the offering (docs/01 §B.3); a group only overrides it.
+         So the box is never left blank for the user to re-type what the center
+         already priced — picking an offering fills it, editing it still wins. */
+      onForm: function (body, row) {
+        const offering = body.querySelector('[name="grade_subject"]');
+        const fee = body.querySelector('[name="monthly_fee"]');
+        if (!offering || !fee) { return; }
+        function apply() {
+          const value = offeringFees[offering.value];
+          if (value !== undefined) { fee.value = value; }
+        }
+        offering.addEventListener("change", apply);
+        // A new group starts on whichever offering the select landed on; an
+        // existing one keeps the fee it was saved with until the offering moves.
+        if (!row) { apply(); }
+      }
     });
   }
 

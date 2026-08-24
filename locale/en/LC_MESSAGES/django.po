@@ -259,7 +259,7 @@ msgstr "Issued from stock"
 msgid "إصدار وطباعة"
 msgstr "Issue and print"
 
-#: static/js/crud.js:79
+#: static/js/crud.js:82
 msgid "إضافة"
 msgstr "Add"
 
@@ -332,7 +332,7 @@ msgstr "Close check-in after the lesson starts (minutes)"
 #: templates/cards/list.html:328 templates/console/plan_edit.html:216
 #: templates/console/tenant_detail.html:275
 #: templates/console/tenant_detail.html:322
-#: templates/console/tenant_new.html:130 templates/lessons/detail.html:31
+#: templates/console/tenant_new.html:152 templates/lessons/detail.html:31
 msgid "إلغاء"
 msgstr "Cancel"
 
@@ -375,7 +375,7 @@ msgstr ""
 "Create clients, start and stop their service, and control every feature one "
 "by one — with no separate copy or new deployment per client."
 
-#: templates/console/tenant_new.html:128
+#: templates/console/tenant_new.html:150
 msgid "إنشاء العميل"
 msgstr "Create client"
 
@@ -566,7 +566,7 @@ msgstr "Batch name (optional)"
 msgid "اسم السنتر"
 msgstr "Center name"
 
-#: templates/academics/groups.html:91
+#: templates/academics/groups.html:96
 msgid "اسم المجموعة"
 msgstr "Group name"
 
@@ -774,7 +774,7 @@ msgstr "Full name"
 msgid "الاسم بالإنجليزية"
 msgstr "Name in English"
 
-#: templates/academics/groups.html:92 templates/academics/structure.html:52
+#: templates/academics/groups.html:97 templates/academics/structure.html:52
 #: templates/academics/structure.html:78 templates/academics/structure.html:99
 #: apps/academics/models.py:41 apps/academics/models.py:67
 msgid "الاسم بالعربية"
@@ -784,7 +784,7 @@ msgstr "Name (Arabic)"
 msgid "الاسم قصير جدًا"
 msgstr "That name is too short"
 
-#: templates/console/tenant_new.html:83
+#: templates/console/tenant_new.html:95
 msgid "الاشتراك"
 msgstr "Subscription"
 
@@ -933,7 +933,7 @@ msgstr "Next in stock"
 msgid "التجديد"
 msgstr "Renewal"
 
-#: templates/console/tenant_new.html:108
+#: templates/console/tenant_new.html:130
 msgid "التجهيز الأولي"
 msgstr "Initial setup"
 
@@ -998,8 +998,8 @@ msgstr "Tuesday"
 msgid "الجمعة"
 msgstr "Friday"
 
-#: templates/academics/groups.html:26 templates/academics/groups.html:87
-#: templates/academics/groups.html:98 templates/accounts/users.html:21
+#: templates/academics/groups.html:26 templates/academics/groups.html:92
+#: templates/academics/groups.html:104 templates/accounts/users.html:21
 #: templates/cards/list.html:52 templates/cards/list.html:76
 msgid "الحالة"
 msgstr "Status"
@@ -1140,13 +1140,13 @@ msgstr ""
 msgid "الدور"
 msgstr "Role"
 
-#: templates/academics/groups.html:86 templates/payments/workspace.html:40
+#: templates/academics/groups.html:91 templates/payments/workspace.html:40
 #: templates/students/detail.html:88 templates/students/detail.html:162
 #: apps/payments/models.py:212
 msgid "الرسوم"
 msgstr "Charges"
 
-#: templates/academics/groups.html:96 templates/academics/structure.html:117
+#: templates/academics/groups.html:101 templates/academics/structure.html:117
 #: templates/academics/structure.html:123 apps/academics/models.py:193
 #: apps/payments/models.py:140
 msgid "الرسوم الشهرية"
@@ -1219,12 +1219,12 @@ msgstr "History"
 msgid "السجل الكامل"
 msgstr "Full log"
 
-#: templates/academics/group_detail.html:30 templates/academics/groups.html:85
+#: templates/academics/group_detail.html:30 templates/academics/groups.html:90
 #: apps/academics/models.py:191
 msgid "السعة"
 msgstr "Capacity"
 
-#: templates/academics/groups.html:95
+#: templates/academics/groups.html:100
 msgid "السعة (0"
 msgstr "Capacity (0"
 
@@ -1252,7 +1252,7 @@ msgstr "Allow attendance for partially paid students"
 msgid "السماح بحضور غير المسدد"
 msgstr "Allow attendance for unpaid students"
 
-#: templates/console/tenant_new.html:23
+#: templates/console/tenant_new.html:35
 msgid "السنتر"
 msgstr "The Center"
 
@@ -1282,8 +1282,8 @@ msgstr "Net"
 msgid "الصافي:"
 msgstr "Net:"
 
-#: templates/academics/groups.html:18 templates/academics/groups.html:83
-#: templates/academics/groups.html:90 templates/academics/structure.html:115
+#: templates/academics/groups.html:18 templates/academics/groups.html:88
+#: templates/academics/groups.html:95 templates/academics/structure.html:115
 #: templates/academics/structure.html:121 templates/reports/report.html:74
 msgid "الصف"
 msgstr "Grade"
@@ -1370,7 +1370,7 @@ msgstr "Absent students"
 msgid "الطلاب المتأخرون"
 msgstr "Late students"
 
-#: templates/academics/groups.html:97 apps/academics/models.py:199
+#: templates/academics/groups.html:103 apps/academics/models.py:199
 msgid "العام الدراسي"
 msgstr "Academic year"
 
@@ -1487,8 +1487,8 @@ msgstr "This sheet contains live tokens — hand it to the print shop only."
 msgid "الكل"
 msgstr "All"
 
-#: templates/academics/group_detail.html:85 templates/academics/groups.html:80
-#: templates/academics/groups.html:93 templates/academics/structure.html:46
+#: templates/academics/group_detail.html:85 templates/academics/groups.html:85
+#: templates/academics/groups.html:98 templates/academics/structure.html:46
 #: templates/academics/structure.html:53 templates/academics/structure.html:71
 msgid "الكود"
 msgstr "Code"
@@ -1514,8 +1514,8 @@ msgid "اللون الافتراضي لكل المستخدمين — ويمكن 
 msgstr ""
 "The default palette for everyone — each user can still change their own"
 
-#: templates/academics/groups.html:22 templates/academics/groups.html:82
-#: templates/academics/groups.html:90 templates/academics/structure.html:116
+#: templates/academics/groups.html:22 templates/academics/groups.html:87
+#: templates/academics/groups.html:95 templates/academics/structure.html:116
 #: templates/academics/structure.html:122 templates/lessons/list.html:57
 msgid "المادة"
 msgstr "Subject"
@@ -1586,12 +1586,12 @@ msgid "المتوقع (ج.م)"
 msgstr "Expected (EGP)"
 
 #: templates/academics/group_detail.html:7 templates/academics/groups.html:3
-#: templates/academics/groups.html:7 templates/academics/groups.html:74
+#: templates/academics/groups.html:7 templates/academics/groups.html:79
 #: templates/console/plan_list.html:90 templates/partials/_sidebar.html:35
 msgid "المجموعات"
 msgstr "Groups"
 
-#: templates/academics/groups.html:81 templates/lessons/list.html:30
+#: templates/academics/groups.html:86 templates/lessons/list.html:30
 #: templates/lessons/list.html:58 templates/lessons/list.html:151
 #: templates/lessons/list.html:185 templates/reports/report.html:92
 msgid "المجموعة"
@@ -1643,7 +1643,7 @@ msgstr "Duration"
 msgid "المدرسة"
 msgstr "School"
 
-#: templates/academics/groups.html:84 templates/academics/groups.html:94
+#: templates/academics/groups.html:89 templates/academics/groups.html:99
 #: templates/lessons/list.html:59 templates/reports/report.html:103
 #: apps/academics/models.py:189 apps/lessons/models.py:63
 msgid "المدرّس"
@@ -2066,7 +2066,7 @@ msgstr "Some values are invalid"
 msgid "بلا حد"
 msgstr "No limit"
 
-#: templates/academics/groups.html:95
+#: templates/academics/groups.html:100
 msgid "بلا حد)"
 msgstr "no limit)"
 
@@ -2353,7 +2353,7 @@ msgstr "Schedule conflict"
 
 #: templates/accounts/users.html:60 templates/console/plan_edit.html:3
 #: templates/console/plan_list.html:107 templates/students/edit.html:9
-#: static/js/crud.js:108
+#: static/js/crud.js:111
 msgid "تعديل"
 msgstr "Edit"
 
@@ -2436,6 +2436,10 @@ msgstr "Could not sign in."
 #: templates/students/detail.html:559
 msgid "تعذر ربط البطاقة"
 msgstr "Could not link the card"
+
+#: templates/console/tenant_new.html:22
+msgid "تعذّر إنشاء العميل. راجع البيانات التالية:"
+msgstr "The client could not be created. Check the following:"
 
 #: templates/cards/list.html:132 apps/cards/models.py:32
 msgid "تعطيل"
@@ -2668,8 +2672,8 @@ msgid "تم الحذف"
 msgstr "Deleted"
 
 #: templates/accounts/users.html:121
-#: templates/console/tenant_features.html:116 static/js/crud.js:136
-#: static/js/crud.js:152
+#: templates/console/tenant_features.html:116 static/js/crud.js:140
+#: static/js/crud.js:157
 msgid "تم الحفظ"
 msgstr "Saved"
 
@@ -2809,6 +2813,11 @@ msgstr "Generate lessons from the weekly schedule"
 msgid "توليد دفعة بطاقات"
 msgstr "Card batch generated"
 
+#: templates/academics/groups.html:102
+msgid "تُملأ تلقائيًا من رسوم المادة/الصف، ويمكن تعديلها لهذه المجموعة."
+msgstr ""
+"Filled in from the subject/grade fee; you can change it for this group."
+
 #: templates/attendance/scanner.html:133 templates/payments/workspace.html:255
 #: templates/payments/workspace.html:369 templates/students/detail.html:342
 #: static/js/ui.js:29
@@ -2828,7 +2837,7 @@ msgstr "In progress"
 msgid "جارية الآن"
 msgstr "Running now"
 
-#: templates/console/tenant_new.html:192
+#: templates/console/tenant_new.html:214
 msgid "جارٍ الإنشاء…"
 msgstr "Creating…"
 
@@ -2912,7 +2921,7 @@ msgstr "The file is larger than 2 MB"
 msgid "حد البطاقات"
 msgstr "Card limit"
 
-#: templates/academics/groups.html:99 apps/academics/models.py:204
+#: templates/academics/groups.html:105 apps/academics/models.py:204
 msgid "حد التأخير (دقائق)"
 msgstr "Late threshold (minutes)"
 
@@ -2985,7 +2994,7 @@ msgstr ""
 "The <span class=\"gate-name\">%(name)s</span> account is archived; its data "
 "is kept, but sign-in is not available."
 
-#: templates/console/tenant_new.html:49
+#: templates/console/tenant_new.html:61
 msgid "حساب المسؤول"
 msgstr "Admin account"
 
@@ -3464,7 +3473,7 @@ msgstr "Grade"
 msgid "صفر = بلا حد"
 msgstr "zero = unlimited"
 
-#: templates/console/tenant_new.html:102
+#: templates/console/tenant_new.html:124
 msgid "صفر = تفعيل فوري بلا فترة تجربة."
 msgstr "Zero = active immediately, with no trial."
 
@@ -3681,7 +3690,7 @@ msgstr "Updated at"
 msgid "غائب"
 msgstr "Absent"
 
-#: templates/console/tenant_new.html:175
+#: templates/console/tenant_new.html:197
 msgid "غير متاح"
 msgstr "Taken"
 
@@ -3861,7 +3870,7 @@ msgstr "Every client at a glance"
 msgid "كل العملاء لديهم متسع"
 msgstr "Every client has room"
 
-#: templates/console/tenant_new.html:133
+#: templates/console/tenant_new.html:155
 msgid "كل شيء يتم في معاملة واحدة — فشل أي خطوة لا يترك عميلًا نصف مُنشأ."
 msgstr ""
 "Everything happens in one transaction — a step that fails leaves no half-"
@@ -3889,7 +3898,7 @@ msgstr "New password (optional)"
 msgid "كلمة مرور ضعيفة"
 msgstr "Weak password"
 
-#: templates/console/tenant_new.html:75
+#: templates/console/tenant_new.html:87
 msgid ""
 "كلمة مرور لمرة واحدة تُعرض بعد الإنشاء ولا تُحفظ في أي مكان، ويُطلب من "
 "المسؤول تغييرها عند أول دخول."
@@ -3981,7 +3990,7 @@ msgstr "No cards available"
 msgid "لا توجد بطاقات متاحة — أنشئ دفعة جديدة أولًا"
 msgstr "No cards available — create a batch first"
 
-#: static/js/crud.js:110 static/js/ui.js:71
+#: static/js/crud.js:113 static/js/ui.js:71
 msgid "لا توجد بيانات"
 msgstr "No data"
 
@@ -4297,7 +4306,7 @@ msgstr "Late"
 msgid "متأخر السداد"
 msgstr "Past due"
 
-#: templates/console/tenant_new.html:172
+#: templates/console/tenant_new.html:194
 msgid "متاح"
 msgstr "Available"
 
@@ -4332,7 +4341,7 @@ msgstr "Graduated"
 msgid "متوقع"
 msgstr "Expected"
 
-#: templates/academics/groups.html:98
+#: templates/academics/groups.html:104
 msgid "متوقفة"
 msgstr "Paused"
 
@@ -4538,7 +4547,7 @@ msgstr "Disabled"
 msgid "معفى"
 msgstr "Waived"
 
-#: templates/academics/groups.html:98 apps/academics/models.py:36
+#: templates/academics/groups.html:104 apps/academics/models.py:36
 msgid "مغلقة"
 msgstr "Closed"
 
@@ -4569,7 +4578,7 @@ msgstr "Active"
 msgid "مفقودة"
 msgstr "Lost"
 
-#: templates/academics/groups.html:100 templates/students/_form.html:73
+#: templates/academics/groups.html:106 templates/students/_form.html:73
 #: templates/students/detail.html:66 apps/academics/models.py:162
 #: apps/academics/models.py:206 apps/attendance/models.py:166
 msgid "ملاحظات"
@@ -4719,7 +4728,7 @@ msgstr "Forgot the card"
 msgid "نشط"
 msgstr "Active"
 
-#: templates/academics/groups.html:98 apps/academics/models.py:34
+#: templates/academics/groups.html:104 apps/academics/models.py:34
 msgid "نشطة"
 msgstr "Active"
 
@@ -4990,7 +4999,7 @@ msgstr "Recorded only — the system does not issue invoices"
 msgid "يُلغي الدفعة"
 msgstr "Reverses payment"
 
-#: static/js/crud.js:130
+#: static/js/crud.js:133
 msgid "— إضافة"
 msgstr "— add"
 
@@ -4998,7 +5007,7 @@ msgstr "— add"
 msgid "— الانصراف:"
 msgstr "— check-out:"
 
-#: static/js/crud.js:146
+#: static/js/crud.js:150
 msgid "— تعديل"
 msgstr "— edit"
 
