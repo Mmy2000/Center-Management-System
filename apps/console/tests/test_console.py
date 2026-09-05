@@ -9,7 +9,7 @@ from django.test import Client
 from django.urls import reverse
 
 from apps.accounts.models import Role, User
-from apps.console import services
+from apps.console import forms, services
 from apps.tenancy.constants import FeatureState, PlatformAction, TenantStatus
 from apps.tenancy.context import tenant_context
 from apps.tenancy.models import Plan, PlatformAuditLog, Tenant, TenantFeature
@@ -245,6 +245,30 @@ def test_the_wizard_creates_a_working_client(console):
         owner = User.objects.get(username="admin")
     assert owner.must_change_password is True
     assert owner.role == Role.CENTER_ADMIN
+
+
+def test_the_wizard_renders_every_field_it_requires(console):
+    """A required field with no input on the page fails the form on every submit,
+    and the operator is handed back the same page with no idea why."""
+    import re
+
+    make_plan("full")
+    page = console.get(url("tenant_new")).content.decode()
+    rendered = set(re.findall(r'<(?:input|select|textarea)[^>]*\sname="([^"]+)"', page))
+    required = {name for name, f in forms.TenantCreateForm().fields.items() if f.required}
+    assert not (required - rendered), f"required but never drawn: {sorted(required - rendered)}"
+
+
+def test_a_rejected_wizard_says_why(console):
+    """Whatever the error is, it reaches the screen — including one on a field
+    this template does not draw beside its own input."""
+    make_plan("full")
+    response = console.post(
+        url("tenant_new"),
+        {"name": "X", "slug": "x", "plan": Plan.objects.get(slug="full").pk},
+    )
+    assert response.context["form"].errors
+    assert "تعذّر إنشاء العميل" in response.content.decode()
 
 
 def test_provisioning_is_all_or_nothing(console, monkeypatch):

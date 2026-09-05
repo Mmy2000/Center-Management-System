@@ -13,8 +13,20 @@
 <form method="post" id="provision-form" novalidate>
   {% csrf_token %}
 
-  {% if form.non_field_errors %}
-    <div class="alert alert-danger py-2">{{ form.non_field_errors.0 }}</div>
+  {% if form.errors %}
+    {% comment %}
+      Every error, not only the ones drawn beside a field: a required field this
+      template forgot to render would otherwise fail the form in total silence.
+    {% endcomment %}
+    <div class="alert alert-danger py-2">
+      <div class="fw-semibold">{% translate "تعذّر إنشاء العميل. راجع البيانات التالية:" %}</div>
+      <ul class="mb-0 ps-3">
+        {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+        {% for field in form %}
+          {% for error in field.errors %}<li>{{ field.label }}: {{ error }}</li>{% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
   {% endif %}
 
   <div class="row g-3">
@@ -92,6 +104,16 @@
               {% endfor %}
             </select>
             {% for error in form.plan.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" for="{{ form.billing_cycle.id_for_label }}">{{ form.billing_cycle.label }}</label>
+            <select class="form-select" name="{{ form.billing_cycle.html_name }}" id="{{ form.billing_cycle.id_for_label }}">
+              {% for value, label in form.fields.billing_cycle.choices %}
+                <option value="{{ value }}" {% if form.billing_cycle.value|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+            {% for error in form.billing_cycle.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
           </div>
 
           <div>

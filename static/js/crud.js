@@ -43,6 +43,7 @@
         return (
           '<div class="mb-2"><label class="form-label">' + field.label + "</label>" +
           fieldInput(field, value) +
+          (field.help ? '<div class="form-text small">' + field.help + "</div>" : "") +
           '<div class="invalid-feedback d-block text-danger small" data-error-for="' + field.name + '"></div></div>'
         );
       })
@@ -62,7 +63,9 @@
     }
   }
 
-  /* config: {mount, listUrl, detailUrl(id), fields, columns, title, canWrite, params} */
+  /* config: {mount, listUrl, detailUrl(id), fields, columns, title, canWrite,
+     params, onChange, onForm(modalBody, row)} — ``onForm`` runs once the modal
+     is on screen, for panels that need one field to answer another. */
   function panel(config) {
     const mount = document.querySelector(config.mount);
     if (!mount) { return null; }
@@ -129,6 +132,7 @@
       if (event.target.closest(".js-new")) {
         app.openModal(config.title + (" " + gettext("— إضافة")), formHtml(config.fields, null),
           ('<button class="btn btn-primary js-save">' + gettext("حفظ") + '</button>'));
+        if (config.onForm) { config.onForm(document.getElementById("app-modal-body"), null); }
         document.querySelector("#app-modal .js-save").addEventListener("click", async function () {
           try {
             await http.post(config.listUrl, readForm(config.fields));
@@ -145,6 +149,7 @@
         const row = rows.find((r) => String(r.id) === String(id));
         app.openModal(config.title + (" " + gettext("— تعديل")), formHtml(config.fields, row),
           ('<button class="btn btn-primary js-save">' + gettext("حفظ") + '</button>'));
+        if (config.onForm) { config.onForm(document.getElementById("app-modal-body"), row); }
         document.querySelector("#app-modal .js-save").addEventListener("click", async function () {
           try {
             await http.patch(config.detailUrl(id), readForm(config.fields));
@@ -161,10 +166,16 @@
     return { reload: load, rows: () => rows };
   }
 
-  async function options(url, labelKey) {
+  /* The rows themselves, for a caller that needs more of a record than its
+     label — a select whose choice has to fill in another field, say. */
+  async function rows(url) {
     const result = await http.get(url);
-    return result.data.results.map((row) => [row.id, row[labelKey || "label"]]);
+    return result.data.results;
   }
 
-  global.crud = { panel: panel, options: options, el: el };
+  async function options(url, labelKey) {
+    return (await rows(url)).map((row) => [row.id, row[labelKey || "label"]]);
+  }
+
+  global.crud = { panel: panel, options: options, rows: rows, el: el };
 })(window);
