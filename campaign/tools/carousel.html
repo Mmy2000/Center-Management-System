@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<title>Campaign carousel — 1080×1080</title>
+
+<!-- The product's own Cairo, self-hosted in the repo: the graphics and the app
+     they advertise should be set in the same type. -->
+<style>
+@font-face {
+  font-family: 'Cairo';
+  font-style: normal;
+  font-weight: 400 900;
+  src: url('../../static/fonts/cairo-arabic.woff2') format('woff2');
+  unicode-range: U+0600-06FF, U+0750-077F, U+08A0-08FF, U+200C-200E, U+2010-2011,
+                 U+FB50-FDFF, U+FE70-FE74, U+FE76-FEFC;
+}
+@font-face {
+  font-family: 'Cairo';
+  font-style: normal;
+  font-weight: 400 900;
+  src: url('../../static/fonts/cairo-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+2000-206F, U+20AC, U+2122;
+}
+
+:root {
+  /* The app's teal ramp, copied from static/css/themes.css. */
+  --b50:#eef6f8; --b100:#d3e8ee; --b200:#a7d1dd; --b300:#6fb2c5;
+  --b400:#3d8ea8; --b500:#1f6f8b; --b600:#175a72; --b700:#12475b;
+  --b800:#0e3746; --b900:#0a2833;
+  --ok:#1f855c; --warn:#b9571e;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background:#111; font-family:'Cairo', system-ui, sans-serif;
+  display:flex; flex-direction:column; align-items:center; gap:40px; padding:40px;
+}
+
+/* ---------------------------------------------------------------- artboard */
+.board {
+  position:relative; width:1080px; height:1080px; overflow:hidden;
+  background:
+    radial-gradient(120% 90% at 85% 0%, #1a5a70 0%, transparent 55%),
+    linear-gradient(160deg, #0e3746 0%, #0a2833 60%, #08202a 100%);
+  color:#fff; display:flex; flex-direction:column;
+  padding:66px 72px 58px;
+}
+
+/* The faint engineering grid from the sign-in page, carried through. */
+.board::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size:54px 54px;
+  mask-image:radial-gradient(120% 100% at 80% 10%, #000 30%, transparent 78%);
+}
+.board > * { position:relative; z-index:1; }
+
+/* A soft brand glow behind the screenshot, so the white card is not an
+   unexplained bright rectangle on a dark ground. */
+.board::after {
+  content:''; position:absolute; z-index:0;
+  width:900px; height:520px; left:50%; top:52%; transform:translate(-50%,-40%);
+  background:radial-gradient(closest-side, rgba(111,178,197,.30), transparent 72%);
+  filter:blur(10px);
+}
+
+/* ------------------------------------------------------------------ header */
+.eyebrow {
+  display:inline-flex; align-self:flex-start; align-items:center; gap:12px;
+  font-size:23px; font-weight:700; letter-spacing:.02em;
+  color:var(--b200); background:rgba(111,178,197,.13);
+  border:1px solid rgba(111,178,197,.28);
+  padding:9px 22px; border-radius:999px; margin-bottom:26px;
+}
+.eyebrow i { width:9px; height:9px; border-radius:50%; background:var(--b300); }
+
+h1 {
+  font-size:66px; font-weight:800; line-height:1.24; letter-spacing:-.015em;
+  margin-bottom:20px; text-wrap:balance;
+}
+h1 em { font-style:normal; color:var(--b300); }
+
+.sub {
+  font-size:27px; font-weight:400; line-height:1.68;
+  color:rgba(211,232,238,.80); max-width:830px;
+}
+
+/* ------------------------------------------------------------------- stage */
+.stage {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  margin:30px 0 0; position:relative;
+}
+
+.shot {
+  flex:0 0 auto; position:relative; overflow:hidden; border-radius:22px; background:#fff;
+  box-shadow:0 34px 70px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.14);
+}
+.shot img { position:absolute; display:block; max-width:none; }
+
+/* A floating callout pinned to a screenshot. */
+.chip {
+  position:absolute; display:flex; flex-direction:column; gap:2px;
+  background:linear-gradient(150deg, var(--b400), var(--b600));
+  color:#fff; border-radius:18px; padding:16px 26px;
+  box-shadow:0 18px 38px rgba(0,0,0,.48), 0 0 0 1px rgba(255,255,255,.16);
+}
+.chip b { font-size:38px; font-weight:800; line-height:1.1; }
+.chip span { font-size:20px; font-weight:600; color:rgba(255,255,255,.86); }
+
+/* Designed stat tiles - our own typography, not a screenshot. */
+.stats { display:flex; gap:18px; width:100%; margin-top:22px; }
+.stat {
+  flex:1; background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.12);
+  border-radius:18px; padding:20px 24px;
+}
+.stat b { display:block; font-size:40px; font-weight:800; line-height:1.15; }
+.stat span { font-size:20px; font-weight:600; color:rgba(211,232,238,.72); }
+.stat.ok b { color:#7ee0b4; }
+.stat.warn b { color:#ffb27a; }
+
+/* ------------------------------------------------------------------ footer */
+footer {
+  display:flex; align-items:center; justify-content:space-between;
+  padding-top:26px; margin-top:auto;
+  border-top:1px solid rgba(255,255,255,.10);
+}
+.brand { display:flex; align-items:center; gap:14px; }
+.mark {
+  width:52px; height:52px; border-radius:14px; display:grid; place-items:center;
+  background:linear-gradient(150deg, var(--b300), var(--b600));
+  font-size:19px; font-weight:800; letter-spacing:.04em; color:#08202a;
+  box-shadow:0 6px 18px rgba(0,0,0,.4);
+}
+.brand div b { display:block; font-size:25px; font-weight:800; line-height:1.25; }
+.brand div span { font-size:19px; color:rgba(211,232,238,.62); }
+.dots { display:flex; gap:9px; direction:ltr; }
+.dots i { width:9px; height:9px; border-radius:50%; background:rgba(255,255,255,.24); }
+.dots i.on { background:var(--b300); width:30px; border-radius:999px; }
+
+/* --------------------------------------------------------- closing artboard */
+.checks { display:flex; flex-direction:column; gap:20px; margin-top:14px; }
+.check { display:flex; align-items:center; gap:18px; font-size:31px; font-weight:600; }
+.check i {
+  flex:0 0 auto; width:44px; height:44px; border-radius:13px; display:grid;
+  place-items:center; background:rgba(111,178,197,.16);
+  border:1px solid rgba(111,178,197,.34); color:var(--b300);
+  font-size:24px; font-weight:800; font-style:normal;
+}
+.contact { margin-top:32px; display:flex; flex-direction:column; gap:16px; align-items:flex-start; }
+
+.cta {
+  display:inline-flex; align-items:center; gap:16px;
+  background:linear-gradient(150deg, var(--b300), var(--b500));
+  color:#062028; font-size:36px; font-weight:800;
+  padding:20px 40px; border-radius:18px;
+  box-shadow:0 20px 44px rgba(0,0,0,.5);
+}
+.cta svg { width:36px; height:36px; flex:0 0 auto; }
+
+/* Latin digits inside an Arabic line reorder unless the run is isolated, and a
+   scrambled phone number on the call-to-action slide is the one typo that
+   costs an actual customer. */
+.ltr { direction:ltr; unicode-bidi:isolate; font-feature-settings:'tnum'; }
+
+.mail {
+  display:inline-flex; align-items:center; gap:14px;
+  font-size:27px; font-weight:600; color:rgba(211,232,238,.86);
+  background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.13);
+  padding:14px 26px; border-radius:14px;
+}
+.mail svg { width:28px; height:28px; flex:0 0 auto; color:var(--b300); }
+
+/* The cover leads with the product, so its type is larger and its shot wider. */
+#s1 h1 { font-size:74px; }
+#s1 .stage { margin-top:30px; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════ 1 — cover ═══════════════════════════ -->
+<section class="board" id="s1">
+  <span class="eyebrow"><i></i>نظام إدارة السناتر</span>
+  <h1>سنترك كله <em>في شاشة واحدة</em></h1>
+  <p class="sub">حضور بالكارت، اشتراكات لكل مادة، وحساب دقيق لكل طالب — من غير كشاكيل ولا إكسل.</p>
+
+  <div class="stage">
+    <div class="shot" data-src="02-dashboard.png" data-crop="31,150,2559,1190" data-w="928"></div>
+  </div>
+
+  <footer>
+    <div class="brand">
+      <div class="mark">CMS</div>
+      <div><b>نظام إدارة السنتر</b><span>من التسجيل حتى التحصيل</span></div>
+    </div>
+    <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+  </footer>
+</section>
+
+<!-- ══════════════════════════════════ 2 — the scan ═════════════════════════ -->
+<section class="board" id="s2">
+  <span class="eyebrow"><i></i>الحضور</span>
+  <h1>الطالب يمسح كارته… <em>ويدخل</em></h1>
+  <p class="sub">الشاشة تعرض اسمه ومجموعته فورًا، وتسجّل حضوره في سجل الحصة — من غير ورقة ولا نداء بالأسماء.</p>
+
+  <div class="stage">
+    <div class="shot" data-src="03b-scan-accepted.png" data-crop="1150,600,1180,490" data-w="960"></div>
+    <div class="chip" style="left:-28px; bottom:-34px;">
+      <b>16 مللي/ث</b><span>زمن الاستجابة</span>
+    </div>
+  </div>
+
+  <footer>
+    <div class="brand">
+      <div class="mark">CMS</div>
+      <div><b>نظام إدارة السنتر</b><span>حضور بالكارت في لحظة</span></div>
+    </div>
+    <div class="dots"><i></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
+  </footer>
+</section>
+
+<!-- ═══════════════════════════ 3 — multi-subject enrolment ═════════════════ -->
+<section class="board" id="s3">
+  <span class="eyebrow"><i></i>الاشتراكات</span>
+  <h1>الطالب يشترك في <em>أكتر من مادة</em></h1>
+  <p class="sub">كل مادة بمجموعتها ورسومها وتاريخ اشتراكها — والنظام يحسب إجمالي الطالب الشهري لوحده.</p>
+
+  <div class="stage">
+    <div class="shot" data-src="06b-student-subjects.png" data-crop="1014,632,1576,530" data-w="900"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>4</b><span>مواد لطالب واحد</span></div>
+    <div class="stat"><b>2,000</b><span>إجمالي شهري (ج.م)</span></div>
+    <div class="stat"><b>0</b><span>تكرار في التسجيل</span></div>
+  </div>
+
+  <footer>
+    <div class="brand">
+      <div class="mark">CMS</div>
+      <div><b>نظام إدارة السنتر</b><span>اشتراكات متعددة المواد</span></div>
+    </div>
+    <div class="dots"><i></i><i></i><i class="on"></i><i></i><i></i><i></i></div>
+  </footer>
+</section>
+
+<!-- ═════════════════════════════════ 4 — the money ═════════════════════════ -->
+<section class="board" id="s4">
+  <span class="eyebrow"><i></i>التحصيل</span>
+  <h1>تعرف مين دفع… <em>ومين لسه</em></h1>
+  <p class="sub">المستحق والمحصّل والمتبقي لحظة بلحظة، دفعات جزئية لكل مادة، وإيصال مطبوع لكل عملية.</p>
+
+  <div class="stage">
+    <div class="shot" data-src="12-payments.png" data-crop="733,780,1857,666" data-w="1080"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat ok"><b>149,650</b><span>محصّل هذا الشهر</span></div>
+    <div class="stat warn"><b>141,220</b><span>متبقي</span></div>
+    <div class="stat"><b>290,870</b><span>متوقع (ج.م)</span></div>
+  </div>
+
+  <footer>
+    <div class="brand">
+      <div class="mark">CMS</div>
+      <div><b>نظام إدارة السنتر</b><span>خزنة مضبوطة كل يوم</span></div>
+    </div>
+    <div class="dots"><i></i><i></i><i></i><i class="on"></i><i></i><i></i></div>
+  </footer>
+</section>
+
+<!-- ═══════════════════════════════════ 5 — reports ═════════════════════════ -->
+<section class="board" id="s5">
+  <span class="eyebrow"><i></i>التقارير</span>
+  <h1>المتأخرات قدامك… <em>بأرقام الأهالي</em></h1>
+  <p class="sub">اسم الطالب ورقم ولي أمره والمادة — في تقرير واحد من 13، يتصدّر PDF و Excel بضغطة.</p>
+
+  <div class="stage">
+    <div class="shot" data-src="15-report-outstanding.png" data-crop="1020,616,922,548" data-w="800"></div>
+  </div>
+
+  <footer>
+    <div class="brand">
+      <div class="mark">CMS</div>
+      <div><b>نظام إدارة السنتر</b><span>تقارير جاهزة للتصدير</span></div>
+    </div>
+    <div class="dots"><i></i><i></i><i></i><i></i><i class="on"></i><i></i></div>
+  </footer>
+</section>
+
+<!-- ════════════════════════════════════ 6 — CTA ════════════════════════════ -->
+<section class="board" id="s6">
+  <span class="eyebrow"><i></i>جاهز يشتغل</span>
+  <h1>ابدأ في سنترك <em>من النهارده</em></h1>
+  <p class="sub">نظام واحد يمشي معاك من تسجيل الطالب لحد إيصال آخر الشهر. كلّمنا واحجز عرض تجريبي:</p>
+
+  <div class="checks">
+    <div class="check"><i>✓</i>حضور بالكارت في أقل من ثانية</div>
+    <div class="check"><i>✓</i>اشتراك لكل مادة، ومجموعات بديلة محسوبة</div>
+    <div class="check"><i>✓</i>دفعات جزئية وإيصالات مطبوعة</div>
+    <div class="check"><i>✓</i>تقارير حضور ومتأخرات تتصدّر PDF و Excel</div>
+    <div class="check"><i>✓</i>صلاحيات لكل موظف، وسجل تدقيق لكل تعديل</div>
+  </div>
+
+  <div class="contact">
+    <div class="cta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.2a2 2 0 0 1 2.1-.5c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>
+      </svg>
+      <span class="ltr">+20 102 083 3615</span>
+    </div>
+    <div class="mail">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/>
+      </svg>
+      <span class="ltr">codaco2026@gmail.com</span>
+    </div>
+  </div>
+
+  <footer>
+    <div class="brand">
+      <div class="mark">CMS</div>
+      <div><b>نظام إدارة السنتر</b><span>من التسجيل حتى التحصيل</span></div>
+    </div>
+    <div class="dots"><i></i><i></i><i></i><i></i><i></i><i class="on"></i></div>
+  </footer>
+</section>
+
+<script>
+/* Each .shot names a rectangle of the source screenshot in source pixels and a
+   display width; the image is scaled and offset so exactly that rectangle
+   shows. Cropping tight is what makes a 3120px screenshot readable at 1080. */
+const SRC_W = 3120;
+document.querySelectorAll('.shot').forEach((box) => {
+  const [x, y, w, h] = box.dataset.crop.split(',').map(Number);
+  const shown = Number(box.dataset.w);
+  const k = shown / w;
+
+  box.style.width = shown + 'px';
+  box.style.height = Math.round(h * k) + 'px';
+
+  const img = document.createElement('img');
+  img.src = '../screenshots/ar/' + box.dataset.src;
+  img.style.width = Math.round(SRC_W * k) + 'px';
+  img.style.left = Math.round(-x * k) + 'px';
+  img.style.top = Math.round(-y * k) + 'px';
+  box.appendChild(img);
+});
+</script>
+</body>
+</html>

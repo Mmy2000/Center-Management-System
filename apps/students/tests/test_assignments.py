@@ -1,4 +1,5 @@
 import json
+from datetime import date
 from decimal import Decimal
 
 import pytest
@@ -245,6 +246,28 @@ def test_assign_endpoint_and_monthly_total(admin_client_, world, student):
     ).json()["data"]
     assert len(summary["active"]) == 2
     assert summary["monthly_total"] == "900.00"
+
+
+def test_assign_endpoint_accepts_a_date_string(admin_client_, world, student):
+    """A JSON date must land on the instance as a real date, not a string."""
+    response = _post(
+        admin_client_,
+        reverse("students_api:group_students", args=[world["physics_a"].pk]),
+        {"student_id": student.pk, "start_date": "2026-06-01"},
+    )
+    assert response.status_code == 200
+    assert response.json()["data"]["assignment"]["start_date"] == "2026-06-01"
+    assert StudentGroupAssignment.objects.get().start_date == date(2026, 6, 1)
+
+
+def test_assign_endpoint_rejects_a_bad_date(admin_client_, world, student):
+    response = _post(
+        admin_client_,
+        reverse("students_api:group_students", args=[world["physics_a"].pk]),
+        {"student_id": student.pk, "start_date": "01/06/2026"},
+    )
+    assert response.status_code == 400
+    assert response.json()["code"] == "ERR_VALIDATION"
 
 
 def test_delete_endpoint_is_soft(admin_client_, world, student):

@@ -4,6 +4,8 @@ Principle 2 in code: these are the *only* functions in the system allowed to
 write StudentGroupAssignment. The attendance app never calls them.
 """
 
+from datetime import date, datetime
+
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 from django.utils.translation import gettext as _
@@ -13,6 +15,22 @@ from apps.core.http import DomainError
 from apps.core.models import AuditAction
 
 from .models import AssignmentStatus, EndReason, StudentGroupAssignment
+
+
+def as_date(value, default=None):
+    """JSON gives us date *strings*; the model instance must hold real dates.
+
+    Django only coerces on the way to the database, so an unparsed string
+    survives on the in-memory object and breaks every reader after the write.
+    """
+    if not value:
+        return default
+    if isinstance(value, date):
+        return value
+    try:
+        return datetime.strptime(value, "%Y-%m-%d").date()
+    except (TypeError, ValueError) as exc:
+        raise DomainError("ERR_VALIDATION", _("تاريخ غير صحيح")) from exc
 
 
 def active_assignment(student, grade_subject_id):
@@ -65,7 +83,7 @@ def assign_student(
             group=group,
             grade_subject=group.grade_subject,
             is_default=is_default,
-            start_date=start_date or timezone.localdate(),
+            start_date=as_date(start_date, timezone.localdate()),
             notes=notes,
             created_by=actor,
         )
@@ -110,7 +128,7 @@ def end_assignment(
     if assignment.status != AssignmentStatus.ACTIVE:
         raise DomainError("ERR_ASSIGNMENT_NOT_ACTIVE", _("الاشتراك غير نشط"), status=409)
 
-    assignment.end_date = end_date or timezone.localdate()
+    assignment.end_date = as_date(end_date, timezone.localdate())
     assignment.status = status
     assignment.end_reason = reason
     if notes:
@@ -151,7 +169,7 @@ def transfer_student(assignment, new_group, *, actor=None, start_date=None, reas
         )
 
     old_group = assignment.group
-    today = start_date or timezone.localdate()
+    today = as_date(start_date, timezone.localdate())
     end_assignment(
         assignment,
         actor=actor,
