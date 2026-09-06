@@ -316,7 +316,7 @@ msgstr "Waive charges"
 msgid "إعفاء من رسوم"
 msgstr "Charge waived"
 
-#: templates/base.html:45 templates/console/base.html:105
+#: templates/base.html:46 templates/console/base.html:105
 #: templates/partials/_modal.html:8
 msgid "إغلاق"
 msgstr "Close"
@@ -470,7 +470,7 @@ msgstr ""
 "Turning it off prevents assigning it to new clients. Existing clients on it "
 "are unaffected."
 
-#: templates/partials/_topbar.html:11
+#: templates/partials/_topbar.html:13
 msgid "ابحث بكود الطالب أو الاسم أو رقم ولي الأمر…  (/)"
 msgstr "Search by student code, name or guardian phone…  (/)"
 
@@ -793,7 +793,7 @@ msgid "الاشتراك القديم يُحفظ في السجل ولا يتأث�
 msgstr ""
 "The old enrollment is kept in the history and past attendance is untouched."
 
-#: apps/students/assignment_services.py:111
+#: apps/students/assignment_services.py:129
 msgid "الاشتراك غير نشط"
 msgstr "This enrollment is not active"
 
@@ -1310,7 +1310,7 @@ msgstr "Student"
 msgid "الطالب الحالي"
 msgstr "Current student"
 
-#: apps/students/assignment_services.py:145
+#: apps/students/assignment_services.py:163
 msgid "الطالب بالفعل في هذه المجموعة"
 msgstr "The student is already in this group"
 
@@ -1330,7 +1330,7 @@ msgstr "The student is not active"
 msgid "الطالب لديه بطاقة نشطة بالفعل — استخدم الاستبدال"
 msgstr "The student already holds an active card — use Replace"
 
-#: apps/students/assignment_services.py:75
+#: apps/students/assignment_services.py:93
 msgid "الطالب مشترك بالفعل في مجموعة أخرى لنفس المادة — استخدم النقل"
 msgstr ""
 "The student is already enrolled in another group for this subject — use "
@@ -1445,7 +1445,7 @@ msgstr "Effective"
 msgid "الفوترة"
 msgstr "Billing"
 
-#: templates/console/base.html:83 templates/partials/_topbar.html:4
+#: templates/console/base.html:83
 msgid "القائمة"
 msgstr "Menu"
 
@@ -1835,7 +1835,7 @@ msgstr ""
 "The system mints random, non-guessable tokens, then exports a sheet for "
 "printing."
 
-#: apps/students/assignment_services.py:149
+#: apps/students/assignment_services.py:167
 msgid "النقل مسموح فقط بين مجموعات نفس المادة والصف"
 msgstr ""
 "Transfers are only allowed between groups of the same subject offering"
@@ -1986,7 +1986,7 @@ msgstr "Inside"
 msgid "بالعربية"
 msgstr "Arabic"
 
-#: templates/console/tenant_list.html:17 templates/partials/_topbar.html:12
+#: templates/console/tenant_list.html:17 templates/partials/_topbar.html:14
 #: templates/students/list.html:17
 msgid "بحث"
 msgstr "Search"
@@ -2171,6 +2171,7 @@ msgid "تاريخ الميلاد"
 msgstr "Date of birth"
 
 #: apps/lessons/api.py:59 apps/reports/api.py:53
+#: apps/students/assignment_services.py:33
 msgid "تاريخ غير صحيح"
 msgstr "Invalid date"
 
@@ -2258,7 +2259,7 @@ msgstr "Attendance check-in"
 msgid "تسجيل الحضور من كشف الحصة دون أي جهاز."
 msgstr "Record attendance from the lesson roll with no device at all."
 
-#: templates/console/base.html:73 templates/partials/_topbar.html:33
+#: templates/console/base.html:73 templates/partials/_topbar.html:35
 msgid "تسجيل الخروج"
 msgstr "Sign out"
 
@@ -2528,7 +2529,7 @@ msgstr "Change feature"
 
 #: templates/accounts/password_change.html:3
 #: templates/accounts/password_change.html:10
-#: templates/accounts/profile.html:19 templates/partials/_topbar.html:28
+#: templates/accounts/profile.html:19 templates/partials/_topbar.html:30
 msgid "تغيير كلمة المرور"
 msgstr "Change password"
 
@@ -2937,7 +2938,7 @@ msgstr "Group limit"
 msgid "حد المستخدمين"
 msgstr "User limit"
 
-#: static/js/app.js:27
+#: static/js/app.js:28
 msgid "حدث خطأ غير متوقع، برجاء المحاولة مرة أخرى"
 msgstr "Something went wrong — please try again"
 
@@ -3003,7 +3004,7 @@ msgid "حساب المستخدم"
 msgstr "User account"
 
 #: templates/accounts/profile.html:3 templates/accounts/profile.html:10
-#: templates/partials/_topbar.html:27
+#: templates/partials/_topbar.html:29
 msgid "حسابي"
 msgstr "My account"
 
@@ -3347,7 +3348,7 @@ msgstr "A reason for the deletion is required"
 msgid "سبب الخصم"
 msgstr "Discount reason"
 
-#: apps/students/assignment_services.py:141
+#: apps/students/assignment_services.py:159
 msgid "سبب النقل مطلوب"
 msgstr "A reason for the transfer is required"
 
@@ -3457,11 +3458,11 @@ msgstr "Monthly"
 msgid "صف"
 msgstr "Grade"
 
-#: apps/students/assignment_services.py:53
+#: apps/students/assignment_services.py:71
 msgid "صف الطالب لا يطابق صف المجموعة"
 msgstr "The student's grade does not match the group's grade"
 
-#: apps/students/assignment_services.py:55
+#: apps/students/assignment_services.py:73
 msgid "صف المجموعة مختلف عن صف الطالب"
 msgstr "The group belongs to a different grade"
 
@@ -3560,6 +3561,10 @@ msgstr "Attendance method"
 #: templates/academics/group_detail.html:77
 msgid "طلاب المجموعة"
 msgstr "Group roster"
+
+#: templates/partials/_topbar.html:5 templates/partials/_topbar.html:6
+msgid "طيّ القائمة أو فتحها"
+msgstr "Collapse or expand the menu"
 
 #: templates/students/detail.html:124 apps/attendance/models.py:42
 msgid "عادي"
@@ -4055,7 +4060,7 @@ msgstr "Nothing to save"
 msgid "لا توجد مواعيد"
 msgstr "No slots"
 
-#: templates/partials/_topbar.html:60 templates/students/list.html:106
+#: templates/partials/_topbar.html:62 templates/students/list.html:106
 #: static/js/select.js:160
 msgid "لا توجد نتائج"
 msgstr "No results"

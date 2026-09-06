@@ -21,8 +21,9 @@
   <link rel="stylesheet" href="{% static 'css/themes.css' %}">
   <link rel="stylesheet" href="{% static 'css/buttons.css' %}">
   <link rel="stylesheet" href="{% static 'css/select.css' %}">
-  {# Runs before first paint so a user's palette never flashes the default one. #}
+  {# Both run before first paint: no flash of the default palette, and no flash of an open sidebar. #}
   <script src="{% static 'js/theme.js' %}"></script>
+  <script src="{% static 'js/nav.js' %}"></script>
   {% block extra_css %}{% endblock %}
 </head>
 <body>

@@ -1,4 +1,5 @@
-/* Shared behaviour: toasts, modal, keyboard shortcuts, mobile nav, downloads. */
+/* Shared behaviour: toasts, modal, keyboard shortcuts, downloads.
+   The sidebar lives in nav.js — it needs to run before first paint. */
 (function (global) {
   "use strict";
 
@@ -110,16 +111,6 @@
     }
     if (event.key === "n" && document.getElementById("shortcut-new")) {
       window.location = document.getElementById("shortcut-new").href;
-    }
-  });
-
-  /* -------------------------------------------------------- mobile nav --- */
-  document.addEventListener("click", function (event) {
-    if (event.target.closest("[data-nav-toggle]")) {
-      document.getElementById("app-shell")?.classList.toggle("nav-open");
-    }
-    if (event.target.closest("[data-nav-close]")) {
-      document.getElementById("app-shell")?.classList.remove("nav-open");
     }
   });
 

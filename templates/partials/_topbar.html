@@ -1,7 +1,9 @@
 {% load i18n %}
 <header class="app-topbar d-flex align-items-center gap-2 gap-lg-3 px-3">
   <button class="btn btn-sm btn-outline-secondary nav-toggle" data-nav-toggle type="button"
-          aria-label="{% translate 'القائمة' %}">
+          aria-controls="app-nav" aria-expanded="true"
+          aria-label="{% translate 'طيّ القائمة أو فتحها' %}"
+          title="{% translate 'طيّ القائمة أو فتحها' %}">
     <svg class="icon"><use href="#i-menu"></use></svg>
   </button>
 
