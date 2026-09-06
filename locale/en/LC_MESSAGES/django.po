@@ -4637,6 +4637,10 @@ msgstr "From"
 msgid "من تاريخ"
 msgstr "From date"
 
+#: templates/partials/_sidebar.html:104
+msgid "من تطوير"
+msgstr "powered by"
+
 #: apps/accounts/models.py:51
 msgid "من فريق المنصة"
 msgstr "Platform staff"

@@ -129,12 +129,12 @@ footer {
   border-top:1px solid rgba(255,255,255,.10);
 }
 .brand { display:flex; align-items:center; gap:14px; }
-.mark {
-  width:52px; height:52px; border-radius:14px; display:grid; place-items:center;
-  background:linear-gradient(150deg, var(--b300), var(--b600));
-  font-size:19px; font-weight:800; letter-spacing:.04em; color:#08202a;
-  box-shadow:0 6px 18px rgba(0,0,0,.4);
-}
+/* The extracted mark is light artwork on transparency, so it sits directly on
+   the dark ground with no plate behind it. */
+.mark { height:54px; width:auto; display:block; }
+
+/* The full lockup signs off the closing artboard. */
+.lockup { height:132px; width:auto; display:block; margin-bottom:26px; }
 .brand div b { display:block; font-size:25px; font-weight:800; line-height:1.25; }
 .brand div span { font-size:19px; color:rgba(211,232,238,.62); }
 .dots { display:flex; gap:9px; direction:ltr; }
@@ -174,6 +174,16 @@ footer {
 }
 .mail svg { width:28px; height:28px; flex:0 0 auto; color:var(--b300); }
 
+/* The lockup is taller than a footer row, so the closing artboard buys the
+   height back from the list and the contact block above it. */
+#s6 .lockup { height:78px; margin-bottom:0; }
+#s6 .checks { gap:13px; margin-top:8px; }
+#s6 .check { font-size:29px; }
+#s6 .check i { width:40px; height:40px; }
+#s6 .contact { margin-top:22px; gap:13px; }
+#s6 .cta { font-size:33px; padding:17px 36px; }
+#s6 footer { padding-top:18px; }
+
 /* The cover leads with the product, so its type is larger and its shot wider. */
 #s1 h1 { font-size:74px; }
 #s1 .stage { margin-top:30px; }
@@ -193,7 +203,7 @@ footer {
 
   <footer>
     <div class="brand">
-      <div class="mark">CMS</div>
+      <img class="mark" src="../brand/codaco-mark.png" alt="codaco">
       <div><b>نظام إدارة السنتر</b><span>من التسجيل حتى التحصيل</span></div>
     </div>
     <div class="dots"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -215,7 +225,7 @@ footer {
 
   <footer>
     <div class="brand">
-      <div class="mark">CMS</div>
+      <img class="mark" src="../brand/codaco-mark.png" alt="codaco">
       <div><b>نظام إدارة السنتر</b><span>حضور بالكارت في لحظة</span></div>
     </div>
     <div class="dots"><i></i><i class="on"></i><i></i><i></i><i></i><i></i></div>
@@ -240,7 +250,7 @@ footer {
 
   <footer>
     <div class="brand">
-      <div class="mark">CMS</div>
+      <img class="mark" src="../brand/codaco-mark.png" alt="codaco">
       <div><b>نظام إدارة السنتر</b><span>اشتراكات متعددة المواد</span></div>
     </div>
     <div class="dots"><i></i><i></i><i class="on"></i><i></i><i></i><i></i></div>
@@ -265,7 +275,7 @@ footer {
 
   <footer>
     <div class="brand">
-      <div class="mark">CMS</div>
+      <img class="mark" src="../brand/codaco-mark.png" alt="codaco">
       <div><b>نظام إدارة السنتر</b><span>خزنة مضبوطة كل يوم</span></div>
     </div>
     <div class="dots"><i></i><i></i><i></i><i class="on"></i><i></i><i></i></div>
@@ -284,7 +294,7 @@ footer {
 
   <footer>
     <div class="brand">
-      <div class="mark">CMS</div>
+      <img class="mark" src="../brand/codaco-mark.png" alt="codaco">
       <div><b>نظام إدارة السنتر</b><span>تقارير جاهزة للتصدير</span></div>
     </div>
     <div class="dots"><i></i><i></i><i></i><i></i><i class="on"></i><i></i></div>
@@ -323,10 +333,7 @@ footer {
   </div>
 
   <footer>
-    <div class="brand">
-      <div class="mark">CMS</div>
-      <div><b>نظام إدارة السنتر</b><span>من التسجيل حتى التحصيل</span></div>
-    </div>
+    <img class="lockup" src="../brand/codaco-logo.png" alt="codaco — software solutions">
     <div class="dots"><i></i><i></i><i></i><i></i><i></i><i class="on"></i></div>
   </footer>
 </section>

@@ -122,6 +122,8 @@ a:hover { text-decoration: underline; }
 .app-sidebar {
   width: var(--sidebar-w);
   flex: 0 0 var(--sidebar-w);
+  display: flex;
+  flex-direction: column;
   transition: width var(--dur) var(--ease), flex-basis var(--dur) var(--ease);
   background: linear-gradient(180deg, var(--brand-800) 0%, var(--brand-900) 100%);
   color: #cfe0e6;
@@ -201,6 +203,38 @@ a:hover { text-decoration: underline; }
   color: #7fa3b0;
   padding: .75rem .7rem .35rem;
 }
+
+/* ------------------------------------------------------- vendor credit ---- */
+/* Whose software this is. It sits under the nav, quiet enough that the
+   center's own name at the top stays the loud thing on the screen. */
+.app-sidebar > .nav { flex: 1 1 auto; }
+
+.app-vendor {
+  margin-top: 1.25rem;
+  padding: .9rem .7rem .35rem;
+  border-top: 1px solid rgba(255, 255, 255, .10);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .35rem;
+}
+.app-vendor-label {
+  font-size: .66rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #7fa3b0;
+}
+.app-vendor-logo,
+.app-vendor-mark {
+  display: block;
+  height: auto;
+  opacity: .72;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+.app-vendor-logo { width: 104px; }
+.app-vendor-mark { width: 32px; display: none; }
+.app-vendor:hover .app-vendor-logo,
+.app-vendor:hover .app-vendor-mark { opacity: 1; }
 
 .app-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
 
@@ -580,6 +614,10 @@ a:hover { text-decoration: underline; }
   html[data-nav="rail"] .app-sidebar .nav-link.active::before {
     inset-inline-start: -.5rem;
   }
+
+  html[data-nav="rail"] .app-vendor { align-items: center; padding-inline: 0; }
+  html[data-nav="rail"] .app-vendor-logo { display: none; }
+  html[data-nav="rail"] .app-vendor-mark { display: block; }
 
   /* A section heading with its text removed still has to separate the groups. */
   html[data-nav="rail"] .nav-section {

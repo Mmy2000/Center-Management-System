@@ -24,6 +24,24 @@ the campaign goes out.
 To change either, edit the `.contact` block in `../tools/carousel.html` and
 re-render.
 
+## Branding
+
+Every slide's footer carries the codaco mark; slide 6 signs off with the full
+lockup (mark + wordmark + tagline).
+
+The logo you supplied is a presentation render — light metallic artwork on a
+near-black textured card, with no transparency. `../tools/extract_logo.py` lifts
+it off that card into a real alpha channel by treating it as an additive layer:
+coverage comes from luminance, and the colour is unpremultiplied back out. The
+card's paper texture tops out at 0.042 luma, measured rather than guessed, so
+the threshold sits just above it and the render's own drop shadow — which
+belongs to the mockup, not the logo — is discarded with it.
+
+The result composites cleanly on dark grounds, which is what this artwork is.
+On light grounds the silver reads as pale grey: legible, but a proper
+transparent master (or the vector) from your designer would be better if you
+ever need the logo on white. Assets are in `../brand/`, alongside the original.
+
 ## Design notes
 
 - **Type** is Cairo, the same font the app itself is set in, loaded from

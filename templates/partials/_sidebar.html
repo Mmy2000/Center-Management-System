@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n static %}
 {# One nav, one icon system, one active-state rule. #}
 <aside class="app-sidebar" id="app-nav">
   <div class="app-brand">
@@ -98,4 +98,13 @@
       </a>
     {% endif %}
   </nav>
+
+  {# The center's identity is at the top; this is the house that built the software. #}
+  <div class="app-vendor">
+    <span class="app-vendor-label nav-label">{% translate "من تطوير" %}</span>
+    <img class="app-vendor-logo" src="{% static 'img/codaco-logo.png' %}"
+         alt="codaco — software solutions" width="104" height="83" loading="lazy">
+    <img class="app-vendor-mark" src="{% static 'img/codaco-mark.png' %}"
+         alt="codaco" width="32" height="21" loading="lazy">
+  </div>
 </aside>
