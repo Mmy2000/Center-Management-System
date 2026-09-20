@@ -1,4 +1,4 @@
-"""``manage.py check`` rules that keep a new model from leaking (TASK-093).
+"""``manage.py check`` rules for the control plane (TASK-093, TASK-122).
 
 The leak suite (TASK-119) proves isolation for the models that exist today. This
 check is what covers the model somebody adds next month: a concrete domain model
@@ -138,3 +138,33 @@ def check_feature_catalogue(app_configs=None, **kwargs):
                 )
             )
     return errors
+
+
+@register(Tags.caches)
+def check_traffic_cache_is_shared(app_configs=None, **kwargs):
+    """``tenancy.W002`` — per-tenant rate control needs a cache every worker sees.
+
+    Under ``LocMemCache`` each worker process keeps its own counters. Two things
+    then quietly stop being true: the console (served by whichever worker took
+    that request) sees a fraction of the traffic, and a limit of 10 req/s
+    becomes 10 req/s *per worker* — four workers, forty requests, no refusal.
+
+    A warning rather than an error, because a single-worker development server
+    is a perfectly reasonable place to be and the feature does work there.
+    """
+    from .traffic import cache_is_shared
+
+    if cache_is_shared():
+        return []
+    return [
+        Warning(
+            "Per-tenant traffic metering and rate limits need a cache shared by "
+            "every worker; the configured default cache is per-process.",
+            hint=(
+                "Set REDIS_URL so CACHES['default'] is the Redis backend. With "
+                "LocMemCache the console under-reports traffic and each worker "
+                "enforces its own copy of every limit."
+            ),
+            id="tenancy.W002",
+        )
+    ]

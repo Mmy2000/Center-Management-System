@@ -71,7 +71,17 @@ def resolve_host(host: str):
     if cached is not None:
         return cached
 
-    domain = Domain.objects.select_related("tenant", "tenant__plan").filter(host=host).first()
+    domain = (
+        Domain.objects
+        # `tenant__rate_policy` rides along deliberately: TenantTrafficMiddleware
+        # needs it on every single request, and selecting it here makes that
+        # cost zero rather than one query or one more cache key (TASK-122).
+        # Its writes invalidate this same cache, so it cannot go stale on its
+        # own — see tenancy.signals.
+        .select_related("tenant", "tenant__plan", "tenant__rate_policy")
+        .filter(host=host)
+        .first()
+    )
     if domain is None:
         cache.set(key, _MISS, NEGATIVE_CACHE_TTL)
         return None

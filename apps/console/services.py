@@ -24,6 +24,7 @@ from apps.tenancy.models import (
     PlanFeature,
     Tenant,
     TenantFeature,
+    TenantRatePolicy,
     TenantUsage,
 )
 from apps.tenancy.platform_audit import record
@@ -350,6 +351,123 @@ def resume(tenant, *, reason: str = "", actor=None):
 
 def archive(tenant, *, reason: str, actor=None):
     return tenant.transition_to(TenantStatus.ARCHIVED, actor=actor, reason=reason)
+
+
+# --------------------------------------------------------------------------- #
+# Traffic control (TASK-122)
+# --------------------------------------------------------------------------- #
+
+#: The fields an operator can move. Kept as a tuple so the audit diff, the
+#: validation and the write all walk the same list and cannot fall out of step.
+RATE_FIELDS = ("max_rps", "max_rpm", "max_rph", "burst")
+
+
+def rate_policy_for(tenant) -> TenantRatePolicy:
+    """The tenant's policy row, unsaved if it does not exist yet.
+
+    Unsaved rather than ``get_or_create``: reading a screen must not create
+    rows. Absence is the default, and a row that merely restates the default
+    is a row that will eventually disagree with it — the same reasoning
+    ``TenantFeature`` applies to ``INHERIT``.
+    """
+    existing = TenantRatePolicy.objects.filter(tenant=tenant).first()
+    return existing if existing is not None else TenantRatePolicy(tenant=tenant)
+
+
+def _snapshot_policy(policy: TenantRatePolicy) -> dict:
+    data = {name: getattr(policy, name) for name in RATE_FIELDS}
+    data["blocked"] = policy.blocked
+    return data
+
+
+@transaction.atomic
+def set_rate_limits(tenant, *, actor=None, reason: str = "", **limits) -> TenantRatePolicy:
+    """Set, change or clear this client's request limits.
+
+    ``None`` for a window means unlimited, and clearing every window on an
+    unblocked client deletes the row outright: "no limits" then has exactly one
+    representation, and the hot path has one less state to be wrong about.
+
+    Nothing here touches ``Tenant.status``. Throttling a center is not a
+    billing event and must not appear in their subscription history as one.
+    """
+    policy = rate_policy_for(tenant)
+    before = _snapshot_policy(policy)
+
+    for name in RATE_FIELDS:
+        if name in limits:
+            value = limits[name]
+            setattr(policy, name, 0 if name == "burst" and value is None else value)
+
+    policy.updated_by = actor
+    policy.full_clean(exclude=["tenant", "updated_by"])
+
+    after = _snapshot_policy(policy)
+    changes = {name: [before[name], after[name]] for name in after if before[name] != after[name]}
+
+    if not policy.is_default:
+        policy.save()
+    elif policy.pk:
+        # Every limit cleared on an unblocked client: drop the row rather than
+        # keep one that says exactly what its absence already says.
+        policy.delete()
+
+    if changes:
+        record(
+            PlatformAction.TRAFFIC_LIMITED,
+            tenant=tenant,
+            actor=actor,
+            reason=reason,
+            changes=changes,
+        )
+    return policy
+
+
+@transaction.atomic
+def block_traffic(tenant, *, reason: str, actor=None) -> TenantRatePolicy:
+    """Refuse every request from this client until someone lifts it.
+
+    A door, not a shredder — the same promise suspension makes. No data is
+    touched, no session is destroyed and no configuration is lost; the centre's
+    own users simply get a 429 page until the block comes off. The limits
+    already on the row are left exactly as they are, so lifting the block
+    restores the previous throttle rather than silently removing it.
+    """
+    policy = rate_policy_for(tenant)
+    if policy.blocked:
+        return policy
+
+    policy.blocked = True
+    policy.blocked_reason = reason
+    policy.blocked_at = timezone.now()
+    policy.updated_by = actor
+    policy.save()
+
+    record(PlatformAction.TRAFFIC_BLOCKED, tenant=tenant, actor=actor, reason=reason)
+    return policy
+
+
+@transaction.atomic
+def unblock_traffic(tenant, *, reason: str = "", actor=None) -> TenantRatePolicy:
+    """Let the client's traffic through again, immediately."""
+    policy = rate_policy_for(tenant)
+    if not policy.pk or not policy.blocked:
+        return policy
+
+    policy.blocked = False
+    policy.blocked_reason = ""
+    policy.blocked_at = None
+    policy.updated_by = actor
+
+    # Nothing left to say once the block is off and no limit was ever set:
+    # delete rather than keep a row that means "default".
+    if policy.is_default:
+        policy.delete()
+    else:
+        policy.save()
+
+    record(PlatformAction.TRAFFIC_UNBLOCKED, tenant=tenant, actor=actor, reason=reason)
+    return policy
 
 
 def random_slug_suggestion(name: str) -> str:

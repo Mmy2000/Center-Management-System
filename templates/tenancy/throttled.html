@@ -1,0 +1,61 @@
+{% load static i18n %}<!doctype html>
+{# Standalone, exactly like tenancy/gate.html and for the same reason: this page is rendered by middleware that runs before the session, the user and the settings registry, so none of the shell is safe to assume. Separate from gate.html because it says something different — the subscription is fine, the traffic is not — and telling a center their account is suspended when it is merely busy is a support call that did not need to happen. #}
+<html lang="ar" dir="rtl" data-bs-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% if blocked %}{% translate "الطلبات موقوفة مؤقتًا" %}{% else %}{% translate "ازدحام مؤقت" %}{% endif %}</title>
+  <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap.rtl.min.css' %}">
+  <style>
+    body { min-height: 100dvh; display: grid; place-items: center; background: #f6f7f9;
+           font-family: "Cairo", system-ui, sans-serif; margin: 0; padding: 1.5rem; }
+    .gate { max-width: 34rem; background: #fff; border-radius: 1rem; padding: 2.5rem 2rem;
+            box-shadow: 0 1px 3px rgb(0 0 0 / .08), 0 12px 32px rgb(0 0 0 / .06); text-align: center; }
+    .gate-mark { width: 3.5rem; height: 3.5rem; border-radius: 50%; display: grid; place-items: center;
+                 margin: 0 auto 1.25rem; font-size: 1.75rem; }
+    .gate-mark.wait { background: #fff4e5; color: #b54708; }
+    .gate-mark.stop { background: #fdecec; color: #b42318; }
+    .gate h1 { font-size: 1.35rem; font-weight: 700; margin: 0 0 .75rem; color: #101828; }
+    .gate p { color: #475467; line-height: 1.9; margin: 0 0 .5rem; }
+    .gate-contact { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid #eaecf0;
+                    color: #667085; font-size: .9rem; }
+    .gate-name { font-weight: 600; color: #101828; }
+    .gate-retry { display: inline-block; margin-top: 1.25rem; padding: .4rem .9rem; border-radius: 999px;
+                  background: #f2f4f7; color: #344054; font-size: .85rem; font-variant-numeric: tabular-nums; }
+  </style>
+</head>
+<body>
+  <main class="gate">
+    <div class="gate-mark {% if blocked %}stop{% else %}wait{% endif %}" aria-hidden="true">
+      {% if blocked %}!{% else %}⏱{% endif %}
+    </div>
+
+    {% if blocked %}
+      <h1>{% translate "الطلبات موقوفة مؤقتًا" %}</h1>
+      <p>
+        {% blocktranslate with name=tenant.name %}أوقف مشغّل النظام استقبال الطلبات من حساب <span class="gate-name">{{ name }}</span> مؤقتًا.{% endblocktranslate %}
+      </p>
+      {% if reason %}<p>{{ reason }}</p>{% endif %}
+      <p>{% translate "لم يُحذف شيء من بياناتكم، وتعود الخدمة كاملة فور رفع الإيقاف." %}</p>
+    {% else %}
+      <h1>{% translate "ازدحام مؤقت" %}</h1>
+      <p>
+        {% blocktranslate with name=tenant.name %}تجاوز حساب <span class="gate-name">{{ name }}</span> عدد الطلبات المسموح به خلال هذه الفترة.{% endblocktranslate %}
+      </p>
+      <p>{% translate "هذا إجراء وقتي يحمي الخدمة، ولا يؤثر على بياناتكم. أعد المحاولة بعد لحظات." %}</p>
+      {% if retry_after %}
+        <span class="gate-retry">
+          {% blocktranslate with seconds=retry_after %}أعد المحاولة بعد {{ seconds }} ثانية{% endblocktranslate %}
+        </span>
+      {% endif %}
+    {% endif %}
+
+    <div class="gate-contact">
+      {% translate "لو تكرر الأمر يُرجى التواصل مع مشغّل النظام." %}
+      {% if tenant.owner_email %}<div class="mt-2">{{ tenant.owner_email }}</div>{% endif %}
+    </div>
+  </main>
+</body>
+</html>

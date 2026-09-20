@@ -1,11 +1,15 @@
 """Turning a ``Host:`` header into a tenant (docs/10 §N.3, TASK-092).
 
-Three middlewares, at three deliberate positions in the stack:
+Four middlewares, at four deliberate positions in the stack:
 
   [3]  TenantResolutionMiddleware    before AuthenticationMiddleware, because
                                      the user lookup itself is tenant-scoped
-  [8]  TenantSessionGuardMiddleware  after it, once request.user exists
-  [11] TenantStatusMiddleware        after messages, so the gate page can use them
+  [6]  TenantTrafficMiddleware       after LanguageMiddleware so its refusal
+                                     page is translated, and before session,
+                                     CSRF and auth so a refused request costs
+                                     as close to nothing as it can (TASK-122)
+  [9]  TenantSessionGuardMiddleware  after it, once request.user exists
+  [12] TenantStatusMiddleware        after messages, so the gate page can use them
 
 The contextvar is always reset in ``finally`` — the same discipline
 ``AuditContextMiddleware`` already applies to its thread-local. A leaked value
@@ -13,6 +17,7 @@ means the next request served by that worker reads another center's data.
 """
 
 import logging
+import time
 
 from django.http import Http404
 from django.shortcuts import render
@@ -104,6 +109,140 @@ class TenantResolutionMiddleware:
             return self.get_response(request)
         finally:
             reset_tenant(token)
+
+
+class TenantTrafficMiddleware:
+    """Meter every tenant request, and refuse the ones over budget (TASK-122).
+
+    Placed early on purpose. A blocked or throttled client is turned away
+    before the session is loaded, before CSRF, before the user lookup — which
+    is the difference between shedding load and merely relabelling it. It sits
+    *after* ``LanguageMiddleware`` only so the refusal page comes out in the
+    right language.
+
+    Three properties this is built around:
+
+    * **It cannot break a center.** Metering never raises into the response
+      path, and a tenant with no policy row is waved through having cost one
+      cache read for the policy and one dictionary update for the count.
+    * **One center's limit is one center's limit.** Every counter key is
+      namespaced by tenant id, so refusing Alpha cannot spend, delay or
+      influence anything Beta does. The isolation suite asserts it.
+    * **The console is never metered.** ``request.tenant`` is ``None`` there,
+      and an operator watching the dashboard must not appear in the numbers
+      they are watching.
+    """
+
+    #: Answered without touching a budget. Static and media are not the app;
+    #: the health checks must keep answering while a client is blocked, or a
+    #: rate limit starts looking like an outage to the monitoring; and the
+    #: language and catalog endpoints are what the refusal page itself needs.
+    EXEMPT_PREFIXES = (
+        "/static/",
+        "/media/",
+        "/healthz/",
+        "/readyz/",
+        "/i18n/",
+        "/jsi18n/",
+    )
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        from . import traffic
+
+        tenant = getattr(request, "tenant", None)
+        if tenant is None or request.path.startswith(self.EXEMPT_PREFIXES):
+            return self.get_response(request)
+
+        tenant_id = tenant.pk
+        # The instance, not the id: the policy came with it out of the host
+        # cache, so this resolves without a query or a cache read.
+        policy = traffic.policy_for(tenant)
+
+        refusal = traffic.gate(tenant_id, policy)
+        if refusal is not None:
+            logger.warning(
+                "Traffic refused (%s) for tenant=%s window=%s limit=%s path=%s",
+                refusal.kind,
+                tenant.slug,
+                refusal.window,
+                refusal.limit,
+                request.path,
+            )
+            traffic.record(tenant_id, 429, 0, throttled=True)
+            return self.refuse(request, tenant, refusal, policy)
+
+        started = time.monotonic()
+        try:
+            response = self.get_response(request)
+        except Exception:
+            # An exception still consumed a worker, and a client whose traffic
+            # is all 500s is exactly the one this screen exists to surface.
+            traffic.record(tenant_id, 500, self._elapsed(started))
+            raise
+
+        traffic.record(tenant_id, response.status_code, self._elapsed(started))
+        return response
+
+    @staticmethod
+    def _elapsed(started: float) -> int:
+        return int((time.monotonic() - started) * 1000)
+
+    @staticmethod
+    def wants_json(request) -> bool:
+        return (
+            request.headers.get("x-requested-with") == "XMLHttpRequest"
+            or request.path.startswith("/api/")
+            or "application/json" in (request.headers.get("accept") or "")
+        )
+
+    @classmethod
+    def refuse(cls, request, tenant, refusal, policy=None):
+        """429, as a page or as the product's own JSON envelope.
+
+        429 for both kinds, blocked included: the client is being asked to go
+        away and come back, not told their subscription ended. 403 would say
+        the latter, and the suspended-tenant gate already owns that meaning.
+        """
+        from django.utils.translation import gettext as _
+
+        blocked = refusal.kind == "blocked"
+        message = (
+            _("تم إيقاف الطلبات لهذا الحساب مؤقتًا من مشغّل النظام.")
+            if blocked
+            else _("عدد الطلبات تجاوز الحد المسموح لهذا الحساب. برجاء المحاولة بعد قليل.")
+        )
+
+        if cls.wants_json(request):
+            from apps.core.http import fail
+
+            response = fail(
+                "ERR_TENANT_BLOCKED" if blocked else "ERR_RATE_LIMITED",
+                message,
+                status=429,
+                data={"retry_after": refusal.retry_after, "window": refusal.window},
+            )
+        else:
+            response = render(
+                request,
+                "tenancy/throttled.html",
+                {
+                    "tenant": tenant,
+                    "blocked": blocked,
+                    "message": message,
+                    "retry_after": refusal.retry_after,
+                    "reason": getattr(policy, "blocked_reason", "") if blocked else "",
+                },
+                status=429,
+            )
+
+        response["Retry-After"] = str(refusal.retry_after)
+        # Nothing about a refusal is cacheable: the answer changes the moment
+        # the window rolls over or an operator lifts the block.
+        response["Cache-Control"] = "no-store"
+        return response
 
 
 class LanguageMiddleware:
