@@ -205,36 +205,37 @@ a:hover { text-decoration: underline; }
 }
 
 /* ------------------------------------------------------- vendor credit ---- */
-/* Whose software this is. It sits under the nav, quiet enough that the
-   center's own name at the top stays the loud thing on the screen. */
+/* Whose software this is. One quiet line under the nav: the center's own name
+   at the top must stay the loud thing on the screen, so this is small, muted,
+   and horizontal rather than a stacked lockup competing with it.
+   The tagline is deliberately not here - at this size it reads as a smudge. */
 .app-sidebar > .nav { flex: 1 1 auto; }
 
 .app-vendor {
-  margin-top: 1.25rem;
-  padding: .9rem .7rem .35rem;
-  border-top: 1px solid rgba(255, 255, 255, .10);
+  margin-top: 1rem;
+  padding: .7rem .7rem .2rem;
+  border-top: 1px solid rgba(255, 255, 255, .09);
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: .35rem;
+  align-items: center;
+  gap: .5rem;
 }
-.app-vendor-label {
-  font-size: .66rem;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: #7fa3b0;
+/* No letter-spacing and no text-transform: Arabic is cursive, and tracking
+   pulls the joins apart. Neither does anything good to these two words. */
+.app-vendor-by {
+  font-size: .68rem;
+  color: #6f93a0;
+  white-space: nowrap;
 }
-.app-vendor-logo,
-.app-vendor-mark {
-  display: block;
-  height: auto;
-  opacity: .72;
+.app-vendor-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  opacity: .82;
   transition: opacity var(--dur-fast) var(--ease);
 }
-.app-vendor-logo { width: 104px; }
-.app-vendor-mark { width: 32px; display: none; }
-.app-vendor:hover .app-vendor-logo,
-.app-vendor:hover .app-vendor-mark { opacity: 1; }
+.app-vendor:hover .app-vendor-logo { opacity: 1; }
+.app-vendor-mark { width: 22px; height: auto; display: block; }
+.app-vendor-word { width: 82px; height: auto; display: block; }
 
 .app-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
 
@@ -615,9 +616,9 @@ a:hover { text-decoration: underline; }
     inset-inline-start: -.5rem;
   }
 
-  html[data-nav="rail"] .app-vendor { align-items: center; padding-inline: 0; }
-  html[data-nav="rail"] .app-vendor-logo { display: none; }
-  html[data-nav="rail"] .app-vendor-mark { display: block; }
+  html[data-nav="rail"] .app-vendor { justify-content: center; padding-inline: 0; }
+  html[data-nav="rail"] .app-vendor-by,
+  html[data-nav="rail"] .app-vendor-word { display: none; }
 
   /* A section heading with its text removed still has to separate the groups. */
   html[data-nav="rail"] .nav-section {

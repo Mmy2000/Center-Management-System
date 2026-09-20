@@ -101,10 +101,12 @@
 
   {# The center's identity is at the top; this is the house that built the software. #}
   <div class="app-vendor">
-    <span class="app-vendor-label nav-label">{% translate "من تطوير" %}</span>
-    <img class="app-vendor-logo" src="{% static 'img/codaco-logo.png' %}"
-         alt="codaco — software solutions" width="104" height="83" loading="lazy">
-    <img class="app-vendor-mark" src="{% static 'img/codaco-mark.png' %}"
-         alt="codaco" width="32" height="21" loading="lazy">
+    <span class="app-vendor-by">{% translate "من تطوير" %}</span>
+    <span class="app-vendor-logo">
+      <img class="app-vendor-mark" src="{% static 'img/codaco-mark.png' %}"
+           alt="" width="29" height="22" loading="lazy">
+      <img class="app-vendor-word" src="{% static 'img/codaco-word.png' %}"
+           alt="codaco" width="96" height="16" loading="lazy">
+    </span>
   </div>
 </aside>
