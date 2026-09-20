@@ -13,14 +13,20 @@ true — a wall you only built once is a wall you are trusting too much.
 
 from functools import wraps
 
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import Count, Q, Sum
 from django.http import Http404
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from apps.core.http import ajax, fail
-from apps.tenancy import quota
-from apps.tenancy.constants import OPERATIONAL_STATUSES, FeatureState, TenantStatus
+from apps.tenancy import quota, traffic
+from apps.tenancy.constants import (
+    OPERATIONAL_STATUSES,
+    FeatureState,
+    TenantStatus,
+    TrafficMode,
+)
 from apps.tenancy.models import Plan, PlatformAuditLog, Tenant
 from apps.tenancy.resolver import enabled_features
 
@@ -268,6 +274,299 @@ def tenant_feature(request, pk):
         return fail(exc.code, exc.message, status=exc.status, data=exc.data)
 
     return {"effective": sorted(enabled_features(tenant)), "feature_key": key, "state": state}
+
+
+# --------------------------------------------------------------------------- #
+# Traffic monitoring and control (TASK-122)
+# --------------------------------------------------------------------------- #
+
+#: Periods the screen offers, in minutes. Capped at an hour because the minute
+#: slots only reach that far; the 24-hour figure travels beside every row
+#: regardless, read from the much cheaper hour slots.
+PERIODS = (1, 5, 15, 60)
+
+#: An upper bound on what may be typed into a limit box. Not a technical
+#: ceiling — a typo guard. Six zeros in the wrong place is an operator who
+#: believes they set a limit and did not.
+MAX_LIMIT = 10_000_000
+
+
+def _period(request) -> int:
+    try:
+        requested = int(request.GET.get("minutes") or 5)
+    except (TypeError, ValueError):
+        return 5
+    return requested if requested in PERIODS else 5
+
+
+def _tone(snapshot, policy) -> str:
+    """How loudly this row should shout, in one word the template can style.
+
+    Four levels rather than a number, because an operator scanning forty rows
+    is looking for the one that is wrong, not reading each one's arithmetic.
+    """
+    if policy.blocked:
+        return "blocked"
+    if snapshot.throttled:
+        return "critical"
+    ceiling = policy.limit_for(1)
+    if ceiling and snapshot.rps >= ceiling * 0.9:
+        return "critical"
+    if snapshot.errors_5xx and snapshot.error_rate >= 5:
+        return "warning"
+    if ceiling and snapshot.rps >= ceiling * 0.7:
+        return "warning"
+    if snapshot.rps >= 20:
+        return "busy"
+    return "normal"
+
+
+def _usage_versus_limit(snapshot, policy) -> dict | None:
+    """Where this client sits against the tightest limit that binds them.
+
+    One figure, not three: showing rps/rpm/rph side by side makes the operator
+    work out which of them is about to bite. The answer is whichever is closest.
+    """
+    measured = {"rps": snapshot.rps, "rpm": snapshot.rpm, "rph": snapshot.day_total}
+    worst = None
+    for name, seconds, _field in traffic.WINDOWS:
+        ceiling = policy.limit_for(seconds)
+        if not ceiling:
+            continue
+        percent = int(min(999, measured[name] * 100 / ceiling))
+        if worst is None or percent > worst["percent"]:
+            worst = {
+                "window": name,
+                "used": measured[name],
+                "limit": ceiling,
+                "percent": percent,
+            }
+    return worst
+
+
+def traffic_json(tenant, snapshot, policy) -> dict:
+    """One row of the monitoring table.
+
+    Everything here comes from the cache snapshot and the already-loaded tenant
+    row — no per-row query and no per-row cache round-trip. That is the whole
+    reason ``traffic.snapshot`` takes a list of ids rather than one.
+    """
+    return {
+        "id": tenant.pk,
+        "slug": tenant.slug,
+        "name": tenant.name,
+        "host": tenant.primary_host,
+        "lifecycle": tenant.status,
+        "lifecycle_label": tenant.get_status_display(),
+        "operational": tenant.is_operational,
+        "mode": policy.mode,
+        "mode_label": str(TrafficMode(policy.mode).label),
+        "tone": _tone(snapshot, policy),
+        "rps": snapshot.rps,
+        "rpm": snapshot.rpm,
+        "period_total": snapshot.period_total,
+        "period_minutes": snapshot.period_minutes,
+        "day_total": snapshot.day_total,
+        "ok": snapshot.ok_responses,
+        "c4": snapshot.errors_4xx,
+        "c5": snapshot.errors_5xx,
+        "throttled": snapshot.throttled,
+        "error_rate": snapshot.error_rate,
+        "avg_ms": snapshot.avg_ms,
+        "concurrency": snapshot.concurrency,
+        "service_seconds": snapshot.service_seconds,
+        "last_seen": snapshot.last_seen,
+        "limits": {
+            "max_rps": policy.max_rps,
+            "max_rpm": policy.max_rpm,
+            "max_rph": policy.max_rph,
+            "burst": policy.burst,
+            "blocked": policy.blocked,
+            "blocked_reason": policy.blocked_reason,
+        },
+        "pressure": _usage_versus_limit(snapshot, policy),
+    }
+
+
+def _policies_for(tenants) -> dict:
+    """Policy rows for a whole page of clients, in one query.
+
+    ``traffic.policy_for`` is the hot-path reader and answers for one tenant
+    out of cache; here we have a list, and a hundred cache reads to render one
+    table is exactly the shape this screen must not have.
+    """
+    from apps.tenancy.models import TenantRatePolicy
+
+    rows = {
+        row.tenant_id: row.as_policy()
+        for row in TenantRatePolicy.objects.filter(tenant__in=tenants)
+    }
+    return {tenant.pk: rows.get(tenant.pk, traffic.UNLIMITED) for tenant in tenants}
+
+
+@console_ajax(methods=["GET"])
+def traffic_overview(request):
+    """Every client's current traffic, in two queries and one cache read.
+
+    The two queries are the tenant list and its policy rows; the cache read is
+    a single ``get_many`` covering every counter for every tenant on screen.
+    Deliberately flat like that — a monitoring page that costs a round-trip per
+    row becomes, at exactly the wrong moment, part of the load it exists to
+    show you.
+    """
+    minutes = _period(request)
+
+    # The buffered second is still in this worker's own memory. Without this
+    # the operator's refresh would show figures a second stale and, worse, a
+    # tenant that has just gone quiet as one that never started.
+    traffic.flush()
+
+    queryset = Tenant.objects.select_related("plan").prefetch_related("domains")
+    lifecycle = request.GET.get("lifecycle")
+    if lifecycle:
+        queryset = queryset.filter(status=lifecycle)
+
+    term = (request.GET.get("q") or "").strip()
+    if term:
+        queryset = queryset.filter(Q(name__icontains=term) | Q(slug__icontains=term))
+
+    tenants = list(queryset.order_by("name"))
+    policies = _policies_for(tenants)
+    snapshots = traffic.snapshot([t.pk for t in tenants], minutes=minutes)
+
+    rows = [
+        traffic_json(
+            tenant,
+            snapshots.get(tenant.pk) or traffic.Snapshot(tenant_id=tenant.pk),
+            policies[tenant.pk],
+        )
+        for tenant in tenants
+    ]
+
+    mode = request.GET.get("mode")
+    if mode in TrafficMode.values:
+        rows = [row for row in rows if row["mode"] == mode]
+    if request.GET.get("active_only") == "1":
+        rows = [row for row in rows if row["period_total"]]
+
+    # Busiest first: the reason anyone opens this page is to find out who is
+    # making the noise, and alphabetical order buries them.
+    rows.sort(key=lambda row: (-row["rps"], -row["period_total"], row["name"]))
+
+    return {
+        "results": rows,
+        "count": len(rows),
+        "minutes": minutes,
+        "generated_at": timezone.now().strftime("%H:%M:%S"),
+        "totals": {
+            "rps": round(sum(row["rps"] for row in rows), 2),
+            "requests": sum(row["period_total"] for row in rows),
+            "errors": sum(row["c4"] + row["c5"] for row in rows),
+            "throttled": sum(row["throttled"] for row in rows),
+            "blocked": sum(1 for row in rows if row["mode"] == TrafficMode.BLOCKED),
+            "limited": sum(1 for row in rows if row["mode"] == TrafficMode.LIMITED),
+        },
+        "server": traffic.server_metrics(),
+        "cache_shared": traffic.cache_is_shared(),
+    }
+
+
+@console_ajax(methods=["GET"])
+def tenant_traffic(request, pk):
+    """One client, with the per-minute series behind the headline figures."""
+    tenant = _get_tenant(pk)
+    minutes = _period(request)
+    traffic.flush()
+
+    policy = traffic.policy_for(tenant.pk)
+    snapshot = traffic.snapshot([tenant.pk], minutes=minutes).get(tenant.pk)
+
+    return {
+        "tenant": traffic_json(tenant, snapshot, policy),
+        "series": traffic.series(tenant.pk, minutes=30),
+    }
+
+
+def _parse_limits(payload) -> tuple[dict, object]:
+    """Read the four limit boxes, treating blank as "no limit"."""
+    limits: dict = {}
+    errors: dict = {}
+
+    for name in services.RATE_FIELDS:
+        raw = payload.get(name, "")
+        if raw in (None, "", "null"):
+            limits[name] = None
+            continue
+        try:
+            value = int(raw)
+        except (TypeError, ValueError):
+            errors[name] = [_("رقم غير صحيح")]
+            continue
+        if value < 0 or value > MAX_LIMIT:
+            errors[name] = [_("قيمة خارج المدى المسموح")]
+            continue
+        # Zero and blank both mean "no ceiling here". Burst has no separate
+        # unlimited state, so a zero there is simply no burst.
+        limits[name] = value if value or name == "burst" else None
+
+    if limits.get("burst") and not limits.get("max_rps"):
+        errors["burst"] = [_("سماح الذروة يحتاج حدًا لكل ثانية أولًا.")]
+
+    if errors:
+        return {}, fail("ERR_VALIDATION", _("بيانات غير صحيحة"), status=400, field_errors=errors)
+    return limits, None
+
+
+@console_ajax(methods=["POST"])
+def tenant_traffic_policy(request, pk):
+    """Block, unblock, or set this client's limits — each one audited.
+
+    One endpoint with an explicit ``action`` rather than three, so the console
+    cannot half-apply a change: an operator who sets limits *and* lifts a block
+    in one dialog gets one request, one transaction and one answer.
+    """
+    tenant = _get_tenant(pk)
+    action = request.json.get("action")
+    reason = (request.json.get("reason") or "").strip()
+
+    if action == "block":
+        if len(reason) < 4:
+            return fail(
+                "ERR_VALIDATION",
+                _("اكتب سببًا واضحًا."),
+                status=400,
+                field_errors={"reason": [_("السبب مطلوب")]},
+            )
+        services.block_traffic(tenant, reason=reason, actor=request.user)
+        message = _("تم إيقاف الطلبات لهذا العميل.")
+
+    elif action == "unblock":
+        services.unblock_traffic(tenant, reason=reason, actor=request.user)
+        message = _("عادت الطلبات للعمل.")
+
+    elif action == "limits":
+        limits, error = _parse_limits(request.json)
+        if error is not None:
+            return error
+        try:
+            services.set_rate_limits(tenant, actor=request.user, reason=reason, **limits)
+        except DjangoValidationError as exc:
+            return fail(
+                "ERR_VALIDATION",
+                _("بيانات غير صحيحة"),
+                status=400,
+                field_errors={
+                    key: [str(m) for m in value] for key, value in exc.message_dict.items()
+                },
+            )
+        message = _("تم حفظ الحدود.") if any(limits.values()) else _("رُفعت كل الحدود.")
+
+    else:
+        return fail("ERR_VALIDATION", _("إجراء غير معروف"), status=400)
+
+    policy = traffic.policy_for(tenant.pk)
+    snapshot = traffic.snapshot([tenant.pk]).get(tenant.pk)
+    return {"tenant": traffic_json(tenant, snapshot, policy), "message": message}
 
 
 def plan_json(plan) -> dict:

@@ -1,0 +1,551 @@
+{% extends "console/base.html" %}
+{% load i18n %}
+{% block title %}{% translate "الحركة والحدود" %}{% endblock %}
+{% block heading %}{% translate "الحركة والحدود" %}{% endblock %}
+{% block subheading %}
+  <div class="console-sub">
+    <span id="count-line">&nbsp;</span>
+    <span class="console-topbar-divider"></span>
+    <span class="live-dot on" id="live-dot" aria-hidden="true"></span>
+    <span id="stamp" class="traffic-sub"></span>
+  </div>
+{% endblock %}
+
+{% block topbar_actions %}
+  <div class="form-check form-switch mb-0 me-2">
+    <input class="form-check-input" type="checkbox" id="live" checked>
+    <label class="form-check-label small" for="live">{% translate "تحديث تلقائي" %}</label>
+  </div>
+  <button class="btn btn-sm btn-soft-secondary" type="button" id="refresh">
+    <svg class="icon"><use href="#i-clock"></use></svg>{% translate "تحديث" %}
+  </button>
+{% endblock %}
+
+{% block content %}
+
+{% if not cache_shared %}
+  {% comment %}
+    A fact about the deployment, not about the traffic — so it is rendered
+    server-side and never replaced by a refresh. An operator about to throttle
+    a client on the strength of these numbers needs to know they are a fraction
+    of the truth *before* they act, not after.
+  {% endcomment %}
+  <div class="alert alert-warning d-flex align-items-start gap-2" role="alert">
+    <svg class="icon mt-1"><use href="#i-warn"></use></svg>
+    <div>
+      <strong>{% translate "الأرقام هنا تقريبية في هذا الإعداد." %}</strong>
+      {% translate "الكاش الحالي خاص بكل عملية على حدة، فكل عامل يَعُدّ ويطبّق الحدود بمفرده. اضبط REDIS_URL لتصبح القياسات والحدود موحّدة عبر كل العمّال." %}
+    </div>
+  </div>
+{% endif %}
+
+<div class="row g-3 row-in mb-3">
+  <div class="col-6 col-lg-3">
+    <div class="stat-tile">
+      <div class="stat-value num" id="s-rps">—</div>
+      <div class="stat-label">{% translate "طلب/ثانية (كل العملاء)" %}</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-tile tone-success">
+      <div class="stat-value num" id="s-requests">—</div>
+      <div class="stat-label" id="s-requests-label">{% translate "طلب خلال الفترة" %}</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-tile tone-danger">
+      <div class="stat-value num" id="s-errors">—</div>
+      <div class="stat-label">{% translate "استجابة خطأ" %}</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="stat-tile tone-warning">
+      <div class="stat-value num" id="s-controlled">—</div>
+      <div class="stat-label">{% translate "عميل محدود أو محظور" %}</div>
+    </div>
+  </div>
+</div>
+
+<div class="console-card mb-3" id="server-card" hidden>
+  <div class="console-card-body server-strip" id="server-strip"></div>
+</div>
+
+<div class="filter-bar mb-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-12 col-lg-3">
+      <label class="form-label" for="f-q">{% translate "بحث" %}</label>
+      <div class="app-search">
+        <input class="form-control" id="f-q" type="search" placeholder="{% translate 'اسم أو معرّف' %}">
+      </div>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label class="form-label" for="f-period">{% translate "الفترة" %}</label>
+      <select class="form-select" id="f-period">
+        {% for minutes in periods %}
+          <option value="{{ minutes }}" {% if minutes == 5 %}selected{% endif %}>
+            {% blocktranslate %}آخر {{ minutes }} دقيقة{% endblocktranslate %}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label class="form-label" for="f-mode">{% translate "حالة الحركة" %}</label>
+      <select class="form-select" id="f-mode">
+        <option value="">{% translate "الكل" %}</option>
+        {% for value, label in mode_choices %}
+          <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-6 col-lg-2">
+      <label class="form-label" for="f-lifecycle">{% translate "حالة الاشتراك" %}</label>
+      <select class="form-select" id="f-lifecycle">
+        <option value="">{% translate "الكل" %}</option>
+        {% for value, label in lifecycle_choices %}
+          <option value="{{ value }}">{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12 col-lg-3 d-flex gap-3 pb-1">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="f-active">
+        <label class="form-check-label small" for="f-active">{% translate "النشط فقط" %}</label>
+      </div>
+      <button class="btn btn-sm btn-ghost ms-auto" type="button" id="clear">{% translate "مسح" %}</button>
+    </div>
+  </div>
+</div>
+
+<div class="console-card">
+  <div class="table-responsive">
+    <table class="table table-sticky mb-0">
+      <thead>
+        <tr>
+          <th>{% translate "العميل" %}</th>
+          <th>{% translate "الحركة" %}</th>
+          <th class="text-end">{% translate "ط/ث" %}</th>
+          <th class="text-end">{% translate "ط/د" %}</th>
+          <th class="text-end">{% translate "إجمالي الفترة" %}</th>
+          <th>{% translate "توزيع الاستجابات" %}</th>
+          <th class="text-end">{% translate "زمن الاستجابة" %}</th>
+          <th class="text-end">{% translate "استهلاك المعالجة" %}</th>
+          <th>{% translate "مقابل الحد" %}</th>
+          <th>{% translate "آخر نشاط" %}</th>
+          <th class="text-end">{% translate "تحكم" %}</th>
+        </tr>
+      </thead>
+      <tbody id="traffic-body"></tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const LIST = "{% url 'console:api_traffic' %}";
+const POLICY_URL = "{% url 'console:api_tenant_traffic_policy' 0 %}";
+const DETAIL = "{% url 'console:tenant_detail' 0 %}";
+
+/* Five seconds is the compromise: slower and an operator watching a live spike
+   loses the thread, faster and the console starts being measurable traffic of
+   its own against the very server it is reporting on. */
+const REFRESH_MS = 5000;
+
+const q = document.getElementById("f-q");
+const period = document.getElementById("f-period");
+const mode = document.getElementById("f-mode");
+const lifecycle = document.getElementById("f-lifecycle");
+const activeOnly = document.getElementById("f-active");
+const live = document.getElementById("live");
+const dot = document.getElementById("live-dot");
+
+let timer = null;
+let inFlight = false;
+
+function urlFor(template, id) {
+  return template.replace("/0/", "/" + id + "/");
+}
+
+function params() {
+  const search = new URLSearchParams();
+  if (q.value.trim()) { search.set("q", q.value.trim()); }
+  if (mode.value) { search.set("mode", mode.value); }
+  if (lifecycle.value) { search.set("lifecycle", lifecycle.value); }
+  if (activeOnly.checked) { search.set("active_only", "1"); }
+  search.set("minutes", period.value);
+  return search;
+}
+
+/* ------------------------------------------------------------- rendering */
+
+function num(value) {
+  return Number(value || 0).toLocaleString("en-EG");
+}
+
+function ago(epochSeconds) {
+  if (!epochSeconds) { return '<span class="traffic-idle">' + gettext("لا نشاط") + "</span>"; }
+  const seconds = Math.max(0, Math.floor(Date.now() / 1000) - epochSeconds);
+  if (seconds < 10) { return '<span class="text-success fw-semibold">' + gettext("الآن") + "</span>"; }
+  if (seconds < 60) { return seconds + " " + gettext("ث"); }
+  if (seconds < 3600) { return Math.floor(seconds / 60) + " " + gettext("د"); }
+  if (seconds < 86400) { return Math.floor(seconds / 3600) + " " + gettext("س"); }
+  return '<span class="traffic-idle">' + gettext("أكثر من يوم") + "</span>";
+}
+
+function rpsCell(row) {
+  const ceiling = row.limits.max_rps;
+  let tone = "";
+  if (ceiling) {
+    if (row.rps >= ceiling * 0.9) { tone = " hot"; }
+    else if (row.rps >= ceiling * 0.7) { tone = " warm"; }
+  }
+  let html = '<span class="rps-value' + tone + '">' + row.rps.toFixed(2) + "</span>";
+  if (row.throttled) {
+    html += '<div class="traffic-sub bad text-danger">' +
+      row.throttled + " " + gettext("مرفوض") + "</div>";
+  }
+  return html;
+}
+
+function mixCell(row) {
+  const total = row.ok + row.c4 + row.c5;
+  if (!total) { return '<span class="traffic-idle">—</span>'; }
+  const pct = function (n) { return (n * 100 / total).toFixed(1) + "%"; };
+  const text = row.c4 || row.c5
+    ? '<span class="bad">' + row.error_rate + "%</span> " + gettext("أخطاء") +
+      " · " + num(row.c4) + " / " + num(row.c5)
+    : num(row.ok) + " " + gettext("ناجحة");
+  return (
+    '<div class="mix"><div class="mix-bar">' +
+    '<span class="mix-ok" style="width:' + pct(row.ok) + '"></span>' +
+    '<span class="mix-c4" style="width:' + pct(row.c4) + '"></span>' +
+    '<span class="mix-c5" style="width:' + pct(row.c5) + '"></span>' +
+    '</div><div class="mix-text">' + text + "</div></div>"
+  );
+}
+
+function limitCell(row) {
+  if (row.limits.blocked) {
+    return '<span class="status-pill mode-BLOCKED">' + gettext("محظور") + "</span>";
+  }
+  const pressure = row.pressure;
+  if (!pressure) { return '<span class="traffic-idle small">' + gettext("بلا حد") + "</span>"; }
+  const tone = pressure.percent >= 100 ? " full" : pressure.percent >= 80 ? " warn" : "";
+  const label = { rps: gettext("/ث"), rpm: gettext("/د"), rph: gettext("/س") }[pressure.window];
+  return (
+    '<div class="meter' + tone + '"><div class="meter-track">' +
+    '<span class="meter-fill" style="width:' + Math.min(100, pressure.percent) + '%"></span></div>' +
+    '<div class="meter-text">' + num(pressure.used) + " / " + num(pressure.limit) + " " + label +
+    "</div></div>"
+  );
+}
+
+const COLUMNS = [
+  {
+    render: function (row) {
+      return (
+        '<a class="fw-semibold" href="' + urlFor(DETAIL, row.id) + '">' + ui.esc(row.name) + "</a>" +
+        '<div class="text-muted small mono">' + ui.esc(row.host || row.slug) + "</div>"
+      );
+    }
+  },
+  {
+    render: function (row) {
+      let html = '<span class="status-pill mode-' + row.mode + '">' + ui.esc(row.mode_label) + "</span>";
+      // The subscription state only earns a line when it is *not* the happy
+      // one; repeating "نشط" on every row would be noise in a column that
+      // exists to show exceptions.
+      if (!row.operational) {
+        html += '<div class="traffic-sub">' + ui.esc(row.lifecycle_label) + "</div>";
+      }
+      return html;
+    }
+  },
+  { className: "text-end", render: rpsCell },
+  { className: "text-end num", render: function (row) { return num(row.rpm); } },
+  {
+    className: "text-end",
+    render: function (row) {
+      return (
+        '<span class="num">' + num(row.period_total) + "</span>" +
+        '<div class="traffic-sub">' + num(row.day_total) + " " + gettext("خلال 24س") + "</div>"
+      );
+    }
+  },
+  { render: mixCell },
+  {
+    className: "text-end",
+    render: function (row) {
+      if (!row.period_total) { return '<span class="traffic-idle">—</span>'; }
+      return (
+        '<span class="num">' + num(row.avg_ms) + " " + gettext("مل.ث") + "</span>" +
+        '<div class="traffic-sub">' + row.concurrency.toFixed(2) + " " + gettext("متزامن") + "</div>"
+      );
+    }
+  },
+  {
+    className: "text-end num",
+    render: function (row) {
+      if (!row.service_seconds) { return '<span class="traffic-idle">—</span>'; }
+      return row.service_seconds.toFixed(1) + " " + gettext("ث");
+    }
+  },
+  { render: limitCell },
+  { className: "small", render: function (row) { return ago(row.last_seen); } },
+  {
+    className: "text-end",
+    render: function (row) {
+      return (
+        '<button class="btn btn-sm btn-ghost" type="button" data-control="' + row.id + '">' +
+        '<svg class="icon"><use href="#i-settings"></use></svg>' + gettext("ضبط") + "</button>"
+      );
+    }
+  }
+];
+
+/* ---------------------------------------------------------------- loading */
+
+let rowsById = {};
+
+async function load(quiet) {
+  if (inFlight) { return; }
+  inFlight = true;
+  try {
+    const search = params().toString();
+    // Background polls stay silent: a progress bar flickering every five
+    // seconds turns a monitoring page into a distraction.
+    const payload = await http.get(LIST + "?" + search, quiet ? { quiet: true } : undefined);
+    paint(payload.data);
+  } catch (error) {
+    if (!quiet) { app.handleError(error); }
+  } finally {
+    inFlight = false;
+  }
+}
+
+function paint(data) {
+  rowsById = {};
+  data.results.forEach(function (row) { rowsById[row.id] = row; });
+
+  ui.renderRows(document.getElementById("traffic-body"), data.results, COLUMNS, {
+    emptyMessage: gettext("لا يوجد عميل مطابق"),
+    emptyIcon: "groups",
+    rowAttrs: function (row) { return 'class="traffic-row tone-' + row.tone + '"'; }
+  });
+
+  // A rate is not a count: rounding 0.4 req/s to "0" would say the platform is
+  // idle when it is not, so this one tile formats rather than rounds.
+  ui.countTo(document.getElementById("s-rps"), data.totals.rps, {
+    format: function (value) { return value.toFixed(2); }
+  });
+  ui.countTo(document.getElementById("s-requests"), data.totals.requests);
+  ui.countTo(document.getElementById("s-errors"), data.totals.errors);
+  ui.countTo(document.getElementById("s-controlled"), data.totals.blocked + data.totals.limited);
+
+  document.getElementById("s-requests-label").textContent =
+    interpolate(gettext("طلب خلال آخر %s دقيقة"), [data.minutes]);
+  document.getElementById("count-line").textContent =
+    data.count === 1 ? gettext("عميل واحد") : data.count + " " + gettext("عميلًا");
+  document.getElementById("stamp").textContent =
+    gettext("آخر تحديث") + " " + data.generated_at;
+
+  paintServer(data.server);
+}
+
+function paintServer(server) {
+  const card = document.getElementById("server-card");
+  const parts = [];
+  if (server.cpu_percent !== null) {
+    parts.push(stat(server.cpu_percent + "%", gettext("تحميل المعالج")));
+  }
+  if (server.load1 !== null) {
+    parts.push(stat(server.load1, gettext("متوسط التحميل (دقيقة)")));
+  }
+  if (server.memory_percent !== null) {
+    parts.push(stat(server.memory_percent + "%", gettext("الذاكرة المستخدمة")));
+  }
+  if (server.cpus) { parts.push(stat(server.cpus, gettext("نواة"))); }
+
+  // Hidden rather than showing a row of dashes: on Windows and on shared
+  // hosting none of this is knowable, and inventing a zero would be worse
+  // than saying nothing.
+  card.hidden = parts.length === 0;
+  document.getElementById("server-strip").innerHTML =
+    parts.join("") +
+    '<div class="traffic-sub ms-auto">' +
+    gettext("قياسات الخادم كله — استهلاك كل عميل يظهر في عمود «استهلاك المعالجة».") +
+    "</div>";
+}
+
+function stat(value, label) {
+  return '<div class="server-stat"><span class="v">' + ui.esc(String(value)) + "</span>" +
+         '<span class="k">' + label + "</span></div>";
+}
+
+/* --------------------------------------------------------------- controls */
+
+function limitField(name, label, value, hint) {
+  return (
+    '<div><label class="form-label" for="l-' + name + '">' + label + "</label>" +
+    '<input class="form-control" id="l-' + name + '" name="' + name + '" type="number" min="0" ' +
+    'inputmode="numeric" value="' + (value === null || value === undefined ? "" : value) + '">' +
+    '<div class="form-text">' + hint + "</div>" +
+    '<div class="text-danger small" data-error-for="' + name + '"></div></div>'
+  );
+}
+
+function openControls(row) {
+  const blocked = row.limits.blocked;
+
+  const body =
+    '<div class="mb-3">' +
+      '<div class="fw-semibold">' + ui.esc(row.name) + "</div>" +
+      '<div class="text-muted small mono">' + ui.esc(row.host || row.slug) + "</div>" +
+    "</div>" +
+    (blocked
+      ? '<div class="alert alert-danger py-2 small">' +
+        gettext("الطلبات موقوفة حاليًا لهذا العميل.") +
+        (row.limits.blocked_reason ? " — " + ui.esc(row.limits.blocked_reason) : "") +
+        "</div>"
+      : "") +
+    '<div class="limit-grid mb-3">' +
+      limitField("max_rps", gettext("أقصى طلبات/ثانية"), row.limits.max_rps, gettext("فارغ = بلا حد")) +
+      limitField("burst", gettext("سماح الذروة"), row.limits.burst, gettext("فوق حد الثانية")) +
+      limitField("max_rpm", gettext("أقصى طلبات/دقيقة"), row.limits.max_rpm, gettext("فارغ = بلا حد")) +
+      limitField("max_rph", gettext("أقصى طلبات/ساعة"), row.limits.max_rph, gettext("فارغ = بلا حد")) +
+    "</div>" +
+    '<label class="form-label" for="reason">' + gettext("السبب") + "</label>" +
+    '<textarea class="form-control" id="reason" name="reason" rows="2" ' +
+    'placeholder="' + gettext("يُسجَّل في سجل المنصة") + '"></textarea>' +
+    '<div class="text-danger small" data-error-for="reason"></div>';
+
+  const footer =
+    '<button class="btn btn-ghost" data-bs-dismiss="modal">' + gettext("إلغاء") + "</button>" +
+    (blocked
+      ? '<button class="btn btn-success" id="unblock">' + gettext("رفع الحظر") + "</button>"
+      : '<button class="btn btn-outline-danger" id="block">' + gettext("إيقاف الطلبات") + "</button>") +
+    '<button class="btn btn-primary" id="save-limits">' + gettext("حفظ الحدود") + "</button>";
+
+  app.openModal(gettext("التحكم في حركة العميل"), body, footer);
+
+  const url = urlFor(POLICY_URL, row.id);
+  const reasonOf = function () {
+    return (document.getElementById("reason").value || "").trim();
+  };
+
+  document.getElementById("save-limits").addEventListener("click", function () {
+    send(this, url, {
+      action: "limits",
+      reason: reasonOf(),
+      max_rps: document.getElementById("l-max_rps").value,
+      max_rpm: document.getElementById("l-max_rpm").value,
+      max_rph: document.getElementById("l-max_rph").value,
+      burst: document.getElementById("l-burst").value
+    });
+  });
+
+  const unblockButton = document.getElementById("unblock");
+  if (unblockButton) {
+    unblockButton.addEventListener("click", function () {
+      send(this, url, { action: "unblock", reason: reasonOf() });
+    });
+  }
+
+  const blockButton = document.getElementById("block");
+  if (blockButton) {
+    blockButton.addEventListener("click", function () {
+      // Two steps on purpose. Blocking a client takes their whole center off
+      // the air, and the reason is what the audit log will have to explain
+      // months later — so it is required, and the button says what it does.
+      confirmBlock(row, url, reasonOf());
+    });
+  }
+}
+
+function confirmBlock(row, url, reason) {
+  app.openModal(
+    gettext("إيقاف كل طلبات هذا العميل؟"),
+    '<div class="alert alert-danger py-2 small mb-3">' +
+      interpolate(
+        gettext("سيتوقف موقع «%s» عن الاستجابة لكل مستخدميه فورًا، وسيرون صفحة توقّف مؤقت."),
+        [ui.esc(row.name)]
+      ) +
+    "</div>" +
+    '<p class="text-muted small">' +
+      gettext("لا يُحذف أي شيء ولا تتغير الباقة ولا حالة الاشتراك. رفع الحظر يعيد الخدمة في الحال.") +
+    "</p>" +
+    '<label class="form-label" for="block-reason">' + gettext("سبب الإيقاف") + "</label>" +
+    '<textarea class="form-control" id="block-reason" name="reason" rows="3">' +
+      ui.esc(reason) +
+    "</textarea>" +
+    '<div class="text-danger small" data-error-for="reason"></div>',
+    '<button class="btn btn-ghost" data-bs-dismiss="modal">' + gettext("رجوع") + "</button>" +
+    '<button class="btn btn-danger" id="confirm-block" disabled>' + gettext("إيقاف الطلبات") + "</button>"
+  );
+
+  const guard = app.requireReason("#app-modal", "confirm-block");
+  document.getElementById("confirm-block").addEventListener("click", function () {
+    send(this, url, { action: "block", reason: guard ? guard.value() : "" });
+  });
+}
+
+function send(button, url, payload) {
+  app.clearFieldErrors(document.getElementById("app-modal"));
+  ui.withBusy(button, async function () {
+    try {
+      const response = await http.post(url, payload);
+      app.closeModal();
+      app.toast(response.message || gettext("تم"), "success");
+      await load(true);
+    } catch (error) {
+      // handleError already paints [data-error-for] slots from field_errors,
+      // so the modal's own messages come out of the same call as the toast.
+      app.handleError(error);
+    }
+  });
+}
+
+document.getElementById("traffic-body").addEventListener("click", function (event) {
+  const trigger = event.target.closest("[data-control]");
+  if (!trigger) { return; }
+  const row = rowsById[trigger.dataset.control];
+  if (row) { openControls(row); }
+});
+
+/* ---------------------------------------------------------------- polling */
+
+function schedule() {
+  clearInterval(timer);
+  timer = null;
+  const on = live.checked && !document.hidden;
+  dot.classList.toggle("on", on);
+  dot.classList.toggle("off", !on);
+  if (on) { timer = setInterval(function () { load(true); }, REFRESH_MS); }
+}
+
+live.addEventListener("change", schedule);
+// A backgrounded tab must stop polling. Otherwise a console left open
+// overnight keeps asking a question nobody is reading the answer to.
+document.addEventListener("visibilitychange", function () {
+  schedule();
+  if (!document.hidden) { load(true); }
+});
+
+q.addEventListener("input", app.debounce(function () { load(); }, 250));
+[period, mode, lifecycle, activeOnly].forEach(function (control) {
+  control.addEventListener("change", function () { load(); });
+});
+document.getElementById("refresh").addEventListener("click", function () { load(); });
+document.getElementById("clear").addEventListener("click", function () {
+  q.value = "";
+  mode.value = "";
+  lifecycle.value = "";
+  activeOnly.checked = false;
+  period.value = "5";
+  load();
+});
+
+load();
+schedule();
+</script>
+{% endblock %}

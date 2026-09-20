@@ -48,6 +48,9 @@
         <svg class="icon"><use href="#i-groups"></use></svg>{% translate "العملاء" %}
         {% if tenant_count %}<span class="count">{{ tenant_count }}</span>{% endif %}
       </a>
+      <a class="console-link {% if nav == 'traffic' %}active{% endif %}" href="{% url 'console:traffic' %}">
+        <svg class="icon"><use href="#i-scan"></use></svg>{% translate "الحركة والحدود" %}
+      </a>
       <a class="console-link {% if nav == 'plans' %}active{% endif %}" href="{% url 'console:plan_list' %}">
         <svg class="icon"><use href="#i-settings"></use></svg>{% translate "الباقات" %}
       </a>

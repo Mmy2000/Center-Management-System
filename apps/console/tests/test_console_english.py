@@ -51,6 +51,7 @@ PAGES = [
     ("console:dashboard", None),
     ("console:tenant_list", None),
     ("console:tenant_new", None),
+    ("console:traffic", None),
     ("console:plan_list", None),
     ("console:audit", None),
     ("console:tenant_detail", "tenant"),

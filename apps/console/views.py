@@ -21,7 +21,12 @@ from django.views.decorators.http import require_POST
 
 from apps.core.http import fail, ok
 from apps.tenancy import quota
-from apps.tenancy.constants import OPERATIONAL_STATUSES, FeatureState, TenantStatus
+from apps.tenancy.constants import (
+    OPERATIONAL_STATUSES,
+    FeatureState,
+    TenantStatus,
+    TrafficMode,
+)
 from apps.tenancy.features import grouped_specs
 from apps.tenancy.models import Plan, PlatformAuditLog, Tenant, TenantFeature
 from apps.tenancy.resolver import enabled_features
@@ -150,6 +155,44 @@ def dashboard(request):
             "over_quota": over_quota[:10],
             "new_this_month": tenants.filter(created_at__gte=now.replace(day=1)).count(),
             "recent_audit": PlatformAuditLog.objects.select_related("actor", "tenant")[:20],
+        },
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Traffic monitoring (TASK-122)
+# --------------------------------------------------------------------------- #
+
+
+@platform_staff_required
+@never_cache
+def traffic(request):
+    """The shell for the live monitoring table.
+
+    Deliberately a shell. Every figure on this page comes out of the cache and
+    changes by the second, so rendering any of it server-side would mean
+    shipping a number that is already wrong and then immediately replacing it.
+    The page therefore loads empty and ``api_traffic`` fills it — the same
+    pattern the client list already uses, for a weaker reason.
+
+    The one thing rendered here is the warning about a per-process cache,
+    because that is a fact about the deployment rather than about the traffic,
+    and an operator reading wrong numbers should be told why before they act
+    on them.
+    """
+    from apps.tenancy import traffic as traffic_metrics
+
+    from .api import PERIODS
+
+    return render(
+        request,
+        "console/traffic.html",
+        {
+            "nav": "traffic",
+            "lifecycle_choices": TenantStatus.choices,
+            "mode_choices": TrafficMode.choices,
+            "periods": PERIODS,
+            "cache_shared": traffic_metrics.cache_is_shared(),
         },
     )
 

@@ -80,6 +80,10 @@ MIDDLEWARE = [
     # After LocaleMiddleware, which activates its own choice and would
     # otherwise overwrite ours (docs/10 §N.3).
     "apps.tenancy.middleware.LanguageMiddleware",
+    # Straight after the language is settled, and before session, CSRF and the
+    # user lookup: a client that is over its limit should be turned away
+    # having cost a cache read, not a database round-trip (docs/10 §N.7).
+    "apps.tenancy.middleware.TenantTrafficMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",

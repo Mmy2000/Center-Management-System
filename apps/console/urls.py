@@ -28,6 +28,7 @@ urlpatterns = [
     path("tenants/<int:pk>/export/", views.tenant_export, name="tenant_export"),
     path("tenants/<int:pk>/delete/", views.tenant_delete, name="tenant_delete"),
     path("leave/", views.tenant_leave, name="tenant_leave"),
+    path("traffic/", views.traffic, name="traffic"),
     path("plans/", views.plan_list, name="plan_list"),
     path("plans/new/", views.plan_edit, name="plan_new"),
     path("plans/<int:pk>/", views.plan_edit, name="plan_edit"),
@@ -36,6 +37,17 @@ urlpatterns = [
     # already built (docs/05 §G.2).
     path("api/tenants/", api.tenants, name="api_tenants"),
     path("api/overview/", api.overview, name="api_overview"),
+    path("api/traffic/", api.traffic_overview, name="api_traffic"),
+    path(
+        "api/tenants/<int:pk>/traffic/",
+        api.tenant_traffic,
+        name="api_tenant_traffic",
+    ),
+    path(
+        "api/tenants/<int:pk>/traffic/policy/",
+        api.tenant_traffic_policy,
+        name="api_tenant_traffic_policy",
+    ),
     path("api/slug-check/", api.slug_check, name="api_slug_check"),
     path("api/tenants/<int:pk>/status/", api.tenant_status, name="api_tenant_status"),
     path("api/tenants/<int:pk>/usage/", api.tenant_usage, name="api_tenant_usage"),

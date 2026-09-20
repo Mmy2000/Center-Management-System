@@ -25,6 +25,7 @@ from .constants import (
     FeatureState,
     PlatformAction,
     TenantStatus,
+    TrafficMode,
 )
 from .features import spec_for
 
@@ -491,6 +492,134 @@ class TenantUsage(models.Model):
         if self.computed_at is None:
             return True
         return (timezone.now() - self.computed_at).total_seconds() > seconds
+
+
+class TenantRatePolicy(models.Model):
+    """How much server a client may consume right now (TASK-122).
+
+    One row per client, and **only** for clients an operator has deliberately
+    touched: absence means unlimited and unblocked, which is what almost every
+    center should be. That is the same choice ``TenantFeature`` makes for
+    exactly the same reason — a row that merely restates the default is a row
+    that will eventually disagree with it.
+
+    This is the tap, not the subscription. ``Tenant.status`` answers "is this
+    client a customer"; this answers "is their traffic welcome this afternoon".
+    Conflating them would mean suspending a paying center's account because a
+    script of theirs went into a retry loop, and un-suspending it afterwards
+    through the subscription lifecycle — which writes to the audit trail as
+    though their billing had changed.
+
+    Every field is read on the hot path through ``traffic.policy_for``, which
+    caches a plain dataclass rather than this instance. The row itself is
+    written only by the console.
+    """
+
+    tenant = models.OneToOneField(
+        Tenant, on_delete=models.CASCADE, related_name="rate_policy", verbose_name=_("العميل")
+    )
+
+    blocked = models.BooleanField(
+        _("محظور"),
+        default=False,
+        help_text=_("يرفض كل الطلبات فورًا. لا يُحذف شيء، ورفع الحظر يعيد الخدمة في الحال."),
+    )
+    blocked_reason = models.TextField(_("سبب الحظر"), blank=True)
+    blocked_at = models.DateTimeField(_("تاريخ الحظر"), null=True, blank=True)
+
+    max_rps = models.PositiveIntegerField(
+        _("أقصى عدد طلبات في الثانية"),
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1)],
+        help_text=_("فارغ = بلا حد."),
+    )
+    max_rpm = models.PositiveIntegerField(
+        _("أقصى عدد طلبات في الدقيقة"),
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1)],
+    )
+    max_rph = models.PositiveIntegerField(
+        _("أقصى عدد طلبات في الساعة"),
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(1)],
+    )
+    burst = models.PositiveIntegerField(
+        _("سماح الذروة"),
+        default=0,
+        help_text=_("طلبات إضافية فوق الحد لكل ثانية، لاستيعاب دفعة مسح متزامنة."),
+    )
+
+    note = models.CharField(_("ملاحظة"), max_length=200, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="tenant_rate_policy_changes",
+    )
+
+    class Meta:
+        verbose_name = _("سياسة حركة عميل")
+        verbose_name_plural = _("سياسات حركة العملاء")
+        ordering = ["tenant"]
+        constraints = [
+            # Burst without a per-second limit is a number that does nothing.
+            # Refused in the database as well as in `clean`, because the
+            # console is not the only thing that will ever write this row.
+            models.CheckConstraint(
+                condition=models.Q(burst=0) | models.Q(max_rps__isnull=False),
+                name="ck_burst_needs_rps",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.tenant.slug}: {self.mode}"
+
+    def clean(self):
+        super().clean()
+        if self.burst and self.max_rps is None:
+            raise ValidationError({"burst": _("سماح الذروة يحتاج حدًا لكل ثانية أولًا.")})
+
+    @property
+    def has_limits(self) -> bool:
+        return any(v is not None for v in (self.max_rps, self.max_rpm, self.max_rph))
+
+    @property
+    def mode(self) -> str:
+        """``ACTIVE`` / ``LIMITED`` / ``BLOCKED`` — see :class:`TrafficMode`."""
+        if self.blocked:
+            return TrafficMode.BLOCKED
+        return TrafficMode.LIMITED if self.has_limits else TrafficMode.ACTIVE
+
+    def get_mode_display(self) -> str:
+        return str(TrafficMode(self.mode).label)
+
+    @property
+    def is_default(self) -> bool:
+        """Whether this row says anything the absence of a row would not.
+
+        The console deletes such a row rather than keeping it, so "unlimited"
+        has exactly one representation and the hot path has one less thing to
+        be wrong about.
+        """
+        return not self.blocked and not self.has_limits and not self.burst
+
+    def as_policy(self):
+        """The cacheable form read on every request."""
+        from .traffic import Policy
+
+        return Policy(
+            blocked=self.blocked,
+            blocked_reason=self.blocked_reason,
+            max_rps=self.max_rps,
+            max_rpm=self.max_rpm,
+            max_rph=self.max_rph,
+            burst=self.burst or 0,
+        )
 
 
 class PlatformAuditLog(models.Model):

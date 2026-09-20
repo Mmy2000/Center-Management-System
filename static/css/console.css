@@ -327,3 +327,61 @@
    like a choice. */
 .plan-feature.is-unbuilt { opacity: .55; cursor: not-allowed; }
 .plan-feature.is-unbuilt:hover { background: transparent; }
+
+/* --------------------------------------------------------------------------
+   Traffic monitoring (TASK-122)
+
+   The job of this screen is to make one row out of forty obvious at a glance,
+   so colour carries the severity and the numbers carry the detail. Four tones
+   only — anything finer stops being readable at a glance, which is the entire
+   point of the page.
+   -------------------------------------------------------------------------- */
+
+.mode-pill { /* shares .status-pill's shape; only the ramp differs */ }
+.mode-ACTIVE  { background: var(--success-050); color: var(--success-500); }
+.mode-LIMITED { background: var(--warning-050); color: var(--warning-500); }
+.mode-BLOCKED { background: var(--danger-050);  color: var(--danger-500); }
+
+/* A stripe down the leading edge of the row rather than a tinted background:
+   readable in both themes, and it does not fight the zebra striping. */
+.traffic-row > td:first-child { border-inline-start: 3px solid transparent; }
+.traffic-row.tone-busy     > td:first-child { border-inline-start-color: var(--info-500); }
+.traffic-row.tone-warning  > td:first-child { border-inline-start-color: var(--accent-500); }
+.traffic-row.tone-critical > td:first-child { border-inline-start-color: var(--danger-500); }
+.traffic-row.tone-blocked  > td:first-child { border-inline-start-color: var(--ink-500); }
+.traffic-row.tone-critical { background: color-mix(in srgb, var(--danger-050) 55%, transparent); }
+.traffic-row.tone-blocked  { opacity: .72; }
+
+.rps-value { font-weight: 700; font-variant-numeric: tabular-nums; }
+.rps-value.hot { color: var(--danger-500); }
+.rps-value.warm { color: var(--accent-500); }
+
+/* 2xx / 4xx / 5xx as one bar. A pie of three slices would take more room and
+   say less; the eye only needs to know whether the red segment is there. */
+.mix { display: grid; gap: .25rem; min-width: 7rem; }
+.mix-bar { display: flex; height: 6px; border-radius: var(--radius-pill); overflow: hidden; background: var(--ink-100); }
+.mix-bar span { display: block; height: 100%; }
+.mix-ok { background: var(--success-500); }
+.mix-c4 { background: var(--accent-500); }
+.mix-c5 { background: var(--danger-500); }
+.mix-text { font-size: .72rem; color: var(--ink-500); font-variant-numeric: tabular-nums; }
+.mix-text .bad { color: var(--danger-500); font-weight: 700; }
+
+.traffic-idle { color: var(--ink-300); }
+.traffic-sub { font-size: .72rem; color: var(--ink-500); font-variant-numeric: tabular-nums; }
+
+/* The live/paused indicator. A dot that stops moving is a clearer statement
+   that the page is stale than any amount of wording. */
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success-500); display: inline-block; }
+.live-dot.on { animation: live-pulse 2s var(--ease) infinite; }
+.live-dot.off { background: var(--ink-300); animation: none; }
+@keyframes live-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+@media (prefers-reduced-motion: reduce) { .live-dot.on { animation: none; } }
+
+.server-strip { display: flex; flex-wrap: wrap; gap: 1.25rem; align-items: center; }
+.server-stat { display: grid; gap: .1rem; }
+.server-stat .v { font-weight: 700; font-variant-numeric: tabular-nums; }
+.server-stat .k { font-size: .72rem; color: var(--ink-500); }
+
+.limit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+@media (max-width: 480px) { .limit-grid { grid-template-columns: 1fr; } }

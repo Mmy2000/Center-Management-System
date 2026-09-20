@@ -79,6 +79,24 @@ class FeatureState(models.TextChoices):
     OFF = "OFF", _("مُعطّل")
 
 
+class TrafficMode(models.TextChoices):
+    """How much of the server a client may currently use (TASK-122).
+
+    Deliberately **not** the same axis as :class:`TenantStatus`. That one is
+    the subscription — is this client a customer at all. This one is the tap:
+    a paying, perfectly active center can still be throttled for an afternoon
+    because a broken integration of theirs is hammering the scan endpoint, and
+    suspending their subscription over it would be absurd.
+
+    Derived from the policy rather than stored on it, so the label on the
+    screen and the limits underneath it cannot disagree.
+    """
+
+    ACTIVE = "ACTIVE", _("طبيعي")
+    LIMITED = "LIMITED", _("محدود")
+    BLOCKED = "BLOCKED", _("محظور")
+
+
 class PlatformAction(models.TextChoices):
     """Everything platform staff can do *to* a client (docs/10 §N.10)."""
 
@@ -99,3 +117,6 @@ class PlatformAction(models.TextChoices):
     IMPERSONATION_STARTED = "IMPERSONATION_STARTED", _("بدء الدخول نيابةً")
     IMPERSONATION_ENDED = "IMPERSONATION_ENDED", _("إنهاء الدخول نيابةً")
     SUBSCRIPTION_TRANSITION = "SUBSCRIPTION_TRANSITION", _("تغيير حالة الاشتراك")
+    TRAFFIC_LIMITED = "TRAFFIC_LIMITED", _("ضبط حدود الطلبات")
+    TRAFFIC_BLOCKED = "TRAFFIC_BLOCKED", _("حظر حركة عميل")
+    TRAFFIC_UNBLOCKED = "TRAFFIC_UNBLOCKED", _("رفع حظر الحركة")
