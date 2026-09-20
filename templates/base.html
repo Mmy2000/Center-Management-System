@@ -8,8 +8,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="{{ UI_ACCENT }}">
+  
   <title>{% block title %}{% translate "نظام إدارة السنتر" %}{% endblock %} · {{ CENTER_NAME }}</title>
 
+  {# The tab icon: .ico for browsers that ask for it by name, PNGs for the rest. #}
+  <link rel="icon" href="{% static 'img/favicon.ico' %}" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicon-16.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
   <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
   {# One stylesheet per direction — Bootstrap ships both. #}
   {% if LANGUAGE_BIDI %}

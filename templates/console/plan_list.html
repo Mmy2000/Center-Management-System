@@ -83,14 +83,16 @@
             {% endif %}
           </div>
 
-          <table class="table table-compact mb-3">
-            <tbody>
-              <tr><td>{% translate "الطلاب" %}</td><td class="text-end num">{{ plan.max_students|default:_("بلا حد") }}</td></tr>
-              <tr><td>{% translate "المستخدمون" %}</td><td class="text-end num">{{ plan.max_users|default:_("بلا حد") }}</td></tr>
-              <tr><td>{% translate "المجموعات" %}</td><td class="text-end num">{{ plan.max_groups|default:_("بلا حد") }}</td></tr>
-              <tr><td>{% translate "البطاقات" %}</td><td class="text-end num">{{ plan.max_cards|default:_("بلا حد") }}</td></tr>
-            </tbody>
-          </table>
+          <div class="table-responsive">
+            <table class="table table-compact mb-3">
+              <tbody>
+                <tr><td>{% translate "الطلاب" %}</td><td class="text-end num">{{ plan.max_students|default:_("بلا حد") }}</td></tr>
+                <tr><td>{% translate "المستخدمون" %}</td><td class="text-end num">{{ plan.max_users|default:_("بلا حد") }}</td></tr>
+                <tr><td>{% translate "المجموعات" %}</td><td class="text-end num">{{ plan.max_groups|default:_("بلا حد") }}</td></tr>
+                <tr><td>{% translate "البطاقات" %}</td><td class="text-end num">{{ plan.max_cards|default:_("بلا حد") }}</td></tr>
+              </tbody>
+            </table>
+          </div>
 
           <div class="d-flex align-items-center gap-2 flex-wrap">
             <span class="badge badge-soft badge-soft-secondary">{{ plan.features.count }} {% translate "خاصية" %}</span>

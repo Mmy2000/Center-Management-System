@@ -68,10 +68,12 @@
         {% endif %}
       </div>
       <div class="card-body p-0">
-        <table class="table table-sm table-compact mb-0">
-          {# No header row here, so ui.table is told the width. #}
-          <tbody id="open-lessons" data-columns="4"></tbody>
-        </table>
+        <div class="table-responsive">
+          <table class="table table-sm table-compact mb-0">
+            {# No header row here, so ui.table is told the width. #}
+            <tbody id="open-lessons" data-columns="4"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

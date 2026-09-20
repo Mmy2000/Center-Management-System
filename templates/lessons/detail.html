@@ -75,14 +75,18 @@
         <span class="badge text-bg-light" id="not-arrived-count">0</span>
       </div>
       <div class="card-body p-0" style="max-height:260px;overflow:auto;">
-        <table class="table table-sm mb-0"><tbody id="not-arrived-body" data-columns="3"></tbody></table>
+        <div class="table-responsive">
+          <table class="table table-sm mb-0"><tbody id="not-arrived-body" data-columns="3"></tbody></table>
+        </div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-header fw-semibold">{% translate "آخر العمليات" %}</div>
       <div class="card-body p-0" style="max-height:260px;overflow:auto;">
-        <table class="table table-sm mb-0"><tbody id="feed-body"></tbody></table>
+        <div class="table-responsive">
+          <table class="table table-sm mb-0"><tbody id="feed-body"></tbody></table>
+        </div>
       </div>
     </div>
   </div>

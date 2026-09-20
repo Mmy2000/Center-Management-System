@@ -25,15 +25,15 @@ msgstr ""
 msgid "%(label)s مطلوب"
 msgstr "%(label)s is required"
 
-#: templates/console/traffic.html:280
+#: templates/console/traffic.html:282
 msgid "/ث"
 msgstr "/s"
 
-#: templates/console/traffic.html:280
+#: templates/console/traffic.html:282
 msgid "/د"
 msgstr "/min"
 
-#: templates/console/traffic.html:280
+#: templates/console/traffic.html:282
 msgid "/س"
 msgstr "/hr"
 
@@ -77,7 +77,7 @@ msgstr "Other"
 msgid "آخر %(minutes)s دقيقة"
 msgstr "Last %(minutes)s minutes"
 
-#: templates/console/traffic.html:162
+#: templates/console/traffic.html:164
 msgid "آخر 30 دقيقة"
 msgstr "Last 30 minutes"
 
@@ -85,19 +85,19 @@ msgstr "Last 30 minutes"
 msgid "آخر IP"
 msgstr "Last IP"
 
-#: templates/attendance/scanner.html:63 templates/lessons/detail.html:83
+#: templates/attendance/scanner.html:63 templates/lessons/detail.html:85
 msgid "آخر العمليات"
 msgstr "Recent activity"
 
-#: templates/console/traffic.html:392
+#: templates/console/traffic.html:394
 msgid "آخر تحديث"
 msgstr "Last updated"
 
-#: templates/console/tenant_detail.html:235
+#: templates/console/tenant_detail.html:239
 msgid "آخر حساب:"
 msgstr "Last counted:"
 
-#: templates/academics/group_detail.html:135
+#: templates/academics/group_detail.html:139
 msgid "آخر حصة:"
 msgstr "Last lesson:"
 
@@ -105,11 +105,11 @@ msgstr "Last lesson:"
 msgid "آخر دخول"
 msgstr "Last login"
 
-#: templates/console/dashboard.html:89
+#: templates/console/dashboard.html:93
 msgid "آخر ما جرى على المنصة"
 msgstr "The latest on the platform"
 
-#: templates/console/traffic.html:167
+#: templates/console/traffic.html:169
 msgid "آخر نشاط"
 msgstr "Last activity"
 
@@ -121,22 +121,22 @@ msgstr "One of the tokens is already in the system"
 msgid "أحداث المسح"
 msgstr "Scan events"
 
-#: templates/reports/report.html:131 templates/students/detail.html:416
+#: templates/reports/report.html:131 templates/students/detail.html:422
 #: apps/cards/models.py:33 apps/payments/models.py:50
 #: apps/students/models.py:162
 msgid "أخرى"
 msgstr "Other"
 
-#: templates/console/traffic.html:261
+#: templates/console/traffic.html:263
 msgid "أخطاء"
 msgstr "errors"
 
-#: templates/console/tenant_detail.html:182
-#: templates/console/tenant_detail.html:256
+#: templates/console/tenant_detail.html:186
+#: templates/console/tenant_detail.html:260
 msgid "أرشفة"
 msgstr "Archive"
 
-#: templates/console/tenant_detail.html:256
+#: templates/console/tenant_detail.html:260
 msgid "أرشفة العميل"
 msgstr "Archive client"
 
@@ -144,7 +144,7 @@ msgstr "Archive client"
 msgid "أرشفة عميل"
 msgstr "Archive client"
 
-#: templates/console/tenant_detail.html:196
+#: templates/console/tenant_detail.html:200
 msgid "أرشفة وجدولة الحذف"
 msgstr "Archive and schedule deletion"
 
@@ -156,7 +156,7 @@ msgstr "Already in the database: %(n)s"
 msgid "أزرق مخضر"
 msgstr "Teal"
 
-#: templates/console/tenant_detail.html:59
+#: templates/console/tenant_detail.html:61
 msgid "أساسي"
 msgstr "Primary"
 
@@ -165,19 +165,19 @@ msgstr "Primary"
 msgid "أساسية"
 msgstr "Core"
 
-#: templates/tenancy/throttled.html:50
+#: templates/tenancy/throttled.html:55
 msgid "أعد المحاولة بعد %(seconds)s ثانية"
 msgstr "Try again in %(seconds)s seconds"
 
-#: templates/console/traffic.html:599
+#: templates/console/traffic.html:601
 msgid "أقصى طلبات/ثانية"
 msgstr "Max requests/second"
 
-#: templates/console/traffic.html:601
+#: templates/console/traffic.html:603
 msgid "أقصى طلبات/دقيقة"
 msgstr "Max requests/minute"
 
-#: templates/console/traffic.html:602
+#: templates/console/traffic.html:604
 msgid "أقصى طلبات/ساعة"
 msgstr "Max requests/hour"
 
@@ -209,7 +209,7 @@ msgstr "Exceeds the amount collected"
 msgid "أكبر من المستحق"
 msgstr "Exceeds the amount due"
 
-#: templates/console/traffic.html:237
+#: templates/console/traffic.html:239
 msgid "أكثر من يوم"
 msgstr "over a day"
 
@@ -221,14 +221,14 @@ msgstr "Cashier"
 msgid "أنثى"
 msgstr "Female"
 
-#: templates/console/plan_list.html:122
+#: templates/console/plan_list.html:124
 msgid ""
 "أنشئ باقة، أو شغّل <code>manage.py seed_plans</code> للثلاث الافتراضية."
 msgstr ""
 "Create a plan, or run <code>manage.py seed_plans</code> for the default "
 "three."
 
-#: templates/tenancy/throttled.html:38
+#: templates/tenancy/throttled.html:43
 msgid ""
 "أوقف مشغّل النظام استقبال الطلبات من حساب <span class=\"gate-"
 "name\">%(name)s</span> مؤقتًا."
@@ -244,7 +244,7 @@ msgstr "Which of the plan's prices applies to this client."
 msgid "أيام التجربة"
 msgstr "Trial days"
 
-#: templates/console/tenant_detail.html:126 apps/core/base.py:17
+#: templates/console/tenant_detail.html:130 apps/core/base.py:17
 msgid "أُنشئ في"
 msgstr "Created at"
 
@@ -252,7 +252,7 @@ msgstr "Created at"
 msgid "أُوقفت الباقة للعملاء الجدد."
 msgstr "The plan is closed to new clients."
 
-#: templates/console/plan_list.html:111 templates/console/plan_list.html:154
+#: templates/console/plan_list.html:113 templates/console/plan_list.html:156
 msgid "إتاحة"
 msgstr "Open"
 
@@ -269,21 +269,21 @@ msgstr "Unknown action"
 msgid "إجراء غير معروف."
 msgstr "Unknown action."
 
-#: templates/console/base.html:61
+#: templates/console/base.html:66
 msgid "إجراءات"
 msgstr "Actions"
 
-#: templates/dashboard/home.html:81
+#: templates/dashboard/home.html:83
 msgid "إجراءات سريعة"
 msgstr "Quick actions"
 
 #: templates/cards/list.html:146 templates/lessons/list.html:123
-#: templates/payments/workspace.html:206 templates/students/detail.html:325
+#: templates/payments/workspace.html:206 templates/students/detail.html:331
 #: templates/students/list.html:108 static/js/ui.js:279
 msgid "إجمالي"
 msgstr "Total"
 
-#: templates/console/traffic.html:163
+#: templates/console/traffic.html:165
 msgid "إجمالي الفترة"
 msgstr "Period total"
 
@@ -295,7 +295,7 @@ msgstr "Total due"
 msgid "إجمالي المسدد"
 msgstr "Total paid"
 
-#: templates/students/detail.html:342
+#: templates/students/detail.html:348
 msgid "إجمالي شهري:"
 msgstr "Monthly total:"
 
@@ -303,11 +303,15 @@ msgstr "Monthly total:"
 msgid "إجمالي متوقع:"
 msgstr "Expected total:"
 
+#: templates/accounts/login.html:191 templates/console/login.html:139
+msgid "إخفاء كلمة المرور"
+msgstr "Hide password"
+
 #: apps/tenancy/features.py:146
 msgid "إدارة البطاقات"
 msgstr "Card management"
 
-#: templates/accounts/login.html:17
+#: templates/accounts/login.html:23
 msgid "إدارة السنتر — من التسجيل حتى التحصيل"
 msgstr "Run the center — from enrolment to collection"
 
@@ -331,7 +335,7 @@ msgstr "Issue this month's charges"
 msgid "إصدار من المخزون"
 msgstr "Issued from stock"
 
-#: templates/students/detail.html:498 templates/students/detail.html:526
+#: templates/students/detail.html:504 templates/students/detail.html:532
 msgid "إصدار وطباعة"
 msgstr "Issue and print"
 
@@ -347,7 +351,7 @@ msgstr "Student added to group"
 msgid "إضافة موعد"
 msgstr "Add slot"
 
-#: templates/academics/group_detail.html:150
+#: templates/academics/group_detail.html:154
 msgid "إضافة موعد أسبوعي"
 msgstr "Add weekly slot"
 
@@ -355,12 +359,13 @@ msgstr "Add weekly slot"
 msgid "إضافة نطاق"
 msgstr "Add domain"
 
-#: templates/accounts/login.html:84 templates/console/login.html:81
+#: templates/accounts/login.html:98 templates/accounts/login.html:191
+#: templates/console/login.html:89 templates/console/login.html:139
 msgid "إظهار كلمة المرور"
 msgstr "Show password"
 
-#: templates/console/tenant_detail.html:179
-#: templates/console/tenant_detail.html:258
+#: templates/console/tenant_detail.html:183
+#: templates/console/tenant_detail.html:262
 msgid "إعادة التفعيل"
 msgstr "Resume"
 
@@ -392,8 +397,8 @@ msgstr "Waive charges"
 msgid "إعفاء من رسوم"
 msgstr "Charge waived"
 
-#: templates/base.html:46 templates/console/base.html:108
-#: templates/console/traffic.html:520 templates/console/traffic.html:554
+#: templates/base.html:52 templates/console/base.html:113
+#: templates/console/traffic.html:522 templates/console/traffic.html:556
 #: templates/partials/_modal.html:8
 msgid "إغلاق"
 msgstr "Close"
@@ -407,13 +412,13 @@ msgid "إغلاق التسجيل بعد بداية الحصة (دقائق)"
 msgstr "Close check-in after the lesson starts (minutes)"
 
 #: templates/cards/list.html:328 templates/console/plan_edit.html:216
-#: templates/console/tenant_detail.html:275
-#: templates/console/tenant_detail.html:322
-#: templates/console/tenant_new.html:152 templates/console/traffic.html:610
+#: templates/console/tenant_detail.html:279
+#: templates/console/tenant_detail.html:326
+#: templates/console/tenant_new.html:152 templates/console/traffic.html:612
 msgid "إلغاء"
 msgstr "Cancel"
 
-#: templates/lessons/detail.html:216 templates/lessons/detail.html:218
+#: templates/lessons/detail.html:220 templates/lessons/detail.html:222
 #: apps/lessons/models.py:124
 msgid "إلغاء الحصة"
 msgstr "Cancel lesson"
@@ -430,9 +435,9 @@ msgstr "Attendance cancelled"
 msgid "إلغاء رسوم"
 msgstr "Charge cancelled"
 
-#: templates/academics/group_detail.html:153 templates/lessons/list.html:153
+#: templates/academics/group_detail.html:157 templates/lessons/list.html:153
 #: templates/lessons/list.html:188 templates/payments/workspace.html:116
-#: templates/reports/report.html:53 templates/students/detail.html:108
+#: templates/reports/report.html:53 templates/students/detail.html:111
 msgid "إلى"
 msgstr "To"
 
@@ -444,7 +449,7 @@ msgstr "To date"
 msgid "إنشاء"
 msgstr "Create"
 
-#: templates/console/login.html:17
+#: templates/console/login.html:28
 msgid ""
 "إنشاء العملاء، تفعيل وإيقاف الخدمة، والتحكم في كل خاصية على حدة — دون نسخة "
 "منفصلة أو نشر جديد لكل عميل."
@@ -486,7 +491,7 @@ msgstr "User created"
 
 #: templates/lessons/detail.html:27
 #: templates/partials/_impersonation_banner.html:15
-#: templates/students/detail.html:353 templates/students/detail.html:417
+#: templates/students/detail.html:359 templates/students/detail.html:423
 msgid "إنهاء"
 msgstr "Complete"
 
@@ -494,11 +499,11 @@ msgstr "Complete"
 msgid "إنهاء اشتراك طالب بمجموعة"
 msgstr "Student enrollment ended"
 
-#: templates/students/detail.html:413
+#: templates/students/detail.html:419
 msgid "إنهاء الاشتراك"
 msgstr "End enrollment"
 
-#: templates/lessons/detail.html:201 templates/lessons/detail.html:203
+#: templates/lessons/detail.html:205 templates/lessons/detail.html:207
 #: apps/lessons/models.py:123
 msgid "إنهاء الحصة"
 msgstr "Complete the lesson"
@@ -511,7 +516,7 @@ msgstr "End impersonation"
 msgid "إنهاء حصة"
 msgstr "Lesson completed"
 
-#: templates/payments/workspace.html:238 templates/students/detail.html:280
+#: templates/payments/workspace.html:238 templates/students/detail.html:286
 msgid "إيصال"
 msgstr "Receipt"
 
@@ -527,17 +532,17 @@ msgstr "Payment receipt"
 msgid "إيصالات PDF"
 msgstr "PDF receipts"
 
-#: templates/console/plan_list.html:111 templates/console/plan_list.html:154
-#: templates/console/tenant_detail.html:254
+#: templates/console/plan_list.html:113 templates/console/plan_list.html:156
+#: templates/console/tenant_detail.html:258
 msgid "إيقاف"
 msgstr "Close"
 
-#: templates/console/tenant_detail.html:175
-#: templates/console/tenant_detail.html:254
+#: templates/console/tenant_detail.html:179
+#: templates/console/tenant_detail.html:258
 msgid "إيقاف الخدمة"
 msgstr "Suspend service"
 
-#: templates/console/traffic.html:613 templates/console/traffic.html:670
+#: templates/console/traffic.html:615 templates/console/traffic.html:672
 msgid "إيقاف الطلبات"
 msgstr "Stop requests"
 
@@ -545,7 +550,7 @@ msgstr "Stop requests"
 msgid "إيقاف عميل"
 msgstr "Suspend client"
 
-#: templates/console/traffic.html:654
+#: templates/console/traffic.html:656
 msgid "إيقاف كل طلبات هذا العميل؟"
 msgstr "Stop all requests from this client?"
 
@@ -583,7 +588,7 @@ msgstr "Theme and colour picker"
 msgid "اختيار لون"
 msgstr "Pick a colour"
 
-#: templates/tenancy/throttled.html:8 templates/tenancy/throttled.html:43
+#: templates/tenancy/throttled.html:8 templates/tenancy/throttled.html:48
 msgid "ازدحام مؤقت"
 msgstr "Temporarily busy"
 
@@ -599,7 +604,7 @@ msgstr "Replace card"
 msgid "استبدال بطاقة"
 msgstr "Card replaced"
 
-#: templates/reports/report.html:117 templates/students/detail.html:127
+#: templates/reports/report.html:117 templates/students/detail.html:131
 #: apps/attendance/models.py:46
 msgid "استثنائي"
 msgstr "Exceptional"
@@ -626,7 +631,7 @@ msgstr "Refund"
 msgid "استرداد دفعة"
 msgstr "Refund a payment"
 
-#: templates/console/traffic.html:537
+#: templates/console/traffic.html:539
 msgid "استهلاك المعالجة"
 msgstr "Processing time"
 
@@ -675,9 +680,9 @@ msgstr "Group name"
 msgid "اسم المسؤول"
 msgstr "Owner name"
 
-#: templates/accounts/login.html:72 templates/accounts/login.html:73
+#: templates/accounts/login.html:85 templates/accounts/login.html:86
 #: templates/accounts/profile.html:12 templates/accounts/users.html:18
-#: templates/accounts/users.html:71 templates/console/login.html:70
+#: templates/accounts/users.html:71 templates/console/login.html:77
 msgid "اسم المستخدم"
 msgstr "Username"
 
@@ -705,7 +710,7 @@ msgstr "Enrollment"
 msgid "اشتراك طالب بمجموعة"
 msgstr "Student group enrollment"
 
-#: templates/students/detail.html:78 templates/students/detail.html:381
+#: templates/students/detail.html:78 templates/students/detail.html:387
 msgid "اشتراك في مجموعة"
 msgstr "Enroll in a group"
 
@@ -733,7 +738,7 @@ msgstr "Approval"
 msgid "اعتماد الحضور الاستثنائي"
 msgstr "Approve exceptional attendance"
 
-#: templates/attendance/scanner.html:137
+#: templates/attendance/scanner.html:139
 msgid "اعتماد المشرف وتسجيل الحضور"
 msgstr "Supervisor approval — record attendance"
 
@@ -745,7 +750,7 @@ msgstr "Exceptional attendance approved"
 msgid "افتح الحصة"
 msgstr "Open the lesson"
 
-#: templates/console/tenant_detail.html:191
+#: templates/console/tenant_detail.html:195
 msgid "اكتب \"%(slug)s\" للتأكيد"
 msgstr "Type \"%(slug)s\" to confirm"
 
@@ -761,7 +766,7 @@ msgstr "Write a clear reason."
 msgid "اكتب معرّف العميل للتأكيد"
 msgstr "Type the client's identifier to confirm"
 
-#: templates/console/traffic.html:233 templates/students/detail.html:471
+#: templates/console/traffic.html:235 templates/students/detail.html:477
 msgid "الآن"
 msgstr "Now"
 
@@ -769,15 +774,15 @@ msgstr "Now"
 msgid "الأب"
 msgstr "Father"
 
-#: templates/academics/group_detail.html:102 apps/academics/models.py:20
+#: templates/academics/group_detail.html:106 apps/academics/models.py:20
 msgid "الأحد"
 msgstr "Sunday"
 
-#: templates/academics/group_detail.html:102 apps/academics/models.py:23
+#: templates/academics/group_detail.html:106 apps/academics/models.py:23
 msgid "الأربعاء"
 msgstr "Wednesday"
 
-#: templates/console/tenant_detail.html:187
+#: templates/console/tenant_detail.html:191
 msgid ""
 "الأرشفة الآن، والحذف النهائي بعد %(days)s يومًا. صدّر البيانات أولًا — هذه "
 "هي النسخة الوحيدة التي سيحصل عليها العميل."
@@ -806,7 +811,7 @@ msgid "الإبلاغ عن فقد بطاقة"
 msgstr "Card reported lost"
 
 #: templates/console/audit.html:20 templates/console/audit.html:43
-#: templates/console/dashboard.html:94 templates/console/tenant_detail.html:79
+#: templates/console/dashboard.html:99 templates/console/tenant_detail.html:82
 #: templates/core/audit_log.html:15 apps/core/models.py:117
 msgid "الإجراء"
 msgstr "Action"
@@ -815,7 +820,7 @@ msgstr "Action"
 msgid "الإجراء عند المنع لعدم السداد"
 msgstr "Action when blocked for non-payment"
 
-#: templates/console/traffic.html:144 templates/reports/report.html:200
+#: templates/console/traffic.html:145 templates/reports/report.html:200
 msgid "الإجمالي"
 msgstr "Total"
 
@@ -841,11 +846,11 @@ msgid "الإنهاء الفعلي"
 msgstr "Actually completed at"
 
 #: templates/payments/workspace.html:138 templates/payments/workspace.html:314
-#: templates/students/detail.html:189 apps/reports/registry.py:377
+#: templates/students/detail.html:193 apps/reports/registry.py:377
 msgid "الإيصال"
 msgstr "Receipt"
 
-#: templates/academics/group_detail.html:102 apps/academics/models.py:21
+#: templates/academics/group_detail.html:106 apps/academics/models.py:21
 msgid "الاثنين"
 msgstr "Monday"
 
@@ -853,7 +858,7 @@ msgstr "Monday"
 msgid "الاستردادات"
 msgstr "Refunds"
 
-#: templates/console/dashboard.html:79 templates/console/tenant_detail.html:45
+#: templates/console/dashboard.html:82 templates/console/tenant_detail.html:46
 #: templates/console/tenant_list.html:68
 msgid "الاستهلاك"
 msgstr "Usage"
@@ -862,7 +867,7 @@ msgstr "Usage"
 msgid "الاستهلاك مقابل حدود الباقة"
 msgstr "Usage against the plan's limits"
 
-#: templates/academics/group_detail.html:86
+#: templates/academics/group_detail.html:89
 #: templates/academics/structure.html:44 templates/academics/structure.html:51
 #: templates/academics/structure.html:69 templates/academics/structure.html:77
 #: templates/academics/structure.html:92
@@ -893,7 +898,7 @@ msgstr "That name is too short"
 msgid "الاشتراك"
 msgstr "Subscription"
 
-#: templates/students/detail.html:441
+#: templates/students/detail.html:447
 msgid "الاشتراك القديم يُحفظ في السجل ولا يتأثر الحضور السابق."
 msgstr ""
 "The old enrollment is kept in the history and past attendance is untouched."
@@ -910,15 +915,15 @@ msgstr "Current enrollments"
 msgid "الانصراف"
 msgstr "Check-out"
 
-#: templates/console/base.html:55 templates/console/plan_edit.html:7
+#: templates/console/base.html:60 templates/console/plan_edit.html:7
 #: templates/console/plan_list.html:3 templates/console/plan_list.html:4
 #: apps/tenancy/models.py:122
 msgid "الباقات"
 msgstr "Plans"
 
 #: templates/console/tenant_created.html:17
-#: templates/console/tenant_detail.html:132
-#: templates/console/tenant_detail.html:135
+#: templates/console/tenant_detail.html:136
+#: templates/console/tenant_detail.html:139
 #: templates/console/tenant_features.html:33
 #: templates/console/tenant_list.html:34 templates/console/tenant_list.html:65
 msgid "الباقة"
@@ -941,11 +946,11 @@ msgstr "Start"
 msgid "البديل عن قارئ الباركود عبر كاميرا الجهاز."
 msgstr "The fallback to the barcode reader, using the device camera."
 
-#: templates/console/tenant_detail.html:109
+#: templates/console/tenant_detail.html:113
 msgid "البريد"
 msgstr "Email"
 
-#: templates/cards/list.html:3 templates/console/plan_list.html:91
+#: templates/cards/list.html:3 templates/console/plan_list.html:92
 #: templates/partials/_sidebar.html:74 templates/students/detail.html:53
 #: apps/cards/apps.py:9 apps/core/policies.py:348
 msgid "البطاقات"
@@ -956,7 +961,7 @@ msgid "البطاقات مخزون: تُنشأ دفعات، ثم تُربط با
 msgstr ""
 "Cards are stock: create a batch, then link them to students at enrollment."
 
-#: templates/students/detail.html:508 apps/cards/models.py:136
+#: templates/students/detail.html:514 apps/cards/models.py:136
 msgid "البطاقة"
 msgstr "Card"
 
@@ -1014,7 +1019,7 @@ msgstr ""
 msgid "التأخير بعد"
 msgstr "Late after"
 
-#: templates/console/dashboard.html:64 templates/core/audit_log.html:13
+#: templates/console/dashboard.html:65 templates/core/audit_log.html:13
 #: templates/lessons/list.html:55 templates/lessons/list.html:186
 #: templates/payments/workspace.html:139 templates/payments/workspace.html:314
 msgid "التاريخ"
@@ -1026,11 +1031,11 @@ msgstr "Date, start time and end time are required"
 
 #: templates/cards/list.html:90 templates/console/audit.html:85
 #: templates/lessons/list.html:72 templates/payments/workspace.html:101
-#: templates/students/detail.html:153 templates/students/list.html:66
+#: templates/students/detail.html:157 templates/students/list.html:66
 msgid "التالي"
 msgstr "Next"
 
-#: templates/students/detail.html:539
+#: templates/students/detail.html:545
 msgid "التالية في المخزون"
 msgstr "Next in stock"
 
@@ -1046,7 +1051,7 @@ msgstr "Initial setup"
 msgid "التحصيل اليومي"
 msgstr "Daily collection"
 
-#: templates/console/traffic.html:616
+#: templates/console/traffic.html:618
 msgid "التحكم في حركة العميل"
 msgstr "Client traffic control"
 
@@ -1099,11 +1104,11 @@ msgstr "Financial reports"
 msgid "التوقيع"
 msgstr "Signature"
 
-#: templates/academics/group_detail.html:102 apps/academics/models.py:22
+#: templates/academics/group_detail.html:106 apps/academics/models.py:22
 msgid "الثلاثاء"
 msgstr "Tuesday"
 
-#: templates/academics/group_detail.html:102 apps/academics/models.py:25
+#: templates/academics/group_detail.html:106 apps/academics/models.py:25
 msgid "الجمعة"
 msgstr "Friday"
 
@@ -1113,7 +1118,7 @@ msgstr "Friday"
 msgid "الحالة"
 msgstr "Status"
 
-#: templates/attendance/scanner.html:123
+#: templates/attendance/scanner.html:125
 msgid "الحالية:"
 msgstr "Current:"
 
@@ -1121,15 +1126,15 @@ msgstr "Current:"
 msgid "الحدود"
 msgstr "Limits"
 
-#: templates/students/detail.html:184 apps/payments/models.py:254
+#: templates/students/detail.html:188 apps/payments/models.py:254
 msgid "الحركات المالية"
 msgstr "Transactions"
 
-#: templates/console/traffic.html:160
+#: templates/console/traffic.html:162
 msgid "الحركة"
 msgstr "Traffic"
 
-#: templates/console/base.html:52 templates/console/traffic.html:3
+#: templates/console/base.html:57 templates/console/traffic.html:3
 #: templates/console/traffic.html:4
 msgid "الحركة والحدود"
 msgstr "Traffic & limits"
@@ -1150,7 +1155,7 @@ msgstr "Lesson not found"
 msgid "الحصة ملغاة"
 msgstr "The lesson is cancelled"
 
-#: templates/dashboard/home.html:90 templates/lessons/detail.html:6
+#: templates/dashboard/home.html:92 templates/lessons/detail.html:6
 #: templates/lessons/list.html:3 templates/lessons/list.html:7
 #: templates/partials/_sidebar.html:42 apps/lessons/apps.py:9
 msgid "الحصص"
@@ -1186,7 +1191,7 @@ msgstr "Alternative-group attendance"
 msgid "الحضور في مجموعة بديلة"
 msgstr "Attendance in an alternative group"
 
-#: templates/attendance/scanner.html:128
+#: templates/attendance/scanner.html:130
 msgid "الحضور:"
 msgstr "Check-in:"
 
@@ -1194,7 +1199,7 @@ msgstr "Check-in:"
 msgid "الخاصية"
 msgstr "Feature"
 
-#: templates/tenancy/gate.html:7 templates/tenancy/gate.html:34
+#: templates/tenancy/gate.html:7 templates/tenancy/gate.html:39
 msgid "الخدمة موقوفة مؤقتًا"
 msgstr "Service temporarily suspended"
 
@@ -1233,11 +1238,11 @@ msgstr "The discount exceeds the amount due"
 msgid "الخصم حتى"
 msgstr "Discount until"
 
-#: templates/academics/group_detail.html:102 apps/academics/models.py:24
+#: templates/academics/group_detail.html:106 apps/academics/models.py:24
 msgid "الخميس"
 msgstr "Thursday"
 
-#: templates/console/tenant_detail.html:149
+#: templates/console/tenant_detail.html:153
 msgid "الدخول نيابةً عن العميل"
 msgstr "Act on behalf of this client"
 
@@ -1252,7 +1257,7 @@ msgstr ""
 "The original payment is untouched — the refund is recorded as a new "
 "transaction."
 
-#: templates/console/traffic.html:140
+#: templates/console/traffic.html:141
 msgid "الدقيقة"
 msgstr "Minute"
 
@@ -1262,12 +1267,12 @@ msgstr "Minute"
 msgid "الدور"
 msgstr "Role"
 
-#: templates/console/traffic.html:465
+#: templates/console/traffic.html:467
 msgid "الذاكرة المستخدمة"
 msgstr "Memory used"
 
 #: templates/academics/groups.html:91 templates/payments/workspace.html:40
-#: templates/students/detail.html:88 templates/students/detail.html:162
+#: templates/students/detail.html:89 templates/students/detail.html:166
 #: apps/payments/models.py:212
 msgid "الرسوم"
 msgstr "Charges"
@@ -1298,23 +1303,23 @@ msgstr "Token"
 
 #: templates/cards/list.html:89 templates/console/audit.html:79
 #: templates/lessons/list.html:71 templates/payments/workspace.html:100
-#: templates/students/detail.html:152 templates/students/list.html:65
+#: templates/students/detail.html:156 templates/students/list.html:65
 msgid "السابق"
 msgstr "Previous"
 
 #: templates/cards/list.html:325 templates/console/audit.html:43
-#: templates/console/dashboard.html:94
-#: templates/console/tenant_detail.html:195
-#: templates/console/tenant_detail.html:271 templates/console/traffic.html:604
+#: templates/console/dashboard.html:99
+#: templates/console/tenant_detail.html:199
+#: templates/console/tenant_detail.html:275 templates/console/traffic.html:606
 msgid "السبب"
 msgstr "Reason"
 
-#: templates/console/tenant_detail.html:320
+#: templates/console/tenant_detail.html:324
 msgid "السبب (اختياري)"
 msgstr "Reason (optional)"
 
 #: templates/cards/list.html:155 templates/cards/list.html:200
-#: templates/lessons/detail.html:173 templates/lessons/detail.html:217
+#: templates/lessons/detail.html:177 templates/lessons/detail.html:221
 #: templates/payments/workspace.html:289 templates/payments/workspace.html:335
 msgid "السبب (مطلوب)"
 msgstr "Reason (required)"
@@ -1333,7 +1338,7 @@ msgstr "A reason is required to act on a client's behalf."
 msgid "السبب مطلوب."
 msgstr "A reason is required."
 
-#: templates/academics/group_detail.html:102 apps/academics/models.py:19
+#: templates/academics/group_detail.html:106 apps/academics/models.py:19
 msgid "السبت"
 msgstr "Saturday"
 
@@ -1341,7 +1346,7 @@ msgstr "Saturday"
 msgid "السجل"
 msgstr "History"
 
-#: templates/console/dashboard.html:90
+#: templates/console/dashboard.html:94
 msgid "السجل الكامل"
 msgstr "Full log"
 
@@ -1386,7 +1391,7 @@ msgstr "The Center"
 msgid "السنوي بعد الخصم"
 msgstr "Yearly after discount"
 
-#: templates/reports/report.html:59 templates/students/detail.html:169
+#: templates/reports/report.html:59 templates/students/detail.html:173
 #: apps/payments/documents.py:38 apps/reports/api.py:160
 #: apps/reports/registry.py:301
 msgid "الشهر"
@@ -1471,7 +1476,7 @@ msgid "الطالب موقوف"
 msgstr "The student is suspended"
 
 #: templates/payments/workspace.html:143 templates/payments/workspace.html:257
-#: templates/payments/workspace.html:314 templates/students/detail.html:193
+#: templates/payments/workspace.html:314 templates/students/detail.html:197
 #: apps/reports/registry.py:359 apps/reports/registry.py:384
 msgid "الطريقة"
 msgstr "Method"
@@ -1482,7 +1487,7 @@ msgstr ""
 "The default method: scan the student's card with a barcode reader or the "
 "camera."
 
-#: templates/console/plan_list.html:88 templates/console/tenant_list.html:66
+#: templates/console/plan_list.html:89 templates/console/tenant_list.html:66
 #: templates/partials/_sidebar.html:28 templates/students/create.html:6
 #: templates/students/detail.html:6 templates/students/edit.html:7
 msgid "الطلاب"
@@ -1500,15 +1505,15 @@ msgstr "Late students"
 msgid "الطلبات في الدقيقة"
 msgstr "Requests per minute"
 
-#: templates/console/traffic.html:403
+#: templates/console/traffic.html:405
 msgid "الطلبات في الدقيقة، مقسّمة حسب نوع الاستجابة"
 msgstr "Requests per minute, split by response type"
 
-#: templates/console/traffic.html:594
+#: templates/console/traffic.html:596
 msgid "الطلبات موقوفة حاليًا لهذا العميل."
 msgstr "Requests are currently stopped for this client."
 
-#: templates/tenancy/throttled.html:8 templates/tenancy/throttled.html:36
+#: templates/tenancy/throttled.html:8 templates/tenancy/throttled.html:41
 msgid "الطلبات موقوفة مؤقتًا"
 msgstr "Requests are paused"
 
@@ -1516,7 +1521,7 @@ msgstr "Requests are paused"
 msgid "العام الدراسي"
 msgstr "Academic year"
 
-#: templates/console/tenant_detail.html:45
+#: templates/console/tenant_detail.html:46
 msgid "العدد"
 msgstr "Count"
 
@@ -1532,7 +1537,7 @@ msgstr "The count must be between 1 and %(max)s"
 msgid "العدّادات"
 msgstr "Sequences"
 
-#: templates/console/base.html:48 templates/console/tenant_detail.html:7
+#: templates/console/base.html:53 templates/console/tenant_detail.html:7
 #: templates/console/tenant_features.html:8
 #: templates/console/tenant_list.html:3 templates/console/tenant_list.html:4
 #: templates/console/tenant_new.html:7
@@ -1548,8 +1553,8 @@ msgid "العملة"
 msgstr "Currency"
 
 #: templates/console/audit.html:11 templates/console/audit.html:43
-#: templates/console/dashboard.html:64 templates/console/dashboard.html:79
-#: templates/console/dashboard.html:94 templates/console/tenant_list.html:63
+#: templates/console/dashboard.html:65 templates/console/dashboard.html:82
+#: templates/console/dashboard.html:99 templates/console/tenant_list.html:63
 msgid "العميل"
 msgstr "Client"
 
@@ -1591,11 +1596,11 @@ msgstr "Effective"
 msgid "الفوترة"
 msgstr "Billing"
 
-#: templates/console/base.html:86
+#: templates/console/base.html:91
 msgid "القائمة"
 msgstr "Menu"
 
-#: templates/academics/group_detail.html:136
+#: templates/academics/group_detail.html:140
 msgid "القادمة:"
 msgstr "Next:"
 
@@ -1603,7 +1608,7 @@ msgstr "Next:"
 msgid "القارئ جاهز — لا حاجة للماوس"
 msgstr "Scanner ready — no mouse needed"
 
-#: templates/academics/group_detail.html:154 apps/academics/models.py:257
+#: templates/academics/group_detail.html:158 apps/academics/models.py:257
 msgid "القاعة"
 msgstr "Room"
 
@@ -1642,7 +1647,7 @@ msgstr "This sheet contains live tokens — hand it to the print shop only."
 msgid "الكل"
 msgstr "All"
 
-#: templates/academics/group_detail.html:85 templates/academics/groups.html:85
+#: templates/academics/group_detail.html:88 templates/academics/groups.html:85
 #: templates/academics/groups.html:98 templates/academics/structure.html:46
 #: templates/academics/structure.html:53 templates/academics/structure.html:71
 msgid "الكود"
@@ -1656,7 +1661,7 @@ msgstr "Language"
 msgid "اللغة الافتراضية"
 msgstr "Default language"
 
-#: templates/dashboard/home.html:146
+#: templates/dashboard/home.html:148
 msgid "اللوحة"
 msgstr "Board"
 
@@ -1685,7 +1690,7 @@ msgid "المادة/الصف يجب أن تطابق مجموعة الطالب."
 msgstr "The offering must match the student's group."
 
 #: templates/payments/workspace.html:142 templates/payments/workspace.html:253
-#: templates/payments/workspace.html:314 templates/students/detail.html:192
+#: templates/payments/workspace.html:314 templates/students/detail.html:196
 #: apps/payments/models.py:224 apps/reports/registry.py:383
 msgid "المبلغ"
 msgstr "Amount"
@@ -1714,7 +1719,7 @@ msgstr "Amount refunded"
 msgid "المبلغ يجب أن يكون أكبر من صفر"
 msgstr "The amount must be greater than zero"
 
-#: templates/dashboard/home.html:96 apps/reports/registry.py:290
+#: templates/dashboard/home.html:98 apps/reports/registry.py:290
 msgid "المتأخرات"
 msgstr "Outstanding"
 
@@ -1723,7 +1728,7 @@ msgid "المتأخرون فقط"
 msgstr "Outstanding only"
 
 #: templates/dashboard/home.html:52 templates/payments/workspace.html:31
-#: templates/payments/workspace.html:88 templates/students/detail.html:173
+#: templates/payments/workspace.html:88 templates/students/detail.html:177
 #: apps/payments/documents.py:55 apps/payments/models.py:105
 msgid "المتبقي"
 msgstr "Balance"
@@ -1742,7 +1747,7 @@ msgstr "Expected (EGP)"
 
 #: templates/academics/group_detail.html:7 templates/academics/groups.html:3
 #: templates/academics/groups.html:7 templates/academics/groups.html:79
-#: templates/console/plan_list.html:90 templates/partials/_sidebar.html:35
+#: templates/console/plan_list.html:91 templates/partials/_sidebar.html:35
 msgid "المجموعات"
 msgstr "Groups"
 
@@ -1756,11 +1761,11 @@ msgstr "Group"
 msgid "المجموعة الأساسية"
 msgstr "Primary group"
 
-#: templates/students/detail.html:439
+#: templates/students/detail.html:445
 msgid "المجموعة الجديدة"
 msgstr "New group"
 
-#: templates/students/detail.html:137 apps/reports/registry.py:261
+#: templates/students/detail.html:141 apps/reports/registry.py:261
 msgid "المجموعة الحاضرة"
 msgstr "Attended group"
 
@@ -1776,7 +1781,7 @@ msgstr "The group is over capacity"
 msgid "المجموعة وقت الإصدار"
 msgstr "Group when issued"
 
-#: templates/attendance/scanner.html:125
+#: templates/attendance/scanner.html:127
 msgid "المجموعة:"
 msgstr "Group:"
 
@@ -1786,11 +1791,11 @@ msgstr "Group:"
 msgid "المحصّل"
 msgstr "Collected"
 
-#: templates/students/detail.html:543
+#: templates/students/detail.html:549
 msgid "المخزون فارغ — سيتم إنشاء بطاقة جديدة عند التأكيد."
 msgstr "Stock is empty — a new card will be created on confirmation."
 
-#: templates/students/detail.html:140 apps/attendance/models.py:119
+#: templates/students/detail.html:144 apps/attendance/models.py:119
 msgid "المدة"
 msgstr "Duration"
 
@@ -1809,7 +1814,7 @@ msgstr "Instructor"
 msgid "المدرّسون"
 msgstr "Instructors"
 
-#: templates/payments/workspace.html:87 templates/students/detail.html:172
+#: templates/payments/workspace.html:87 templates/students/detail.html:176
 #: apps/payments/models.py:100 apps/reports/registry.py:303
 msgid "المدفوع"
 msgstr "Paid"
@@ -1838,11 +1843,11 @@ msgstr "Stages, grades, subjects and groups — cannot be disabled."
 msgid "المرحلة"
 msgstr "Stage"
 
-#: templates/console/tenant_detail.html:108
+#: templates/console/tenant_detail.html:112
 msgid "المسؤول"
 msgstr "Admin"
 
-#: templates/payments/workspace.html:85 templates/students/detail.html:171
+#: templates/payments/workspace.html:85 templates/students/detail.html:175
 #: apps/payments/models.py:98 apps/reports/registry.py:302
 msgid "المستحق"
 msgstr "Due"
@@ -1853,7 +1858,7 @@ msgid "المستخدم"
 msgstr "User"
 
 #: templates/accounts/users.html:3 templates/accounts/users.html:7
-#: templates/console/plan_list.html:89 templates/console/tenant_list.html:67
+#: templates/console/plan_list.html:90 templates/console/tenant_list.html:67
 #: templates/partials/_sidebar.html:91 apps/accounts/models.py:68
 msgid "المستخدمون"
 msgstr "Users"
@@ -1875,8 +1880,8 @@ msgstr "Camera scanning"
 msgid "المسح لأي مجموعة"
 msgstr "Scan for any group"
 
-#: templates/console/audit.html:43 templates/console/dashboard.html:94
-#: templates/console/tenant_detail.html:79
+#: templates/console/audit.html:43 templates/console/dashboard.html:99
+#: templates/console/tenant_detail.html:82
 msgid "المشغّل"
 msgstr "Operator"
 
@@ -1885,7 +1890,7 @@ msgstr "Operator"
 msgid "المظهر"
 msgstr "Appearance"
 
-#: templates/console/tenant_detail.html:107 apps/tenancy/models.py:65
+#: templates/console/tenant_detail.html:111 apps/tenancy/models.py:65
 #: apps/tenancy/models.py:218
 msgid "المعرّف"
 msgstr "Identifier"
@@ -1947,7 +1952,7 @@ msgstr "Subjects"
 msgid "المواعيد الأسبوعية"
 msgstr "Weekly schedule"
 
-#: templates/console/tenant_detail.html:45
+#: templates/console/tenant_detail.html:46
 msgid "المورد"
 msgstr "Resource"
 
@@ -1979,7 +1984,7 @@ msgstr "Primary domain"
 msgid "النطاق الناتج مستخدم بالفعل: %(host)s"
 msgstr "The resulting domain is already taken: %(host)s"
 
-#: templates/console/tenant_detail.html:53 apps/tenancy/models.py:404
+#: templates/console/tenant_detail.html:55 apps/tenancy/models.py:404
 msgid "النطاقات"
 msgstr "Domains"
 
@@ -2011,7 +2016,7 @@ msgstr "Type"
 
 #: templates/academics/structure.html:136
 #: templates/academics/structure.html:141 templates/accounts/profile.html:15
-#: templates/accounts/users.html:73 templates/console/tenant_detail.html:110
+#: templates/accounts/users.html:73 templates/console/tenant_detail.html:114
 #: apps/academics/models.py:157
 msgid "الهاتف"
 msgstr "Phone"
@@ -2042,19 +2047,19 @@ msgstr "English interface"
 msgid "الوصف"
 msgstr "Description"
 
-#: templates/accounts/login.html:48 templates/accounts/login.html:48
-#: templates/console/login.html:46 templates/console/login.html:46
-#: templates/console/tenant_detail.html:156
+#: templates/accounts/login.html:66 templates/accounts/login.html:66
+#: templates/console/login.html:58 templates/console/login.html:58
+#: templates/console/tenant_detail.html:160
 #: templates/partials/_theme_picker.html:21
 msgid "الوضع"
 msgstr "Mode"
 
-#: templates/console/audit.html:43 templates/console/dashboard.html:94
-#: templates/console/tenant_detail.html:79 templates/lessons/list.html:56
+#: templates/console/audit.html:43 templates/console/dashboard.html:99
+#: templates/console/tenant_detail.html:82 templates/lessons/list.html:56
 msgid "الوقت"
 msgstr "Time"
 
-#: templates/academics/group_detail.html:151 templates/dashboard/home.html:11
+#: templates/academics/group_detail.html:155 templates/dashboard/home.html:11
 #: templates/lessons/list.html:19 apps/academics/models.py:254
 msgid "اليوم"
 msgstr "Today"
@@ -2063,7 +2068,7 @@ msgstr "Today"
 msgid "امسح البطاقة الجديدة"
 msgstr "Scan the new card"
 
-#: templates/students/detail.html:502
+#: templates/students/detail.html:508
 msgid "امسح البطاقة المطبوعة الآن — يجب أن تكون متاحة وغير مرتبطة بطالب."
 msgstr "Scan the printed card now — it must be available and unlinked."
 
@@ -2071,11 +2076,11 @@ msgstr "Scan the printed card now — it must be available and unlinked."
 msgid "امسح الكارت أو اكتب الرمز…"
 msgstr "Scan a card or type the token…"
 
-#: templates/students/detail.html:503
+#: templates/students/detail.html:509
 msgid "امسح الكارت…"
 msgstr "Scan the card…"
 
-#: templates/students/detail.html:497
+#: templates/students/detail.html:503
 msgid "امسح بطاقة جاهزة"
 msgstr "Scan an existing card"
 
@@ -2083,7 +2088,7 @@ msgstr "Scan an existing card"
 msgid "امسح بطاقة للبحث عنها"
 msgstr "Scan a card to find it"
 
-#: templates/attendance/scanner.html:47 templates/attendance/scanner.html:160
+#: templates/attendance/scanner.html:47 templates/attendance/scanner.html:162
 msgid "امسح كارت الطالب"
 msgstr "Scan the student's card"
 
@@ -2097,12 +2102,12 @@ msgstr ""
 msgid "انتهى وقت تسجيل الحضور"
 msgstr "The attendance window has closed"
 
-#: templates/lessons/detail.html:59 templates/lessons/detail.html:116
-#: templates/students/detail.html:139
+#: templates/lessons/detail.html:59 templates/lessons/detail.html:120
+#: templates/students/detail.html:143
 msgid "انصراف"
 msgstr "Check out"
 
-#: templates/lessons/detail.html:161
+#: templates/lessons/detail.html:165
 msgid "انصراف يدوي من لوحة الحصة"
 msgstr "Manual check-out from the lesson board"
 
@@ -2123,7 +2128,7 @@ msgid "باقة %(name)s"
 msgstr "%(name)s plan"
 
 #: templates/console/plan_edit.html:3 templates/console/plan_edit.html:8
-#: templates/console/plan_list.html:9 templates/console/plan_list.html:123
+#: templates/console/plan_list.html:9 templates/console/plan_list.html:125
 msgid "باقة جديدة"
 msgstr "New plan"
 
@@ -2175,7 +2180,7 @@ msgstr "Alternative"
 msgid "برتقالي"
 msgstr "Sunset"
 
-#: templates/accounts/login.html:59
+#: templates/accounts/login.html:72
 msgid "برجاء تسجيل الدخول للمتابعة"
 msgstr "Please sign in to continue"
 
@@ -2183,7 +2188,7 @@ msgstr "Please sign in to continue"
 msgid "بريد المسؤول"
 msgstr "Owner email"
 
-#: templates/students/detail.html:208
+#: templates/students/detail.html:212
 msgid "بطاقات الطالب"
 msgstr "Student cards"
 
@@ -2221,7 +2226,7 @@ msgstr "cards — page"
 msgid "بعض القيم غير صحيحة"
 msgstr "Some values are invalid"
 
-#: templates/console/tenant_detail.html:213 templates/console/traffic.html:278
+#: templates/console/tenant_detail.html:217 templates/console/traffic.html:280
 msgid "بلا حد"
 msgstr "No limit"
 
@@ -2242,7 +2247,7 @@ msgstr "Those sign-in details are not correct."
 msgid "بيانات السنتر"
 msgstr "Center details"
 
-#: templates/console/tenant_detail.html:104
+#: templates/console/tenant_detail.html:108
 msgid "بيانات العميل"
 msgstr "Client details"
 
@@ -2260,19 +2265,19 @@ msgstr "Incorrect username or password"
 msgid "بيانات غير صحيحة"
 msgstr "Invalid data"
 
-#: templates/tenancy/gate.html:38
+#: templates/tenancy/gate.html:43
 msgid ""
 "بياناتكم كاملة وسليمة ولم يُحذف منها شيء، وتعود الخدمة فور معالجة الأمر."
 msgstr ""
 "Your data is complete and intact — nothing has been deleted — and the "
 "service resumes as soon as the matter is settled."
 
-#: templates/attendance/scanner.html:131
+#: templates/attendance/scanner.html:133
 msgid "تأخير:"
 msgstr "Late by:"
 
 #: templates/cards/list.html:157 templates/cards/list.html:202
-#: templates/console/tenant_detail.html:323
+#: templates/console/tenant_detail.html:327
 msgid "تأكيد"
 msgstr "Confirm"
 
@@ -2304,7 +2309,7 @@ msgstr "Due date"
 msgid "تاريخ الالتحاق"
 msgstr "Enrolled on"
 
-#: templates/students/detail.html:383
+#: templates/students/detail.html:389
 msgid "تاريخ البدء"
 msgstr "Start date"
 
@@ -2346,7 +2351,7 @@ msgstr "Invalid date/time"
 msgid "تبقّى يوم واحد على انتهاء الفترة التجريبية."
 msgstr "One day left in the trial period."
 
-#: templates/tenancy/throttled.html:45
+#: templates/tenancy/throttled.html:50
 msgid ""
 "تجاوز حساب <span class=\"gate-name\">%(name)s</span> عدد الطلبات المسموح به "
 "خلال هذه الفترة."
@@ -2374,7 +2379,7 @@ msgstr "Auto-refresh"
 msgid "تحصيل"
 msgstr "Collect"
 
-#: templates/dashboard/home.html:87 apps/core/models.py:87
+#: templates/dashboard/home.html:89 apps/core/models.py:87
 msgid "تحصيل دفعة"
 msgstr "Collect a payment"
 
@@ -2386,11 +2391,11 @@ msgstr "Collect a payment —"
 msgid "تحصيل وطباعة"
 msgstr "Collect and print"
 
-#: templates/console/traffic.html:168
+#: templates/console/traffic.html:170
 msgid "تحكم"
 msgstr "Control"
 
-#: templates/console/traffic.html:463
+#: templates/console/traffic.html:465
 msgid "تحميل المعالج"
 msgstr "CPU load"
 
@@ -2418,7 +2423,7 @@ msgstr "Manual edit"
 msgid "تذييل الإيصال"
 msgstr "Receipt footer"
 
-#: templates/students/detail.html:415 apps/students/models.py:160
+#: templates/students/detail.html:421 apps/students/models.py:160
 msgid "ترك السنتر"
 msgstr "Left the center"
 
@@ -2426,7 +2431,7 @@ msgstr "Left the center"
 msgid "ترميز غير مدعوم"
 msgstr "Unsupported encoding"
 
-#: templates/lessons/detail.html:175
+#: templates/lessons/detail.html:179
 msgid "تسجيل"
 msgstr "Record"
 
@@ -2442,12 +2447,12 @@ msgstr "Attendance check-in"
 msgid "تسجيل الحضور من كشف الحصة دون أي جهاز."
 msgstr "Record attendance from the lesson roll with no device at all."
 
-#: templates/console/base.html:76 templates/partials/_topbar.html:35
+#: templates/console/base.html:81 templates/partials/_topbar.html:35
 msgid "تسجيل الخروج"
 msgstr "Sign out"
 
-#: templates/accounts/login.html:3 templates/accounts/login.html:58
-#: templates/console/login.html:3 templates/console/login.html:56
+#: templates/accounts/login.html:3 templates/accounts/login.html:71
+#: templates/console/login.html:3 templates/console/login.html:63
 msgid "تسجيل الدخول"
 msgstr "Sign in"
 
@@ -2479,7 +2484,7 @@ msgstr ""
 "Record attendance outside the group or outside the time window, with "
 "approval."
 
-#: templates/lessons/detail.html:172
+#: templates/lessons/detail.html:176
 msgid "تسجيل حضور يدوي"
 msgstr "Manual check-in"
 
@@ -2487,7 +2492,7 @@ msgstr "Manual check-in"
 msgid "تسجيل طالب جديد"
 msgstr "Register a new student"
 
-#: templates/lessons/detail.html:133
+#: templates/lessons/detail.html:137
 msgid "تسجيل يدوي"
 msgstr "Manual entry"
 
@@ -2531,12 +2536,12 @@ msgstr "Card sheet exported"
 msgid "تصفية"
 msgstr "Filter"
 
-#: templates/students/detail.html:415 apps/students/models.py:161
+#: templates/students/detail.html:421 apps/students/models.py:161
 msgid "تعارض مواعيد"
 msgstr "Schedule conflict"
 
 #: templates/accounts/users.html:60 templates/console/plan_edit.html:3
-#: templates/console/plan_list.html:107 templates/students/edit.html:9
+#: templates/console/plan_list.html:109 templates/students/edit.html:9
 #: static/js/crud.js:111
 msgid "تعديل"
 msgstr "Edit"
@@ -2589,7 +2594,7 @@ msgstr "User updated"
 msgid "تعديل مستخدم:"
 msgstr "Edit user:"
 
-#: templates/students/detail.html:320 apps/attendance/models.py:238
+#: templates/students/detail.html:326 apps/attendance/models.py:238
 msgid "تعديل يدوي"
 msgstr "Manual edit"
 
@@ -2597,7 +2602,7 @@ msgstr "Manual edit"
 msgid "تعذر التحميل"
 msgstr "Could not load"
 
-#: templates/console/tenant_detail.html:290
+#: templates/console/tenant_detail.html:294
 msgid "تعذر التنفيذ"
 msgstr "Could not be done"
 
@@ -2609,15 +2614,15 @@ msgstr "Could not delete"
 msgid "تعذر الحفظ"
 msgstr "Could not save"
 
-#: templates/accounts/login.html:151
+#: templates/accounts/login.html:166
 msgid "تعذر تسجيل الدخول"
 msgstr "Could not sign in"
 
-#: templates/console/login.html:157
+#: templates/console/login.html:171
 msgid "تعذر تسجيل الدخول."
 msgstr "Could not sign in."
 
-#: templates/students/detail.html:559
+#: templates/students/detail.html:565
 msgid "تعذر ربط البطاقة"
 msgstr "Could not link the card"
 
@@ -2663,12 +2668,12 @@ msgstr "Disabling it means the operator creates the center's staff accounts."
 msgid "تعويض عن حصة"
 msgstr "Make-up for lesson"
 
-#: templates/reports/report.html:116 templates/students/detail.html:126
+#: templates/reports/report.html:116 templates/students/detail.html:130
 #: apps/attendance/models.py:44
 msgid "تعويضية"
 msgstr "Make-up"
 
-#: templates/console/tenant_detail.html:140
+#: templates/console/tenant_detail.html:144
 msgid "تغيير"
 msgstr "Change"
 
@@ -2680,7 +2685,7 @@ msgstr "Setting changed"
 msgid "تغيير الباقة"
 msgstr "Change plan"
 
-#: templates/console/tenant_detail.html:143
+#: templates/console/tenant_detail.html:147
 msgid "تغيير الباقة يعرض أولًا ما سيفقده العميل وأي حد تجاوزه بالفعل."
 msgstr ""
 "Changing the plan first shows what the client loses and which limits they "
@@ -2694,7 +2699,7 @@ msgstr "Change status"
 msgid "تغيير حالة الاشتراك"
 msgstr "Subscription status change"
 
-#: templates/students/detail.html:593
+#: templates/students/detail.html:599
 msgid "تغيير حالة الطالب"
 msgstr "Change the student's status"
 
@@ -2720,24 +2725,24 @@ msgstr "Change password"
 msgid "تغيير مجموعة"
 msgstr "Group change"
 
-#: templates/console/traffic.html:342 templates/lessons/list.html:118
+#: templates/console/traffic.html:344 templates/lessons/list.html:118
 msgid "تفاصيل"
 msgstr "Details"
 
-#: templates/console/tenant_detail.html:258
+#: templates/console/tenant_detail.html:262
 msgid "تفعيل"
 msgstr "Resume"
 
-#: templates/console/login.html:27
+#: templates/console/login.html:39
 msgid "تفعيل أو تعطيل أي خاصية لأي عميل — دون حذف أي بيانات."
 msgstr ""
 "Switch any feature on or off for any client — without deleting any data."
 
-#: templates/accounts/login.html:33
+#: templates/accounts/login.html:40
 msgid "تقارير الحضور والمتأخرات جاهزة للتصدير PDF و Excel."
 msgstr "Attendance and arrears reports, ready to export as PDF or Excel."
 
-#: templates/dashboard/home.html:93
+#: templates/dashboard/home.html:95
 msgid "تقرير المجموعات البديلة"
 msgstr "Alternative-groups report"
 
@@ -2753,7 +2758,7 @@ msgstr "Damaged"
 msgid "تلقائي"
 msgstr "Auto"
 
-#: templates/console/traffic.html:685
+#: templates/console/traffic.html:687
 msgid "تم"
 msgstr "Done"
 
@@ -2761,7 +2766,7 @@ msgstr "Done"
 msgid "تم إصدار"
 msgstr "Issued"
 
-#: templates/students/detail.html:573
+#: templates/students/detail.html:579
 msgid "تم إصدار البطاقة"
 msgstr "Card issued:"
 
@@ -2785,11 +2790,11 @@ msgstr "Client created"
 msgid "تم إنشاء المستخدم"
 msgstr "User created"
 
-#: templates/students/detail.html:425
+#: templates/students/detail.html:431
 msgid "تم إنهاء الاشتراك — السجل محفوظ"
 msgstr "Enrollment ended — the history is kept"
 
-#: templates/tenancy/gate.html:29
+#: templates/tenancy/gate.html:34
 msgid "تم إنهاء الخدمة لهذا الحساب"
 msgstr "Service ended for this account"
 
@@ -2797,7 +2802,7 @@ msgstr "Service ended for this account"
 msgid "تم إنهاء الدخول نيابةً."
 msgstr "Stopped acting on their behalf."
 
-#: templates/tenancy/gate.html:36
+#: templates/tenancy/gate.html:41
 msgid "تم إيقاف الدخول إلى حساب <span class=\"gate-name\">%(name)s</span> مؤقتًا."
 msgstr ""
 "Sign-in to the <span class=\"gate-name\">%(name)s</span> account is "
@@ -2828,7 +2833,7 @@ msgstr "Waived"
 msgid "تم الإنشاء"
 msgstr "Created"
 
-#: templates/lessons/detail.html:208
+#: templates/lessons/detail.html:212
 msgid "تم الإنهاء — غياب:"
 msgstr "Completed — absences:"
 
@@ -2840,11 +2845,11 @@ msgstr "Replaced — past attendance is unchanged"
 msgid "تم الاسترداد"
 msgstr "Refunded"
 
-#: templates/students/detail.html:398
+#: templates/students/detail.html:404
 msgid "تم الاشتراك"
 msgstr "Enrolled"
 
-#: templates/students/detail.html:397
+#: templates/students/detail.html:403
 msgid "تم الاشتراك — تنبيه: المجموعة تجاوزت السعة"
 msgstr "Enrolled — warning: the group is over capacity"
 
@@ -2856,15 +2861,15 @@ msgstr "Checked out — partial attendance"
 msgid "تم التحصيل — إيصال"
 msgstr "Collected — receipt"
 
-#: templates/lessons/detail.html:186
+#: templates/lessons/detail.html:190
 msgid "تم التسجيل اليدوي"
 msgstr "Recorded manually"
 
-#: templates/lessons/detail.html:119
+#: templates/lessons/detail.html:123
 msgid "تم التعديل يدويًا"
 msgstr "Edited manually"
 
-#: templates/academics/group_detail.html:179
+#: templates/academics/group_detail.html:183
 msgid "تم الحذف"
 msgstr "Deleted"
 
@@ -2874,7 +2879,7 @@ msgstr "Deleted"
 msgid "تم الحفظ"
 msgstr "Saved"
 
-#: templates/students/detail.html:454
+#: templates/students/detail.html:460
 msgid "تم النقل"
 msgstr "Transferred"
 
@@ -2886,7 +2891,7 @@ msgstr ""
 "The plan limit has been reached (%(cap)s %(label)s) on the %(plan)s plan. "
 "Please contact the system operator."
 
-#: templates/console/tenant_detail.html:247
+#: templates/console/tenant_detail.html:251
 msgid "تم تحديث الأرقام"
 msgstr "Figures updated"
 
@@ -2894,7 +2899,7 @@ msgstr "Figures updated"
 msgid "تم تحديث الأرقام."
 msgstr "Figures updated."
 
-#: templates/lessons/detail.html:162 apps/attendance/result_codes.py:37
+#: templates/lessons/detail.html:166 apps/attendance/result_codes.py:37
 msgid "تم تسجيل الانصراف"
 msgstr "Check-out recorded"
 
@@ -2954,7 +2959,7 @@ msgstr "Changes saved"
 msgid "تم حفظ الحدود."
 msgstr "Limits saved."
 
-#: templates/students/detail.html:556
+#: templates/students/detail.html:562
 msgid "تم ربط البطاقة"
 msgstr "Card linked:"
 
@@ -2978,7 +2983,7 @@ msgstr ""
 msgid "تمت العودة لإعدادات السنتر"
 msgstr "Back to the center's settings"
 
-#: templates/attendance/scanner.html:182
+#: templates/attendance/scanner.html:184
 msgid "تمت مزامنة العمليات المؤجلة"
 msgstr "Queued scans have been synchronised"
 
@@ -2986,7 +2991,7 @@ msgstr "Queued scans have been synchronised"
 msgid "توجد حصة لهذه المجموعة في نفس التوقيت"
 msgstr "This group already has a lesson at that time"
 
-#: templates/console/traffic.html:164
+#: templates/console/traffic.html:166
 msgid "توزيع الاستجابات"
 msgstr "Response mix"
 
@@ -3023,17 +3028,17 @@ msgid "تُملأ تلقائيًا من رسوم المادة/الصف، ويم�
 msgstr ""
 "Filled in from the subject/grade fee; you can change it for this group."
 
-#: templates/console/traffic.html:234 templates/console/traffic.html:537
+#: templates/console/traffic.html:236 templates/console/traffic.html:539
 msgid "ث"
 msgstr "s"
 
-#: templates/attendance/scanner.html:133 templates/payments/workspace.html:255
-#: templates/payments/workspace.html:369 templates/students/detail.html:342
+#: templates/attendance/scanner.html:135 templates/payments/workspace.html:255
+#: templates/payments/workspace.html:369 templates/students/detail.html:348
 #: static/js/ui.js:29
 msgid "ج.م"
 msgstr "EGP"
 
-#: templates/students/detail.html:378
+#: templates/students/detail.html:384
 msgid "ج.م)"
 msgstr "EGP)"
 
@@ -3050,11 +3055,11 @@ msgstr "Running now"
 msgid "جارٍ الإنشاء…"
 msgstr "Creating…"
 
-#: templates/students/detail.html:509
+#: templates/students/detail.html:515
 msgid "جارٍ التحميل…"
 msgstr "Loading…"
 
-#: templates/accounts/login.html:147
+#: templates/accounts/login.html:162
 msgid "جارٍ التحويل…"
 msgstr "Redirecting…"
 
@@ -3070,7 +3075,7 @@ msgstr "Building the preview…"
 msgid "جاهز للعمل"
 msgstr "Ready to use"
 
-#: templates/attendance/scanner.html:49 templates/attendance/scanner.html:161
+#: templates/attendance/scanner.html:49 templates/attendance/scanner.html:163
 msgid "جاهز للمسح…"
 msgstr "Ready to scan…"
 
@@ -3078,7 +3083,7 @@ msgstr "Ready to scan…"
 msgid "جديد"
 msgstr "New"
 
-#: templates/academics/group_detail.html:133
+#: templates/academics/group_detail.html:137
 msgid "جزئي"
 msgstr "Partial"
 
@@ -3109,7 +3114,7 @@ msgstr "Status of the old card"
 msgid "حالة الحركة"
 msgstr "Traffic state"
 
-#: templates/console/tenant_detail.html:171
+#: templates/console/tenant_detail.html:175
 msgid "حالة الخدمة"
 msgstr "Service status"
 
@@ -3166,7 +3171,7 @@ msgstr "Scan event"
 msgid "حدّد النص وانسخه"
 msgstr "Select the text and copy it"
 
-#: templates/academics/group_detail.html:61 templates/cards/list.html:133
+#: templates/academics/group_detail.html:62 templates/cards/list.html:133
 msgid "حذف"
 msgstr "Delete"
 
@@ -3186,7 +3191,7 @@ msgstr "Purge client data"
 msgid "حذف نطاق"
 msgstr "Remove domain"
 
-#: templates/cards/list.html:329 templates/console/tenant_detail.html:185
+#: templates/cards/list.html:329 templates/console/tenant_detail.html:189
 msgid "حذف نهائي"
 msgstr "Delete permanently"
 
@@ -3203,7 +3208,7 @@ msgid "حروف إنجليزية صغيرة وأرقام وشرطات. لا يم
 msgstr ""
 "Lowercase letters, digits, and hyphens. Cannot be changed after creation."
 
-#: templates/tenancy/gate.html:31
+#: templates/tenancy/gate.html:36
 msgid ""
 "حساب <span class=\"gate-name\">%(name)s</span> مؤرشف حاليًا، وبياناته محفوظة"
 " دون إتاحة الدخول."
@@ -3269,7 +3274,7 @@ msgid "حصّلها"
 msgstr "Collected by"
 
 #: templates/lessons/detail.html:58 templates/reports/report.html:16
-#: templates/students/detail.html:138 apps/attendance/models.py:172
+#: templates/students/detail.html:142 apps/attendance/models.py:172
 msgid "حضور"
 msgstr "Attendance"
 
@@ -3289,7 +3294,7 @@ msgstr "Group attendance"
 msgid "حضور المواد"
 msgstr "Subject attendance"
 
-#: templates/accounts/login.html:19
+#: templates/accounts/login.html:25
 msgid ""
 "حضور بالكارت في أقل من ثانية، اشتراكات متعددة المواد، وحسابات شهرية دقيقة "
 "لكل طالب."
@@ -3305,10 +3310,10 @@ msgstr "Partial attendance"
 msgid "حظر حركة عميل"
 msgstr "Client traffic blocked"
 
-#: templates/academics/group_detail.html:155
+#: templates/academics/group_detail.html:159
 #: templates/accounts/password_change.html:26 templates/accounts/users.html:76
 #: templates/accounts/users.html:108 templates/lessons/list.html:189
-#: templates/students/detail.html:384
+#: templates/students/detail.html:390
 msgid "حفظ"
 msgstr "Save"
 
@@ -3324,7 +3329,7 @@ msgstr "Save changes"
 msgid "حفظ التغييرات"
 msgstr "Save changes"
 
-#: templates/console/traffic.html:614
+#: templates/console/traffic.html:616
 msgid "حفظ الحدود"
 msgstr "Save limits"
 
@@ -3336,7 +3341,7 @@ msgstr "Save and continue"
 msgid "خارج وقت التسجيل — تم التسجيل استثنائيًا"
 msgstr "Outside the window — recorded as exceptional"
 
-#: templates/console/plan_list.html:96
+#: templates/console/plan_list.html:98
 msgid "خاصية"
 msgstr "feature"
 
@@ -3369,7 +3374,7 @@ msgid "خصائص العملاء"
 msgstr "Client features"
 
 #: templates/console/plan_list.html:75
-#: templates/console/tenant_detail.html:121
+#: templates/console/tenant_detail.html:125
 msgid "خصم %(percent)s%"
 msgstr "%(percent)s% off"
 
@@ -3381,15 +3386,15 @@ msgstr "%(percent)s% off — ended %(until)s"
 msgid "خطأ غير متوقع"
 msgstr "Unexpected error"
 
-#: templates/console/traffic.html:534
+#: templates/console/traffic.html:536
 msgid "خلال 24 ساعة"
 msgstr "In 24 hours"
 
-#: templates/console/traffic.html:320
+#: templates/console/traffic.html:322
 msgid "خلال 24س"
 msgstr "in 24h"
 
-#: templates/console/traffic.html:235 templates/students/detail.html:318
+#: templates/console/traffic.html:237 templates/students/detail.html:324
 msgid "د"
 msgstr "min"
 
@@ -3397,12 +3402,12 @@ msgstr "min"
 msgid "داكن"
 msgstr "Dark"
 
-#: templates/accounts/login.html:95 templates/console/login.html:91
-#: templates/console/tenant_detail.html:164
+#: templates/accounts/login.html:109 templates/console/login.html:99
+#: templates/console/tenant_detail.html:168
 msgid "دخول"
 msgstr "Sign in"
 
-#: templates/console/login.html:36
+#: templates/console/login.html:48
 msgid "دخول المشغّلين فقط · موظفو السناتر يدخلون من نطاق سنترهم"
 msgstr "Operators only · center staff sign in from their own center's domain"
 
@@ -3410,7 +3415,7 @@ msgstr "Operators only · center staff sign in from their own center's domain"
 msgid "دخول نيابةً عن العميل"
 msgstr "Acting on behalf of this client"
 
-#: templates/accounts/login.html:29
+#: templates/accounts/login.html:36
 msgid "دفعات جزئية ومتعددة لكل مادة، مع إيصال مطبوع لكل عملية."
 msgstr ""
 "Partial and repeated payments per subject, with a printed receipt for every "
@@ -3424,7 +3429,7 @@ msgstr "Batch: %(batch)s"
 msgid "دقائق التأخير"
 msgstr "Minutes late"
 
-#: templates/attendance/scanner.html:131
+#: templates/attendance/scanner.html:133
 msgid "دقيقة"
 msgstr "minutes"
 
@@ -3432,7 +3437,7 @@ msgstr "minutes"
 msgid "دور غير معروف"
 msgstr "Unknown role"
 
-#: templates/console/tenant_detail.html:113 apps/console/forms.py:91
+#: templates/console/tenant_detail.html:117 apps/console/forms.py:91
 #: apps/tenancy/models.py:235
 msgid "دورة الفوترة"
 msgstr "Billing cycle"
@@ -3441,7 +3446,7 @@ msgstr "Billing cycle"
 msgid "ذكر"
 msgstr "Male"
 
-#: templates/students/detail.html:513 templates/students/detail.html:526
+#: templates/students/detail.html:519 templates/students/detail.html:532
 msgid "ربط"
 msgstr "Link"
 
@@ -3453,15 +3458,15 @@ msgstr "Bind pre-printed cards to students and handle loss and replacement."
 msgid "ربط الحضور بالسداد"
 msgstr "Tie attendance to payment"
 
-#: templates/students/detail.html:210 apps/core/models.py:66
+#: templates/students/detail.html:214 apps/core/models.py:66
 msgid "ربط بطاقة"
 msgstr "Link a card"
 
-#: templates/students/detail.html:495
+#: templates/students/detail.html:501
 msgid "ربط بطاقة بالطالب"
 msgstr "Link a card to the student"
 
-#: templates/console/traffic.html:669
+#: templates/console/traffic.html:671
 msgid "رجوع"
 msgstr "Back"
 
@@ -3477,7 +3482,7 @@ msgstr "new charges for"
 msgid "رسوم شهرية"
 msgstr "Monthly charge"
 
-#: templates/console/traffic.html:612
+#: templates/console/traffic.html:614
 msgid "رفع الحظر"
 msgstr "Lift the block"
 
@@ -3494,7 +3499,7 @@ msgid "رقم الإيصال"
 msgstr "Receipt number"
 
 #: templates/cards/list.html:48 templates/cards/list.html:74
-#: templates/students/detail.html:217 apps/cards/models.py:45
+#: templates/students/detail.html:222 apps/cards/models.py:45
 msgid "رقم البطاقة"
 msgstr "Card number"
 
@@ -3550,11 +3555,11 @@ msgstr "All limits removed."
 msgid "زمردي"
 msgstr "Emerald"
 
-#: templates/console/traffic.html:165 templates/console/traffic.html:536
+#: templates/console/traffic.html:167 templates/console/traffic.html:538
 msgid "زمن الاستجابة"
 msgstr "Response time"
 
-#: templates/console/traffic.html:236
+#: templates/console/traffic.html:238
 msgid "س"
 msgstr "h"
 
@@ -3575,12 +3580,12 @@ msgstr "Reason for cancelling"
 msgid "سبب الإلغاء مطلوب"
 msgstr "A reason for cancelling is required"
 
-#: templates/students/detail.html:221 apps/cards/models.py:147
+#: templates/students/detail.html:226 apps/cards/models.py:147
 #: apps/students/models.py:202
 msgid "سبب الإنهاء"
 msgstr "Reason for ending"
 
-#: templates/console/traffic.html:664 apps/tenancy/models.py:256
+#: templates/console/traffic.html:666 apps/tenancy/models.py:256
 msgid "سبب الإيقاف"
 msgstr "Suspension reason"
 
@@ -3624,7 +3629,7 @@ msgstr "A reason for the status change is required"
 msgid "ستفقد: %(feature)s"
 msgstr "Will lose: %(feature)s"
 
-#: templates/students/detail.html:100
+#: templates/students/detail.html:102
 msgid "سجل الاشتراكات"
 msgstr "Enrollment history"
 
@@ -3633,7 +3638,7 @@ msgstr "Enrollment history"
 msgid "سجل التدقيق"
 msgstr "Audit log"
 
-#: templates/lessons/detail.html:50 templates/students/detail.html:121
+#: templates/lessons/detail.html:50 templates/students/detail.html:125
 msgid "سجل الحضور"
 msgstr "Attendance history"
 
@@ -3646,7 +3651,7 @@ msgid "سجل الرسوم —"
 msgstr "Charge ledger —"
 
 #: templates/console/audit.html:3 templates/console/audit.html:4
-#: templates/console/base.html:58 apps/tenancy/models.py:658
+#: templates/console/base.html:63 apps/tenancy/models.py:658
 msgid "سجل المنصة"
 msgstr "Platform log entry"
 
@@ -3686,7 +3691,7 @@ msgstr "Row %(row)s: %(msg)s"
 msgid "سلوك المسح خارج وقت التسجيل"
 msgstr "Behaviour when scanning outside the window"
 
-#: templates/console/traffic.html:600 apps/tenancy/models.py:550
+#: templates/console/traffic.html:602 apps/tenancy/models.py:550
 msgid "سماح الذروة"
 msgstr "Burst allowance"
 
@@ -3714,11 +3719,11 @@ msgstr "Will issue"
 msgid "سيتم إنشاء"
 msgstr "Will create"
 
-#: templates/lessons/detail.html:202
+#: templates/lessons/detail.html:206
 msgid "سيتم تسجيل"
 msgstr "Will mark"
 
-#: templates/console/traffic.html:657
+#: templates/console/traffic.html:659
 msgid ""
 "سيتوقف موقع «%s» عن الاستجابة لكل مستخدميه فورًا، وسيرون صفحة توقّف مؤقت."
 msgstr ""
@@ -3729,7 +3734,7 @@ msgstr ""
 msgid "شاشة المسح"
 msgstr "Scanner"
 
-#: templates/academics/group_detail.html:130
+#: templates/academics/group_detail.html:134
 msgid "شهر"
 msgstr "Month"
 
@@ -3793,7 +3798,7 @@ msgstr "Invalid month format (YYYY-MM)"
 msgid "صيغة غير صحيحة"
 msgstr "Invalid format"
 
-#: templates/console/traffic.html:556
+#: templates/console/traffic.html:558
 msgid "ضبط الحدود"
 msgstr "Adjust limits"
 
@@ -3801,7 +3806,7 @@ msgstr "Adjust limits"
 msgid "ضبط حدود الطلبات"
 msgstr "Request limits changed"
 
-#: templates/console/traffic.html:161
+#: templates/console/traffic.html:163
 msgid "ط/ث"
 msgstr "req/s"
 
@@ -3809,12 +3814,12 @@ msgstr "req/s"
 msgid "طابور المسح دون اتصال"
 msgstr "Offline scan queue"
 
-#: templates/dashboard/home.html:144 apps/students/models.py:110
+#: templates/dashboard/home.html:146 apps/students/models.py:110
 #: apps/tenancy/quota.py:97
 msgid "طالب"
 msgstr "students"
 
-#: templates/dashboard/home.html:84 templates/students/create.html:3
+#: templates/dashboard/home.html:86 templates/students/create.html:3
 #: templates/students/list.html:9
 msgid "طالب جديد"
 msgstr "New student"
@@ -3827,7 +3832,7 @@ msgstr "Student not enrolled in the subject"
 msgid "طالب في كل العملاء"
 msgstr "students across all clients"
 
-#: templates/lessons/detail.html:202
+#: templates/lessons/detail.html:206
 msgid "طالب كغياب، وإغلاق أي حضور مفتوح تلقائيًا."
 msgstr "students as absent, and close any open check-ins automatically."
 
@@ -3839,7 +3844,7 @@ msgstr "Student from a different grade or subject"
 msgid "طالب — صفحة"
 msgstr "students — page"
 
-#: templates/students/detail.html:477
+#: templates/students/detail.html:483
 msgid "طباعة"
 msgstr "Print"
 
@@ -3861,11 +3866,11 @@ msgstr "Method not allowed"
 msgid "طريقة حضور"
 msgstr "Attendance method"
 
-#: templates/academics/group_detail.html:77
+#: templates/academics/group_detail.html:79
 msgid "طلاب المجموعة"
 msgstr "Group roster"
 
-#: templates/console/traffic.html:389
+#: templates/console/traffic.html:391
 msgid "طلب خلال آخر %s دقيقة"
 msgstr "requests in the last %s minutes"
 
@@ -3873,7 +3878,7 @@ msgstr "requests in the last %s minutes"
 msgid "طلب خلال الفترة"
 msgstr "requests in the period"
 
-#: templates/console/traffic.html:532
+#: templates/console/traffic.html:534
 msgid "طلب/ثانية"
 msgstr "req/second"
 
@@ -3881,7 +3886,7 @@ msgstr "req/second"
 msgid "طلب/ثانية (كل العملاء)"
 msgstr "req/s (all clients)"
 
-#: templates/console/traffic.html:533
+#: templates/console/traffic.html:535
 msgid "طلب/دقيقة"
 msgstr "req/minute"
 
@@ -3891,7 +3896,7 @@ msgstr ""
 "Extra requests above the per-second limit, to absorb a simultaneous batch of"
 " scans."
 
-#: templates/console/traffic.html:562
+#: templates/console/traffic.html:564
 msgid "طلبات هذا العميل في الدقيقة"
 msgstr "This client's requests per minute"
 
@@ -3903,7 +3908,7 @@ msgstr "Collapse or expand the menu"
 msgid "عادت الطلبات للعمل."
 msgstr "Requests are flowing again."
 
-#: templates/students/detail.html:124 apps/attendance/models.py:42
+#: templates/students/detail.html:128 apps/attendance/models.py:42
 msgid "عادي"
 msgstr "Normal"
 
@@ -3979,7 +3984,7 @@ msgstr "View financial reports"
 msgid "عرض كجدول"
 msgstr "View as table"
 
-#: templates/lessons/detail.html:174
+#: templates/lessons/detail.html:178
 msgid "عطل في القارئ"
 msgstr "Scanner malfunction"
 
@@ -3991,18 +3996,18 @@ msgstr "Payment outstanding"
 msgid "عملية مسح (30 يومًا)"
 msgstr "scans (30 days)"
 
-#: templates/console/dashboard.html:21 templates/console/plan_list.html:99
+#: templates/console/dashboard.html:21 templates/console/plan_list.html:101
 #: apps/tenancy/models.py:261
 msgid "عميل"
 msgstr "Client"
 
-#: templates/console/base.html:63 templates/console/dashboard.html:12
+#: templates/console/base.html:68 templates/console/dashboard.html:12
 #: templates/console/tenant_list.html:9 templates/console/tenant_new.html:3
 #: templates/console/tenant_new.html:8
 msgid "عميل جديد"
 msgstr "New client"
 
-#: templates/console/login.html:23
+#: templates/console/login.html:35
 msgid "عميل جديد بنطاق خاص وحساب مدير جاهز في أقل من دقيقة."
 msgstr ""
 "A new client with its own domain and a ready admin account in under a "
@@ -4016,11 +4021,11 @@ msgstr "new clients this month"
 msgid "عميل محدود أو محظور"
 msgstr "limited or blocked clients"
 
-#: templates/console/tenant_list.html:154 templates/console/traffic.html:391
+#: templates/console/tenant_list.html:154 templates/console/traffic.html:393
 msgid "عميل واحد"
 msgstr "One client"
 
-#: templates/console/tenant_list.html:155 templates/console/traffic.html:391
+#: templates/console/tenant_list.html:155 templates/console/traffic.html:393
 msgid "عميلًا"
 msgstr "clients"
 
@@ -4050,7 +4055,7 @@ msgstr "Absent"
 msgid "غير متاح"
 msgstr "Taken"
 
-#: templates/academics/group_detail.html:134 apps/payments/models.py:27
+#: templates/academics/group_detail.html:138 apps/payments/models.py:27
 msgid "غير مسدد"
 msgstr "Unpaid"
 
@@ -4075,7 +4080,7 @@ msgstr "Not offered"
 msgid "غير مُنفّذة بعد"
 msgstr "Not built yet"
 
-#: templates/students/detail.html:239 apps/students/models.py:33
+#: templates/students/detail.html:245 apps/students/models.py:33
 msgid "غير نشط"
 msgstr "Inactive"
 
@@ -4083,8 +4088,8 @@ msgstr "Inactive"
 msgid "فاتح"
 msgstr "Light"
 
-#: templates/console/traffic.html:599 templates/console/traffic.html:601
-#: templates/console/traffic.html:602
+#: templates/console/traffic.html:601 templates/console/traffic.html:603
+#: templates/console/traffic.html:604
 msgid "فارغ = بلا حد"
 msgstr "Blank = no limit"
 
@@ -4132,7 +4137,7 @@ msgstr "Report lost"
 msgid "فك ربط بطاقة"
 msgstr "Card released"
 
-#: templates/console/traffic.html:600
+#: templates/console/traffic.html:602
 msgid "فوق حد الثانية"
 msgstr "Above the per-second limit"
 
@@ -4148,7 +4153,7 @@ msgstr "Barcode scanner"
 msgid "قارب على الحد"
 msgstr "Near the limit"
 
-#: templates/console/dashboard.html:74
+#: templates/console/dashboard.html:76
 msgid "قارب على حد الباقة"
 msgstr "Near a plan limit"
 
@@ -4160,12 +4165,12 @@ msgstr "Before check-in opens"
 msgid "قبول بطاقات بدون بادئة (بطاقات مطبوعة مسبقًا)"
 msgstr "Accept tokens without a prefix (pre-printed cards)"
 
-#: templates/console/tenant_detail.html:157
+#: templates/console/tenant_detail.html:161
 #: templates/partials/_impersonation_banner.html:12 apps/console/forms.py:238
 msgid "قراءة فقط"
 msgstr "Read only"
 
-#: templates/console/tenant_detail.html:152
+#: templates/console/tenant_detail.html:156
 msgid ""
 "قراءة فقط ما لم تختر غير ذلك. تحصيل المدفوعات والاستردادات وتغيير الحسابات "
 "مرفوضة في الوضعين، وسجل العميل نفسه يسجّل أنك تصرفت نيابةً عنه."
@@ -4174,12 +4179,12 @@ msgstr ""
 " changing accounts are refused in both modes, and the client's own audit log"
 " records that you acted on their behalf."
 
-#: templates/console/tenant_detail.html:158
+#: templates/console/tenant_detail.html:162
 #: templates/partials/_impersonation_banner.html:10 apps/console/forms.py:238
 msgid "قراءة وتعديل"
 msgstr "Read and write"
 
-#: templates/console/traffic.html:475
+#: templates/console/traffic.html:477
 msgid "قياسات الخادم كله — استهلاك كل عميل يظهر في عمود «زمن الاستجابة»."
 msgstr ""
 "Whole-server figures — per-client consumption is in the “Response time” "
@@ -4225,11 +4230,11 @@ msgstr "Print sheet"
 msgid "كشف طباعة البطاقات"
 msgstr "Card print sheet"
 
-#: templates/console/login.html:31
+#: templates/console/login.html:43
 msgid "كل إجراء مسجّل: مَن فعله، ومتى، ولماذا."
 msgstr "Every action is logged: who, when, and why."
 
-#: templates/students/detail.html:123
+#: templates/students/detail.html:127
 msgid "كل الأنواع"
 msgstr "All types"
 
@@ -4237,7 +4242,7 @@ msgstr "All types"
 msgid "كل الدفعات"
 msgstr "All batches"
 
-#: templates/console/login.html:15
+#: templates/console/login.html:26
 msgid "كل السناتر من مكان واحد"
 msgstr "Every center from one place"
 
@@ -4245,7 +4250,7 @@ msgstr "Every center from one place"
 msgid "كل العملاء في لمحة"
 msgstr "Every client at a glance"
 
-#: templates/console/dashboard.html:166
+#: templates/console/dashboard.html:172
 msgid "كل العملاء لديهم متسع"
 msgstr "Every client has room"
 
@@ -4255,9 +4260,9 @@ msgstr ""
 "Everything happens in one transaction — a step that fails leaves no half-"
 "created client."
 
-#: templates/accounts/login.html:80 templates/accounts/login.html:81
-#: templates/accounts/users.html:75 templates/console/login.html:77
-#: templates/console/login.html:78
+#: templates/accounts/login.html:93 templates/accounts/login.html:94
+#: templates/accounts/users.html:75 templates/console/login.html:84
+#: templates/console/login.html:85
 msgid "كلمة المرور"
 msgstr "Password"
 
@@ -4320,7 +4325,7 @@ msgstr "Invalid colour code"
 msgid "كود مستخدم بالفعل"
 msgstr "Code already in use"
 
-#: templates/lessons/detail.html:136
+#: templates/lessons/detail.html:140
 msgid "لا أحد — الجميع مسجّل"
 msgstr "Nobody — everyone is recorded"
 
@@ -4349,19 +4354,19 @@ msgstr "You do not have permission for this report"
 msgid "لا تملك صلاحية هذه الحصة"
 msgstr "You do not have permission for this lesson"
 
-#: templates/students/detail.html:356
+#: templates/students/detail.html:362
 msgid "لا توجد اشتراكات"
 msgstr "No enrollments"
 
-#: templates/console/plan_list.html:121
+#: templates/console/plan_list.html:123
 msgid "لا توجد باقات بعد"
 msgstr "No plans yet"
 
-#: templates/cards/list.html:144 templates/students/detail.html:480
+#: templates/cards/list.html:144 templates/students/detail.html:486
 msgid "لا توجد بطاقات"
 msgstr "No cards"
 
-#: templates/students/detail.html:540
+#: templates/students/detail.html:546
 msgid "لا توجد بطاقات متاحة"
 msgstr "No cards available"
 
@@ -4377,7 +4382,7 @@ msgstr "No data"
 msgid "لا توجد بيانات لهذه الفلاتر"
 msgstr "No data for these filters"
 
-#: templates/lessons/detail.html:127
+#: templates/lessons/detail.html:131
 msgid "لا توجد تسجيلات"
 msgstr "No records"
 
@@ -4394,11 +4399,11 @@ msgid "لا توجد تقارير متاحة لدورك."
 msgstr "No reports are available for your role."
 
 #: templates/payments/workspace.html:240 templates/payments/workspace.html:315
-#: templates/students/detail.html:282
+#: templates/students/detail.html:288
 msgid "لا توجد حركات"
 msgstr "No transactions"
 
-#: templates/console/traffic.html:402 templates/console/traffic.html:561
+#: templates/console/traffic.html:404 templates/console/traffic.html:563
 msgid "لا توجد حركة في هذه الفترة"
 msgstr "No traffic in this period"
 
@@ -4410,11 +4415,11 @@ msgstr "No lessons"
 msgid "لا توجد حصص اليوم"
 msgstr "No lessons today"
 
-#: templates/attendance/picker.html:23 templates/dashboard/home.html:148
+#: templates/attendance/picker.html:23 templates/dashboard/home.html:150
 msgid "لا توجد حصص مفتوحة"
 msgstr "No open lessons"
 
-#: templates/students/detail.html:270
+#: templates/students/detail.html:276
 msgid "لا توجد رسوم"
 msgstr "No charges"
 
@@ -4434,7 +4439,7 @@ msgstr "No matching entries"
 msgid "لا توجد قيم للحفظ"
 msgstr "Nothing to save"
 
-#: templates/academics/group_detail.html:66
+#: templates/academics/group_detail.html:67
 msgid "لا توجد مواعيد"
 msgstr "No slots"
 
@@ -4447,15 +4452,15 @@ msgstr "No results"
 msgid "لا تُعاد طباعة هذه الرموز — كل رمز يخص بطاقة واحدة"
 msgstr "Do not reprint these tokens — each one belongs to a single card"
 
-#: templates/console/tenant_detail.html:232
+#: templates/console/tenant_detail.html:236
 msgid "لا شيء لقياسه"
 msgstr "Nothing to measure"
 
-#: templates/console/dashboard.html:156
+#: templates/console/dashboard.html:162
 msgid "لا شيء ينتهي قريبًا"
 msgstr "Nothing ends soon"
 
-#: templates/console/traffic.html:231
+#: templates/console/traffic.html:233
 msgid "لا نشاط"
 msgstr "no activity"
 
@@ -4463,7 +4468,7 @@ msgstr "no activity"
 msgid "لا يتغيّر — سكربتات التجهيز تعتمد عليه."
 msgstr "Never changes — provisioning scripts depend on it."
 
-#: templates/console/tenant_detail.html:315
+#: templates/console/tenant_detail.html:319
 msgid "لا يفقد العميل أي خاصية بهذا التغيير."
 msgstr "This change costs the client no features."
 
@@ -4547,7 +4552,7 @@ msgstr "Cannot open a %(state)s lesson"
 msgid "لا يمكن منح دور مدير النظام."
 msgstr "The super admin role cannot be granted."
 
-#: templates/attendance/scanner.html:214
+#: templates/attendance/scanner.html:216
 msgid "لا يوجد اتصال — تم الحفظ محليًا"
 msgstr "No connection — saved locally"
 
@@ -4559,19 +4564,19 @@ msgstr "No connection — scans are being saved locally"
 msgid "لا يوجد حضور مفتوح"
 msgstr "No open check-in"
 
-#: templates/students/detail.html:364
+#: templates/students/detail.html:370
 msgid "لا يوجد سجل"
 msgstr "No history"
 
-#: templates/students/detail.html:323
+#: templates/students/detail.html:329
 msgid "لا يوجد سجل حضور"
 msgstr "No attendance history"
 
-#: templates/academics/group_detail.html:117
+#: templates/academics/group_detail.html:121
 msgid "لا يوجد طلاب"
 msgstr "No students"
 
-#: templates/console/tenant_list.html:149 templates/console/traffic.html:374
+#: templates/console/tenant_list.html:149 templates/console/traffic.html:376
 msgid "لا يوجد عميل مطابق"
 msgstr "No matching client"
 
@@ -4579,7 +4584,7 @@ msgstr "No matching client"
 msgid "لا يوجد مستخدمون"
 msgstr "No users"
 
-#: templates/console/traffic.html:662
+#: templates/console/traffic.html:664
 msgid ""
 "لا يُحذف أي شيء ولا تتغير الباقة ولا حالة الاشتراك. رفع الحظر يعيد الخدمة في"
 " الحال."
@@ -4587,7 +4592,7 @@ msgstr ""
 "Nothing is deleted, and neither the plan nor the subscription changes. "
 "Lifting the block restores service at once."
 
-#: templates/tenancy/gate.html:42
+#: templates/tenancy/gate.html:47
 msgid "للاستفسار يُرجى التواصل مع مشغّل النظام."
 msgstr "For enquiries, please contact the system operator."
 
@@ -4603,7 +4608,7 @@ msgstr ""
 msgid "للطالب تسجيل بالفعل في هذه الحصة"
 msgstr "The student already has a record for this lesson"
 
-#: templates/console/tenant_detail.html:63
+#: templates/console/tenant_detail.html:65
 msgid "لم يتم التحقق"
 msgstr "Not verified"
 
@@ -4615,8 +4620,8 @@ msgstr "No check-in to close"
 msgid "لم يتم قراءة رمز البطاقة"
 msgstr "No card token was read"
 
-#: templates/console/dashboard.html:184
-#: templates/console/tenant_detail.html:93
+#: templates/console/dashboard.html:190
+#: templates/console/tenant_detail.html:96
 msgid "لم يحدث شيء بعد"
 msgstr "Nothing has happened yet"
 
@@ -4624,26 +4629,26 @@ msgstr "Nothing has happened yet"
 msgid "لم يحضروا بعد"
 msgstr "Not arrived yet"
 
-#: templates/tenancy/throttled.html:41
+#: templates/tenancy/throttled.html:46
 msgid "لم يُحذف شيء من بياناتكم، وتعود الخدمة كاملة فور رفع الإيقاف."
 msgstr ""
 "None of your data has been removed, and full service returns as soon as the "
 "pause is lifted."
 
-#: templates/console/tenant_detail.html:236
+#: templates/console/tenant_detail.html:240
 msgid "لم يُحسب بعد — اضغط إعادة الحساب."
 msgstr "Not counted yet — press Recount."
 
-#: templates/console/tenant_detail.html:161
+#: templates/console/tenant_detail.html:165
 msgid "لماذا تدخل إلى هذا الحساب؟"
 msgstr "Why are you entering this account?"
 
-#: templates/console/tenant_detail.html:255
+#: templates/console/tenant_detail.html:259
 msgid "لن يُحذف أي شيء. إعادة التفعيل تُرجع الحساب كما كان تمامًا."
 msgstr ""
 "Nothing is deleted. Resuming brings the account back exactly as it was."
 
-#: templates/tenancy/throttled.html:56
+#: templates/tenancy/throttled.html:61
 msgid "لو تكرر الأمر يُرجى التواصل مع مشغّل النظام."
 msgstr "If this keeps happening, please contact the system operator."
 
@@ -4660,8 +4665,8 @@ msgstr "Dashboard"
 msgid "لوحة الحصة"
 msgstr "Lesson board"
 
-#: templates/console/base.html:11 templates/console/base.html:38
-#: templates/console/login.html:11 templates/console/login.html:53
+#: templates/console/base.html:11 templates/console/base.html:43
+#: templates/console/login.html:22
 msgid "لوحة المنصة"
 msgstr "Platform console"
 
@@ -4681,11 +4686,11 @@ msgstr "Archived"
 msgid "ما تمنحه كل باقة، وبكم، وكم عميلًا عليها"
 msgstr "What each plan grants, for how much, and how many clients are on it"
 
-#: templates/console/tenant_detail.html:74
+#: templates/console/tenant_detail.html:76
 msgid "ما جرى على هذا العميل"
 msgstr "What has happened to this client"
 
-#: templates/console/tenant_detail.html:313
+#: templates/console/tenant_detail.html:317
 msgid "ما سيتغيّر:"
 msgstr "What will change:"
 
@@ -4715,7 +4720,7 @@ msgstr "Past due"
 msgid "متاح"
 msgstr "Available"
 
-#: templates/students/detail.html:542
+#: templates/students/detail.html:548
 msgid "متاح في المخزون:"
 msgstr "Available in stock:"
 
@@ -4723,29 +4728,29 @@ msgstr "Available in stock:"
 msgid "متاح للعرض"
 msgstr "Publicly listed"
 
-#: templates/console/plan_list.html:26 templates/console/plan_list.html:152
+#: templates/console/plan_list.html:26 templates/console/plan_list.html:154
 #: apps/cards/models.py:20 apps/tenancy/models.py:69
 msgid "متاحة"
 msgstr "Available"
 
-#: templates/attendance/scanner.html:133
+#: templates/attendance/scanner.html:135
 msgid "متبقي:"
 msgstr "Balance:"
 
-#: templates/academics/group_detail.html:132
-#: templates/students/detail.html:258
+#: templates/academics/group_detail.html:136
+#: templates/students/detail.html:264
 msgid "متبقٍ:"
 msgstr "Balance:"
 
-#: templates/students/detail.html:240 apps/students/models.py:36
+#: templates/students/detail.html:246 apps/students/models.py:36
 msgid "متخرج"
 msgstr "Graduated"
 
-#: templates/console/traffic.html:331
+#: templates/console/traffic.html:333
 msgid "متزامن"
 msgstr "concurrent"
 
-#: templates/console/traffic.html:464
+#: templates/console/traffic.html:466
 msgid "متوسط التحميل (دقيقة)"
 msgstr "Load average (1 min)"
 
@@ -4771,12 +4776,12 @@ msgid "مجموعة"
 msgstr "Group"
 
 #: templates/dashboard/home.html:35 templates/reports/report.html:115
-#: templates/students/detail.html:125 apps/attendance/models.py:43
+#: templates/students/detail.html:129 apps/attendance/models.py:43
 #: apps/reports/registry.py:114
 msgid "مجموعة بديلة"
 msgstr "Alternative group"
 
-#: templates/lessons/detail.html:56 templates/students/detail.html:136
+#: templates/lessons/detail.html:56 templates/students/detail.html:140
 msgid "مجموعته"
 msgstr "Usual group"
 
@@ -4784,7 +4789,7 @@ msgstr "Usual group"
 msgid "مجموعته المعتادة"
 msgstr "Usual group"
 
-#: templates/attendance/scanner.html:123
+#: templates/attendance/scanner.html:125
 msgid "مجموعته:"
 msgstr "Usual group:"
 
@@ -4796,12 +4801,12 @@ msgstr "Limited"
 msgid "محصّل"
 msgstr "Collected"
 
-#: templates/academics/group_detail.html:131
+#: templates/academics/group_detail.html:135
 #: templates/payments/workspace.html:222
 msgid "محصّل:"
 msgstr "Collected:"
 
-#: templates/console/traffic.html:275 apps/tenancy/constants.py:97
+#: templates/console/traffic.html:277 apps/tenancy/constants.py:97
 #: apps/tenancy/models.py:523
 msgid "محظور"
 msgstr "Blocked"
@@ -4838,7 +4843,7 @@ msgstr "Scan input"
 msgid "مدرّس"
 msgstr "Instructor"
 
-#: templates/students/detail.html:257
+#: templates/students/detail.html:263
 msgid "مدفوع:"
 msgstr "Paid:"
 
@@ -4870,7 +4875,7 @@ msgstr "Educational stage"
 msgid "مرساة الفوترة — لا تتأثر بتغيير المجموعة"
 msgstr "The billing anchor — unaffected by a group change"
 
-#: templates/console/traffic.html:251 apps/attendance/models.py:237
+#: templates/console/traffic.html:253 apps/attendance/models.py:237
 msgid "مرفوض"
 msgstr "Denied"
 
@@ -4886,7 +4891,7 @@ msgstr "Storage (MB)"
 msgid "مستبدلة"
 msgstr "Replaced"
 
-#: templates/students/detail.html:257
+#: templates/students/detail.html:263
 msgid "مستحق:"
 msgstr "Due:"
 
@@ -4907,12 +4912,12 @@ msgid "مسترد:"
 msgstr "Refunded:"
 
 #: templates/console/audit.html:34 templates/console/tenant_list.html:53
-#: templates/console/traffic.html:88 templates/dashboard/home.html:114
+#: templates/console/traffic.html:88 templates/dashboard/home.html:116
 #: templates/lessons/list.html:106
 msgid "مسح"
 msgstr "Scan"
 
-#: templates/accounts/login.html:25
+#: templates/accounts/login.html:32
 msgid "مسح كارت الطالب يسجّل الحضور فورًا — ويميّز المجموعة البديلة تلقائيًا."
 msgstr ""
 "Scanning a student card marks attendance instantly — and flags an "
@@ -4922,7 +4927,7 @@ msgstr ""
 msgid "مسح مكرر"
 msgstr "Duplicate scan"
 
-#: templates/academics/group_detail.html:133 apps/payments/models.py:29
+#: templates/academics/group_detail.html:137 apps/payments/models.py:29
 msgid "مسدد"
 msgstr "Paid"
 
@@ -4938,7 +4943,7 @@ msgstr "Partially paid"
 msgid "مشغّل المسح"
 msgstr "Scan operator"
 
-#: templates/console/base.html:72
+#: templates/console/base.html:77
 msgid "مشغّل المنصة"
 msgstr "Platform operator"
 
@@ -4974,7 +4979,7 @@ msgstr "Waived"
 msgid "مغلقة"
 msgstr "Closed"
 
-#: templates/accounts/login.html:89 templates/console/login.html:86
+#: templates/accounts/login.html:103 templates/console/login.html:94
 msgid "مفتاح Caps Lock مفعّل"
 msgstr "Caps Lock is on"
 
@@ -5001,11 +5006,11 @@ msgstr "Active"
 msgid "مفقودة"
 msgstr "Lost"
 
-#: templates/console/traffic.html:166
+#: templates/console/traffic.html:168
 msgid "مقابل الحد"
 msgstr "Against limit"
 
-#: templates/console/traffic.html:330 templates/console/traffic.html:536
+#: templates/console/traffic.html:332 templates/console/traffic.html:538
 msgid "مل.ث"
 msgstr "ms"
 
@@ -5052,8 +5057,8 @@ msgstr "File too large"
 msgid "ممنوع الحضور لعدم السداد"
 msgstr "Blocked: payment due"
 
-#: templates/academics/group_detail.html:87
-#: templates/academics/group_detail.html:152 templates/cards/list.html:146
+#: templates/academics/group_detail.html:90
+#: templates/academics/group_detail.html:156 templates/cards/list.html:146
 #: templates/lessons/list.html:123 templates/lessons/list.html:152
 #: templates/lessons/list.html:187
 msgid "من"
@@ -5063,7 +5068,7 @@ msgstr "From"
 msgid "من تاريخ"
 msgstr "From date"
 
-#: templates/partials/_sidebar.html:104
+#: templates/accounts/login.html:50 templates/partials/_sidebar.html:104
 msgid "من تطوير"
 msgstr "powered by"
 
@@ -5083,7 +5088,7 @@ msgstr "Completed"
 msgid "منع المسح المكرر خلال (ثواني)"
 msgstr "Ignore repeat scans within (seconds)"
 
-#: templates/students/detail.html:240 apps/students/models.py:35
+#: templates/students/detail.html:246 apps/students/models.py:35
 #: apps/students/models.py:154
 msgid "منقول"
 msgstr "Transferred"
@@ -5105,12 +5110,12 @@ msgstr "Already existing:"
 msgid "موعد أسبوعي"
 msgstr "Weekly slot"
 
-#: templates/students/detail.html:239 apps/students/models.py:34
+#: templates/students/detail.html:245 apps/students/models.py:34
 #: apps/tenancy/constants.py:54
 msgid "موقوف"
 msgstr "Suspended"
 
-#: templates/console/plan_list.html:28 templates/console/plan_list.html:152
+#: templates/console/plan_list.html:28 templates/console/plan_list.html:154
 msgid "موقوفة"
 msgstr "Closed"
 
@@ -5132,12 +5137,12 @@ msgstr "Off"
 msgid "مُفعّل"
 msgstr "On"
 
-#: templates/console/traffic.html:141 templates/console/traffic.html:190
-#: templates/console/traffic.html:263
+#: templates/console/traffic.html:142 templates/console/traffic.html:192
+#: templates/console/traffic.html:265
 msgid "ناجحة"
 msgstr "successful"
 
-#: templates/console/traffic.html:535
+#: templates/console/traffic.html:537
 msgid "نسبة الأخطاء"
 msgstr "Error rate"
 
@@ -5162,12 +5167,12 @@ msgstr "Discount %"
 msgid "نسخ"
 msgstr "Copy"
 
-#: templates/lessons/detail.html:174
+#: templates/lessons/detail.html:178
 msgid "نسي الكارت"
 msgstr "Forgot the card"
 
 #: templates/accounts/users.html:56 templates/accounts/users.html:106
-#: templates/students/detail.html:239 apps/students/models.py:32
+#: templates/students/detail.html:245 apps/students/models.py:32
 #: apps/students/models.py:152 apps/tenancy/constants.py:52
 msgid "نشط"
 msgstr "Active"
@@ -5184,7 +5189,7 @@ msgstr "Domain"
 msgid "نطاق التواريخ غير صحيح"
 msgstr "Invalid date range"
 
-#: templates/console/tenant_detail.html:61
+#: templates/console/tenant_detail.html:63
 msgid "نطاق خاص"
 msgstr "Custom domain"
 
@@ -5192,16 +5197,16 @@ msgstr "Custom domain"
 msgid "نطاق خاص بالعميل"
 msgstr "Custom domain"
 
-#: templates/console/login.html:96
+#: templates/console/login.html:104
 msgid "نظام إدارة السناتر · لوحة المنصة"
 msgstr "Center Management System · Platform console"
 
-#: templates/accounts/login.html:103 templates/base.html:11
-#: templates/partials/_sidebar.html:8
+#: templates/accounts/login.html:18 templates/accounts/login.html:117
+#: templates/base.html:12 templates/partials/_sidebar.html:8
 msgid "نظام إدارة السنتر"
 msgstr "Center Management System"
 
-#: templates/console/base.html:45 templates/console/dashboard.html:3
+#: templates/console/base.html:50 templates/console/dashboard.html:3
 #: templates/console/dashboard.html:4 templates/students/detail.html:46
 msgid "نظرة عامة"
 msgstr "Overview"
@@ -5210,15 +5215,15 @@ msgstr "Overview"
 msgid "نقدًا"
 msgstr "Cash"
 
-#: templates/students/detail.html:352 templates/students/detail.html:442
+#: templates/students/detail.html:358 templates/students/detail.html:448
 msgid "نقل"
 msgstr "Transfer"
 
-#: templates/students/detail.html:438
+#: templates/students/detail.html:444
 msgid "نقل الطالب لمجموعة أخرى"
 msgstr "Transfer the student to another group"
 
-#: templates/console/tenant_detail.html:318
+#: templates/console/tenant_detail.html:322
 msgid "نقل العميل إلى"
 msgstr "Move the client to"
 
@@ -5226,12 +5231,12 @@ msgstr "Move the client to"
 msgid "نقل طالب بين المجموعات"
 msgstr "Student transferred between groups"
 
-#: templates/console/tenant_detail.html:112 apps/tenancy/models.py:243
+#: templates/console/tenant_detail.html:116 apps/tenancy/models.py:243
 msgid "نهاية الاشتراك"
 msgstr "Subscription ends"
 
 #: templates/console/tenant_created.html:20
-#: templates/console/tenant_detail.html:111 apps/tenancy/models.py:242
+#: templates/console/tenant_detail.html:115 apps/tenancy/models.py:242
 msgid "نهاية التجربة"
 msgstr "Trial ends"
 
@@ -5239,7 +5244,7 @@ msgstr "Trial ends"
 msgid "نهاية فترة السماح"
 msgstr "Grace period ends"
 
-#: templates/console/traffic.html:466
+#: templates/console/traffic.html:468
 msgid "نواة"
 msgstr "cores"
 
@@ -5266,7 +5271,7 @@ msgstr "Owner phone"
 msgid "هاتف ولي الأمر"
 msgstr "Guardian phone"
 
-#: templates/tenancy/throttled.html:47
+#: templates/tenancy/throttled.html:52
 msgid ""
 "هذا إجراء وقتي يحمي الخدمة، ولا يؤثر على بياناتكم. أعد المحاولة بعد لحظات."
 msgstr ""
@@ -5314,7 +5319,7 @@ msgstr "This card is disabled"
 msgid "هذه الخاصية غير مُفعّلة في هذا الحساب"
 msgstr "This feature is not enabled for this account"
 
-#: templates/console/login.html:57
+#: templates/console/login.html:64
 msgid "هذه لوحة المنصة، وليست لوحة سنتر."
 msgstr "This is the platform console, not a center's."
 
@@ -5335,7 +5340,7 @@ msgstr "Check-in time"
 msgid "ولي الأمر"
 msgstr "Guardian"
 
-#: templates/students/detail.html:507
+#: templates/students/detail.html:513
 msgid "يأخذ بطاقة من المخزون ويطبع وجهها بالاسم ورمز"
 msgstr "Takes a card from stock and prints its face with the name and"
 
@@ -5394,7 +5399,7 @@ msgstr "Shown at the top of the screen and in every PDF header"
 msgid "يظهر في سجل التدقيق بجوار ما تغيّر"
 msgstr "Shown in the audit log next to what changed"
 
-#: templates/console/tenant_detail.html:259
+#: templates/console/tenant_detail.html:263
 msgid "يعود الحساب للعمل فورًا."
 msgstr "The account works again immediately."
 
@@ -5406,7 +5411,7 @@ msgstr "Opens the platform console. Means nothing inside a center."
 msgid "يمكن لكل مجموعة تجاوز هذه القيمة"
 msgstr "Each group may override this value"
 
-#: templates/console/tenant_detail.html:257
+#: templates/console/tenant_detail.html:261
 msgid "يمنع الدخول ويجدول الحذف النهائي بعد انتهاء مدة الاحتفاظ."
 msgstr ""
 "Blocks sign-in and schedules permanent deletion once the retention period "
@@ -5456,7 +5461,7 @@ msgstr "Used when “Custom” is selected — it also appears in PDF headers"
 msgid "يُسجَّل فقط — النظام لا يُصدر فواتير"
 msgstr "Recorded only — the system does not issue invoices"
 
-#: templates/console/traffic.html:606
+#: templates/console/traffic.html:608
 msgid "يُسجَّل في سجل المنصة"
 msgstr "Recorded in the platform log"
 
@@ -5468,7 +5473,7 @@ msgstr "Reverses payment"
 msgid "— إضافة"
 msgstr "— add"
 
-#: templates/attendance/scanner.html:128
+#: templates/attendance/scanner.html:130
 msgid "— الانصراف:"
 msgstr "— check-out:"
 
@@ -5476,7 +5481,7 @@ msgstr "— check-out:"
 msgid "— تعديل"
 msgstr "— edit"
 
-#: templates/payments/workspace.html:206 templates/students/detail.html:325
+#: templates/payments/workspace.html:206 templates/students/detail.html:331
 #: static/js/ui.js:280
 msgid "— صفحة"
 msgstr "— page"
@@ -5485,11 +5490,11 @@ msgstr "— page"
 msgid "— لا يوجد جدول أسبوعي لهذه المجموعة"
 msgstr "— this group has no weekly schedule"
 
-#: templates/academics/group_detail.html:130
+#: templates/academics/group_detail.html:134
 msgid "— متوقع:"
 msgstr "— expected:"
 
-#: templates/academics/group_detail.html:109
+#: templates/academics/group_detail.html:113
 msgid "— مكتملة"
 msgstr "— full"
 

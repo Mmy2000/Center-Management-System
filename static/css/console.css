@@ -117,7 +117,9 @@
 
 .console-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
 .console-topbar {
-  height: var(--topbar-h);
+  /* min-height, not height: below 768px this bar wraps to a second row, and a
+     fixed height would let the wrapped row escape it. */
+  min-height: var(--topbar-h);
   display: flex; align-items: center; gap: .75rem;
   padding: 0 1.25rem;
   background: color-mix(in srgb, var(--surface) 92%, transparent);
@@ -125,6 +127,35 @@
   border-bottom: 1px solid var(--ink-100);
   position: sticky; top: 0; z-index: 20;
 }
+/* The heading must be allowed to give up space before the actions do; without
+   a min-width a flex item refuses to shrink below its content. */
+.console-topbar > :not(.console-topbar-actions) { min-width: 0; }
+.console-title { overflow-wrap: anywhere; }
+
+.console-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-inline-start: auto;
+  flex-wrap: wrap;
+}
+
+/* Below 768px the heading plus three or four actions plus the language and
+   theme controls cannot share one row — on the client detail screen they
+   overran the viewport by 133px at 375px wide. The actions drop to their own
+   full-width row rather than being hidden or scrolled. */
+@media (max-width: 767.98px) {
+  .console-topbar {
+    flex-wrap: wrap;
+    row-gap: .5rem;
+    padding-block: .55rem;
+  }
+  .console-topbar-actions {
+    margin-inline-start: 0;
+    width: 100%;
+  }
+}
+
 .console-content { padding: 1.25rem; animation: page-in var(--dur-slow) var(--ease) both; }
 
 /* ---------------------------------------------------------------- pieces -- */
@@ -241,16 +272,22 @@
 }
 
 /* ------------------------------------------------------------------ auth -- */
-/* The console's sign-in reuses auth.css wholesale; only the brand side differs,
-   because it is the platform speaking, not a center. */
-.auth-shell.console-auth .auth-brand {
-  background: linear-gradient(150deg, #1b2735 0%, #101a24 55%, #0b131b 100%);
-}
-.auth-shell.console-auth .auth-logo-mark {
-  background: linear-gradient(135deg, var(--brand-400), var(--brand-600));
+/* The console's sign-in reuses auth.css wholesale; only the canvas differs,
+   because it is the platform speaking, not a center. Cooler and more neutral
+   than a center's brand ramp — the console is deliberately not branded to
+   anyone's palette. */
+.auth-shell.console-auth {
+  background:
+    radial-gradient(900px 520px at 78% 8%, rgba(255, 255, 255, .08), transparent 62%),
+    radial-gradient(700px 480px at 12% 92%, rgba(255, 255, 255, .05), transparent 60%),
+    linear-gradient(155deg, #1b2735 0%, #101a24 55%, #0b131b 100%);
 }
 .console-auth .auth-sub, .console-auth .auth-point { color: #b3c4d4; }
-.console-auth .auth-foot { color: #6f8598; }
+.console-auth .auth-intro-foot { color: #6f8598; }
+/* On the console the logo is the brand, not a credit, so it carries full
+   weight rather than the 85% the tenant page dims its vendor mark to. */
+.console-auth .auth-identity-logo { opacity: 1; }
+.console-auth .auth-identity-kicker { color: #8ba3bb; }
 
 /* ------------------------------------------------------------- plan cards -- */
 /* A retired plan stays visible and readable — it still has clients on it — but

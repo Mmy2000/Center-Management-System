@@ -5,19 +5,26 @@
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/auth.css' %}">{% endblock %}
 
 {% block anonymous_content %}
+{% comment %}
+  One canvas, two columns on it — not two panes with a seam between them. The
+  card floats; its shadow is the only thing that separates the form from the
+  copy beside it.
+{% endcomment %}
 <div class="auth-shell">
+  <div class="auth-stage">
 
-  <aside class="auth-brand d-none d-lg-flex">
-    <div class="auth-logo">
-      <span class="auth-logo-mark">CMS</span>
-      <span>{{ CENTER_NAME }}</span>
-    </div>
+    <section class="auth-intro">
+      <div class="auth-identity">
+        <span class="auth-identity-kicker">{% translate "نظام إدارة السنتر" %}</span>
+        <span class="auth-identity-name">{{ CENTER_NAME }}</span>
+      </div>
 
-    <div>
-      <h1 class="auth-headline">{% translate "إدارة السنتر — من التسجيل حتى التحصيل" %}</h1>
-      <p class="auth-sub">
-        {% translate "حضور بالكارت في أقل من ثانية، اشتراكات متعددة المواد، وحسابات شهرية دقيقة لكل طالب." %}
-      </p>
+      <div>
+        <h1 class="auth-headline">{% translate "إدارة السنتر — من التسجيل حتى التحصيل" %}</h1>
+        <p class="auth-sub">
+          {% translate "حضور بالكارت في أقل من ثانية، اشتراكات متعددة المواد، وحسابات شهرية دقيقة لكل طالب." %}
+        </p>
+      </div>
 
       <ul class="auth-points">
         <li class="auth-point">
@@ -33,15 +40,26 @@
           <span>{% translate "تقارير الحضور والمتأخرات جاهزة للتصدير PDF و Excel." %}</span>
         </li>
       </ul>
-    </div>
 
-    <div class="auth-foot">
-      {% if CENTER_PHONE %}{{ CENTER_PHONE }} · {% endif %}{{ CENTER_NAME }}
-    </div>
-  </aside>
+      <div class="auth-intro-foot">
+        {% comment %}
+          The same credit the sidebar carries, in the same words. The center's
+          name leads; this is the house that built the software.
+        {% endcomment %}
+        <span class="auth-vendor">
+          <span class="auth-vendor-by">{% translate "من تطوير" %}</span>
+          <span class="auth-vendor-logo">
+            <img class="auth-vendor-mark" src="{% static 'img/codaco-mark.png' %}"
+                 alt="" width="58" height="44" loading="lazy" decoding="async">
+            <img class="auth-vendor-word" src="{% static 'img/codaco-word.png' %}"
+                 alt="codaco" width="193" height="32" loading="lazy" decoding="async">
+          </span>
+        </span>
+        {% if CENTER_PHONE %}<span>{{ CENTER_PHONE }}</span>{% endif %}
+      </div>
+    </section>
 
-  <main class="auth-form-side">
-    <div class="auth-form" id="auth-form-wrap">
+    <main class="auth-card" id="auth-form-wrap">
       <div class="auth-tools">
         {% include "partials/_language.html" %}
         <button class="btn btn-sm btn-ghost btn-icon-only" id="auth-mode" type="button"
@@ -50,15 +68,10 @@
         </button>
       </div>
 
-      <div class="d-lg-none auth-logo mb-3" style="color: var(--brand-600);">
-        <span class="auth-logo-mark">CMS</span>
-        <span>{{ CENTER_NAME }}</span>
-      </div>
-
       <h2 class="auth-title">{% translate "تسجيل الدخول" %}</h2>
       <p class="auth-hint">{% translate "برجاء تسجيل الدخول للمتابعة" %}</p>
 
-      <div class="auth-alert" id="auth-alert" role="alert">
+      <div class="auth-alert" id="auth-alert" role="alert" aria-live="assertive">
         <svg class="icon"><use href="#i-error"></use></svg>
         <span id="auth-alert-text"></span>
       </div>
@@ -81,7 +94,8 @@
                  required aria-label="{% translate 'كلمة المرور' %}">
           <svg class="icon field-icon"><use href="#i-lock"></use></svg>
           <button class="btn btn-sm btn-ghost btn-icon-only field-action" type="button"
-                  id="toggle-password" aria-label="{% translate 'إظهار كلمة المرور' %}">
+                  id="toggle-password" aria-pressed="false"
+                  aria-label="{% translate 'إظهار كلمة المرور' %}">
             <svg class="icon"><use href="#i-eye" id="eye-icon"></use></svg>
           </button>
           <div class="caps-hint" id="caps-hint">
@@ -91,7 +105,7 @@
           <div class="text-danger small mt-1" data-error-for="password"></div>
         </div>
 
-        <button class="btn btn-primary btn-block auth-submit" type="submit" id="login-submit">
+        <button class="btn btn-primary auth-submit" type="submit" id="login-submit">
           {% translate "دخول" %}
         </button>
       </form>
@@ -101,8 +115,9 @@
       {% endif %}
 
       <div class="auth-meta">{% translate "نظام إدارة السنتر" %}</div>
-    </div>
-  </main>
+    </main>
+
+  </div>
 </div>
 {% endblock %}
 
@@ -168,6 +183,13 @@ document.addEventListener("DOMContentLoaded", function () {
     const shown = field.type === "text";
     field.type = shown ? "password" : "text";
     document.getElementById("eye-icon").setAttribute("href", shown ? "#i-eye" : "#i-eye-off");
+    /* The button reports its own state, so a screen reader is told whether the
+       password is currently visible rather than only what the button will do. */
+    this.setAttribute("aria-pressed", String(!shown));
+    this.setAttribute(
+      "aria-label",
+      shown ? gettext("إظهار كلمة المرور") : gettext("إخفاء كلمة المرور")
+    );
     field.focus();
   });
 
