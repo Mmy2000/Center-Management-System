@@ -25,15 +25,15 @@ msgstr ""
 msgid "%(label)s مطلوب"
 msgstr "%(label)s is required"
 
-#: templates/console/traffic.html:234
+#: templates/console/traffic.html:280
 msgid "/ث"
 msgstr "/s"
 
-#: templates/console/traffic.html:234
+#: templates/console/traffic.html:280
 msgid "/د"
 msgstr "/min"
 
-#: templates/console/traffic.html:234
+#: templates/console/traffic.html:280
 msgid "/س"
 msgstr "/hr"
 
@@ -73,9 +73,13 @@ msgstr "· Features"
 msgid "آخر"
 msgstr "Other"
 
-#: templates/console/traffic.html:86
+#: templates/console/traffic.html:60
 msgid "آخر %(minutes)s دقيقة"
 msgstr "Last %(minutes)s minutes"
+
+#: templates/console/traffic.html:162
+msgid "آخر 30 دقيقة"
+msgstr "Last 30 minutes"
 
 #: apps/accounts/models.py:61
 msgid "آخر IP"
@@ -85,7 +89,7 @@ msgstr "Last IP"
 msgid "آخر العمليات"
 msgstr "Recent activity"
 
-#: templates/console/traffic.html:350
+#: templates/console/traffic.html:392
 msgid "آخر تحديث"
 msgstr "Last updated"
 
@@ -105,7 +109,7 @@ msgstr "Last login"
 msgid "آخر ما جرى على المنصة"
 msgstr "The latest on the platform"
 
-#: templates/console/traffic.html:133
+#: templates/console/traffic.html:167
 msgid "آخر نشاط"
 msgstr "Last activity"
 
@@ -123,7 +127,7 @@ msgstr "Scan events"
 msgid "أخرى"
 msgstr "Other"
 
-#: templates/console/traffic.html:215
+#: templates/console/traffic.html:261
 msgid "أخطاء"
 msgstr "errors"
 
@@ -165,15 +169,15 @@ msgstr "Core"
 msgid "أعد المحاولة بعد %(seconds)s ثانية"
 msgstr "Try again in %(seconds)s seconds"
 
-#: templates/console/traffic.html:412
+#: templates/console/traffic.html:599
 msgid "أقصى طلبات/ثانية"
 msgstr "Max requests/second"
 
-#: templates/console/traffic.html:414
+#: templates/console/traffic.html:601
 msgid "أقصى طلبات/دقيقة"
 msgstr "Max requests/minute"
 
-#: templates/console/traffic.html:415
+#: templates/console/traffic.html:602
 msgid "أقصى طلبات/ساعة"
 msgstr "Max requests/hour"
 
@@ -205,7 +209,7 @@ msgstr "Exceeds the amount collected"
 msgid "أكبر من المستحق"
 msgstr "Exceeds the amount due"
 
-#: templates/console/traffic.html:192
+#: templates/console/traffic.html:237
 msgid "أكثر من يوم"
 msgstr "over a day"
 
@@ -244,7 +248,7 @@ msgstr "Trial days"
 msgid "أُنشئ في"
 msgstr "Created at"
 
-#: apps/console/api.py:618
+#: apps/console/api.py:653
 msgid "أُوقفت الباقة للعملاء الجدد."
 msgstr "The plan is closed to new clients."
 
@@ -257,7 +261,7 @@ msgid "إتاحة سياسة منع أو تنبيه الطالب المتأخر 
 msgstr ""
 "Enables the policy that blocks or warns a student in arrears at scan time."
 
-#: apps/console/api.py:218 apps/console/api.py:565
+#: apps/console/api.py:218 apps/console/api.py:600
 msgid "إجراء غير معروف"
 msgstr "Unknown action"
 
@@ -279,7 +283,7 @@ msgstr "Quick actions"
 msgid "إجمالي"
 msgstr "Total"
 
-#: templates/console/traffic.html:128
+#: templates/console/traffic.html:163
 msgid "إجمالي الفترة"
 msgstr "Period total"
 
@@ -389,6 +393,7 @@ msgid "إعفاء من رسوم"
 msgstr "Charge waived"
 
 #: templates/base.html:46 templates/console/base.html:108
+#: templates/console/traffic.html:520 templates/console/traffic.html:554
 #: templates/partials/_modal.html:8
 msgid "إغلاق"
 msgstr "Close"
@@ -404,7 +409,7 @@ msgstr "Close check-in after the lesson starts (minutes)"
 #: templates/cards/list.html:328 templates/console/plan_edit.html:216
 #: templates/console/tenant_detail.html:275
 #: templates/console/tenant_detail.html:322
-#: templates/console/tenant_new.html:152 templates/console/traffic.html:423
+#: templates/console/tenant_new.html:152 templates/console/traffic.html:610
 msgid "إلغاء"
 msgstr "Cancel"
 
@@ -532,7 +537,7 @@ msgstr "Close"
 msgid "إيقاف الخدمة"
 msgstr "Suspend service"
 
-#: templates/console/traffic.html:426 templates/console/traffic.html:483
+#: templates/console/traffic.html:613 templates/console/traffic.html:670
 msgid "إيقاف الطلبات"
 msgstr "Stop requests"
 
@@ -540,7 +545,7 @@ msgstr "Stop requests"
 msgid "إيقاف عميل"
 msgstr "Suspend client"
 
-#: templates/console/traffic.html:467
+#: templates/console/traffic.html:654
 msgid "إيقاف كل طلبات هذا العميل؟"
 msgstr "Stop all requests from this client?"
 
@@ -599,7 +604,7 @@ msgstr "Card replaced"
 msgid "استثنائي"
 msgstr "Exceptional"
 
-#: templates/console/traffic.html:58
+#: templates/console/traffic.html:109
 msgid "استجابة خطأ"
 msgstr "error responses"
 
@@ -621,7 +626,7 @@ msgstr "Refund"
 msgid "استرداد دفعة"
 msgstr "Refund a payment"
 
-#: templates/console/traffic.html:131
+#: templates/console/traffic.html:537
 msgid "استهلاك المعالجة"
 msgstr "Processing time"
 
@@ -649,7 +654,7 @@ msgstr "Bulk card import"
 msgid "استيراد دفعة بطاقات"
 msgstr "Card batch imported"
 
-#: templates/console/traffic.html:78
+#: templates/console/traffic.html:52
 msgid "اسم أو معرّف"
 msgstr "Name or slug"
 
@@ -748,7 +753,7 @@ msgstr "Type \"%(slug)s\" to confirm"
 msgid "اكتب سبب الخصم حتى يُفهم لاحقًا."
 msgstr "Give the discount a label so it makes sense later."
 
-#: apps/console/api.py:203 apps/console/api.py:536 apps/console/forms.py:218
+#: apps/console/api.py:203 apps/console/api.py:571 apps/console/forms.py:218
 msgid "اكتب سببًا واضحًا."
 msgstr "Write a clear reason."
 
@@ -756,7 +761,7 @@ msgstr "Write a clear reason."
 msgid "اكتب معرّف العميل للتأكيد"
 msgstr "Type the client's identifier to confirm"
 
-#: templates/console/traffic.html:188 templates/students/detail.html:471
+#: templates/console/traffic.html:233 templates/students/detail.html:471
 msgid "الآن"
 msgstr "Now"
 
@@ -810,7 +815,7 @@ msgstr "Action"
 msgid "الإجراء عند المنع لعدم السداد"
 msgstr "Action when blocked for non-payment"
 
-#: templates/reports/report.html:200
+#: templates/console/traffic.html:144 templates/reports/report.html:200
 msgid "الإجمالي"
 msgstr "Total"
 
@@ -924,7 +929,7 @@ msgid "الباقة بلا سعر شهري ولا سنوي: ستظهر كباق�
 msgstr ""
 "The plan has neither a monthly nor a yearly price: it will show as free."
 
-#: apps/console/api.py:618
+#: apps/console/api.py:653
 msgid "الباقة متاحة الآن."
 msgstr "The plan is now available."
 
@@ -1041,7 +1046,7 @@ msgstr "Initial setup"
 msgid "التحصيل اليومي"
 msgstr "Daily collection"
 
-#: templates/console/traffic.html:429
+#: templates/console/traffic.html:616
 msgid "التحكم في حركة العميل"
 msgstr "Client traffic control"
 
@@ -1120,7 +1125,7 @@ msgstr "Limits"
 msgid "الحركات المالية"
 msgstr "Transactions"
 
-#: templates/console/traffic.html:125
+#: templates/console/traffic.html:160
 msgid "الحركة"
 msgstr "Traffic"
 
@@ -1247,13 +1252,17 @@ msgstr ""
 "The original payment is untouched — the refund is recorded as a new "
 "transaction."
 
+#: templates/console/traffic.html:140
+msgid "الدقيقة"
+msgstr "Minute"
+
 #: templates/accounts/profile.html:14 templates/accounts/users.html:20
 #: templates/accounts/users.html:74 templates/accounts/users.html:105
 #: apps/accounts/models.py:58
 msgid "الدور"
 msgstr "Role"
 
-#: templates/console/traffic.html:365
+#: templates/console/traffic.html:465
 msgid "الذاكرة المستخدمة"
 msgstr "Memory used"
 
@@ -1296,7 +1305,7 @@ msgstr "Previous"
 #: templates/cards/list.html:325 templates/console/audit.html:43
 #: templates/console/dashboard.html:94
 #: templates/console/tenant_detail.html:195
-#: templates/console/tenant_detail.html:271 templates/console/traffic.html:417
+#: templates/console/tenant_detail.html:271 templates/console/traffic.html:604
 msgid "السبب"
 msgstr "Reason"
 
@@ -1487,7 +1496,15 @@ msgstr "Absent students"
 msgid "الطلاب المتأخرون"
 msgstr "Late students"
 
-#: templates/console/traffic.html:407
+#: templates/console/traffic.html:122
+msgid "الطلبات في الدقيقة"
+msgstr "Requests per minute"
+
+#: templates/console/traffic.html:403
+msgid "الطلبات في الدقيقة، مقسّمة حسب نوع الاستجابة"
+msgstr "Requests per minute, split by response type"
+
+#: templates/console/traffic.html:594
 msgid "الطلبات موقوفة حاليًا لهذا العميل."
 msgstr "Requests are currently stopped for this client."
 
@@ -1558,7 +1575,7 @@ msgstr "Back to the center's settings"
 msgid "الفتح الفعلي"
 msgstr "Actually opened at"
 
-#: templates/console/traffic.html:82
+#: templates/console/traffic.html:56
 msgid "الفترة"
 msgstr "Period"
 
@@ -1938,7 +1955,7 @@ msgstr "Resource"
 msgid "الموقع"
 msgstr "Address"
 
-#: templates/console/traffic.html:112
+#: templates/console/traffic.html:86
 msgid "النشط فقط"
 msgstr "Active only"
 
@@ -1946,7 +1963,7 @@ msgstr "Active only"
 msgid "النطاق"
 msgstr "Domain"
 
-#: apps/console/api.py:644
+#: apps/console/api.py:679
 msgid "النطاق %(host)s مستخدم بالفعل."
 msgstr "The domain %(host)s is already taken."
 
@@ -2128,7 +2145,7 @@ msgstr "Inside"
 msgid "بالعربية"
 msgstr "Arabic"
 
-#: templates/console/tenant_list.html:17 templates/console/traffic.html:76
+#: templates/console/tenant_list.html:17 templates/console/traffic.html:50
 #: templates/partials/_topbar.html:14 templates/students/list.html:17
 msgid "بحث"
 msgstr "Search"
@@ -2204,7 +2221,7 @@ msgstr "cards — page"
 msgid "بعض القيم غير صحيحة"
 msgstr "Some values are invalid"
 
-#: templates/console/tenant_detail.html:213 templates/console/traffic.html:232
+#: templates/console/tenant_detail.html:213 templates/console/traffic.html:278
 msgid "بلا حد"
 msgstr "No limit"
 
@@ -2238,7 +2255,7 @@ msgstr "Demo data (for showing the system only)"
 msgid "بيانات دخول غير صحيحة"
 msgstr "Incorrect username or password"
 
-#: apps/accounts/api.py:97 apps/console/api.py:516 apps/console/api.py:556
+#: apps/accounts/api.py:97 apps/console/api.py:551 apps/console/api.py:591
 #: apps/console/views.py:450 apps/core/crud.py:24 apps/core/crud.py:46
 msgid "بيانات غير صحيحة"
 msgstr "Invalid data"
@@ -2369,11 +2386,11 @@ msgstr "Collect a payment —"
 msgid "تحصيل وطباعة"
 msgstr "Collect and print"
 
-#: templates/console/traffic.html:134
+#: templates/console/traffic.html:168
 msgid "تحكم"
 msgstr "Control"
 
-#: templates/console/traffic.html:359
+#: templates/console/traffic.html:463
 msgid "تحميل المعالج"
 msgstr "CPU load"
 
@@ -2703,7 +2720,7 @@ msgstr "Change password"
 msgid "تغيير مجموعة"
 msgstr "Group change"
 
-#: templates/lessons/list.html:118
+#: templates/console/traffic.html:342 templates/lessons/list.html:118
 msgid "تفاصيل"
 msgstr "Details"
 
@@ -2736,7 +2753,7 @@ msgstr "Damaged"
 msgid "تلقائي"
 msgstr "Auto"
 
-#: templates/console/traffic.html:498
+#: templates/console/traffic.html:685
 msgid "تم"
 msgstr "Done"
 
@@ -2791,7 +2808,7 @@ msgid "تم إيقاف الطلبات لهذا الحساب مؤقتًا من م
 msgstr ""
 "The system operator has temporarily stopped requests for this account."
 
-#: apps/console/api.py:541
+#: apps/console/api.py:576
 msgid "تم إيقاف الطلبات لهذا العميل."
 msgstr "Requests stopped for this client."
 
@@ -2933,7 +2950,7 @@ msgstr "Plan saved."
 msgid "تم حفظ التعديلات"
 msgstr "Changes saved"
 
-#: apps/console/api.py:562
+#: apps/console/api.py:597
 msgid "تم حفظ الحدود."
 msgstr "Limits saved."
 
@@ -2969,7 +2986,7 @@ msgstr "Queued scans have been synchronised"
 msgid "توجد حصة لهذه المجموعة في نفس التوقيت"
 msgstr "This group already has a lesson at that time"
 
-#: templates/console/traffic.html:129
+#: templates/console/traffic.html:164
 msgid "توزيع الاستجابات"
 msgstr "Response mix"
 
@@ -3006,7 +3023,7 @@ msgid "تُملأ تلقائيًا من رسوم المادة/الصف، ويم�
 msgstr ""
 "Filled in from the subject/grade fee; you can change it for this group."
 
-#: templates/console/traffic.html:189 templates/console/traffic.html:290
+#: templates/console/traffic.html:234 templates/console/traffic.html:537
 msgid "ث"
 msgstr "s"
 
@@ -3080,7 +3097,7 @@ msgstr ""
 msgid "حاضر"
 msgstr "Present"
 
-#: templates/console/traffic.html:101
+#: templates/console/traffic.html:75
 msgid "حالة الاشتراك"
 msgstr "Subscription state"
 
@@ -3088,7 +3105,7 @@ msgstr "Subscription state"
 msgid "حالة البطاقة القديمة"
 msgstr "Status of the old card"
 
-#: templates/console/traffic.html:92
+#: templates/console/traffic.html:66
 msgid "حالة الحركة"
 msgstr "Traffic state"
 
@@ -3307,7 +3324,7 @@ msgstr "Save changes"
 msgid "حفظ التغييرات"
 msgstr "Save changes"
 
-#: templates/console/traffic.html:427
+#: templates/console/traffic.html:614
 msgid "حفظ الحدود"
 msgstr "Save limits"
 
@@ -3364,11 +3381,15 @@ msgstr "%(percent)s% off — ended %(until)s"
 msgid "خطأ غير متوقع"
 msgstr "Unexpected error"
 
-#: templates/console/traffic.html:271
+#: templates/console/traffic.html:534
+msgid "خلال 24 ساعة"
+msgstr "In 24 hours"
+
+#: templates/console/traffic.html:320
 msgid "خلال 24س"
 msgstr "in 24h"
 
-#: templates/console/traffic.html:190 templates/students/detail.html:318
+#: templates/console/traffic.html:235 templates/students/detail.html:318
 msgid "د"
 msgstr "min"
 
@@ -3440,7 +3461,7 @@ msgstr "Link a card"
 msgid "ربط بطاقة بالطالب"
 msgstr "Link a card to the student"
 
-#: templates/console/traffic.html:482
+#: templates/console/traffic.html:669
 msgid "رجوع"
 msgstr "Back"
 
@@ -3456,7 +3477,7 @@ msgstr "new charges for"
 msgid "رسوم شهرية"
 msgstr "Monthly charge"
 
-#: templates/console/traffic.html:425
+#: templates/console/traffic.html:612
 msgid "رفع الحظر"
 msgstr "Lift the block"
 
@@ -3497,7 +3518,7 @@ msgstr "Phone number"
 msgid "رقم بطاقة مكرر داخل الملف: %(n)s"
 msgstr "Duplicate card number inside the file: %(n)s"
 
-#: apps/console/api.py:503
+#: apps/console/api.py:538
 msgid "رقم غير صحيح"
 msgstr "Not a valid number"
 
@@ -3521,7 +3542,7 @@ msgstr "Invalid card token"
 msgid "رمز مكرر داخل الملف"
 msgstr "Duplicate token inside the file"
 
-#: apps/console/api.py:562
+#: apps/console/api.py:597
 msgid "رُفعت كل الحدود."
 msgstr "All limits removed."
 
@@ -3529,11 +3550,11 @@ msgstr "All limits removed."
 msgid "زمردي"
 msgstr "Emerald"
 
-#: templates/console/traffic.html:130
+#: templates/console/traffic.html:165 templates/console/traffic.html:536
 msgid "زمن الاستجابة"
 msgstr "Response time"
 
-#: templates/console/traffic.html:191
+#: templates/console/traffic.html:236
 msgid "س"
 msgstr "h"
 
@@ -3559,7 +3580,7 @@ msgstr "A reason for cancelling is required"
 msgid "سبب الإنهاء"
 msgstr "Reason for ending"
 
-#: templates/console/traffic.html:477 apps/tenancy/models.py:256
+#: templates/console/traffic.html:664 apps/tenancy/models.py:256
 msgid "سبب الإيقاف"
 msgstr "Suspension reason"
 
@@ -3665,11 +3686,11 @@ msgstr "Row %(row)s: %(msg)s"
 msgid "سلوك المسح خارج وقت التسجيل"
 msgstr "Behaviour when scanning outside the window"
 
-#: templates/console/traffic.html:413 apps/tenancy/models.py:550
+#: templates/console/traffic.html:600 apps/tenancy/models.py:550
 msgid "سماح الذروة"
 msgstr "Burst allowance"
 
-#: apps/console/api.py:513 apps/tenancy/models.py:585
+#: apps/console/api.py:548 apps/tenancy/models.py:585
 msgid "سماح الذروة يحتاج حدًا لكل ثانية أولًا."
 msgstr "A burst allowance needs a per-second limit first."
 
@@ -3697,7 +3718,7 @@ msgstr "Will create"
 msgid "سيتم تسجيل"
 msgstr "Will mark"
 
-#: templates/console/traffic.html:470
+#: templates/console/traffic.html:657
 msgid ""
 "سيتوقف موقع «%s» عن الاستجابة لكل مستخدميه فورًا، وسيرون صفحة توقّف مؤقت."
 msgstr ""
@@ -3772,21 +3793,17 @@ msgstr "Invalid month format (YYYY-MM)"
 msgid "صيغة غير صحيحة"
 msgstr "Invalid format"
 
-#: templates/console/traffic.html:300
-msgid "ضبط"
-msgstr "Adjust"
+#: templates/console/traffic.html:556
+msgid "ضبط الحدود"
+msgstr "Adjust limits"
 
 #: apps/tenancy/constants.py:120
 msgid "ضبط حدود الطلبات"
 msgstr "Request limits changed"
 
-#: templates/console/traffic.html:126
+#: templates/console/traffic.html:161
 msgid "ط/ث"
 msgstr "req/s"
-
-#: templates/console/traffic.html:127
-msgid "ط/د"
-msgstr "req/min"
 
 #: apps/tenancy/features.py:137
 msgid "طابور المسح دون اتصال"
@@ -3848,17 +3865,25 @@ msgstr "Attendance method"
 msgid "طلاب المجموعة"
 msgstr "Group roster"
 
-#: templates/console/traffic.html:346
+#: templates/console/traffic.html:389
 msgid "طلب خلال آخر %s دقيقة"
 msgstr "requests in the last %s minutes"
 
-#: templates/console/traffic.html:52
+#: templates/console/traffic.html:103
 msgid "طلب خلال الفترة"
 msgstr "requests in the period"
 
-#: templates/console/traffic.html:46
+#: templates/console/traffic.html:532
+msgid "طلب/ثانية"
+msgstr "req/second"
+
+#: templates/console/traffic.html:97
 msgid "طلب/ثانية (كل العملاء)"
 msgstr "req/s (all clients)"
+
+#: templates/console/traffic.html:533
+msgid "طلب/دقيقة"
+msgstr "req/minute"
 
 #: apps/tenancy/models.py:552
 msgid "طلبات إضافية فوق الحد لكل ثانية، لاستيعاب دفعة مسح متزامنة."
@@ -3866,11 +3891,15 @@ msgstr ""
 "Extra requests above the per-second limit, to absorb a simultaneous batch of"
 " scans."
 
+#: templates/console/traffic.html:562
+msgid "طلبات هذا العميل في الدقيقة"
+msgstr "This client's requests per minute"
+
 #: templates/partials/_topbar.html:5 templates/partials/_topbar.html:6
 msgid "طيّ القائمة أو فتحها"
 msgstr "Collapse or expand the menu"
 
-#: apps/console/api.py:545
+#: apps/console/api.py:580
 msgid "عادت الطلبات للعمل."
 msgstr "Requests are flowing again."
 
@@ -3946,6 +3975,10 @@ msgstr "View reports"
 msgid "عرض التقارير المالية"
 msgstr "View financial reports"
 
+#: templates/console/traffic.html:126
+msgid "عرض كجدول"
+msgstr "View as table"
+
 #: templates/lessons/detail.html:174
 msgid "عطل في القارئ"
 msgstr "Scanner malfunction"
@@ -3979,15 +4012,15 @@ msgstr ""
 msgid "عميل جديد هذا الشهر"
 msgstr "new clients this month"
 
-#: templates/console/traffic.html:64
+#: templates/console/traffic.html:115
 msgid "عميل محدود أو محظور"
 msgstr "limited or blocked clients"
 
-#: templates/console/tenant_list.html:154 templates/console/traffic.html:348
+#: templates/console/tenant_list.html:154 templates/console/traffic.html:391
 msgid "عميل واحد"
 msgstr "One client"
 
-#: templates/console/tenant_list.html:155 templates/console/traffic.html:348
+#: templates/console/tenant_list.html:155 templates/console/traffic.html:391
 msgid "عميلًا"
 msgstr "clients"
 
@@ -4050,8 +4083,8 @@ msgstr "Inactive"
 msgid "فاتح"
 msgstr "Light"
 
-#: templates/console/traffic.html:412 templates/console/traffic.html:414
-#: templates/console/traffic.html:415
+#: templates/console/traffic.html:599 templates/console/traffic.html:601
+#: templates/console/traffic.html:602
 msgid "فارغ = بلا حد"
 msgstr "Blank = no limit"
 
@@ -4099,7 +4132,7 @@ msgstr "Report lost"
 msgid "فك ربط بطاقة"
 msgstr "Card released"
 
-#: templates/console/traffic.html:413
+#: templates/console/traffic.html:600
 msgid "فوق حد الثانية"
 msgstr "Above the per-second limit"
 
@@ -4146,17 +4179,17 @@ msgstr ""
 msgid "قراءة وتعديل"
 msgstr "Read and write"
 
-#: templates/console/traffic.html:376
-msgid "قياسات الخادم كله — استهلاك كل عميل يظهر في عمود «استهلاك المعالجة»."
+#: templates/console/traffic.html:475
+msgid "قياسات الخادم كله — استهلاك كل عميل يظهر في عمود «زمن الاستجابة»."
 msgstr ""
-"Whole-server figures — per-client consumption is in the “Processing time” "
+"Whole-server figures — per-client consumption is in the “Response time” "
 "column."
 
 #: apps/payments/services.py:243
 msgid "قيمة الاسترداد أكبر من المحصّل"
 msgstr "The refund exceeds the amount collected"
 
-#: apps/console/api.py:506
+#: apps/console/api.py:541
 msgid "قيمة خارج المدى المسموح"
 msgstr "Value out of the allowed range"
 
@@ -4365,6 +4398,10 @@ msgstr "No reports are available for your role."
 msgid "لا توجد حركات"
 msgstr "No transactions"
 
+#: templates/console/traffic.html:402 templates/console/traffic.html:561
+msgid "لا توجد حركة في هذه الفترة"
+msgstr "No traffic in this period"
+
 #: templates/lessons/list.html:121
 msgid "لا توجد حصص"
 msgstr "No lessons"
@@ -4418,7 +4455,7 @@ msgstr "Nothing to measure"
 msgid "لا شيء ينتهي قريبًا"
 msgstr "Nothing ends soon"
 
-#: templates/console/traffic.html:186
+#: templates/console/traffic.html:231
 msgid "لا نشاط"
 msgstr "no activity"
 
@@ -4442,7 +4479,7 @@ msgstr "A charge with payments cannot be cancelled — refund first"
 msgid "لا يمكن إنهاء حصة %(state)s"
 msgstr "Cannot complete a %(state)s lesson"
 
-#: apps/console/api.py:611
+#: apps/console/api.py:646
 msgid "لا يمكن إيقاف آخر باقة متاحة — لن تتمكن من إنشاء عملاء جدد."
 msgstr ""
 "The last available plan cannot be closed — you would not be able to create "
@@ -4534,7 +4571,7 @@ msgstr "No attendance history"
 msgid "لا يوجد طلاب"
 msgstr "No students"
 
-#: templates/console/tenant_list.html:149 templates/console/traffic.html:331
+#: templates/console/tenant_list.html:149 templates/console/traffic.html:374
 msgid "لا يوجد عميل مطابق"
 msgstr "No matching client"
 
@@ -4542,7 +4579,7 @@ msgstr "No matching client"
 msgid "لا يوجد مستخدمون"
 msgstr "No users"
 
-#: templates/console/traffic.html:475
+#: templates/console/traffic.html:662
 msgid ""
 "لا يُحذف أي شيء ولا تتغير الباقة ولا حالة الاشتراك. رفع الحظر يعيد الخدمة في"
 " الحال."
@@ -4704,11 +4741,11 @@ msgstr "Balance:"
 msgid "متخرج"
 msgstr "Graduated"
 
-#: templates/console/traffic.html:282
+#: templates/console/traffic.html:331
 msgid "متزامن"
 msgstr "concurrent"
 
-#: templates/console/traffic.html:362
+#: templates/console/traffic.html:464
 msgid "متوسط التحميل (دقيقة)"
 msgstr "Load average (1 min)"
 
@@ -4764,7 +4801,7 @@ msgstr "Collected"
 msgid "محصّل:"
 msgstr "Collected:"
 
-#: templates/console/traffic.html:229 apps/tenancy/constants.py:97
+#: templates/console/traffic.html:275 apps/tenancy/constants.py:97
 #: apps/tenancy/models.py:523
 msgid "محظور"
 msgstr "Blocked"
@@ -4833,7 +4870,7 @@ msgstr "Educational stage"
 msgid "مرساة الفوترة — لا تتأثر بتغيير المجموعة"
 msgstr "The billing anchor — unaffected by a group change"
 
-#: templates/console/traffic.html:205 apps/attendance/models.py:237
+#: templates/console/traffic.html:251 apps/attendance/models.py:237
 msgid "مرفوض"
 msgstr "Denied"
 
@@ -4870,7 +4907,7 @@ msgid "مسترد:"
 msgstr "Refunded:"
 
 #: templates/console/audit.html:34 templates/console/tenant_list.html:53
-#: templates/console/traffic.html:114 templates/dashboard/home.html:114
+#: templates/console/traffic.html:88 templates/dashboard/home.html:114
 #: templates/lessons/list.html:106
 msgid "مسح"
 msgstr "Scan"
@@ -4964,11 +5001,11 @@ msgstr "Active"
 msgid "مفقودة"
 msgstr "Lost"
 
-#: templates/console/traffic.html:132
+#: templates/console/traffic.html:166
 msgid "مقابل الحد"
 msgstr "Against limit"
 
-#: templates/console/traffic.html:281
+#: templates/console/traffic.html:330 templates/console/traffic.html:536
 msgid "مل.ث"
 msgstr "ms"
 
@@ -5095,9 +5132,14 @@ msgstr "Off"
 msgid "مُفعّل"
 msgstr "On"
 
-#: templates/console/traffic.html:217
+#: templates/console/traffic.html:141 templates/console/traffic.html:190
+#: templates/console/traffic.html:263
 msgid "ناجحة"
 msgstr "successful"
+
+#: templates/console/traffic.html:535
+msgid "نسبة الأخطاء"
+msgstr "Error rate"
 
 #: apps/reports/registry.py:325
 msgid "نسبة التحصيل %"
@@ -5197,7 +5239,7 @@ msgstr "Trial ends"
 msgid "نهاية فترة السماح"
 msgstr "Grace period ends"
 
-#: templates/console/traffic.html:367
+#: templates/console/traffic.html:466
 msgid "نواة"
 msgstr "cores"
 
@@ -5243,7 +5285,7 @@ msgstr "This choice applies to you on this device only."
 msgid "هذا المعرّف محجوز للنظام: %(v)s"
 msgstr "This identifier is reserved by the system: %(v)s"
 
-#: apps/console/api.py:640 apps/console/forms.py:110
+#: apps/console/api.py:675 apps/console/forms.py:110
 msgid "هذا المعرّف مستخدم بالفعل."
 msgstr "That identifier is already taken."
 
@@ -5414,7 +5456,7 @@ msgstr "Used when “Custom” is selected — it also appears in PDF headers"
 msgid "يُسجَّل فقط — النظام لا يُصدر فواتير"
 msgstr "Recorded only — the system does not issue invoices"
 
-#: templates/console/traffic.html:419
+#: templates/console/traffic.html:606
 msgid "يُسجَّل في سجل المنصة"
 msgstr "Recorded in the platform log"
 

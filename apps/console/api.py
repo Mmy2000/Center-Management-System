@@ -376,6 +376,10 @@ def traffic_json(tenant, snapshot, policy) -> dict:
         "concurrency": snapshot.concurrency,
         "service_seconds": snapshot.service_seconds,
         "last_seen": snapshot.last_seen,
+        # Just the totals: a sparkline is a shape, and splitting it by status
+        # at 3px tall would be three shapes nobody can read. The status split
+        # lives in the hero chart, where it has the height to mean something.
+        "spark": [point["total"] for point in snapshot.series],
         "limits": {
             "max_rps": policy.max_rps,
             "max_rpm": policy.max_rpm,
@@ -453,6 +457,12 @@ def traffic_overview(request):
     # making the noise, and alphabetical order buries them.
     rows.sort(key=lambda row: (-row["rps"], -row["period_total"], row["name"]))
 
+    # The hero chart sums whatever survived the filters, so it always describes
+    # the same slice as the table under it. Summing a filtered view is the
+    # point: "show me only the limited clients" should redraw the chart too.
+    visible = {row["id"] for row in rows}
+    timeline = _timeline(snapshots, visible)
+
     return {
         "results": rows,
         "count": len(rows),
@@ -466,9 +476,31 @@ def traffic_overview(request):
             "blocked": sum(1 for row in rows if row["mode"] == TrafficMode.BLOCKED),
             "limited": sum(1 for row in rows if row["mode"] == TrafficMode.LIMITED),
         },
+        "timeline": timeline,
         "server": traffic.server_metrics(),
         "cache_shared": traffic.cache_is_shared(),
     }
+
+
+def _timeline(snapshots, visible) -> list[dict]:
+    """Platform-wide requests per minute, split 2xx / 4xx / 5xx.
+
+    Summed here rather than read separately: every tenant's per-minute shape
+    already came back in the one ``get_many`` the list needed, so the headline
+    chart costs arithmetic and not a single extra key.
+    """
+    buckets: dict[int, dict] = {}
+    for tenant_id, snap in snapshots.items():
+        if tenant_id not in visible:
+            continue
+        for point in snap.series:
+            slot = buckets.setdefault(
+                point["minute"], {"minute": point["minute"], "ok": 0, "c4": 0, "c5": 0}
+            )
+            slot["c4"] += point["c4"]
+            slot["c5"] += point["c5"]
+            slot["ok"] += max(0, point["total"] - point["c4"] - point["c5"])
+    return [buckets[key] for key in sorted(buckets)]
 
 
 @console_ajax(methods=["GET"])
@@ -479,11 +511,14 @@ def tenant_traffic(request, pk):
     traffic.flush()
 
     policy = traffic.policy_for(tenant.pk)
-    snapshot = traffic.snapshot([tenant.pk], minutes=minutes).get(tenant.pk)
+    snapshots = traffic.snapshot([tenant.pk], minutes=minutes, history=traffic.MAX_MINUTES)
+    snapshot = snapshots[tenant.pk]
 
     return {
         "tenant": traffic_json(tenant, snapshot, policy),
-        "series": traffic.series(tenant.pk, minutes=30),
+        # The full hour for one client, in the same shape the hero chart eats,
+        # so the detail view draws with the same code rather than its own.
+        "timeline": _timeline(snapshots, {tenant.pk}),
     }
 
 

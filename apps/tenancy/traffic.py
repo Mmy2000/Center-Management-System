@@ -64,6 +64,12 @@ RPS_WINDOW = 10
 #: hour slots answer the same question in a fortieth of the keys.
 MAX_MINUTES = 60
 
+#: Minutes of shape the console draws even when the selected period is shorter.
+#: A one-minute period would otherwise leave a sparkline with a single point,
+#: which is not a shape — and the whole reason to draw one beside a number is
+#: that the number alone cannot say whether it is rising.
+HISTORY_MINUTES = 30
+
 #: The windows a policy can limit, longest last. Order is load-bearing: the
 #: first breach wins and stops the walk, so a refused request never spends the
 #: budget of a longer window it was never going to reach.
@@ -392,6 +398,10 @@ class Snapshot:
     last_seen: int | None = None
     day_total: int = 0
     day_errors: int = 0
+    #: Per-minute counts, oldest first: ``{"minute", "total", "c4", "c5"}``.
+    #: Free: every key it is built from was already fetched for the totals
+    #: above, so the shape costs the same read as the number did.
+    series: tuple = ()
 
     @property
     def error_rate(self) -> float:
@@ -400,19 +410,32 @@ class Snapshot:
         return round((self.errors_4xx + self.errors_5xx) * 100 / self.period_total, 1)
 
 
-def snapshot(tenant_ids, *, minutes: int = 5, now: int | None = None) -> dict[int, Snapshot]:
+def snapshot(
+    tenant_ids,
+    *,
+    minutes: int = 5,
+    now: int | None = None,
+    history: int = HISTORY_MINUTES,
+) -> dict[int, Snapshot]:
     """Traffic for many tenants in a **single** ``get_many``.
 
     The console's list page calls this once for every client on screen, so it
     is written as one batched read rather than a loop of them: a monitoring
     page that costs a round-trip per row is a monitoring page that becomes the
     load it was built to watch.
+
+    ``minutes`` is the period the totals cover; ``history`` is how far back the
+    per-minute shape runs. The read spans whichever is longer and the totals
+    sum only the first ``minutes`` of it, so shortening the period to one
+    minute sharpens the numbers without flattening the chart beside them.
     """
     tenant_ids = [int(t) for t in tenant_ids]
     if not tenant_ids:
         return {}
 
     minutes = max(1, min(MAX_MINUTES, int(minutes)))
+    history = max(1, min(MAX_MINUTES, int(history)))
+    span = max(minutes, history)
     now = int(time.time()) if now is None else int(now)
     minute = now // 60
     hour = now // 3600
@@ -421,7 +444,7 @@ def snapshot(tenant_ids, *, minutes: int = 5, now: int | None = None) -> dict[in
     for tenant_id in tenant_ids:
         base = f"{PREFIX}{tenant_id}"
         wanted += [f"{base}:s:{now - offset}" for offset in range(RPS_WINDOW)]
-        for offset in range(minutes):
+        for offset in range(span):
             slot = minute - offset
             wanted += [
                 f"{base}:m:{slot}:n",
@@ -467,6 +490,20 @@ def snapshot(tenant_ids, *, minutes: int = 5, now: int | None = None) -> dict[in
         day_total = sum(value(f"{base}:h:{hour - offset}:n") for offset in range(24))
         day_errors = sum(value(f"{base}:h:{hour - offset}:c5") for offset in range(24))
 
+        # Oldest first, so the chart reads left-to-right in time regardless of
+        # the page's text direction. The newest slot is still being written to
+        # by other workers, which is honest for a live chart and is why the
+        # RPS figure above excludes its equivalent.
+        shape = tuple(
+            {
+                "minute": (minute - offset) * 60,
+                "total": value(f"{base}:m:{minute - offset}:n"),
+                "c4": value(f"{base}:m:{minute - offset}:c4"),
+                "c5": value(f"{base}:m:{minute - offset}:c5"),
+            }
+            for offset in reversed(range(history))
+        )
+
         elapsed = minutes * 60
         result[tenant_id] = Snapshot(
             tenant_id=tenant_id,
@@ -484,38 +521,9 @@ def snapshot(tenant_ids, *, minutes: int = 5, now: int | None = None) -> dict[in
             last_seen=found.get(f"{base}:seen") or None,
             day_total=day_total,
             day_errors=day_errors,
+            series=shape,
         )
     return result
-
-
-def series(tenant_id: int, *, minutes: int = 30, now: int | None = None) -> list[dict]:
-    """Per-minute counts for one tenant, oldest first — the detail sparkline."""
-    minutes = max(1, min(MAX_MINUTES, int(minutes)))
-    now = int(time.time()) if now is None else int(now)
-    minute = now // 60
-    base = f"{PREFIX}{tenant_id}"
-
-    keys = []
-    for offset in range(minutes):
-        slot = minute - offset
-        keys += [f"{base}:m:{slot}:n", f"{base}:m:{slot}:c4", f"{base}:m:{slot}:c5"]
-    try:
-        found = cache.get_many(keys)
-    except Exception:  # pragma: no cover - cache outage
-        found = {}
-
-    rows = []
-    for offset in reversed(range(minutes)):
-        slot = minute - offset
-        rows.append(
-            {
-                "minute": slot * 60,
-                "total": int(found.get(f"{base}:m:{slot}:n") or 0),
-                "c4": int(found.get(f"{base}:m:{slot}:c4") or 0),
-                "c5": int(found.get(f"{base}:m:{slot}:c5") or 0),
-            }
-        )
-    return rows
 
 
 def reset(tenant_id: int) -> None:

@@ -253,16 +253,77 @@ def test_usage_against_the_limit_names_the_window_that_binds(console):
     assert row["pressure"]["limit"] == 10
 
 
-def test_the_detail_endpoint_carries_the_per_minute_series(console):
+def test_the_detail_endpoint_carries_a_full_hour_timeline(console):
     tenant = make_tenant("alpha")
     traffic.record(tenant.pk, 200, 5)
+    traffic.record(tenant.pk, 500, 5)
     traffic.flush()
 
     payload = console.get(url("api_tenant_traffic", tenant.pk)).json()["data"]
 
     assert payload["tenant"]["slug"] == "alpha"
-    assert len(payload["series"]) == 30
-    assert payload["series"][-1]["total"] == 1
+    assert len(payload["timeline"]) == 60
+    newest = payload["timeline"][-1]
+    assert (newest["ok"], newest["c5"]) == (1, 1)
+
+
+def test_every_row_carries_a_sparkline(console):
+    tenant = make_tenant("alpha")
+    traffic.record(tenant.pk, 200, 5)
+    traffic.flush()
+
+    row = console.get(url("api_traffic")).json()["data"]["results"][0]
+
+    assert len(row["spark"]) == 30
+    assert row["spark"][-1] == 1
+    assert sum(row["spark"]) == 1
+
+
+def test_a_one_minute_period_still_returns_a_full_sparkline(console):
+    """Sharpening the numbers must not flatten the chart beside them."""
+    make_tenant("alpha")
+
+    payload = console.get(url("api_traffic"), {"minutes": 1}).json()["data"]
+
+    assert payload["minutes"] == 1
+    assert len(payload["results"][0]["spark"]) == 30
+    assert len(payload["timeline"]) == 30
+
+
+def test_the_timeline_sums_every_visible_tenant(console):
+    alpha, beta = make_two_tenants()
+    traffic.record(alpha.pk, 200, 5)
+    traffic.record(alpha.pk, 404, 5)
+    traffic.record(beta.pk, 500, 5)
+    traffic.flush()
+
+    newest = console.get(url("api_traffic")).json()["data"]["timeline"][-1]
+
+    assert (newest["ok"], newest["c4"], newest["c5"]) == (1, 1, 1)
+
+
+def test_the_timeline_follows_the_filters(console):
+    """Filtering the table must redraw the chart against the same slice."""
+    alpha, beta = make_two_tenants()
+    TenantRatePolicy.objects.create(tenant=beta, max_rps=5)
+    traffic.record(alpha.pk, 200, 5)
+    traffic.record(beta.pk, 200, 5)
+    traffic.flush()
+
+    everything = console.get(url("api_traffic")).json()["data"]
+    limited = console.get(url("api_traffic"), {"mode": TrafficMode.LIMITED}).json()["data"]
+
+    assert everything["timeline"][-1]["ok"] == 2
+    assert limited["timeline"][-1]["ok"] == 1
+
+
+def test_the_timeline_is_oldest_first(console):
+    make_tenant("alpha")
+
+    timeline = console.get(url("api_traffic")).json()["data"]["timeline"]
+
+    minutes = [point["minute"] for point in timeline]
+    assert minutes == sorted(minutes)
 
 
 def test_the_overview_reports_whether_its_own_numbers_are_trustworthy(console):
@@ -469,3 +530,20 @@ def test_the_page_renders_for_an_operator(console):
 
     assert response.status_code == 200
     assert "console/traffic.html" in [template.name for template in response.templates]
+
+
+def test_the_page_carries_the_chart_plumbing(console):
+    """The shell has to contain the hooks the JS fills, or the page is blank.
+
+    Markup assertions are usually the wrong test for an AJAX screen — but
+    these four are the contract between the template and ``charts.js``, and a
+    rename on either side produces a silently empty card rather than an error.
+    """
+    make_tenant("alpha")
+
+    html = console.get(url("traffic")).content.decode()
+
+    assert "js/charts.js" in html
+    assert 'id="timeline"' in html  # the chart mounts here
+    assert 'id="legend"' in html  # three series always get a legend
+    assert 'id="timeline-body"' in html  # the table twin every chart needs

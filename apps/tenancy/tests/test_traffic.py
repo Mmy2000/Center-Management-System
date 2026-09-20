@@ -144,14 +144,42 @@ def test_static_and_health_paths_are_not_metered():
 
 
 def test_the_per_minute_series_is_oldest_first_and_complete():
+    """The shape the charts draw: every slot present, oldest first."""
     tenant = make_tenant("alpha")
     traffic.record(tenant.pk, 200, 5)
     traffic.flush()
 
-    rows = traffic.series(tenant.pk, minutes=5)
+    rows = traffic.snapshot([tenant.pk], history=5)[tenant.pk].series
     assert len(rows) == 5
     assert [row["minute"] for row in rows] == sorted(row["minute"] for row in rows)
     assert rows[-1]["total"] == 1  # the newest slot is the one just written
+    # Quiet minutes are zeroes, not gaps: a chart that skips them would draw a
+    # lull as a straight line between the peaks on either side of it.
+    assert [row["total"] for row in rows[:-1]] == [0, 0, 0, 0]
+
+
+def test_history_is_independent_of_the_period():
+    """A one-minute period must still leave a sparkline with a shape."""
+    tenant = make_tenant("alpha")
+    traffic.record(tenant.pk, 200, 5)
+    traffic.flush()
+
+    snap = traffic.snapshot([tenant.pk], minutes=1, history=30)[tenant.pk]
+
+    assert snap.period_minutes == 1
+    assert len(snap.series) == 30
+
+
+def test_the_series_splits_status_classes():
+    tenant = make_tenant("alpha")
+    traffic.record(tenant.pk, 200, 5)
+    traffic.record(tenant.pk, 404, 5)
+    traffic.record(tenant.pk, 503, 5)
+    traffic.flush()
+
+    newest = traffic.snapshot([tenant.pk], history=3)[tenant.pk].series[-1]
+
+    assert (newest["total"], newest["c4"], newest["c5"]) == (3, 1, 1)
 
 
 # ----------------------------------------------------------------- policy --
