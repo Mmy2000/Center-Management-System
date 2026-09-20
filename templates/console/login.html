@@ -3,19 +3,31 @@
 {% block title %}{% translate "تسجيل الدخول" %}{% endblock %}
 
 {% block anonymous_content %}
+{% comment %}
+  Same one-canvas structure as the product's sign-in. This is the platform's
+  own front door rather than a center's, so codaco leads here instead of being
+  credited at the foot — same artwork, one step larger.
+{% endcomment %}
 <div class="auth-shell console-auth">
+  <div class="auth-stage">
 
-  <aside class="auth-brand d-none d-lg-flex">
-    <div class="auth-logo">
-      <span class="auth-logo-mark">PLT</span>
-      <span>{% translate "لوحة المنصة" %}</span>
-    </div>
+    <section class="auth-intro">
+      <div class="auth-identity">
+        <span class="auth-identity-logo">
+          <img class="auth-logo-mark-lg" src="{% static 'img/codaco-mark.png' %}"
+               alt="" width="58" height="44" decoding="async">
+          <img class="auth-logo-word-lg" src="{% static 'img/codaco-word.png' %}"
+               alt="codaco" width="193" height="32" decoding="async">
+        </span>
+        <span class="auth-identity-kicker">{% translate "لوحة المنصة" %}</span>
+      </div>
 
-    <div>
-      <h1 class="auth-headline">{% translate "كل السناتر من مكان واحد" %}</h1>
-      <p class="auth-sub">
-        {% translate "إنشاء العملاء، تفعيل وإيقاف الخدمة، والتحكم في كل خاصية على حدة — دون نسخة منفصلة أو نشر جديد لكل عميل." %}
-      </p>
+      <div>
+        <h1 class="auth-headline">{% translate "كل السناتر من مكان واحد" %}</h1>
+        <p class="auth-sub">
+          {% translate "إنشاء العملاء، تفعيل وإيقاف الخدمة، والتحكم في كل خاصية على حدة — دون نسخة منفصلة أو نشر جديد لكل عميل." %}
+        </p>
+      </div>
 
       <ul class="auth-points">
         <li class="auth-point">
@@ -31,13 +43,13 @@
           <span>{% translate "كل إجراء مسجّل: مَن فعله، ومتى، ولماذا." %}</span>
         </li>
       </ul>
-    </div>
 
-    <div class="auth-foot">{% translate "دخول المشغّلين فقط · موظفو السناتر يدخلون من نطاق سنترهم" %}</div>
-  </aside>
+      <div class="auth-intro-foot">
+        <span>{% translate "دخول المشغّلين فقط · موظفو السناتر يدخلون من نطاق سنترهم" %}</span>
+      </div>
+    </section>
 
-  <main class="auth-form-side">
-    <div class="auth-form" id="auth-form-wrap">
+    <main class="auth-card" id="auth-form-wrap">
 
       {# As the product's own sign-in screen does it: an operator on an English browser should not have to authenticate before being able to read the page. #}
       <div class="auth-tools">
@@ -48,15 +60,10 @@
         </button>
       </div>
 
-      <div class="d-lg-none auth-logo mb-3" style="color: var(--brand-600);">
-        <span class="auth-logo-mark">PLT</span>
-        <span>{% translate "لوحة المنصة" %}</span>
-      </div>
-
       <h2 class="auth-title">{% translate "تسجيل الدخول" %}</h2>
       <p class="auth-hint">{% translate "هذه لوحة المنصة، وليست لوحة سنتر." %}</p>
 
-      <div class="auth-alert" id="auth-alert" role="alert">
+      <div class="auth-alert" id="auth-alert" role="alert" aria-live="assertive">
         <svg class="icon"><use href="#i-error"></use></svg>
         <span id="auth-alert-text"></span>
       </div>
@@ -78,7 +85,8 @@
                  aria-label="{% translate 'كلمة المرور' %}">
           <svg class="icon field-icon"><use href="#i-lock"></use></svg>
           <button class="btn btn-sm btn-ghost btn-icon-only field-action" type="button"
-                  id="toggle-password" aria-label="{% translate 'إظهار كلمة المرور' %}">
+                  id="toggle-password" aria-pressed="false"
+                  aria-label="{% translate 'إظهار كلمة المرور' %}">
             <svg class="icon"><use href="#i-eye"></use></svg>
           </button>
           <div class="caps-hint" id="caps-hint">
@@ -87,15 +95,16 @@
           </div>
         </div>
 
-        <button class="btn btn-primary btn-block auth-submit" type="submit" id="login-submit">
+        <button class="btn btn-primary auth-submit" type="submit" id="login-submit">
           {% translate "دخول" %}
         </button>
       </form>
 
       {% if error %}{{ error|json_script:"login-error-text" }}{% endif %}
       <div class="auth-meta">{% translate "نظام إدارة السناتر · لوحة المنصة" %}</div>
-    </div>
-  </main>
+    </main>
+
+  </div>
 </div>
 {% endblock %}
 
@@ -124,6 +133,11 @@ document.addEventListener("DOMContentLoaded", function () {
     var showing = password.type === "text";
     password.type = showing ? "password" : "text";
     this.querySelector("use").setAttribute("href", showing ? "#i-eye" : "#i-eye-off");
+    this.setAttribute("aria-pressed", String(!showing));
+    this.setAttribute(
+      "aria-label",
+      showing ? gettext("إظهار كلمة المرور") : gettext("إخفاء كلمة المرور")
+    );
     password.focus();
   });
 

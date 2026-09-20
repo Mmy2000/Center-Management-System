@@ -1,108 +1,159 @@
 /* ==========================================================================
-   auth.css — the sign-in screen.
-   Loaded only by that page, so the main bundle stays lean. Every colour comes
-   from the same tokens as the rest of the app, so the login screen follows the
+   auth.css — the sign-in screens (the center's and the platform console's).
+
+   Loaded only by those pages, so the main bundle stays lean. Every colour
+   comes from the same tokens as the rest of the app, so the screen follows the
    center's palette and the light/dark mode automatically.
+
+   **One surface, not two halves.** The page is a single brand canvas; the form
+   sits on a card that floats above it. There is no seam down the middle, so
+   the copy and the form read as one screen rather than two pages stitched
+   together — and the card's shadow is what separates them, not an edge.
+
+   That choice is also what lets the logo work: both files are light-grey
+   artwork (the wordmark is 90% near-white, the mark 61% near-white over a blue
+   swoosh), so on a white ground the wordmark disappears and the mark loses its
+   "C". On this canvas it is correct at every screen size.
    ========================================================================== */
 
 .auth-shell {
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 1.05fr 1fr;
-  background: var(--canvas);
-}
-
-/* ------------------------------------------------------------- brand side */
-.auth-brand {
   position: relative;
+  isolation: isolate;
+  min-height: 100dvh;                 /* dvh: mobile browser chrome moves */
+  display: grid;
+  place-items: center;
+  padding: clamp(1.25rem, 4vw, 3rem);
   overflow: hidden;
-  padding: 3rem 3.25rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
   color: #eaf3f6;
   background:
-    radial-gradient(1200px 600px at 85% -10%, rgba(255, 255, 255, .10), transparent 60%),
-    linear-gradient(160deg, var(--brand-700) 0%, var(--brand-900) 100%);
+    radial-gradient(900px 520px at 78% 8%, rgba(255, 255, 255, .10), transparent 62%),
+    radial-gradient(700px 480px at 12% 92%, rgba(255, 255, 255, .06), transparent 60%),
+    linear-gradient(155deg, var(--brand-700) 0%, var(--brand-800) 48%, var(--brand-900) 100%);
 }
 
-/* A faint grid: reads as "system", not as decoration. */
-.auth-brand::before {
+/* A faint grid: reads as "system", not as decoration. Masked so it fades out
+   long before it reaches the card, which keeps the card's edge soft. */
+.auth-shell::before {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: -1;
   background-image:
     linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px);
   background-size: 46px 46px;
-  mask-image: radial-gradient(circle at 30% 40%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(circle at 28% 34%, #000 0%, transparent 72%);
   pointer-events: none;
 }
-.auth-brand > * { position: relative; }
 
-.auth-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: .7rem;
-  font-weight: 700;
-  font-size: 1.05rem;
-}
-.auth-logo-mark {
+/* ---------------------------------------------------------------- stage -- */
+/* The two sides share one grid and one background. The gap does the
+   separating; nothing draws a border between them. */
+.auth-stage {
+  width: min(1060px, 100%);
   display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: var(--radius);
-  background: linear-gradient(135deg, var(--brand-300), var(--brand-500));
-  box-shadow: 0 6px 18px rgba(0, 0, 0, .3);
-  font-size: .8rem;
-  letter-spacing: .05em;
+  grid-template-columns: 1.04fr minmax(340px, 400px);
+  align-items: center;
+  gap: clamp(2rem, 6vw, 5rem);
+  animation: page-in var(--dur-slow) var(--ease) both;
 }
+
+/* ---------------------------------------------------------------- intro -- */
+.auth-intro { display: grid; gap: 1.5rem; min-width: 0; }
+
+.auth-identity { display: grid; gap: .2rem; }
+.auth-identity-kicker { font-size: .74rem; font-weight: 600; color: #8fb4c1; }
+.auth-identity-name { font-size: 1.2rem; font-weight: 700; line-height: 1.35; color: #fff; }
+/* The console's own door, where codaco *is* the brand rather than the credit. */
+.auth-identity-logo { display: flex; align-items: center; gap: .55rem; margin-bottom: .15rem; }
 
 .auth-headline {
-  font-size: clamp(1.6rem, 2.6vw, 2.35rem);
+  font-size: clamp(1.55rem, 2.5vw, 2.3rem);
   font-weight: 700;
-  line-height: 1.3;
-  margin: 0 0 .6rem;
-  max-width: 22ch;
+  line-height: 1.32;
+  letter-spacing: -.01em;
+  margin: 0 0 .65rem;
+  max-width: 20ch;
+  color: #fff;
 }
-.auth-sub { color: #a9c7d2; max-width: 42ch; line-height: 1.8; margin: 0; }
+.auth-sub { color: #a9c7d2; max-width: 44ch; line-height: 1.85; margin: 0; }
 
-.auth-points { list-style: none; margin: 2rem 0 0; padding: 0; display: grid; gap: .85rem; }
-.auth-point { display: flex; align-items: flex-start; gap: .7rem; color: #d5e6ec; font-size: .93rem; }
+.auth-points { list-style: none; margin: 0; padding: 0; display: grid; gap: .8rem; }
+.auth-point { display: flex; align-items: flex-start; gap: .7rem; color: #d5e6ec; font-size: .92rem; }
 .auth-point .icon {
   flex: none;
-  width: 1.9rem;
-  height: 1.9rem;
+  width: 1.85rem;
+  height: 1.85rem;
   padding: .35rem;
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, .10);
   color: #fff;
 }
-.auth-foot { color: #7fa3b0; font-size: .78rem; }
 
-/* -------------------------------------------------------------- form side */
-.auth-form-side {
-  display: grid;
-  place-items: center;
-  padding: 2rem 1.25rem;
-  background: var(--surface);
+.auth-intro-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .6rem 1rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgba(255, 255, 255, .12);
+  color: #7fa3b0;
+  font-size: .78rem;
 }
-.auth-form { width: min(400px, 100%); animation: page-in var(--dur-slow) var(--ease) both; }
+
+/* ----------------------------------------------------------------- logo -- */
+/* Both images keep their native aspect ratio: a width plus `height: auto`,
+   never a fixed pair that would squash them. The intrinsic sizes are 58×44
+   (mark) and 193×32 (word), and the width/height attributes in the markup
+   match those ratios so nothing reflows while they load. */
+.auth-vendor { display: inline-flex; align-items: center; gap: .5rem; }
+.auth-vendor-by { color: #6f93a0; white-space: nowrap; }
+.auth-vendor-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  opacity: .85;
+  transition: opacity var(--dur-fast) var(--ease);
+}
+.auth-vendor:hover .auth-vendor-logo { opacity: 1; }
+.auth-vendor-mark { width: 21px; height: auto; display: block; }
+.auth-vendor-word { width: 78px; height: auto; display: block; }
+
+.auth-logo-mark-lg { width: 34px; height: auto; display: block; }
+.auth-logo-word-lg { width: 118px; height: auto; display: block; }
+
+/* ----------------------------------------------------------------- card -- */
+/* The only real surface on the page. Its shadow is what lifts it off the
+   canvas — there is no divider, no second background, no seam. */
+.auth-card {
+  background: var(--surface);
+  color: var(--ink-900);
+  border-radius: var(--radius-lg);
+  padding: clamp(1.5rem, 3.2vw, 2.25rem);
+  box-shadow:
+    0 1px 2px rgba(6, 22, 30, .18),
+    0 18px 48px rgba(6, 22, 30, .34);
+  /* In dark mode the card and the canvas are both dark; a hairline keeps the
+     card's edge readable without turning into a border in light mode. */
+  border: 1px solid color-mix(in srgb, var(--ink-100) 70%, transparent);
+}
 
 .auth-tools {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: .5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
-.auth-title { font-size: 1.5rem; font-weight: 700; margin: 0 0 .25rem; }
-.auth-hint { color: var(--ink-500); font-size: .9rem; margin-bottom: 1.75rem; }
+.auth-title { font-size: 1.4rem; font-weight: 700; margin: 0 0 .25rem; letter-spacing: -.01em; }
+.auth-hint { color: var(--ink-500); font-size: .9rem; margin-bottom: 1.5rem; }
 
-/* Inputs carry a leading icon and a trailing action, so the field itself owns
-   the padding rather than each page repeating input-group markup. */
+/* --------------------------------------------------------------- fields -- */
+/* Unchanged from the original screen: a placeholder, a leading icon and a
+   trailing action, with the field owning the padding so no page repeats
+   input-group markup. */
 .auth-field { position: relative; margin-bottom: 1rem; }
 .auth-field .form-control {
   height: 48px;
@@ -132,21 +183,45 @@
 }
 .auth-field .form-control.is-invalid { border-color: var(--danger-500); background: var(--danger-050); }
 
-.auth-submit { height: 48px; font-size: 1rem; margin-top: .5rem; }
+/* --------------------------------------------------------------- submit -- */
+.auth-submit {
+  height: 48px;
+  font-size: 1rem;
+  font-weight: 700;
+  width: 100%;
+  margin-top: .5rem;
+  /* One step darker than the shared .btn-primary gradient, which tops out at
+     `color-mix(--btn-tone 86%, white)`. That lighter stop puts white 16px text
+     at 4.26:1 on the default teal and 3.61:1 on emerald — under AA — and this
+     is the one button on the page. Starting at --btn-tone lifts the worst
+     theme to 4.60:1, using the pair .btn-primary:hover already defines. */
+  background-image: linear-gradient(180deg, var(--btn-tone) 0%, var(--btn-tone-dark) 100%);
+  transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease);
+}
+.auth-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background-image: linear-gradient(180deg, var(--btn-tone-dark) 0%, var(--btn-tone-darker) 100%);
+}
+.auth-submit:active:not(:disabled) { transform: translateY(0); }
 
+/* --------------------------------------------------------------- errors -- */
 .auth-alert {
   display: none;
-  align-items: center;
+  align-items: flex-start;
   gap: .5rem;
   padding: .7rem .85rem;
   border-radius: var(--radius);
   background: var(--danger-050);
   color: var(--danger-500);
-  border: 1px solid #f2c4cc;
+  /* Derived from the token, not a fixed pink: in dark mode a hard-coded
+     #f2c4cc border glows against the surface. */
+  border: 1px solid color-mix(in srgb, var(--danger-500) 32%, transparent);
   font-size: .88rem;
   font-weight: 600;
+  line-height: 1.6;
   margin-bottom: 1rem;
 }
+.auth-alert .icon { flex: none; margin-top: .1rem; }
 .auth-alert.show { display: flex; animation: shake 420ms var(--ease); }
 
 .caps-hint {
@@ -159,20 +234,57 @@
 }
 .caps-hint.show { display: flex; }
 
-.auth-meta { color: var(--ink-300); font-size: .75rem; text-align: center; margin-top: 2rem; }
+.auth-meta { color: var(--ink-300); font-size: .75rem; text-align: center; margin-top: 1.75rem; }
 
 /* Signing in dims the form so nothing is clicked twice. */
-.auth-form.busy .auth-field, .auth-form.busy .auth-tools { opacity: .55; pointer-events: none; }
+.auth-card.busy .auth-field, .auth-card.busy .auth-tools { opacity: .55; pointer-events: none; }
 
 /* ------------------------------------------------------------- responsive */
+/* The canvas never goes away, so the logo and the center's name are present at
+   every width — there is no breakpoint at which the branding disappears. The
+   intro simply moves above the card and sheds detail as room runs out. */
 @media (max-width: 991.98px) {
-  .auth-shell { grid-template-columns: 1fr; }
-  .auth-brand {
-    padding: 2rem 1.5rem;
-    min-height: auto;
+  .auth-stage {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    max-width: 30rem;
   }
-  .auth-brand .auth-points, .auth-brand .auth-foot { display: none; }
-  .auth-headline { font-size: 1.35rem; margin-bottom: .25rem; }
-  .auth-sub { font-size: .85rem; }
-  .auth-form-side { padding: 2rem 1.25rem 3rem; }
+  .auth-intro { gap: 1.1rem; text-align: start; }
+  .auth-headline { font-size: 1.45rem; max-width: none; margin-bottom: .4rem; }
+  .auth-sub { font-size: .88rem; max-width: none; }
+  .auth-intro-foot { padding-top: .85rem; }
+}
+
+@media (max-width: 767.98px) {
+  /* The feature list is the first thing to go: it is reassurance, and the
+     person here already decided to sign in. */
+  .auth-points { display: none; }
+}
+
+@media (max-width: 575.98px) {
+  .auth-shell { padding: 1.1rem .9rem 1.5rem; place-items: start center; }
+  .auth-stage { gap: 1.25rem; }
+  .auth-headline { font-size: 1.2rem; }
+  .auth-sub { display: none; }
+  .auth-identity-name { font-size: 1.05rem; }
+  .auth-card { padding: 1.25rem 1.1rem 1.5rem; }
+  .auth-tools { margin-bottom: 1.1rem; }
+  .auth-title { font-size: 1.2rem; }
+  .auth-hint { margin-bottom: 1.2rem; }
+  /* 16px: anything smaller makes iOS zoom the page on focus. */
+  .auth-field .form-control { font-size: 16px; }
+  .auth-meta { margin-top: 1.25rem; }
+}
+
+/* Short landscape phones: the intro gives up its height first. */
+@media (max-height: 560px) and (max-width: 991.98px) {
+  .auth-shell { padding-block: .9rem; }
+  .auth-points, .auth-sub { display: none; }
+  .auth-stage { gap: 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-stage { animation: none; }
+  .auth-alert.show { animation: none; }
+  .auth-submit:hover:not(:disabled) { transform: none; }
 }
