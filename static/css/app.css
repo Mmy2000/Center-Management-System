@@ -178,7 +178,18 @@ a:hover { text-decoration: underline; }
 }
 .app-sidebar .nav-link:hover .icon { opacity: 1; }
 .app-sidebar .nav-link.active {
-  background: linear-gradient(90deg, rgba(61, 142, 168, .95), rgba(31, 111, 139, .75));
+  /* The ramp, not two fixed hexes. These were rgba(61,142,168,.95) and
+     rgba(31,111,139,.75) — literally the default palette's --brand-400 and
+     --brand-500 — so the selected item stayed teal in a violet or sunset
+     sidebar while everything around it followed the theme. `color-mix` with
+     `transparent` is how you keep the alpha while taking the colour from a
+     token; on the default palette this resolves to exactly the old values, so
+     nothing changes there. */
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--brand-400) 95%, transparent) 0%,
+    color-mix(in srgb, var(--brand-500) 75%, transparent) 100%
+  );
   color: #fff;
   box-shadow: var(--shadow-sm);
 }
@@ -550,8 +561,41 @@ a:hover { text-decoration: underline; }
 }
 .divider-y { width: 1px; background: var(--ink-100); align-self: stretch; }
 .alert { border: 1px solid transparent; border-radius: var(--radius); }
-.list-group-item { border-color: var(--ink-100); }
-.list-group-item-action:hover { background: var(--brand-50); }
+/* Re-skinned through Bootstrap's own variables rather than rule-by-rule, the
+   same way every other component here is. Bootstrap hard-codes the active
+   background to its own #0d6efd, which ignored the center's palette entirely. */
+.list-group {
+  --bs-list-group-border-color: var(--ink-100);
+  /* brand-600, not brand-500: on the emerald and sunset palettes white text on
+     brand-500 lands at 4.60:1 and 4.72:1 — over the line but with nothing to
+     spare for the sub-line below it. brand-600 gives the whole chip room
+     (6.39:1 on the worst palette). */
+  --bs-list-group-active-bg: var(--brand-600);
+  --bs-list-group-active-border-color: var(--brand-600);
+}
+
+/* `:not(.active)` is the fix, not a refinement. Without it this wash replaced
+   the *active* item's background while Bootstrap's `color: #fff` stayed on the
+   text — on the sunset palette that is white on #fdf1ea, about 1.05:1, and the
+   `text-white-50` sub-label below it disappeared outright. */
+.list-group-item-action:not(.active):hover { background: var(--brand-50); }
+
+/* The active item still has to answer the pointer, so it darkens one step down
+   its own ramp instead of lightening off it. */
+.list-group-item-action.active:hover,
+.list-group-item-action.active:focus {
+  background-color: var(--brand-700);
+  border-color: var(--brand-700);
+  color: #fff;
+}
+
+/* A secondary line inside a list item. Bootstrap's `.text-white-50` reads at
+   2.3:1 on the brand ramp — it was the least legible thing on the selected
+   row. 85% keeps the two lines distinguishable and clears AA (5.12:1 on the
+   worst palette). A class of its own rather than a utility, so no `!important`
+   is needed to win. */
+.list-group-item-sub { color: var(--ink-500); }
+.list-group-item.active .list-group-item-sub { color: rgba(255, 255, 255, .85); }
 
 /* -------------------------------------------------------- animations ----- */
 @keyframes page-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

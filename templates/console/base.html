@@ -10,6 +10,11 @@
   <meta name="robots" content="noindex, nofollow">
   <title>{% block title %}{% translate "لوحة المنصة" %}{% endblock %} · Platform</title>
 
+  {# The tab icon: .ico for browsers that ask for it by name, PNGs for the rest. #}
+  <link rel="icon" href="{% static 'img/favicon.ico' %}" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/favicon-32.png' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicon-16.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'img/apple-touch-icon.png' %}">
   <link rel="stylesheet" href="{% static 'css/fonts.css' %}">
   {% if LANGUAGE_BIDI %}
     <link rel="stylesheet" href="{% static 'vendor/bootstrap.rtl.min.css' %}">

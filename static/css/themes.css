@@ -84,7 +84,9 @@
 [data-bs-theme="dark"] .stat-tile,
 [data-bs-theme="dark"] .filter-bar,
 [data-bs-theme="dark"] .modal-content,
-[data-bs-theme="dark"] .list-group-item { background: var(--surface); color: var(--ink-900); }
+/* `:not(.active)`: this used to repaint the selected item too, so in dark
+   mode the active row lost its highlight and kept its white text. */
+[data-bs-theme="dark"] .list-group-item:not(.active) { background: var(--surface); color: var(--ink-900); }
 [data-bs-theme="dark"] .table { --bs-table-bg: transparent; --bs-table-color: var(--ink-900); }
 [data-bs-theme="dark"] .table > thead th { background: var(--ink-050); color: var(--ink-500); }
 [data-bs-theme="dark"] .table > tbody > tr:hover { background: rgba(255, 255, 255, .04); }
