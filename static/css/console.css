@@ -117,7 +117,9 @@
 
 .console-main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
 .console-topbar {
-  height: var(--topbar-h);
+  /* min-height, not height: below 768px this bar wraps to a second row, and a
+     fixed height would let the wrapped row escape it. */
+  min-height: var(--topbar-h);
   display: flex; align-items: center; gap: .75rem;
   padding: 0 1.25rem;
   background: color-mix(in srgb, var(--surface) 92%, transparent);
@@ -125,6 +127,35 @@
   border-bottom: 1px solid var(--ink-100);
   position: sticky; top: 0; z-index: 20;
 }
+/* The heading must be allowed to give up space before the actions do; without
+   a min-width a flex item refuses to shrink below its content. */
+.console-topbar > :not(.console-topbar-actions) { min-width: 0; }
+.console-title { overflow-wrap: anywhere; }
+
+.console-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-inline-start: auto;
+  flex-wrap: wrap;
+}
+
+/* Below 768px the heading plus three or four actions plus the language and
+   theme controls cannot share one row — on the client detail screen they
+   overran the viewport by 133px at 375px wide. The actions drop to their own
+   full-width row rather than being hidden or scrolled. */
+@media (max-width: 767.98px) {
+  .console-topbar {
+    flex-wrap: wrap;
+    row-gap: .5rem;
+    padding-block: .55rem;
+  }
+  .console-topbar-actions {
+    margin-inline-start: 0;
+    width: 100%;
+  }
+}
+
 .console-content { padding: 1.25rem; animation: page-in var(--dur-slow) var(--ease) both; }
 
 /* ---------------------------------------------------------------- pieces -- */

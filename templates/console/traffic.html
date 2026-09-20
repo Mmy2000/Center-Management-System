@@ -134,18 +134,20 @@
       three fills to carry the status split at all.
     {% endcomment %}
     <div class="chart-table mt-3" id="timeline-table" hidden>
-      <table class="table table-compact mb-0">
-        <thead>
-          <tr>
-            <th>{% translate "الدقيقة" %}</th>
-            <th class="text-end">{% translate "ناجحة" %}</th>
-            <th class="text-end">4xx</th>
-            <th class="text-end">5xx</th>
-            <th class="text-end">{% translate "الإجمالي" %}</th>
-          </tr>
-        </thead>
-        <tbody id="timeline-body"></tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="table table-compact mb-0">
+          <thead>
+            <tr>
+              <th>{% translate "الدقيقة" %}</th>
+              <th class="text-end">{% translate "ناجحة" %}</th>
+              <th class="text-end">4xx</th>
+              <th class="text-end">5xx</th>
+              <th class="text-end">{% translate "الإجمالي" %}</th>
+            </tr>
+          </thead>
+          <tbody id="timeline-body"></tbody>
+        </table>
+      </div>
     </div>
   </div>
   <div class="console-card-foot server-strip" id="server-strip" hidden></div>

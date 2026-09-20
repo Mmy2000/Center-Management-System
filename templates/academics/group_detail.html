@@ -49,24 +49,26 @@
         {% endif %}
       </div>
       <div class="card-body p-0">
-        <table class="table table-sm table-compact mb-0">
-          <tbody id="schedules-body">
-            {% for schedule in schedules %}
-              <tr data-id="{{ schedule.id }}">
-                <td>{{ schedule.get_weekday_display }}</td>
-                <td>{{ schedule.start_time|time:"H:i" }} – {{ schedule.end_time|time:"H:i" }}</td>
-                <td>{{ schedule.room|default:"—" }}</td>
-                <td class="text-end">
-                  {% if perms.academics.delete_groupschedule %}
-                    <button class="btn btn-sm btn-soft-danger js-del-schedule">{% translate "حذف" %}</button>
-                  {% endif %}
-                </td>
-              </tr>
-            {% empty %}
-              <tr><td colspan="4" class="text-center text-muted py-4">{% translate "لا توجد مواعيد" %}</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="table-responsive">
+          <table class="table table-sm table-compact mb-0">
+            <tbody id="schedules-body">
+              {% for schedule in schedules %}
+                <tr data-id="{{ schedule.id }}">
+                  <td>{{ schedule.get_weekday_display }}</td>
+                  <td>{{ schedule.start_time|time:"H:i" }} – {{ schedule.end_time|time:"H:i" }}</td>
+                  <td>{{ schedule.room|default:"—" }}</td>
+                  <td class="text-end">
+                    {% if perms.academics.delete_groupschedule %}
+                      <button class="btn btn-sm btn-soft-danger js-del-schedule">{% translate "حذف" %}</button>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="text-center text-muted py-4">{% translate "لا توجد مواعيد" %}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -79,17 +81,19 @@
       </div>
       <div class="card-body p-0">
         <div class="px-3 py-2 border-bottom small" id="group-money"><span class="skeleton" style="width:60%"></span></div>
-        <table class="table table-sm table-compact mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>{% translate "الكود" %}</th>
-              <th>{% translate "الاسم" %}</th>
-              <th>{% translate "من" %}</th>
-            </tr>
-          </thead>
-          <tbody id="roster-body">
-          </tbody>
-        </table>
+        <div class="table-responsive">
+          <table class="table table-sm table-compact mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>{% translate "الكود" %}</th>
+                <th>{% translate "الاسم" %}</th>
+                <th>{% translate "من" %}</th>
+              </tr>
+            </thead>
+            <tbody id="roster-body">
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>

@@ -381,7 +381,34 @@ a:hover { text-decoration: underline; }
               padding: .85rem 1rem; box-shadow: var(--shadow-xs); }
 
 /* -------------------------------------------------------------- tabs ----- */
-.nav-tabs { border-bottom: 1px solid var(--ink-100); gap: .15rem; }
+/* A tab strip scrolls; it never wraps.
+
+   Bootstrap's `.nav` is `flex-wrap: wrap`, so the student page's five tabs
+   became two stacked rows on a phone, with the active underline stranded on
+   the first row and the strip's height changing with the viewport. Scrolling
+   keeps every tab reachable at full size, which wrapping also did — but in one
+   predictable row, and without the content below jumping as tabs re-flow. */
+.nav-tabs {
+  border-bottom: 1px solid var(--ink-100);
+  gap: .15rem;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  /* Required, not cosmetic: a box cannot be `visible` on one axis and `auto`
+     on the other — the browser would promote this to `auto` and add a
+     permanent vertical scrollbar. */
+  overflow-y: hidden;
+  /* No scrollbar: on a strip this short it covers the labels, and the
+     half-visible next tab is a clearer affordance than a 4px track. Swipe on
+     touch, shift+wheel or keyboard focus on desktop still scroll it. */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-padding-inline: 1rem;
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+/* Flex items shrink by default; without this the tabs squeeze into the row
+   and their labels wrap instead of the strip scrolling. */
+.nav-tabs .nav-item { flex: 0 0 auto; }
+.nav-tabs .nav-link { white-space: nowrap; }
 .nav-tabs .nav-link {
   border: none;
   border-bottom: 2px solid transparent;
@@ -396,6 +423,13 @@ a:hover { text-decoration: underline; }
 .nav-tabs .nav-link.active { color: var(--brand-600); border-bottom-color: var(--brand-500); background: transparent; }
 .nav-pills .nav-link { color: var(--ink-500); font-weight: 600; border-radius: var(--radius-pill); }
 .nav-pills .nav-link.active { background: var(--brand-500); }
+
+/* ---------------------------------------------------------- dropdowns ---- */
+/* A last-resort guard for every menu in the app: Popper repositions a dropdown
+   to keep it on screen, but it cannot shrink one that is simply wider than the
+   phone. Menus with intrinsic content (the theme panel, the search results)
+   would otherwise hang off the edge with no way to scroll to them. */
+.dropdown-menu { max-width: calc(100vw - 1rem); }
 
 /* ------------------------------------------------------------- modal ----- */
 .modal-content { border: none; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); }

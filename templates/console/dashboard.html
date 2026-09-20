@@ -60,10 +60,12 @@
         <a class="btn btn-sm btn-ghost" href="{% url 'console:tenant_list' %}?expiring=1">{% translate "الكل" %}</a>
       </div>
       <div class="console-card-body p-0">
-        <table class="table table-compact mb-0">
-          <thead class="visually-hidden"><tr><th>{% translate "العميل" %}</th><th>{% translate "التاريخ" %}</th></tr></thead>
-          <tbody id="expiring-body"></tbody>
-        </table>
+        <div class="table-responsive">
+          <table class="table table-compact mb-0">
+            <thead class="visually-hidden"><tr><th>{% translate "العميل" %}</th><th>{% translate "التاريخ" %}</th></tr></thead>
+            <tbody id="expiring-body"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -75,10 +77,12 @@
         <a class="btn btn-sm btn-ghost" href="{% url 'console:tenant_list' %}?over_quota=1">{% translate "الكل" %}</a>
       </div>
       <div class="console-card-body p-0">
-        <table class="table table-compact mb-0">
-          <thead class="visually-hidden"><tr><th>{% translate "العميل" %}</th><th>{% translate "الاستهلاك" %}</th></tr></thead>
-          <tbody id="pressure-body"></tbody>
-        </table>
+        <div class="table-responsive">
+          <table class="table table-compact mb-0">
+            <thead class="visually-hidden"><tr><th>{% translate "العميل" %}</th><th>{% translate "الاستهلاك" %}</th></tr></thead>
+            <tbody id="pressure-body"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -90,10 +94,12 @@
     <a class="btn btn-sm btn-ghost" href="{% url 'console:audit' %}">{% translate "السجل الكامل" %}</a>
   </div>
   <div class="console-card-body p-0">
-    <table class="table table-compact mb-0">
-      <thead><tr><th>{% translate "الوقت" %}</th><th>{% translate "الإجراء" %}</th><th>{% translate "العميل" %}</th><th>{% translate "المشغّل" %}</th><th>{% translate "السبب" %}</th></tr></thead>
-      <tbody id="audit-body"></tbody>
-    </table>
+    <div class="table-responsive">
+      <table class="table table-compact mb-0">
+        <thead><tr><th>{% translate "الوقت" %}</th><th>{% translate "الإجراء" %}</th><th>{% translate "العميل" %}</th><th>{% translate "المشغّل" %}</th><th>{% translate "السبب" %}</th></tr></thead>
+        <tbody id="audit-body"></tbody>
+      </table>
+    </div>
   </div>
 </div>
 {% endblock %}
