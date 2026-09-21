@@ -1,3 +1,36 @@
+# Vercel's Python builder runs `uv lock` against this file, so the dependency
+# list it installs lives here rather than in requirements/. Keep it in step with
+# requirements/prod.txt — the same rule base.txt states, for the same reason:
+# what you ship has to be what you tested.
+[project]
+name = "center-management-system"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "Django==6.1",
+    "django-environ==0.14.0",
+    "Pillow==12.3.0",
+    "qrcode==8.2",
+    "reportlab==5.0.1",
+    "arabic-reshaper==3.0.1",
+    "python-bidi==0.6.11",
+    "openpyxl==3.1.5",
+    # Postgres is mandatory in production (prod.py asserts it); serverless has
+    # no writable disk for SQLite anyway.
+    "psycopg[binary]==3.2.9",
+    # Serves /static/ from inside the process — Vercel routes every path to the
+    # function, so nothing else is listening for them.
+    "whitenoise==6.8.2",
+    "redis==5.2.1",
+    # Linux images ship no zoneinfo database of their own; Africa/Cairo has to
+    # come from somewhere.
+    "tzdata==2026.3",
+]
+
+# Not a distributable package — there is nothing to build, only to run.
+[tool.uv]
+package = false
+
 [tool.black]
 line-length = 100
 target-version = ["py313"]
