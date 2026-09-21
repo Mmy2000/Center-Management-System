@@ -85,17 +85,27 @@
         </div>
         <div class="console-card-body">
           <div class="row g-3">
-            <div class="col-12 col-md-4">
+            <div class="col-6 col-md-3">
               <label class="form-label" for="{{ form.monthly_price.id_for_label }}">{{ form.monthly_price.label }}</label>
               {{ form.monthly_price }}
               {% for e in form.monthly_price.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-6 col-md-3">
+              {# Not a model field: the saving is monthly and yearly said another way, #}
+              {# so it is edited here and thrown away on submit rather than stored and #}
+              {# left to disagree with the two prices it was derived from. #}
+              <label class="form-label" for="yearly-saving">{% translate "توفير الاشتراك السنوي %" %}</label>
+              <input type="number" class="form-control" id="yearly-saving"
+                     min="0" max="100" step="0.01" inputmode="decimal" autocomplete="off">
+              <div class="form-text">{% translate "خصم السنوي عن الشهري × ١٢" %}</div>
+            </div>
+            <div class="col-6 col-md-3">
               <label class="form-label" for="{{ form.yearly_price.id_for_label }}">{{ form.yearly_price.label }}</label>
               {{ form.yearly_price }}
+              <div class="form-text" id="yearly-auto" hidden>{% translate "محسوب من الشهري والتوفير" %}</div>
               {% for e in form.yearly_price.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-6 col-md-3">
               <label class="form-label" for="{{ form.currency.id_for_label }}">{{ form.currency.label }}</label>
               {{ form.currency }}
             </div>
@@ -129,10 +139,6 @@
             <div class="price-preview-row">
               <span>{% translate "السنوي بعد الخصم" %}</span>
               <strong class="num" id="pv-yearly">—</strong>
-            </div>
-            <div class="price-preview-row" id="pv-saving-row" hidden>
-              <span>{% translate "توفير الاشتراك السنوي" %}</span>
-              <strong id="pv-saving">—</strong>
             </div>
           </div>
         </div>
@@ -248,20 +254,59 @@ function preview() {
   const y = discounted(yearly.value);
   document.getElementById("pv-monthly").textContent = money(m);
   document.getElementById("pv-yearly").textContent = money(y);
-
-  const base = parseFloat(monthly.value);
-  const year = parseFloat(yearly.value);
-  const row = document.getElementById("pv-saving-row");
-  if (isFinite(base) && isFinite(year) && base > 0) {
-    const saving = Math.round(((base * 12 - year) / (base * 12)) * 100);
-    document.getElementById("pv-saving").textContent = saving + "%";
-    row.hidden = false;
-  } else {
-    row.hidden = true;
-  }
 }
 
-[monthly, yearly, percent, currency].forEach(function (field) {
+/* The three price boxes are one number expressed three ways: yearly is twelve
+   monthlies less the saving. Typing in any of them keeps the other two honest,
+   so the operator types a monthly price and a discount and never does the
+   arithmetic — on a new plan and on an existing one alike. */
+const saving = document.getElementById("yearly-saving");
+const yearlyAuto = document.getElementById("yearly-auto");
+
+function twelve() {
+  const base = parseFloat(monthly.value);
+  return isFinite(base) && base >= 0 ? base * 12 : null;
+}
+
+function savingPercent() {
+  const off = parseFloat(saving.value);
+  // An empty saving box means a plain twelve months, not a broken sum.
+  return isFinite(off) ? Math.min(100, Math.max(0, off)) : 0;
+}
+
+// Trailing zeros on a percentage read as false precision: 20, not 20.00.
+function tidy(value) {
+  return String(Math.round(value * 100) / 100);
+}
+
+function yearlyFromSaving() {
+  const year = twelve();
+  yearly.value = year === null ? "" : (year * (100 - savingPercent()) / 100).toFixed(2);
+  yearlyAuto.hidden = yearly.value === "";
+}
+
+function savingFromYearly() {
+  const year = twelve();
+  const current = parseFloat(yearly.value);
+  if (year === null || year === 0 || !isFinite(current)) {
+    saving.value = "";
+    return;
+  }
+  saving.value = tidy(Math.min(100, Math.max(0, (year - current) / year * 100)));
+}
+
+// An existing plan arrives with both prices set; the saving they imply is what
+// belongs in the box, so editing the monthly price later keeps that discount.
+savingFromYearly();
+
+monthly.addEventListener("input", yearlyFromSaving);
+saving.addEventListener("input", yearlyFromSaving);
+yearly.addEventListener("input", function () {
+  savingFromYearly();
+  yearlyAuto.hidden = true;
+});
+
+[monthly, yearly, saving, percent, currency].forEach(function (field) {
   field.addEventListener("input", preview);
 });
 preview();
